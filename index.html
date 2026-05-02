@@ -1602,6 +1602,117 @@
             .quiz-lock-actions .btn-side {
                 min-width: 78px;
             }
+
+            /* MBBR p.7 (O2) e altre tabelle Controllo/Azione: su telefono niente overflow orizzontale */
+            .card {
+                min-width: 0;
+                max-width: 100%;
+            }
+            .res {
+                max-width: 100%;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+            .res .risk-section > p {
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                font-size: 0.88rem;
+                line-height: 1.4;
+            }
+            .risk-section .grid-split {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .col-box.selected {
+                transform: none;
+            }
+            .res .table {
+                width: 100%;
+                max-width: 100%;
+                table-layout: fixed;
+            }
+            .res .table tr:first-child {
+                display: none;
+            }
+            .res .table tr:not(:first-child) {
+                display: block;
+                margin-bottom: 14px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #fff;
+            }
+            .res .table tr:not(:first-child) td,
+            .res .table tr:not(:first-child) th {
+                display: block;
+                width: 100% !important;
+                max-width: 100%;
+                box-sizing: border-box;
+                border-left: none;
+                border-right: none;
+            }
+            .res .table tr:not(:first-child) td:first-of-type,
+            .res .table tr:not(:first-child) th:first-of-type {
+                background: #f2f2f2;
+                font-weight: 700;
+                border-bottom: 1px solid #ddd;
+                padding: 10px 12px 8px;
+                font-size: 0.86rem;
+                line-height: 1.35;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+            .res .table tr:not(:first-child) td:first-of-type::before,
+            .res .table tr:not(:first-child) th:first-of-type::before {
+                content: 'Controllo';
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 5px;
+            }
+            .res .table tr:not(:first-child) td:last-of-type,
+            .res .table tr:not(:first-child) th:last-of-type {
+                padding: 10px 12px 12px;
+                font-size: 0.86rem;
+                line-height: 1.45;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+            .res .table tr:not(:first-child) td:last-of-type::before,
+            .res .table tr:not(:first-child) th:last-of-type::before {
+                content: 'Azione';
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 5px;
+            }
+            .res .table tr:not(:first-child) td:only-child::before {
+                content: none;
+            }
+            .dynamic-details-box {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            .dynamic-details-box .table {
+                width: 100%;
+                max-width: 100%;
+            }
+            .res .dynamic-details-box > strong {
+                display: block;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                font-size: 0.92rem;
+                line-height: 1.35;
+                margin-bottom: 6px;
+            }
         }
         @media (max-width: 430px) {
             body {
