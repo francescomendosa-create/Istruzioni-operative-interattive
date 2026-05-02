@@ -405,6 +405,16 @@
             border: 2px solid transparent;
             box-sizing: border-box;
         }
+        .correlation-action-row.correlation-cf2-goto-wrap {
+            align-items: center;
+        }
+        .cf2-corr-hand-hint {
+            font-size: 2rem;
+            line-height: 1;
+            flex-shrink: 0;
+            user-select: none;
+            animation: slow-blink 1.2s ease-in-out infinite;
+        }
 
         .btn-return-inline {
             background: var(--warning);
@@ -2977,11 +2987,11 @@ function check(s, p, val, btn) {
             if (s === 'cf' && p === 2) {
                 buttonText = "CORRELAZIONE — Possibile impatto su MBBR";
                 buttonStyle = "background: #dc2626; border-color: #dc2626;";
-                buttonAnimation = "animation: slow-blink 1.5s infinite;";
+                buttonAnimation = "";
             }
             const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
             if (s === 'cf' && p === 2) {
-                html += `<div class="correlation-action-row">${jumpBtn}</div>`;
+                html += `<div class="correlation-action-row correlation-cf2-goto-wrap"><span class="cf2-corr-hand-hint" id="cf2-corr-hand-hint" aria-hidden="true">👉</span>${jumpBtn}</div>`;
             } else {
                 html += jumpBtn;
             }
@@ -3340,12 +3350,15 @@ function jumpWithReturn(fromS, fromP, toS, toP) {
     const btn = document.getElementById(`return-btn-${toS}-${toP}`);
     if (btn) btn.style.display = "block";
     
-    // Rimuovi l'animazione lampeggiante dal bottone di correlazione cliccato
     const correlationBtn = document.getElementById(`btn-correlation-${fromS}-${fromP}`);
     if (correlationBtn) {
         correlationBtn.style.animation = "none";
     }
-    
+    const cf2Hand = document.getElementById("cf2-corr-hand-hint");
+    if (cf2Hand) {
+        cf2Hand.style.display = "none";
+    }
+
     scrollToPoint(toS, toP, true);
 }
 
