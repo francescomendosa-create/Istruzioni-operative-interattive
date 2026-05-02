@@ -1261,31 +1261,21 @@
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.12); }
         }
-        /* Vasca biologica (sotto le risposte): acqua + vermi */
+        /* Vasca (sotto le risposte): senza cornice, più alta per visibilità */
         .quiz-bio-vat-wrap {
             --worm-dur: 2.35s;
-            margin: 14px 0 10px;
-            padding: 10px 12px 12px;
-            border-radius: 14px;
-            background: linear-gradient(180deg, #f1f8f4 0%, #e8f5e9 45%, #dceee0 100%);
-            border: 1px solid rgba(56, 142, 60, 0.35);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 4px 14px rgba(27, 94, 32, 0.08);
-        }
-        .quiz-bio-vat-caption {
-            font-size: 0.62rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #2e7d32;
-            text-align: center;
-            margin-bottom: 6px;
+            margin: 10px 0 4px;
+            padding: 0;
+            background: none;
+            border: none;
+            box-shadow: none;
         }
         .quiz-bio-vat-svg {
             display: block;
             width: 100%;
-            max-width: 520px;
+            max-width: 560px;
             height: auto;
-            min-height: 108px;
+            min-height: 158px;
             margin: 0 auto;
             overflow: visible;
         }
@@ -1306,7 +1296,7 @@
         @keyframes quizWormSink {
             0% { opacity: 1; filter: brightness(1); }
             100% {
-                transform: translateY(62px) rotate(18deg) scaleY(0.85);
+                transform: translateY(88px) rotate(18deg) scaleY(0.85);
                 opacity: 0.12;
                 filter: brightness(0.45);
             }
@@ -2106,7 +2096,7 @@
 
     <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
         <div class="quiz-fs-topbar quiz-fs-topbar--solo-exit">
-            <button type="button" class="quiz-fs-exit" onclick="closeQuiz()">Esci</button>
+            <button type="button" class="quiz-fs-exit" onclick="quizTopExit()">Esci</button>
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
@@ -2136,8 +2126,7 @@
                 <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
             </div>
             <div id="quiz-bio-vat-wrap" class="quiz-bio-vat-wrap" aria-hidden="true">
-                <div class="quiz-bio-vat-caption">Biologico in vasca</div>
-                <svg class="quiz-bio-vat-svg" viewBox="0 0 360 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg class="quiz-bio-vat-svg" viewBox="0 0 360 172" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <defs>
                         <linearGradient id="quizBioWaterGrad" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#7dd3fc"/>
@@ -2149,25 +2138,22 @@
                             <stop offset="100%" stop-color="#90a4ae"/>
                         </linearGradient>
                         <clipPath id="quizBioVatClip">
-                            <rect x="26" y="40" width="308" height="68" rx="16" ry="16"/>
+                            <rect x="28" y="54" width="304" height="100" rx="18" ry="18"/>
                         </clipPath>
                     </defs>
                     <path fill="url(#quizBioTubGrad)" stroke="#546e7a" stroke-width="1.2"
-                        d="M18 34 L36 96 Q42 110 56 112 L304 112 Q318 110 324 96 L342 34 Q340 28 332 28 L28 28 Q20 28 18 34Z"/>
+                        d="M14 18 L34 132 Q42 156 58 158 L302 158 Q318 156 326 132 L346 18 Q344 10 330 10 L30 10 Q16 10 14 18Z"/>
                     <g clip-path="url(#quizBioVatClip)">
-                        <rect x="26" y="40" width="308" height="68" fill="#b0bec5" opacity="0.25"/>
-                        <rect id="quiz-bio-water-fill" x="26" y="96" width="308" height="12" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
-                        <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.35">
-                            <path fill="#e0f7fa" d="M0 52 Q45 46 90 52 T180 52 T270 52 T360 52 L360 118 L0 118Z"/>
+                        <rect x="28" y="54" width="304" height="100" fill="#b0bec5" opacity="0.22"/>
+                        <rect id="quiz-bio-water-fill" x="28" y="140" width="304" height="14" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
+                        <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.32">
+                            <path fill="#e0f7fa" d="M0 68 Q48 58 96 68 T192 68 T288 68 T360 68 L360 172 L0 172Z"/>
                         </g>
                         <g id="quiz-bio-worms"></g>
                     </g>
                     <path fill="none" stroke="#37474f" stroke-width="2.2" stroke-linejoin="round"
-                        d="M18 34 L36 96 Q42 110 56 112 L304 112 Q318 110 324 96 L342 34"/>
+                        d="M14 18 L34 132 Q42 156 58 158 L302 158 Q318 156 326 132 L346 18"/>
                 </svg>
-            </div>
-            <div class="quiz-actions quiz-actions-play-exit">
-                <button type="button" class="btn-side btn-reset" onclick="quizAbort()">Esci dal quiz</button>
             </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
@@ -2761,15 +2747,15 @@ function quizBioVatSetTimerUrgent(on) {
 function quizBioVatApplyFillFromState() {
     const rect = document.getElementById('quiz-bio-water-fill');
     if (!rect) return;
-    const bottom = 108;
-    const maxH = 68;
-    const minH = 11;
+    const bottom = 154;
+    const maxH = 100;
+    const minH = 14;
     const total = Math.max(1, (quizState.queue && quizState.queue.length) ? quizState.queue.length : 12);
     const ratio = Math.min(1, quizBioWormCount / total);
     const h = minH + ratio * (maxH - minH);
     const y = bottom - h;
-    rect.setAttribute('x', '26');
-    rect.setAttribute('width', '308');
+    rect.setAttribute('x', '28');
+    rect.setAttribute('width', '304');
     rect.setAttribute('y', String(y));
     rect.setAttribute('height', String(h));
 }
@@ -2792,8 +2778,8 @@ function quizBioVatOnCorrectAnswer() {
     const i = quizBioWormCount - 1;
     const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
     const xNorm = slots[i % slots.length];
-    const wx = 40 + xNorm * (360 - 80);
-    const wy = 58 + (i % 5) * 7;
+    const wx = 38 + xNorm * (360 - 76);
+    const wy = 92 + (i % 5) * 10;
     const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gPos.setAttribute('class', 'quiz-worm');
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
@@ -3434,8 +3420,15 @@ function quizFinish(completedAll, opts) {
     }
     if (sc) sc.textContent = String(quizState.score);
 
-    quizShowScreen('over');
-    quizRenderLeaderboard();
+    if (opts.goIntro) {
+        quizShowScreen('intro');
+        quizRenderLeaderboard();
+        const scrollBox = document.querySelector('.quiz-fs-scroll');
+        if (scrollBox) scrollBox.scrollTop = 0;
+    } else {
+        quizShowScreen('over');
+        quizRenderLeaderboard();
+    }
 }
 
 function quizStart() {
@@ -3471,11 +3464,36 @@ function quizRestart() {
     quizRenderLeaderboard();
 }
 
-function quizAbort() {
-    quizWrongModalHide();
-    quizWrongModalFinishOpts = null;
-    quizCancelScoreAnim();
-    quizFinish(false, { aborted: true });
+/** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
+function quizTopExit() {
+    const wrongModal = document.getElementById('quiz-wrong-modal');
+    if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
+        const opts = quizWrongModalFinishOpts || {};
+        quizWrongModalFinishOpts = null;
+        quizWrongModalHide();
+        opts.goIntro = true;
+        quizFinish(false, opts);
+        return;
+    }
+    const play = document.getElementById('quiz-screen-play');
+    const over = document.getElementById('quiz-screen-over');
+    const onPlay = play && play.style.display !== 'none';
+    const onOver = over && over.style.display !== 'none';
+    if (onPlay) {
+        quizWrongModalHide();
+        quizWrongModalFinishOpts = null;
+        quizCancelScoreAnim();
+        quizFinish(false, { aborted: true, goIntro: true });
+        return;
+    }
+    if (onOver) {
+        quizShowScreen('intro');
+        quizRenderLeaderboard();
+        const scrollBox = document.querySelector('.quiz-fs-scroll');
+        if (scrollBox) scrollBox.scrollTop = 0;
+        return;
+    }
+    closeQuiz();
 }
 
 function render() {
@@ -4525,7 +4543,7 @@ function closeQuiz() {
 document.addEventListener("keydown", function quizFullscreenEscape(ev) {
     if (ev.key === "Escape" && document.body.classList.contains("quiz-open")) {
         ev.preventDefault();
-        closeQuiz();
+        quizTopExit();
     }
 });
 
