@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Istruzioni operative interattive</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1f3f68">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icons/pwa-192.png">
     <style>
         :root {
             --primary: #2c3e50;
@@ -4632,6 +4637,14 @@ document.addEventListener('toggle', function (ev) {
         }
     }
 }, true);
+</script>
+<script>
+(function () {
+    if (!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () { /* offline o file:// */ });
+    });
+})();
 </script>
 </body>
 </html>
