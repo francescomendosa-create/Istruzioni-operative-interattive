@@ -918,51 +918,61 @@
         .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
         #quiz-screen-play .quiz-play-scoreboard {
             text-align: center;
-            padding: 14px 14px 16px;
-            margin: 0 0 14px;
-            border-radius: 16px;
+            padding: 10px 12px 12px;
+            margin: 0 0 12px;
+            border-radius: 12px;
             background: linear-gradient(145deg, #e3f2fd 0%, #ffffff 45%, #f5f9ff 100%);
-            border: 2px solid #64b5f6;
-            box-shadow: 0 6px 20px rgba(13, 71, 161, 0.12);
+            border: 1px solid #90caf9;
+            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.08);
         }
         #quiz-screen-play .quiz-play-score-lbl {
             display: block;
-            font-size: 0.72rem;
+            font-size: 0.65rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #546e7a;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         #quiz-screen-play .quiz-play-score-num {
             display: block;
-            font-size: clamp(2rem, 6vw, 2.65rem);
-            font-weight: 900;
+            font-size: clamp(1.2rem, 4.2vw, 1.55rem);
+            font-weight: 800;
             font-variant-numeric: tabular-nums;
             color: #0d47a1;
-            line-height: 1.1;
-            margin-bottom: 8px;
+            line-height: 1.15;
+            margin-bottom: 4px;
         }
         #quiz-screen-play .quiz-play-qline {
-            font-size: 1.02rem;
-            font-weight: 700;
+            font-size: 0.88rem;
+            font-weight: 600;
             color: #37474f;
+        }
+        .quiz-play-ref-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 6px;
+            padding: 0 2px 4px;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-play-ref-mini {
+            font-size: 0.65rem;
+            line-height: 1.35;
+            color: #78909c;
+            flex: 1;
+            min-width: 0;
+        }
+        .quiz-play-ref-mini--right {
+            text-align: right;
         }
         #quiz-screen-play .quiz-q {
             font-size: clamp(1.15rem, 3.8vw, 1.42rem);
             margin: 18px 0 16px;
             line-height: 1.48;
-        }
-        #quiz-screen-play .quiz-ref-wrap {
-            margin-top: 8px;
-            padding: 10px 12px;
-        }
-        #quiz-screen-play .quiz-badge {
-            font-size: 0.68rem;
-            padding: 3px 8px;
-        }
-        #quiz-screen-play .quiz-ref-pretty {
-            font-size: 0.78rem;
         }
         .quiz-choices { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
         #quiz-screen-play .quiz-choices {
@@ -1701,13 +1711,16 @@
                     <span id="quiz-timer-value" class="quiz-timer-value">10</span>
                     <span class="quiz-timer-unit">s</span>
                 </div>
-                <div id="quiz-meta"></div>
                 <div id="quiz-question" class="quiz-q"></div>
                 <div id="quiz-choices" class="quiz-choices"></div>
                 <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
             </div>
-            <div class="quiz-actions">
+            <div class="quiz-actions quiz-actions-play-exit">
                 <button type="button" class="btn-side btn-reset" onclick="quizAbort()">Esci dal quiz</button>
+            </div>
+            <div id="quiz-play-ref-row" class="quiz-play-ref-row" aria-label="Riferimento domanda">
+                <span id="quiz-ref-left" class="quiz-play-ref-mini"></span>
+                <span id="quiz-ref-right" class="quiz-play-ref-mini quiz-play-ref-mini--right"></span>
             </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
@@ -2528,11 +2541,12 @@ function quizRenderQuestion(opts) {
 
     const q = quizState.queue[quizState.index];
     const prog = document.getElementById('quiz-progress');
-    const meta = document.getElementById('quiz-meta');
     const qEl = document.getElementById('quiz-question');
     const ch = document.getElementById('quiz-choices');
     const fb = document.getElementById('quiz-feedback');
-    if (!q || !prog || !meta || !qEl || !ch) return;
+    const refL = document.getElementById('quiz-ref-left');
+    const refR = document.getElementById('quiz-ref-right');
+    if (!q || !prog || !qEl || !ch) return;
 
     if (fb) {
         fb.style.display = 'none';
@@ -2541,18 +2555,8 @@ function quizRenderQuestion(opts) {
     }
 
     quizUpdatePlayProgress();
-    let badgeClass = 'l1';
-    let grad = 'base';
-    if (q.points >= 15) {
-        badgeClass = 'l3';
-        grad = 'avanzata';
-    } else if (q.points >= 10) {
-        badgeClass = 'l2';
-        grad = 'intermedia';
-    }
-    const refCode = q.refCode ? `<span class="quiz-ref-code">Rif. ${escapeQuizHtml(q.refCode)}</span>` : '';
-    const refPretty = escapeQuizHtml(q.refPretty || q.ref);
-    meta.innerHTML = `<span class="quiz-badge ${badgeClass}">Livello 1 — difficoltà ${grad} (+${q.points} pt)</span><div class="quiz-ref-wrap">${refCode}<span class="quiz-ref-pretty">${refPretty}</span></div>`;
+    if (refL) refL.textContent = q.refCode ? ('Rif. ' + String(q.refCode)) : '';
+    if (refR) refR.textContent = String(q.refPretty || q.ref || '').trim();
     qEl.textContent = q.q;
     ch.innerHTML = '';
     q.options.forEach((opt, idx) => {
