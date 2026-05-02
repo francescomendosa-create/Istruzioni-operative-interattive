@@ -519,9 +519,11 @@
         details.cf2-stato-blink.correlation-mbbr-status-accordion:not([open]) summary.correlation-mbbr-status-summary {
             animation: slow-blink 1.05s ease-in-out infinite;
         }
-        /* Cornice unica: tasto correlazione + blocchi «Stato aggiornato» sotto */
+        /* Cornice solo dopo che compare il testo «Stato aggiornato» sotto; prima = come riga correlazione originale */
         .cf2-mbbr-link-cluster {
             margin-top: 16px;
+        }
+        .cf2-mbbr-link-cluster:has(.cf2-mbbr-link-cluster__stato:not(:empty)) {
             border: 2px solid #c2410c;
             border-radius: 12px;
             overflow: hidden;
@@ -529,10 +531,11 @@
             box-shadow: 0 4px 16px rgba(194, 65, 12, 0.14);
         }
         .cf2-mbbr-link-cluster__correlation {
-            padding: 12px 12px 10px;
-            background: rgba(255, 251, 235, 0.65);
+            padding: 0;
         }
         .cf2-mbbr-link-cluster:has(.cf2-mbbr-link-cluster__stato:not(:empty)) .cf2-mbbr-link-cluster__correlation {
+            padding: 12px 12px 10px;
+            background: rgba(255, 251, 235, 0.65);
             border-bottom: 2px dashed #f59e0b;
         }
         .cf2-mbbr-link-cluster__stato {
