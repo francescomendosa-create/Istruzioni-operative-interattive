@@ -1261,6 +1261,73 @@
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.12); }
         }
+        /* Vasca biologica (sotto le risposte): acqua + vermi */
+        .quiz-bio-vat-wrap {
+            --worm-dur: 2.35s;
+            margin: 14px 0 10px;
+            padding: 10px 12px 12px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f1f8f4 0%, #e8f5e9 45%, #dceee0 100%);
+            border: 1px solid rgba(56, 142, 60, 0.35);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 4px 14px rgba(27, 94, 32, 0.08);
+        }
+        .quiz-bio-vat-caption {
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .quiz-bio-vat-svg {
+            display: block;
+            width: 100%;
+            max-width: 520px;
+            height: auto;
+            min-height: 108px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        .quiz-bio-vat-wrap .quiz-worm-body {
+            transform-origin: center;
+            animation: quizWormWiggle var(--worm-dur, 2.35s) ease-in-out infinite;
+        }
+        .quiz-bio-vat-wrap--timer-urgent {
+            --worm-dur: 0.5s;
+        }
+        @keyframes quizWormWiggle {
+            0%, 100% { transform: translateX(0) rotate(-5deg) scaleY(1); }
+            50% { transform: translateX(5px) rotate(6deg) scaleY(1.04); }
+        }
+        .quiz-bio-vat-wrap--sink .quiz-worm-body {
+            animation: quizWormSink 1.2s ease-in forwards !important;
+        }
+        @keyframes quizWormSink {
+            0% { opacity: 1; filter: brightness(1); }
+            100% {
+                transform: translateY(62px) rotate(18deg) scaleY(0.85);
+                opacity: 0.12;
+                filter: brightness(0.45);
+            }
+        }
+        .quiz-bio-wave-layer {
+            pointer-events: none;
+            animation: quizBioWaveDrift 4.2s ease-in-out infinite;
+        }
+        @keyframes quizBioWaveDrift {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-14px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-bio-vat-wrap .quiz-worm-body,
+            .quiz-bio-wave-layer {
+                animation: none !important;
+            }
+            .quiz-bio-vat-wrap--timer-urgent {
+                --worm-dur: 2.35s;
+            }
+        }
         .quiz-ref-wrap {
             margin-top: 10px;
             display: flex;
@@ -2068,6 +2135,37 @@
                 <div id="quiz-choices" class="quiz-choices"></div>
                 <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
             </div>
+            <div id="quiz-bio-vat-wrap" class="quiz-bio-vat-wrap" aria-hidden="true">
+                <div class="quiz-bio-vat-caption">Biologico in vasca</div>
+                <svg class="quiz-bio-vat-svg" viewBox="0 0 360 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="quizBioWaterGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#7dd3fc"/>
+                            <stop offset="55%" stop-color="#22c55e"/>
+                            <stop offset="100%" stop-color="#0c4a6e"/>
+                        </linearGradient>
+                        <linearGradient id="quizBioTubGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#cfd8dc"/>
+                            <stop offset="100%" stop-color="#90a4ae"/>
+                        </linearGradient>
+                        <clipPath id="quizBioVatClip">
+                            <rect x="26" y="40" width="308" height="68" rx="16" ry="16"/>
+                        </clipPath>
+                    </defs>
+                    <path fill="url(#quizBioTubGrad)" stroke="#546e7a" stroke-width="1.2"
+                        d="M18 34 L36 96 Q42 110 56 112 L304 112 Q318 110 324 96 L342 34 Q340 28 332 28 L28 28 Q20 28 18 34Z"/>
+                    <g clip-path="url(#quizBioVatClip)">
+                        <rect x="26" y="40" width="308" height="68" fill="#b0bec5" opacity="0.25"/>
+                        <rect id="quiz-bio-water-fill" x="26" y="96" width="308" height="12" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
+                        <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.35">
+                            <path fill="#e0f7fa" d="M0 52 Q45 46 90 52 T180 52 T270 52 T360 52 L360 118 L0 118Z"/>
+                        </g>
+                        <g id="quiz-bio-worms"></g>
+                    </g>
+                    <path fill="none" stroke="#37474f" stroke-width="2.2" stroke-linejoin="round"
+                        d="M18 34 L36 96 Q42 110 56 112 L304 112 Q318 110 324 96 L342 34"/>
+                </svg>
+            </div>
             <div class="quiz-actions quiz-actions-play-exit">
                 <button type="button" class="btn-side btn-reset" onclick="quizAbort()">Esci dal quiz</button>
             </div>
@@ -2503,6 +2601,8 @@ const QUIZ_TIMER_URGENT_SEC = 5;
 let quizQuestionTimerId = null;
 let quizTimerDeadline = null;
 let quizTimerVisualActive = false;
+/** Vermi aggiunti a ogni risposta corretta (vasca biologica). */
+let quizBioWormCount = 0;
 let quizScoreAnimTimer = null;
 /** Opzioni passate a quizFinish dopo OK sul modale errore / timeout. */
 let quizWrongModalFinishOpts = null;
@@ -2630,6 +2730,7 @@ function quizClearQuestionTimer() {
     }
     quizTimerDeadline = null;
     quizTimerVisualActive = false;
+    quizBioVatSetTimerUrgent(false);
 }
 
 function quizTimerPaint(frac, displaySec, urgent) {
@@ -2637,7 +2738,10 @@ function quizTimerPaint(frac, displaySec, urgent) {
     const secEl = document.getElementById('quiz-time-sec');
     const track = document.getElementById('quiz-time-track');
     const host = document.getElementById('quiz-play-time');
-    if (!fill || !secEl || !track || !host) return;
+    if (!fill || !secEl || !track || !host) {
+        quizBioVatSetTimerUrgent(false);
+        return;
+    }
     const p = Math.max(0, Math.min(1, frac));
     fill.style.width = (p * 100) + '%';
     const ds = Math.max(0, displaySec);
@@ -2645,6 +2749,83 @@ function quizTimerPaint(frac, displaySec, urgent) {
     track.setAttribute('aria-valuenow', String(Math.min(QUIZ_TIMER_SECONDS, ds)));
     track.classList.toggle('quiz-play-time-track--urgent', !!urgent);
     host.classList.toggle('quiz-play-time--urgent', !!urgent);
+    quizBioVatSetTimerUrgent(!!urgent);
+}
+
+function quizBioVatSetTimerUrgent(on) {
+    const wrap = document.getElementById('quiz-bio-vat-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('quiz-bio-vat-wrap--timer-urgent', !!on);
+}
+
+function quizBioVatApplyFillFromState() {
+    const rect = document.getElementById('quiz-bio-water-fill');
+    if (!rect) return;
+    const bottom = 108;
+    const maxH = 68;
+    const minH = 11;
+    const total = Math.max(1, (quizState.queue && quizState.queue.length) ? quizState.queue.length : 12);
+    const ratio = Math.min(1, quizBioWormCount / total);
+    const h = minH + ratio * (maxH - minH);
+    const y = bottom - h;
+    rect.setAttribute('x', '26');
+    rect.setAttribute('width', '308');
+    rect.setAttribute('y', String(y));
+    rect.setAttribute('height', String(h));
+}
+
+function quizBioVatReset() {
+    quizBioWormCount = 0;
+    const wrap = document.getElementById('quiz-bio-vat-wrap');
+    const worms = document.getElementById('quiz-bio-worms');
+    if (worms) worms.innerHTML = '';
+    if (wrap) {
+        wrap.classList.remove('quiz-bio-vat-wrap--sink', 'quiz-bio-vat-wrap--timer-urgent');
+    }
+    quizBioVatApplyFillFromState();
+}
+
+function quizBioVatOnCorrectAnswer() {
+    quizBioWormCount += 1;
+    const gRoot = document.getElementById('quiz-bio-worms');
+    if (!gRoot) return;
+    const i = quizBioWormCount - 1;
+    const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
+    const xNorm = slots[i % slots.length];
+    const wx = 40 + xNorm * (360 - 80);
+    const wy = 58 + (i % 5) * 7;
+    const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gPos.setAttribute('class', 'quiz-worm');
+    gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
+    const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gBody.setAttribute('class', 'quiz-worm-body');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z');
+    path.setAttribute('fill', '#7cb342');
+    path.setAttribute('stroke', '#33691e');
+    path.setAttribute('stroke-width', '0.65');
+    const e1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e1.setAttribute('cx', '-5');
+    e1.setAttribute('cy', '-5');
+    e1.setAttribute('r', '2.1');
+    e1.setAttribute('fill', '#1b5e20');
+    const e2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e2.setAttribute('cx', '6');
+    e2.setAttribute('cy', '-4');
+    e2.setAttribute('r', '1.7');
+    e2.setAttribute('fill', '#1b5e20');
+    gBody.appendChild(path);
+    gBody.appendChild(e1);
+    gBody.appendChild(e2);
+    gPos.appendChild(gBody);
+    gRoot.appendChild(gPos);
+    quizBioVatApplyFillFromState();
+}
+
+function quizBioVatSink() {
+    const wrap = document.getElementById('quiz-bio-vat-wrap');
+    if (!wrap) return;
+    wrap.classList.add('quiz-bio-vat-wrap--sink');
 }
 
 function quizStartQuestionTimer() {
@@ -2680,6 +2861,7 @@ function quizStartQuestionTimer() {
 function quizTimeUp() {
     if (quizAnswerLocked) return;
     quizAnswerLocked = true;
+    quizBioVatSink();
     const q = quizState.queue[quizState.index];
     if (!q) {
         quizAnswerLocked = false;
@@ -3201,6 +3383,7 @@ function quizAnswer(idx) {
         }
         quizAnimateScorePoints(prevScore, quizState.score, () => {
             quizUpdatePlayProgress();
+            quizBioVatOnCorrectAnswer();
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
@@ -3209,6 +3392,7 @@ function quizAnswer(idx) {
             setTimeout(() => quizAdvanceCorrect(), 1050);
         });
     } else {
+        quizBioVatSink();
         if (fb) {
             fb.style.display = 'flex';
             fb.className = 'quiz-feedback quiz-feedback-ko';
@@ -3276,6 +3460,7 @@ function quizStart() {
         return;
     }
 
+    quizBioVatReset();
     quizShowScreen('play');
     quizRenderQuestion({ instant: true });
     quizRenderLeaderboard();
