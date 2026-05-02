@@ -758,6 +758,36 @@
             background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
             box-shadow: 0 4px 0 #0d47a1, 0 8px 18px rgba(21,101,192,0.2);
         }
+        .quiz-level-single.quiz-level-single--plain {
+            text-align: center;
+            padding: 8px 12px 20px;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+        .quiz-level-title--hero {
+            display: block;
+            font-size: clamp(2rem, 7vw, 2.85rem);
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.03em;
+            margin: 0 0 12px;
+            line-height: 1.1;
+        }
+        .quiz-level-tagline {
+            margin: 0;
+            font-size: clamp(1.08rem, 3.8vw, 1.45rem);
+            font-weight: 600;
+            color: #37474f;
+            line-height: 1.35;
+        }
+        .quiz-classifica-hint {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #455a64;
+            margin: 6px 0 16px;
+            font-weight: 600;
+        }
         .quiz-level-single .quiz-level-title {
             display: block;
             font-weight: bold;
@@ -886,7 +916,59 @@
         .quiz-badge.l2 { background: #fff8e1; color: #f57f17; border-color: #ffe082; }
         .quiz-badge.l3 { background: #fce4ec; color: #c2185b; border-color: #f48fb1; }
         .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
+        #quiz-screen-play .quiz-play-scoreboard {
+            text-align: center;
+            padding: 14px 14px 16px;
+            margin: 0 0 14px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #e3f2fd 0%, #ffffff 45%, #f5f9ff 100%);
+            border: 2px solid #64b5f6;
+            box-shadow: 0 6px 20px rgba(13, 71, 161, 0.12);
+        }
+        #quiz-screen-play .quiz-play-score-lbl {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #546e7a;
+            margin-bottom: 4px;
+        }
+        #quiz-screen-play .quiz-play-score-num {
+            display: block;
+            font-size: clamp(2rem, 6vw, 2.65rem);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #0d47a1;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+        #quiz-screen-play .quiz-play-qline {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #37474f;
+        }
+        #quiz-screen-play .quiz-q {
+            font-size: clamp(1.15rem, 3.8vw, 1.42rem);
+            margin: 18px 0 16px;
+            line-height: 1.48;
+        }
+        #quiz-screen-play .quiz-ref-wrap {
+            margin-top: 8px;
+            padding: 10px 12px;
+        }
+        #quiz-screen-play .quiz-badge {
+            font-size: 0.68rem;
+            padding: 3px 8px;
+        }
+        #quiz-screen-play .quiz-ref-pretty {
+            font-size: 0.78rem;
+        }
         .quiz-choices { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+        #quiz-screen-play .quiz-choices {
+            gap: 12px;
+            margin: 18px 0 20px;
+        }
         .quiz-choice-btn {
             text-align: left; padding: 14px 16px 14px 18px; border-radius: 12px; border: 1px solid #b0bec5;
             border-left: 4px solid #1565c0;
@@ -902,6 +984,17 @@
             box-shadow: 0 3px 0 #78909c, 0 10px 24px rgba(13,71,161,0.14);
         }
         .quiz-choice-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5d0d6, 0 3px 6px rgba(0,0,0,0.08); }
+        #quiz-screen-play .quiz-choice-btn {
+            font-size: clamp(1.02rem, 2.8vw, 1.18rem);
+            padding: 17px 18px 17px 20px;
+            min-height: 3.55rem;
+            line-height: 1.4;
+        }
+        #quiz-screen-play .quiz-feedback {
+            font-size: 1.08rem;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
         .quiz-choice-btn:disabled { cursor: default; opacity: 1; }
         .quiz-choice-btn.quiz-opt-correct {
             background: linear-gradient(180deg, #c8e6c9 0%, #81c784 100%);
@@ -1589,16 +1682,12 @@
             </div>
             <input type="hidden" id="quiz-start-level" value="1">
             <div class="quiz-level-pick" aria-label="Quiz livello unico">
-                <div class="quiz-level-single">
-                    <span class="quiz-level-title">Livello 1</span>
-                    <p class="quiz-pts-hint">Un solo percorso: il punteggio per risposta esatta cambia a seconda della domanda — <b>+5</b> (base), <b>+10</b> (intermedio) o <b>+15</b> (avanzato).</p>
-                    <p class="quiz-tf-hint">Le domande sono in stile <strong>vero / falso</strong>: compaiono <strong>tre affermazioni</strong> e una sola è <strong>vera</strong>; le altre due sono <strong>false</strong>. Scegli quella corretta.</p>
-                    <p class="quiz-timer-hint">Dalla <strong>5ª domanda</strong> in poi hai <strong>10 secondi</strong> per rispondere: se il tempo scade, il quiz si interrompe come per un errore.</p>
-                    <p class="quiz-challenge">Challenge yourself</p>
-                    <p class="quiz-challenge-sub">Mettiti alla prova, sfida te stesso e gli altri</p>
+                <div class="quiz-level-single quiz-level-single--plain">
+                    <span class="quiz-level-title quiz-level-title--hero">Livello 1</span>
+                    <p class="quiz-level-tagline">Mettiti alla prova, sfida te stesso e gli altri</p>
                 </div>
             </div>
-            <p style="font-size:0.82rem;color:#777;margin:8px 0 10px;">Ogni partita mescola le domande e ne sorteggia un blocco casuale. In basso trovi la <strong>classifica aggiornata</strong> dopo ogni tentativo.</p>
+            <p class="quiz-classifica-hint">Classifica aggiornata in tempo reale.</p>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
                 <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
@@ -1606,7 +1695,7 @@
         </div>
         <div id="quiz-screen-play" style="display:none;">
             <div id="quiz-play-body">
-                <div id="quiz-progress" style="font-size:0.85rem;color:#666;margin-bottom:8px;"></div>
+                <div id="quiz-progress" class="quiz-progress-wrap" aria-live="polite"></div>
                 <div id="quiz-timer-wrap" class="quiz-timer-wrap" aria-hidden="true">
                     <span class="quiz-timer-label">Tempo</span>
                     <span id="quiz-timer-value" class="quiz-timer-value">10</span>
@@ -1636,7 +1725,7 @@
                 <span class="quiz-rank-section-icon" aria-hidden="true">🏆</span>
                 <div class="quiz-rank-section-titles">
                     <h4 class="quiz-rank-heading">Classifica aggiornata</h4>
-                    <p class="quiz-rank-heading-sub">Punteggi salvati su questo dispositivo</p>
+                    <p class="quiz-rank-heading-sub">In tempo reale · memoria locale</p>
                 </div>
                 <span class="quiz-rank-section-pill">Livello 1</span>
             </div>
@@ -2395,7 +2484,6 @@ function quizRenderLeaderboard() {
     body.innerHTML = `
 <div class="quiz-rank-canvas">
 <div class="quiz-rank-live">
-  <p class="quiz-rank-rt-hint">Classifica in tempo reale dopo ogni partita (memoria locale su questo dispositivo).</p>
   <div class="quiz-podium-label">Podio</div>
   ${podium}
   ${restSection}
@@ -2419,6 +2507,17 @@ function quizShowScreen(which) {
     intro.style.display = which === 'intro' ? 'block' : 'none';
     play.style.display = which === 'play' ? 'block' : 'none';
     over.style.display = which === 'over' ? 'block' : 'none';
+    const rankWrap = document.getElementById('quiz-rank-wrap');
+    if (rankWrap) rankWrap.style.display = which === 'intro' ? 'block' : 'none';
+}
+
+function quizUpdatePlayProgress() {
+    const prog = document.getElementById('quiz-progress');
+    if (!prog || !quizState.queue || !quizState.queue.length) return;
+    const i = quizState.index + 1;
+    const tot = quizState.queue.length;
+    const sc = quizState.score;
+    prog.innerHTML = '<div class="quiz-play-scoreboard"><span class="quiz-play-score-lbl">Punteggio</span><strong class="quiz-play-score-num">' + sc + '</strong><div class="quiz-play-qline">Domanda ' + i + ' di ' + tot + '</div></div>';
 }
 
 function quizRenderQuestion(opts) {
@@ -2441,7 +2540,7 @@ function quizRenderQuestion(opts) {
         fb.className = 'quiz-feedback';
     }
 
-    prog.textContent = `Domanda ${quizState.index + 1} di ${quizState.queue.length} — Punteggio: ${quizState.score}`;
+    quizUpdatePlayProgress();
     let badgeClass = 'l1';
     let grad = 'base';
     if (q.points >= 15) {
@@ -2522,8 +2621,7 @@ function quizAnswer(idx) {
 
     if (idx === q.correctIndex) {
         quizState.score += q.points;
-        const prog = document.getElementById('quiz-progress');
-        if (prog) prog.textContent = `Domanda ${quizState.index + 1} di ${quizState.queue.length} — Punteggio: ${quizState.score}`;
+        quizUpdatePlayProgress();
         if (fb) {
             fb.style.display = 'flex';
             fb.className = 'quiz-feedback quiz-feedback-ok';
