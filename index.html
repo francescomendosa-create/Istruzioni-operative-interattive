@@ -1,0 +1,3445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Istruzioni operative interattive</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --bg: #f4f7f6;
+            --warning: #f39c12;
+            --cold: #3498db;
+            --hot: #e67e22;
+            --o2-low: #7f8c8d;
+            --o2-high: #2980b9;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding-top: 160px;
+            padding-bottom: 72px;
+            scroll-behavior: smooth;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-top h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .btn-side {
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+            min-width: 85px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.28), 0 14px 22px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+
+        .btn-reset { background: linear-gradient(180deg, #ef6a5d 0%, #d64034 100%); color: white; }
+        .btn-report { 
+            background: linear-gradient(180deg, #5be39a 0%, #2fc777 55%, #1fae64 100%);
+            color: white;
+            border-color: rgba(255,255,255,0.45);
+            text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+        }
+        .btn-side:hover { filter: brightness(1.06); box-shadow: 0 7px 0 rgba(0,0,0,0.28), 0 18px 26px rgba(0,0,0,0.28), 0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.4); }
+        .btn-side:active { transform: translateY(4px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.28), 0 5px 12px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.25); }
+
+        .navbar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .navbar .nav-spacer { min-width: 0; }
+        .navbar .nav-center {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-quiz {
+            justify-self: end;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .nav-center button {
+            padding: 7px 14px;
+            border: 2px solid white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.72rem;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+            color: var(--primary);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease, background 0.2s ease;
+            min-width: 128px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.26), 0 10px 18px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .btn-quiz {
+            padding: 6px 12px;
+            border: 2px solid rgba(255,255,255,0.55);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.68rem;
+            letter-spacing: 0.5px;
+            background: linear-gradient(180deg, #f6d365 0%, #fda085 100%);
+            color: #1a1a1a;
+            white-space: nowrap;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.22), 0 8px 14px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.45);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+        .btn-quiz:hover { filter: brightness(1.05); }
+        .btn-quiz:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.15); }
+
+        .navbar .nav-center button:hover {
+            filter: brightness(1.07);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.26), 0 14px 22px rgba(0,0,0,0.24), 0 0 16px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .navbar .nav-center button:active {
+            transform: translateY(4px) scale(0.99);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.26), 0 5px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .navbar .nav-center button.active {
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            color: white;
+            box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+
+        .quiz-panel {
+            display: none;
+            box-sizing: border-box;
+        }
+        .quiz-panel.visible {
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            z-index: 10000;
+            background: linear-gradient(180deg, #e3ecf7 0%, #f5f8fc 45%, #eef3f9 100%);
+            text-align: center;
+            box-shadow: 0 0 0 4px rgba(31, 63, 104, 0.12);
+        }
+        body.quiz-open {
+            overflow: hidden;
+        }
+        .quiz-fs-topbar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .quiz-fs-title {
+            font-weight: bold;
+            font-size: 1.05rem;
+            letter-spacing: 0.02em;
+        }
+        .quiz-fs-exit {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.55);
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .quiz-fs-exit:hover { background: rgba(255,255,255,0.22); }
+        .quiz-fs-exit:active { transform: translateY(1px); }
+        .quiz-fs-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 14px 28px;
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+
+        .section-content {
+            display: block;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            margin-top: 40px;
+        }
+
+        #cf-content { border-top: none; margin-top: 0; }
+
+        .section-title-box {
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 999px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .section-title-box h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .question {
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            flex: 1;
+        }
+
+        .btns { display: flex; gap: 10px; }
+        .btns button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #c9d1d9;
+            cursor: pointer;
+            font-weight: bold;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+            box-shadow: 0 4px 0 #c7ced7, 0 6px 14px rgba(0,0,0,0.12);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+            position: relative;
+            top: 0;
+        }
+        .btns button:hover {
+            filter: brightness(1.02);
+            box-shadow: 0 5px 0 #c7ced7, 0 10px 18px rgba(0,0,0,0.14);
+        }
+        .btns button:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #c7ced7, 0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        .btn-status-ok { 
+            background: linear-gradient(180deg, #32d27f 0%, #21b764 100%) !important;
+            color: white !important; 
+            border-color: #1fa35a !important;
+            box-shadow: 0 4px 0 #1a8a4c, 0 8px 16px rgba(33, 183, 100, 0.35) !important;
+        }
+        .btn-status-bad { 
+            background: linear-gradient(180deg, #f05b4e 0%, #d93b2f 100%) !important;
+            color: white !important; 
+            border-color: #c83429 !important;
+            box-shadow: 0 4px 0 #aa2a21, 0 8px 16px rgba(217, 59, 47, 0.35) !important;
+        }
+
+        .res {
+            margin-top: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .ok { background: #eafaf1; border-left: 5px solid var(--success); color: #1e8449; }
+        .bad { background: #fdecea; border-left: 5px solid var(--danger); color: #943126; }
+
+        .table {
+            width: 100%;
+            margin-top: 12px;
+            border-collapse: collapse;
+        }
+
+        .table td, .table th { border: 1px solid #ddd; padding: 10px; }
+        .table th { background: #f2f2f2; }
+
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .col-box {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+            opacity: 0.6;
+        }
+
+        .col-box:hover { opacity: 1; border-color: #aaa; }
+        .col-box.selected { 
+            opacity: 1 !important; 
+            border-color: var(--primary) !important; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: scale(1.02);
+        }
+
+        .box-left-blue { background: #e3f2fd; border-left: 8px solid var(--cold); }
+        .box-right-orange { background: #fff3e0; border-left: 8px solid var(--hot); }
+        .box-left-grey { background: #f2f2f2; border-left: 8px solid var(--o2-low); }
+        .box-right-blue { background: #e1f5fe; border-left: 8px solid var(--o2-high); }
+        
+        .box-title { font-weight: bold; margin-bottom: 8px; display: block; font-size: 1rem; }
+        .box-list { margin: 0; padding-left: 15px; }
+        .box-list li { margin-bottom: 4px; }
+
+        .report {
+            background: #fff;
+            margin: 40px 0;
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 0 5px var(--warning); border-color: var(--warning); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--warning); border-color: #ffd700; transform: scale(1.03); }
+            100% { box-shadow: 0 0 5px var(--warning); border-color: var(--warning); transform: scale(1); }
+        }
+
+        .highlight-glow {
+            animation: glow-pulse 1.5s infinite ease-in-out;
+            border-width: 3px !important;
+            z-index: 10;
+        }
+
+        .btn-jump {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Pulsanti correlazione CF2 ↔ MBBR: centrati nella scheda */
+        .correlation-action-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+            width: 100%;
+        }
+        .correlation-action-row .btn-jump {
+            display: inline-block;
+            text-align: center;
+            max-width: 100%;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            box-sizing: border-box;
+        }
+
+        .btn-return-inline {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            animation: bounce 2s infinite;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-5px);}
+            60% {transform: translateY(-3px);}
+        }
+
+        @keyframes slow-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes flash-alert {
+            0%, 100% { background-color: #fff3f3; border-color: #dc2626; box-shadow: 0 0 5px rgba(220, 38, 38, 0.3); }
+            50% { background-color: #ffe6e6; border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        }
+
+        .correlation-status-banner {
+            background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #d97706;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 1.05rem;
+            color: #92400e;
+        }
+        .correlation-update-box {
+            border: 3px solid #dc2626;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            animation: flash-alert 0.5s ease-in-out 10;
+        }
+        .correlation-status-banner + .correlation-update-box {
+            margin-top: 0;
+        }
+
+        .bio-intervention {
+            background: #f8f9fa;
+            border: 2px solid var(--danger);
+            padding: 20px;
+            margin-top: 25px;
+            border-left: 10px solid var(--danger);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .report h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .anomalie-list {
+            background: #fdf2f2;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .critical-list {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .critical-list li { margin-bottom: 5px; }
+
+        .risk-section {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .risk-section b.warning-label { color: var(--danger); font-size: 1.1rem; display: block; margin-bottom: 10px; border-bottom: 1px solid #ffb74d; padding-bottom: 5px; }
+        .risk-section b.risk-label { color: #e65100; font-size: 0.9rem; text-transform: uppercase; }
+
+        details.risk-accordion {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        details.risk-accordion summary.risk-accordion-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: bold;
+            color: var(--danger);
+            font-size: 1.05rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.2em 0.35em;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        details.risk-accordion summary.risk-accordion-summary .warn-tri {
+            font-size: 1.1em;
+            line-height: 1;
+            display: inline-block;
+            margin: 0 0.12em;
+            position: relative;
+            top: -0.14em;
+        }
+        details.risk-accordion summary.risk-accordion-summary::-webkit-details-marker { display: none; }
+        details.risk-accordion summary.risk-accordion-summary::after {
+            content: '▼';
+            font-size: 0.85rem;
+            font-weight: bold;
+            line-height: 1;
+            opacity: 1;
+            color: var(--danger);
+            flex-shrink: 0;
+            margin-left: auto;
+            align-self: center;
+            padding: 4px 2px;
+        }
+        details.risk-accordion[open] summary.risk-accordion-summary::after {
+            content: '▲';
+        }
+        details.risk-accordion[open] summary.risk-accordion-summary {
+            border-bottom: 1px solid #ffb74d;
+        }
+        details.risk-accordion .risk-accordion-body {
+            padding: 12px 14px 16px;
+        }
+        details.risk-accordion .risk-accordion-body .risk-label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        details.risk-accordion-priority {
+            background: #e8f1ff;
+            border-color: #60a5fa;
+        }
+        details.risk-accordion-priority summary.risk-accordion-summary {
+            color: #1d4ed8;
+        }
+        details.risk-accordion-priority[open] summary.risk-accordion-summary {
+            border-bottom-color: #60a5fa;
+        }
+        
+        .dynamic-details-box {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quiz-panel h3 { margin-top: 0; color: var(--primary); }
+        .quiz-row { margin: 12px 0; text-align: left; max-width: 520px; margin-left: auto; margin-right: auto; }
+        .quiz-row label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
+        .quiz-row input {
+            width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem;
+        }
+        .quiz-level-pick {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-width: 720px;
+            margin: 8px auto 12px;
+        }
+        .quiz-level-single {
+            text-align: left;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid #1565c0;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            box-shadow: 0 4px 0 #0d47a1, 0 8px 18px rgba(21,101,192,0.2);
+        }
+        .quiz-level-single .quiz-level-title {
+            display: block;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .quiz-pts-hint { font-size: 0.88rem; color: #37474f; margin: 0 0 10px; line-height: 1.45; }
+        .quiz-challenge {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #1565c0;
+            margin: 10px 0 6px;
+            letter-spacing: 0.02em;
+        }
+        .quiz-challenge-sub {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #455a64;
+            margin: 0 auto 8px;
+            max-width: 22rem;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        .quiz-tf-hint {
+            font-size: 0.84rem;
+            color: #37474f;
+            margin: 8px 0 0;
+            line-height: 1.45;
+            text-align: center;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.55);
+            border-radius: 8px;
+            border: 1px solid rgba(21,101,192,0.2);
+        }
+        .quiz-timer-hint {
+            font-size: 0.8rem;
+            color: #37474f;
+            margin: 10px 0 0;
+            line-height: 1.45;
+            text-align: center;
+            padding: 8px 10px;
+            background: rgba(255, 243, 224, 0.65);
+            border-radius: 8px;
+            border: 1px solid rgba(230, 81, 0, 0.25);
+        }
+        .quiz-level-key {
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 2px solid #b0bec5;
+            background: linear-gradient(180deg, #fff 0%, #eceff1 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 0 #90a4ae, 0 8px 16px rgba(0,0,0,0.08);
+            transition: transform 0.1s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+        .quiz-level-key:hover { filter: brightness(1.02); }
+        .quiz-level-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #90a4ae, 0 4px 8px rgba(0,0,0,0.1); }
+        .quiz-level-key.selected {
+            border-color: #1565c0;
+            box-shadow: 0 4px 0 #0d47a1, 0 8px 18px rgba(21,101,192,0.25);
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        .quiz-level-key .quiz-level-title {
+            display: block;
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .quiz-level-key .quiz-level-pts { font-size: 0.75rem; color: #455a64; font-weight: 600; margin-bottom: 6px; }
+        .quiz-level-key ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            font-size: 0.78rem;
+            color: #37474f;
+            line-height: 1.35;
+        }
+        .quiz-level-key li { margin: 2px 0; }
+        #quiz-play-body {
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
+        #quiz-play-body.quiz-fade-out {
+            opacity: 0;
+            transform: translateX(-14px);
+        }
+        #quiz-play-body.quiz-fade-in {
+            animation: quizPlayFadeIn 0.38s ease forwards;
+        }
+        @keyframes quizPlayFadeIn {
+            from { opacity: 0; transform: translateX(18px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes quizPop {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .quiz-feedback {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 12px;
+            animation: quizPop 0.32s ease;
+        }
+        .quiz-feedback-ok {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #66bb6a;
+        }
+        .quiz-feedback-ko {
+            background: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ef5350;
+        }
+        .quiz-feedback-icon { font-size: 1.35rem; line-height: 1; }
+        .quiz-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: bold;
+            margin-bottom: 8px; background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9;
+        }
+        .quiz-badge.l1 { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .quiz-badge.l2 { background: #fff8e1; color: #f57f17; border-color: #ffe082; }
+        .quiz-badge.l3 { background: #fce4ec; color: #c2185b; border-color: #f48fb1; }
+        .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
+        .quiz-choices { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+        .quiz-choice-btn {
+            text-align: left; padding: 14px 16px 14px 18px; border-radius: 12px; border: 1px solid #b0bec5;
+            border-left: 4px solid #1565c0;
+            background: linear-gradient(125deg, #ffffff 0%, #f1f5f9 55%, #e8eef5 100%);
+            cursor: pointer; font-weight: 600; color: #1a237e;
+            line-height: 1.42; min-height: 3.1rem;
+            box-shadow: 0 3px 0 #90a4ae, 0 8px 20px rgba(21,101,192,0.1);
+            transition: transform 0.08s ease, box-shadow 0.15s ease, border-color 0.15s ease, filter 0.12s ease;
+        }
+        .quiz-choice-btn:hover {
+            filter: brightness(1.03);
+            border-left-color: #0d47a1;
+            box-shadow: 0 3px 0 #78909c, 0 10px 24px rgba(13,71,161,0.14);
+        }
+        .quiz-choice-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5d0d6, 0 3px 6px rgba(0,0,0,0.08); }
+        .quiz-choice-btn:disabled { cursor: default; opacity: 1; }
+        .quiz-choice-btn.quiz-opt-correct {
+            background: linear-gradient(180deg, #c8e6c9 0%, #81c784 100%);
+            border-color: #2e7d32;
+            color: #1b5e20;
+            box-shadow: 0 2px 0 #1b5e20, 0 4px 10px rgba(46,125,50,0.35);
+        }
+        .quiz-choice-btn.quiz-opt-wrong {
+            background: linear-gradient(180deg, #ffcdd2 0%, #e57373 100%);
+            border-color: #c62828;
+            color: #b71c1c;
+            box-shadow: 0 2px 0 #8d1a1a, 0 4px 10px rgba(198,40,40,0.35);
+        }
+        .quiz-choice-btn.quiz-opt-dim { opacity: 0.45; }
+        .quiz-score-big { font-size: 2rem; font-weight: bold; color: var(--primary); margin: 12px 0; }
+        .quiz-timer-wrap {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 0 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e8f5e9 0%, #e3f2fd 100%);
+            border: 1px solid #81c784;
+            box-shadow: 0 2px 8px rgba(21, 101, 192, 0.08);
+        }
+        .quiz-timer-wrap.quiz-timer-on { display: flex; }
+        .quiz-timer-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #2e7d32;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .quiz-timer-value {
+            font-size: 1.65rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            min-width: 2.2rem;
+            text-align: center;
+            color: #0d47a1;
+            line-height: 1;
+        }
+        .quiz-timer-unit { font-size: 0.85rem; font-weight: 700; color: #546e7a; }
+        .quiz-timer-wrap.quiz-timer-urgent {
+            background: linear-gradient(90deg, #fff3e0 0%, #ffecb3 100%);
+            border-color: #ff9800;
+            animation: quizTimerPulse 0.9s ease-in-out infinite;
+        }
+        .quiz-timer-wrap.quiz-timer-urgent .quiz-timer-label { color: #e65100; }
+        .quiz-timer-wrap.quiz-timer-urgent .quiz-timer-value { color: #bf360c; }
+        @keyframes quizTimerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.88; }
+        }
+        .quiz-ref-wrap {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #fafcfe 0%, #e3f2fd 48%, #eceff1 100%);
+            border: 1px solid #90caf9;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(31, 63, 104, 0.08);
+        }
+        .quiz-ref-code {
+            font-family: ui-monospace, Consolas, "Courier New", monospace;
+            font-weight: 700;
+            color: #0d47a1;
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+            padding: 6px 12px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #64b5f6;
+            white-space: nowrap;
+        }
+        .quiz-ref-pretty {
+            font-size: 0.82rem;
+            color: #37474f;
+            text-align: left;
+            flex: 1;
+            min-width: 160px;
+            line-height: 1.4;
+        }
+        /* ——— Classifica: contenitore esterno con sfondo ——— */
+        .quiz-rank-section {
+            margin-top: 22px;
+            position: relative;
+            border-radius: 22px;
+            padding: 3px;
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 18%, #1a237e 42%, #283593 70%, #7986cb 100%);
+            box-shadow:
+                0 4px 0 rgba(26, 35, 126, 0.35),
+                0 18px 48px rgba(13, 71, 161, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+            overflow: hidden;
+        }
+        .quiz-rank-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% -20%, rgba(255, 255, 255, 0.35), transparent 55%),
+                radial-gradient(ellipse 70% 50% at 100% 100%, rgba(129, 212, 250, 0.25), transparent 45%),
+                radial-gradient(ellipse 60% 40% at 0% 80%, rgba(179, 136, 255, 0.12), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .quiz-rank-section-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .quiz-rank-section-icon {
+            font-size: 2rem;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        .quiz-rank-section-titles { flex: 1; min-width: 0; }
+        .quiz-rank-heading {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+        .quiz-rank-heading-sub {
+            margin: 4px 0 0;
+            font-size: 0.72rem;
+            color: rgba(227, 242, 253, 0.92);
+            font-weight: 500;
+        }
+        .quiz-rank-section-pill {
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 6px 12px;
+            border-radius: 999px;
+            color: #1a237e;
+            background: linear-gradient(180deg, #fffde7 0%, #ffe082 100%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .quiz-rank-body {
+            position: relative;
+            z-index: 1;
+            overflow-x: auto;
+            border-radius: 0 0 19px 19px;
+            background: linear-gradient(180deg, #f0f7ff 0%, #e8f4fc 22%, #dceefb 55%, #cfd8dc 100%);
+            padding: 14px 12px 16px;
+        }
+        .quiz-rank-canvas {
+            position: relative;
+            border-radius: 16px;
+            padding: 14px 12px 16px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 8px 28px rgba(26, 35, 126, 0.1);
+        }
+        .quiz-rank-canvas--empty {
+            text-align: center;
+            padding: 28px 16px;
+        }
+        .quiz-rank-live { margin-top: 0; }
+        .quiz-rank-rt-hint {
+            font-size: 0.78rem;
+            color: #455a64;
+            margin: 0 0 14px;
+            line-height: 1.45;
+            text-align: center;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, rgba(227, 242, 253, 0.9), rgba(255, 255, 255, 0.95));
+            border: 1px solid rgba(144, 202, 249, 0.5);
+        }
+        .quiz-rank-empty-msg {
+            color: #546e7a;
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-podium-label {
+            text-align: center;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #5c6bc0;
+            margin-bottom: 8px;
+        }
+        .quiz-podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 10px;
+            margin: 0 0 20px;
+            min-height: 158px;
+        }
+        .quiz-podium-slot {
+            flex: 1;
+            max-width: 124px;
+            text-align: center;
+            border-radius: 16px 16px 12px 12px;
+            padding: 8px 8px 14px;
+            box-shadow:
+                0 5px 0 rgba(0, 0, 0, 0.12),
+                0 14px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .quiz-podium-slot:not(.empty):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 rgba(0, 0, 0, 0.1), 0 18px 36px rgba(0, 0, 0, 0.14);
+        }
+        .quiz-podium-slot.empty { visibility: hidden; pointer-events: none; min-height: 76px; }
+        .quiz-podium-slot.silver {
+            min-height: 102px;
+            background: linear-gradient(165deg, #fafafa 0%, #eceff1 35%, #b0bec5 100%);
+        }
+        .quiz-podium-slot.gold {
+            min-height: 138px;
+            transform: scale(1.04);
+            z-index: 1;
+            background: linear-gradient(165deg, #fffef5 0%, #fff9c4 25%, #ffca28 55%, #ff8f00 100%);
+        }
+        .quiz-podium-slot.bronze {
+            min-height: 90px;
+            background: linear-gradient(165deg, #faf8f6 0%, #efebe9 40%, #a1887f 100%);
+        }
+        .quiz-podium-emoji {
+            font-size: 1.65rem;
+            line-height: 1;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+        }
+        .quiz-podium-medal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.4rem;
+            padding: 2px 8px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: #1a237e;
+            margin-bottom: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .quiz-podium-name {
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: #0d1b2a;
+            word-break: break-word;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+        .quiz-podium-score {
+            font-size: 1rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #0d47a1;
+            letter-spacing: 0.02em;
+        }
+        .quiz-podium-meta {
+            font-size: 0.62rem;
+            color: #37474f;
+            margin-top: 8px;
+            line-height: 1.3;
+            opacity: 0.9;
+        }
+        .quiz-rank-rest-wrap {
+            margin-top: 4px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(26, 35, 126, 0.12);
+            box-shadow: 0 4px 20px rgba(26, 35, 126, 0.08);
+        }
+        .quiz-rank-rest-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #e8eaf6;
+            padding: 11px 14px;
+            background: linear-gradient(90deg, #1a237e 0%, #3949ab 50%, #5c6bc0 100%);
+        }
+        .quiz-rank-rest-head {
+            display: grid;
+            grid-template-columns: 58px 1fr 88px;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 14px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #78909c;
+            background: linear-gradient(180deg, #fafbfc 0%, #eceff1 100%);
+            border-bottom: 2px solid #cfd8dc;
+        }
+        .quiz-rank-rest-head span:nth-child(2) { padding-left: 2px; }
+        .quiz-rank-rest-head span:last-child { text-align: right; }
+        .quiz-rank-rest-row {
+            display: grid;
+            grid-template-columns: 58px 1fr 88px;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 14px;
+            font-size: 0.88rem;
+            border-bottom: 1px solid rgba(207, 216, 220, 0.9);
+            background: linear-gradient(90deg, #fff 0%, #fafcfe 100%);
+        }
+        .quiz-rank-rest-row:nth-child(even) { background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%); }
+        .quiz-rank-rest-row:last-child { border-bottom: none; }
+        .quiz-rank-pos-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+        .quiz-rank-pos-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 6px;
+            font-size: 0.95rem;
+            color: #fff;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #42a5f5 0%, #1565c0 100%);
+            box-shadow: 0 2px 0 #0d47a1, inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+        .quiz-rank-pos-suffix {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #1565c0;
+            margin-left: 1px;
+        }
+        .quiz-rank-nm { min-width: 0; }
+        .quiz-rank-nm-inner {
+            display: inline-block;
+            font-weight: 700;
+            color: #1a237e;
+            word-break: break-word;
+            line-height: 1.35;
+            padding: 4px 0;
+        }
+        .quiz-rank-pt { text-align: right; }
+        .quiz-rank-score-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 3.25rem;
+            padding: 6px 12px;
+            font-size: 0.95rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #0d47a1;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #fff 0%, #e3f2fd 45%, #bbdefb 100%);
+            border: 1px solid #90caf9;
+            box-shadow: 0 2px 0 #64b5f6, inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        .quiz-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+        .quiz-lock-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            padding: 18px;
+        }
+        .quiz-lock-overlay.visible { display: flex; }
+        .quiz-lock-box {
+            width: min(92vw, 360px);
+            border-radius: 14px;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-lock-title {
+            margin: 0 0 8px;
+            color: #1a237e;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+        .quiz-lock-hint {
+            margin: 0 0 12px;
+            color: #455a64;
+            font-size: 0.84rem;
+            line-height: 1.4;
+        }
+        .quiz-lock-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #b0bec5;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .quiz-lock-input:focus {
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.14);
+        }
+        .quiz-lock-error {
+            min-height: 1.1rem;
+            margin: 8px 0 0;
+            color: #c62828;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .quiz-lock-actions {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        @media (max-width: 820px) {
+            body {
+                padding-top: 178px;
+                padding-bottom: 88px;
+            }
+            .fixed-header {
+                padding: 10px 10px 12px;
+            }
+            .header-top {
+                gap: 8px;
+            }
+            .header-top h2 {
+                font-size: 0.9rem;
+                letter-spacing: 0.6px;
+                line-height: 1.25;
+                text-transform: none;
+            }
+            .btn-side {
+                min-width: 68px;
+                padding: 7px 10px;
+                font-size: 0.72rem;
+            }
+            .navbar {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                margin-top: 10px;
+            }
+            .navbar .nav-spacer {
+                display: none;
+            }
+            .navbar .nav-center {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .navbar .nav-center button {
+                min-width: 0;
+                width: 100%;
+                font-size: 0.68rem;
+                padding: 8px 8px;
+            }
+            .navbar .nav-quiz {
+                justify-self: center;
+            }
+            .btn-quiz {
+                font-size: 0.72rem;
+                padding: 8px 16px;
+            }
+            .container {
+                margin: 0 8px 24px;
+                border-radius: 10px;
+                padding: 12px;
+            }
+            .section-content {
+                margin-top: 24px;
+                padding-top: 12px;
+            }
+            .section-title-box {
+                border-radius: 12px;
+                padding: 10px 12px;
+                margin-bottom: 14px;
+            }
+            .section-title-box h2 {
+                font-size: 0.96rem;
+                line-height: 1.3;
+            }
+            .card {
+                padding: 12px;
+                margin: 12px 0;
+                border-radius: 10px;
+            }
+            .question-header {
+                gap: 8px;
+            }
+            .question-text {
+                font-size: 0.92rem;
+                line-height: 1.35;
+            }
+            .btn-yes, .btn-no, .btn-correlation {
+                min-height: 44px;
+                padding: 10px 12px;
+            }
+            .quiz-fs-topbar {
+                padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+            }
+            .quiz-fs-title {
+                font-size: 0.96rem;
+            }
+            .quiz-fs-exit {
+                padding: 9px 13px;
+                font-size: 0.82rem;
+            }
+            .quiz-fs-scroll {
+                max-width: 100%;
+                padding: 12px 10px calc(22px + env(safe-area-inset-bottom));
+            }
+            .quiz-choice-btn {
+                min-height: 46px;
+                font-size: 0.93rem;
+            }
+            .quiz-rank-section-header {
+                gap: 8px;
+                padding: 12px;
+            }
+            .quiz-rank-section-icon {
+                font-size: 1.55rem;
+            }
+            .quiz-rank-heading {
+                font-size: 0.98rem;
+            }
+            .quiz-rank-heading-sub {
+                font-size: 0.68rem;
+            }
+            .quiz-rank-section-pill {
+                padding: 5px 9px;
+                font-size: 0.6rem;
+            }
+            .quiz-rank-body {
+                padding: 10px;
+            }
+            .quiz-podium {
+                gap: 6px;
+                min-height: 132px;
+            }
+            .quiz-podium-slot {
+                max-width: none;
+                min-width: 0;
+                padding: 6px 6px 10px;
+            }
+            .quiz-podium-name {
+                font-size: 0.72rem;
+            }
+            .quiz-podium-score {
+                font-size: 0.9rem;
+            }
+            .quiz-rank-rest-head,
+            .quiz-rank-rest-row {
+                grid-template-columns: 54px 1fr 74px;
+                gap: 8px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .quiz-rank-score-pill {
+                min-width: 2.7rem;
+                padding: 5px 9px;
+                font-size: 0.85rem;
+            }
+            .quiz-lock-box {
+                width: min(94vw, 340px);
+                padding: 14px;
+            }
+            .quiz-lock-actions .btn-side {
+                min-width: 78px;
+            }
+        }
+        @media (max-width: 430px) {
+            body {
+                padding-top: 190px;
+            }
+            .header-top h2 {
+                font-size: 0.82rem;
+            }
+            .btn-side {
+                min-width: 62px;
+                padding: 7px 8px;
+                font-size: 0.68rem;
+            }
+            .navbar .nav-center button {
+                font-size: 0.64rem;
+            }
+            .btn-quiz {
+                font-size: 0.66rem;
+                padding: 7px 12px;
+            }
+            .quiz-row label,
+            .quiz-pts-hint,
+            .quiz-tf-hint,
+            .quiz-timer-hint {
+                font-size: 0.76rem;
+            }
+            .quiz-q {
+                font-size: 0.96rem;
+            }
+            .quiz-choice-btn {
+                font-size: 0.88rem;
+                padding: 12px;
+            }
+            .quiz-podium-medal {
+                font-size: 0.82rem;
+            }
+            .quiz-podium-meta {
+                font-size: 0.58rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="fixed-header">
+    <div class="header-top">
+        <button class="btn-side btn-reset" onclick="resetAll()">RESET</button>
+        <h2 id="main-title">Istruzioni operative interattive</h2>
+        <button class="btn-side btn-report" onclick="scrollToReport()">diagnosi</button>
+    </div>
+    <div class="navbar">
+        <div class="nav-spacer" aria-hidden="true"></div>
+        <div class="nav-center">
+            <button id="btn-sec-cf" class="active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
+            <button id="btn-sec-mbr" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
+        </div>
+        <div class="nav-quiz">
+            <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div id="cf-content" class="section-content"></div>
+    <div id="mbr-content" class="section-content"></div>
+
+    <div id="report-area" class="report">
+        <div class="section-title-box">
+            <h2>📊 DIAGNOSI</h2>
+        </div>
+        <div id="report-dynamic-content">
+            <p style="color: #666;">Selezionare i punti delle istruzioni operative per generare il commento tecnico...</p>
+        </div>
+    </div>
+</div>
+
+    <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
+        <div class="quiz-fs-topbar">
+            <span class="quiz-fs-title">Quiz operativo</span>
+            <button type="button" class="quiz-fs-exit" onclick="closeQuiz()">Esci</button>
+        </div>
+        <div class="quiz-fs-scroll">
+        <div id="quiz-screen-intro">
+            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. Un errore termina il quiz.</p>
+            <div class="quiz-row">
+                <label for="quiz-name">Nome (per classifica)</label>
+                <input type="text" id="quiz-name" maxlength="40" placeholder="Es. Mario Rossi" autocomplete="name">
+            </div>
+            <input type="hidden" id="quiz-start-level" value="1">
+            <div class="quiz-level-pick" aria-label="Quiz livello unico">
+                <div class="quiz-level-single">
+                    <span class="quiz-level-title">Livello 1</span>
+                    <p class="quiz-pts-hint">Un solo percorso: il punteggio per risposta esatta cambia a seconda della domanda — <b>+5</b> (base), <b>+10</b> (intermedio) o <b>+15</b> (avanzato).</p>
+                    <p class="quiz-tf-hint">Le domande sono in stile <strong>vero / falso</strong>: compaiono <strong>tre affermazioni</strong> e una sola è <strong>vera</strong>; le altre due sono <strong>false</strong>. Scegli quella corretta.</p>
+                    <p class="quiz-timer-hint">Dalla <strong>5ª domanda</strong> in poi hai <strong>10 secondi</strong> per rispondere: se il tempo scade, il quiz si interrompe come per un errore.</p>
+                    <p class="quiz-challenge">Challenge yourself</p>
+                    <p class="quiz-challenge-sub">Mettiti alla prova, sfida te stesso e gli altri</p>
+                </div>
+            </div>
+            <p style="font-size:0.82rem;color:#777;margin:8px 0 10px;">Ogni partita mescola le domande e ne sorteggia un blocco casuale. In basso trovi la <strong>classifica aggiornata</strong> dopo ogni tentativo.</p>
+            <div class="quiz-actions">
+                <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
+                <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
+            </div>
+        </div>
+        <div id="quiz-screen-play" style="display:none;">
+            <div id="quiz-play-body">
+                <div id="quiz-progress" style="font-size:0.85rem;color:#666;margin-bottom:8px;"></div>
+                <div id="quiz-timer-wrap" class="quiz-timer-wrap" aria-hidden="true">
+                    <span class="quiz-timer-label">Tempo</span>
+                    <span id="quiz-timer-value" class="quiz-timer-value">10</span>
+                    <span class="quiz-timer-unit">s</span>
+                </div>
+                <div id="quiz-meta"></div>
+                <div id="quiz-question" class="quiz-q"></div>
+                <div id="quiz-choices" class="quiz-choices"></div>
+                <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
+            </div>
+            <div class="quiz-actions">
+                <button type="button" class="btn-side btn-reset" onclick="quizAbort()">Esci dal quiz</button>
+            </div>
+        </div>
+        <div id="quiz-screen-over" style="display:none;">
+            <h3>Risultato</h3>
+            <p id="quiz-over-msg" style="color:#555;"></p>
+            <div class="quiz-score-big" id="quiz-final-score">0</div>
+            <p style="font-size:0.9rem;color:#666;">Classifica aggiornata salvata in locale su questo dispositivo (in seguito: Firestore per classifica online condivisa).</p>
+            <div class="quiz-actions">
+                <button type="button" class="btn-side btn-report" onclick="quizRestart()">Nuovo quiz</button>
+                <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
+            </div>
+        </div>
+        <div id="quiz-rank-wrap" class="quiz-rank-section">
+            <div class="quiz-rank-section-header">
+                <span class="quiz-rank-section-icon" aria-hidden="true">🏆</span>
+                <div class="quiz-rank-section-titles">
+                    <h4 class="quiz-rank-heading">Classifica aggiornata</h4>
+                    <p class="quiz-rank-heading-sub">Punteggi salvati su questo dispositivo</p>
+                </div>
+                <span class="quiz-rank-section-pill">Livello 1</span>
+            </div>
+            <div id="quiz-rank-body" class="quiz-rank-body"></div>
+        </div>
+        </div>
+    </div>
+
+    <div id="quiz-lock-overlay" class="quiz-lock-overlay" aria-hidden="true">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password modalità quiz">
+            <h4 class="quiz-lock-title">Password modalità quiz</h4>
+            <p class="quiz-lock-hint">Inserisci la password per mostrare o nascondere il quiz.</p>
+            <input id="quiz-lock-input" class="quiz-lock-input" type="password" autocomplete="off" placeholder="Password">
+            <p id="quiz-lock-error" class="quiz-lock-error"></p>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-reset" onclick="hideQuizPasswordModal()">Annulla</button>
+                <button type="button" class="btn-side btn-report" onclick="confirmQuizPassword()">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+let log = [];
+let isManualScrolling = false;
+let returnPoint = null;
+let isUpdating = false; // Flag per evitare loop infiniti nella mutua esclusione
+let mbrCheckDepth = 0; // Profondita' chiamate annidate (es. mutua esclusione 8/9)
+let mbrViewportSticky = null; // { id, top } ancoraggio scroll su mobile
+let correlationYes = {}; // Traccia le risposte SÌ per le correlazioni
+let quizFeatureEnabled = false;
+let titleClickCount = 0;
+let titleClickTimer = null;
+
+function applyQuizVisibility() {
+    const quizNav = document.querySelector('.nav-quiz');
+    const quizPanel = document.getElementById('quiz-panel');
+    if (quizNav) quizNav.style.display = quizFeatureEnabled ? '' : 'none';
+    if (quizPanel && !quizFeatureEnabled) {
+        quizPanel.classList.remove('visible');
+        document.body.classList.remove('quiz-open');
+    }
+}
+
+function toggleQuizFeatureByPassword() {
+    showQuizPasswordModal();
+}
+
+function showQuizPasswordModal() {
+    const overlay = document.getElementById('quiz-lock-overlay');
+    const input = document.getElementById('quiz-lock-input');
+    const err = document.getElementById('quiz-lock-error');
+    if (!overlay || !input || !err) return;
+    err.textContent = '';
+    input.value = '';
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => input.focus());
+}
+
+function hideQuizPasswordModal() {
+    const overlay = document.getElementById('quiz-lock-overlay');
+    const err = document.getElementById('quiz-lock-error');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (err) err.textContent = '';
+}
+
+function confirmQuizPassword() {
+    const input = document.getElementById('quiz-lock-input');
+    const err = document.getElementById('quiz-lock-error');
+    const val = input ? input.value.trim().toLowerCase() : '';
+    if (val !== 'ciccio') {
+        if (err) err.textContent = 'Password errata.';
+        if (input) {
+            input.focus();
+            input.select();
+        }
+        return;
+    }
+    hideQuizPasswordModal();
+    quizFeatureEnabled = !quizFeatureEnabled;
+    if (!quizFeatureEnabled) {
+        quizClearQuestionTimer();
+        closeQuiz();
+    }
+    applyQuizVisibility();
+}
+
+function setupQuizTitleToggle() {
+    function isTitleTarget(el) {
+        if (!el) return false;
+        return !!el.closest('#main-title, .fixed-header .header-top h2');
+    }
+    function registerDoubleClickIntent() {
+        titleClickCount += 1;
+        if (titleClickTimer) clearTimeout(titleClickTimer);
+        titleClickTimer = setTimeout(() => {
+            titleClickCount = 0;
+            titleClickTimer = null;
+        }, 500);
+        if (titleClickCount >= 2) {
+            titleClickCount = 0;
+            if (titleClickTimer) {
+                clearTimeout(titleClickTimer);
+                titleClickTimer = null;
+            }
+            toggleQuizFeatureByPassword();
+        }
+    }
+
+    const title = document.getElementById('main-title') || document.querySelector('.fixed-header .header-top h2');
+    if (title) {
+        title.style.cursor = 'pointer';
+        title.title = 'Doppio click per modalità quiz';
+        title.addEventListener('dblclick', function preventNativeDblClick(ev) {
+            ev.preventDefault();
+        });
+    }
+
+    document.addEventListener('click', function onAnyClick(ev) {
+        if (!isTitleTarget(ev.target)) return;
+        registerDoubleClickIntent();
+    }, true);
+
+    document.addEventListener('keydown', function quizPasswordEscape(ev) {
+        const overlay = document.getElementById('quiz-lock-overlay');
+        if (!overlay || !overlay.classList.contains('visible')) return;
+        if (ev.key === 'Escape') {
+            ev.preventDefault();
+            hideQuizPasswordModal();
+        } else if (ev.key === 'Enter') {
+            ev.preventDefault();
+            confirmQuizPassword();
+        }
+    });
+}
+
+const db = {
+    cf: [
+        { p: 1, q: "Acqua in uscita chiarificata e pulita?", si: "Target < 20 NTU rispettato.<br>l'acqua chiarificata presenta una torbidità inferiore a 20 NTU. Questo garantisce che il carico di solidi sospesi inviato al BIOLOGICO MBBR sia minimo, evitando l'intasamento dei carrier e permettendo ai batteri di lavorare esclusivamente sul carico organico disciolto (COD).", 
+          actions: [
+            { c: "Coagulante (PAC)", a: "Verificare dosaggio e arrivo effettivo in vasca" },
+            { c: "Polielettrolita", a: "Verificare corretta preparazione e dosaggio" },
+            { c: "Flottazione (parametri critici)", a: "Pressione saturatore nel range 4,5–6 bar; verificare effetto acqua bianca / microbolle in vasca (aria disciolta efficace). Ricircolo verso saturatore sul flussimetro nel range 10–30% della portata di linea. Controllare la linea di saturazione: valvole, regolazioni corrette. Confermare torbidità obiettivo chiarificato < 20 NTU dopo ottimizzazione." },
+            { c: "Fanghi", a: "Verificare livello fango e regolarità degli spurghi" }
+          ],
+          risk_list: [
+            "Inibizione del biofilm sui carrier: solidi sospesi e residui oleosi formano una barriera fisica; più la torbidità è alta, più respirazione e nutrizione della biomassa diventano difficili.",
+            "Saturazione della richiesta di ossigeno: chiarificato sporco aumenta il carico ossidabile (COD) sul biologico; se aerazione e ossigeno non compensano, rischio deriva verso fango scuro/anossia.",
+            "Perdita di efficienza a valle: materiale non separato nel chimico-fisico passa al MBBR e riduce la depurazione complessiva."
+          ],
+          no: "Acqua in uscita torbida.", tag: "Torbidità" },
+        { p: 2, q: "Sono presenti tracce di olio nel chiarificato?", control: true,
+          si: "Parametro a norma.<br>L'assenza di tracce oleose conferma che la tensione superficiale tra aria e fiocco è ottimale e che il processo di flottazione sta rimuovendo efficacemente tutte le sostanze idrofobe. Un chiarificato privo di oli è l'indicatore principale di una corretta pre-trattamento chimica.<br><br>Se arriva olio in eccesso dal chiarificatore, questo si \"attacca\" istantaneamente alla superficie porosa dei carrier creando una pellicola grassa.<br><br>Questa pellicola agisce come un vero e proprio \"impermeabile\" o una \"guaina plastica\": l'acqua scivola via e non entra più in contatto con i batteri. Di conseguenza, i microrganismi rimangono vivi sotto lo strato oleoso, ma subiscono un processo di asfissia: non riescono più a \"mangiare\" il COD e a ricevere ossigeno, poiché l'olio ne impedisce fisicamente il passaggio.<br><br>Certificare l'assenza di olio in questa fase significa garantire che il sistema biologico possa lavorare al 100% delle sue potenzialità, mantenendo la superficie dei carrier pulita, permeabile e biologicamente attiva.",
+          correlation_update: "Trascinamento di fase oleosa dal comparto Chimico-Fisico verso il Biologico.<br><br><strong>INTENSIFICARE I CONTROLLI:</strong><br><br><strong>- Ispezione Meccanica:</strong> Verifica immediata del sistema di raschiatura del flottatore. Se l'olio passa nel chiarificato, potrebbe significare che il sistema di rimozione superficiale è bloccato, rotto o saturato.<br><br><strong>- Portata in ingresso:</strong> Ridurre temporaneamente la portata in ingresso al chimico-fisico per aumentare i tempi di separazione e ridurre le turbolenze che potrebbero trascinare l'olio nel chiarificato.<br><br><strong>- Ottimizzazione della Coagulazione e Flocculazione</strong><br><br><strong>Dosaggio Coagulante (PAC):</strong> controllare la miscelazione. Aumentare il dosaggio del coagulante per migliorare la destabilizzazione delle particelle d'olio e facilitarne la separazione.<br><br><strong>Verifica Parametro pH (Target 6,5–7,5):</strong> Controllare immediatamente che il pH sia nel range operativo critico. Se il pH è fuori norma, il coagulante non reagisce e l'olio non viene separato, finendo nel biologico.",
+          risk_list: [
+            "Inibizione trasferimento ossigeno (film superficiale)",
+            "Formazione schiume persistenti in BIOLOGICO MBBR",
+            "Possibile shock biologico",
+            "Instabilità del processo biologico"
+          ],
+          actions: [
+            { c: "Controllo dosaggio coagulante", a: "Se c'è margine, aumentare il dosaggio del coagulante" },
+            { c: "Controllo COD in ingresso impianto", a: "Se troppo alto, valutare sediflottatori in serie (superato il set point, in gestione processo il passaggio in serie avverrà automaticamente)" },
+            { c: "Controllo processo a monte", a: "Se necessario, spiazzare vasche API" }
+          ],
+          goto: { s: "mbr", p: 4 }, tag: "Olio"
+        },
+        { p: 3, q: "Il coagulante (PAC) arriva correttamente in vasca?", si: "Dosaggio regolare.<br>Il PAC (Polialluminio Cloruro) è il coagulante che permette di aggregare le particelle fini presenti nell'acqua.<br><br>È fondamentale per avviare la formazione dei fiocchi (floc) e rendere efficace la separazione dei solidi nel trattamento chimico-fisico.<br><br>Agisce neutralizzando le cariche dei colloidi, permettendo al polielettrolita di formare floc più grandi e facilmente separabili.<br><br>In alternativa al PAC possono essere utilizzati anche sali di ferro, che svolgono la stessa funzione di coagulazione e risultano particolarmente efficaci su reflui con elevato carico organico o presenza di fosforo.",
+          no: "Anomalia dosaggio coagulante (PAC).",
+          actions: [
+            { c: "Pompa dosatrice", a: "Verificare alimentazione e funzionamento meccanico" },
+            { c: "Mixer di coagulazione in funzione", a: "NON aumentare la dose a caso: senza mixer, aggiungere piu prodotto serve a poco perche rimane concentrato in un solo punto. Si spreca solo prodotto chimico; avvisare il responsabile ed emettere un avviso di manutenzione." },
+            { c: "Pescaggio", a: "Controllare livello bulk e tubazione di aspirazione" },
+            { c: "Linea di mandata", a: "Verificare intasamenti o valvole chiuse" }
+          ],
+          risk_list: [
+            "Assenza coagulazione",
+            "Floc non formato",
+            "Torbidità elevata",
+            "Aumento COD in uscita",
+            "Trascinamento solidi sospesi verso valle con possibile impatto su BIOLOGICO MBBR"
+          ],
+          tag: "Pompe PAC" },
+        { p: 4, q: "Il polielettrolita (PAM) arriva correttamente in vasca?", si: "Dosaggio regolare.<br>Il PAM (Poliacrilammide) è il polielettrolita flocculante che interviene nella fase successiva alla coagulazione.<br><br>È fondamentale per completare la formazione dei fiocchi e rendere efficace la separazione dei solidi nel trattamento chimico-fisico.<br><br>Agisce legandosi ai microfiocchi già formati dal PAC (o dai sali di ferro) attraverso un effetto di \"ponte\" tra le particelle, unendoli in strutture più grandi e stabili. In questo modo permette la formazione di floc più grandi, resistenti e facilmente separabili nella fase di flottazione o sedimentazione.<br><br>In alternativa al PAM possono essere utilizzati altri polielettroliti (anionici, cationici o non ionici), scelti in funzione delle caratteristiche del refluo e delle condizioni di coagulazione ottenute a monte.", 
+          no: "Anomalia dosaggio polielettrolita (PAM).",
+          actions: [
+            { c: "Preparazione polielettrolita", a: "Verificare concentrazione soluzione" },
+            { c: "Pompa dosatrice", a: "Verificare alimentazione e funzionamento meccanico" },
+            { c: "Pescaggio", a: "Verificare linea di mandata (intasamenti) e controllare livello bulk" },
+            { c: "Linea mandata", a: "Verificare intasamenti o valvole chiuse" }
+          ],
+          risk_list: [
+            "Sedimentazione insufficiente",
+            "Trascinamento solidi",
+            "Aumento torbidità"
+          ],
+          tag: "PAM" },
+        { p: 5, q: "I raschiatori funzionano correttamente?", si: "Funzionamento regolare.<br>I raschiatori hanno il compito di separare fisicamente il fango e le sostanze oleose dall'acqua trattata. Mentre il coagulante (PAC) e il polielettrolita (PAM) creano i \"fiocchi\", i raschiatori li convogliano attivamente verso i coni di sfioro per l'estrazione definitiva.<br><br>Protezione a Valle<br>La loro efficacia rappresenta la prima linea di difesa per la biomassa. Un sistema di raschiatura efficiente garantisce che solo acqua chiarificata prosegua il percorso, evitando che oli e solidi sospesi raggiungano il BIOLOGICO MBBR, prevenendo così morie batteriche o cali di rendimento depurativo.", 
+          no: "Anomalia raschiatori rilevata.", 
+          actions: [
+            { c: "Stato delle Palette", a: "Verificare l'integrità meccanica e la corretta aderenza dei profili delle palette." },
+            { c: "Controllo Coni", a: "Verificare la quota idraulica e che lo sfioro del fluido superficiale all'interno dell'imboccatura dei coni sia uniforme." },
+            { c: "Regolazione dei Coni", a: "Adeguare l'altezza dei coni di sfioro in base al flusso idraulico per ottimizzare il recupero selettivo dello strato oleoso." },
+            { c: "Segnalazione Anomalie Palette", a: "Avvisare tempestivamente il responsabile in caso di problemi al fissaggio, alla posizione o all'integrità delle palette, affinché si possa procedere con il ripristino del corretto convogliamento del materiale." }
+          ],
+          risk_list: [
+            "Accumulo fanghi in superficie o fondo",
+            "Trascinamento solidi in uscita → torbidità alta",
+            "Perdita efficienza chiarificazione",
+            "Risalita fanghi (float/sludge blanket instabile)",
+            "Possibile trascinamento di oli e schiume verso BIOLOGICO MBBR → impatto biologico",
+            "Intasamento / sovraccarico linea fanghi",
+            "Infiltrazione Sotto-Paletta: Profili usurati o danneggiati permettono al fango galleggiante di passare sotto la paletta, rendendo inutile la rotazione del raschiatore.",
+            "Sovraccarico e Rottura Meccanica: Il mancato trascinamento causa un accumulo eccessivo di materiale che può bloccare il raschiatore o causare la rottura dei perni di fissaggio delle palette.",
+            "Instabilità Biologica: Il mancato recupero superficiale comporta un accumulo che può causare shock organici e compromettere la salute della biomassa."
+          ],
+          tag: "Raschiatori" },
+        { p: 6, q: "Polielettrolita troppo diluito?", control: true,
+          si: "Parametro a norma.<br>Diluire il polielettrolita ha uno scopo tecnico fondamentale: serve a \"attivare\" le molecole del prodotto per renderle efficaci.<br><br>La diluizione serve a distendere le catene polimeriche che, nel prodotto concentrato, sono tutte aggrovigliate su se stesse. Solo una volta diluito correttamente in acqua, il polielettrolita può \"aprirsi\" e creare quei legami a ponte necessari per catturare i microfiocchi creati dal coagulante e trasformarli in fango pesante.<br><br>Efficacia della miscelazione<br>Una corretta diluizione permette al prodotto di disperdersi istantaneamente e in modo uniforme in tutta la massa d'acqua da trattare. Se fosse troppo denso, non riuscirebbe a legarsi a tutte le particelle, lasciando gran parte dell'acqua torbida e sprecando reagente senza ottenere una chiarificazione ottimale.",
+          risk_list: [
+            "Fango inconsistente e leggero che non riesce a flottare o sedimentare correttamente",
+            "Perdita Potere Aggregante: Una diluizione eccessiva impedisce alle catene polimeriche di creare l'effetto \"ponte\", rendendo il reagente incapace di catturare i microfiocchi.",
+            "Impaccamento dei Carrier: Il fango non aggregato scappa verso il BIOLOGICO MBBR, dove aderisce ai carrier (i supporti plastici dove vivono i batteri) soffocandoli e bloccando la depurazione.",
+            "Protezione a Valle: La corretta densità del polielettrolita è fondamentale per garantire un chiarificato limpido. Questo evita che i solidi sospesi vadano a sporcare la superficie protetta dei carrier, preservando lo spazio vitale per le colonie batteriche che devono abbattere il COD."
+          ],
+          actions: [
+            { c: "Controllo sistema diluizione", a: "Controllo valvola XV-11134 e filtro a monte" },
+            { c: "Viscosità e Filantezza", a: "Verificare visivamente la consistenza del polielettrolita; se appare troppo fluido (simile all'acqua), la concentrazione è insufficiente. Una soluzione correttamente dosata deve risultare leggermente viscosa e \"filante\" (appiccicosa al tatto), segno che le catene polimeriche sono attive." },
+            { c: "Regolazione Idraulica", a: "Regolare il flusso d'acqua per garantire la corretta densità della soluzione, riducendo o aumentando l'apporto di acqua tecnica fino al ripristino della viscosità ottimale." }
+          ],
+          tag: "Poly"
+        },
+        { p: 7, q: "pH a norma (6.5 - 7.5)?", si: "Parametro ottimale (Coagulazione e Flottazione)<br><br>Efficienza del Coagulante<br>Mantenere il pH tra 6,5 e 7,5 è la condizione necessaria affinché il coagulante (PAC o sali di ferro) possa idrolizzare correttamente. In questo range, le cariche elettriche delle particelle di olio e dei solidi sospesi vengono neutralizzate, permettendo la formazione di un fiocco stabile e pesante. Se il pH uscisse da questo intervallo, il coagulante rimarrebbe sciolto in acqua (emulsionato), lasciando l'olio libero di passare oltre il flottatore.<br><br>Protezione Meccanica e Anti-Fouling<br>Un pH controllato in questa fase garantisce che la schiuma superficiale sia compatta e facilmente asportabile dai raschiatori. Questo agisce come una barriera fisica: impedisce il trascinamento di oli e grassi verso le fasi successive. Assicurare una corretta coagulazione qui significa evitare che l'olio arrivi al biologico (causando schiuma nera) e, soprattutto, prevenire la colmatazione irreversibile (fouling) delle membrane MBR a valle", 
+          no: "pH fuori range.",
+          ph_consequences: true,
+          actions: [
+            { c: "pHmetro", a: "Verificare calibrazione e funzionamento strumento" },
+            { c: "Dosaggio acido/base", a: "Regolare pompe dosatrici per ristabilire pH corretto" },
+            { c: "Acqua di processo", a: "Controllare qualità e composizione dell'acqua in ingresso" }
+          ],
+          risk_list: [
+            "Inibizione attività batterica",
+            "Morte biomassa",
+            "Riduzione efficienza depurativa",
+            "Aumento COD in uscita",
+            "Possibile danno ai carrier MBBR"
+          ],
+          tag: "pH"
+        },
+        { p: 8, q: "E' presente l'aria di flottazione e il saturatore lavora tra 4,5 e 6 bar?", si: "Flottazione Attiva ed Efficiente.<br><br>L'aria compressa viene disciolta nell'acqua all'interno del saturatore. Al rilascio in vasca, la caduta di pressione genera miliardi di microbolle (effetto \"acqua bianca\") che si agganciano ai fiocchi di fango. Questo complesso aria-particella risale rapidamente in superficie formando una crosta (fango flottato) che viene rimossa meccanicamente dai raschiatori. Senza il mantenimento della pressione specifica, l'aggancio non avviene e lo sporco non galleggia.",
+          no: "ANOMALIA: Mancanza aria o pressione fuori range operativo.",
+          actions: [
+            { c: "Pressione", a: "Parametro operativo saturatore: 4,5-6 bar." },
+            { c: "Compressore Aria", a: "Verificare lo stato di marcia e che la linea di mandata sia aperta." },
+            { c: "Valvola Depressurizzazione", a: "Ispezionare la valvola: se e ostruita, l'acqua non diventa \"bianca\"." },
+            { c: "Ricircolo sediflottatore", a: "Verificare sui flussimetri che il tasso di ricircolo sia tra il 10% e il 30%." }
+          ],
+          critical: [
+            "Mancata Flottazione: i fiocchi non salgono in superficie, restano sospesi o precipitano sul fondo, rendendo inutili i raschiatori.",
+            "Torbidita Fuori Limite: l'acqua in uscita supera il target di 20 NTU, trascinando solidi e inquinanti verso lo scarico.",
+            "Trascinamento al Biologico (MBBR): il fango non separato finisce nell'MBBR a valle, con rischio di intasamento dei carrier e soffocamento del biofilm batterico.",
+            "Accumulo fanghi pesanti: rischio di ostruzione degli scarichi di fondo del sediflottatore per deposito di materiale non flottato."
+          ],
+          tag: "Aria Sediflottatore"
+        },
+    ],
+    mbr: [
+        { p: 1, q: "C'e insufflaggio d'aria?", si: "L'insufflaggio d'aria è il cuore pulsante del sistema. La sua presenza costante garantisce due funzioni vitali che trasformano completamente l'acqua:<br><br><strong>Metabolismo dei Batteri (La \"Combustione\")</strong><br>I batteri buoni (aerobi) usano l'ossigeno per \"bruciare\" lo sporco organico (COD e BOD5). Senza aria, i batteri non avrebbero l'energia per mangiare; grazie all'aria, trasformano gli inquinanti in nuova massa cellulare e anidride carbonica, rendendo l'acqua limpida.<br><br><strong>Miscelazione Totale (Il \"Contatto\")</strong><br>L'aria che sale dal fondo mantiene il fango in sospensione. Questo movimento continuo assicura che ogni goccia di acqua sporca entri in contatto con i batteri. Senza questo rimescolamento, il fango cadrebbe sul fondo, diventerebbe nero e smetterebbe di depurare.<br><br><strong>Effetto visivo</strong>", no: "Insufflaggio aria assente o insufficiente.",
+          actions: [
+            { c: "Stato soffianti", a: "Verificare se le macchine sono in marcia, in blocco termico o con allarmi elettrici a quadro. Eseguire reset e riavvio manuale." },
+            { c: "Controllo DCS su tempi ed esercizio soffianti", a: "Dopo aver accertato la marcia regolare, regolare in manuale da DCS i tempi e l'esercizio delle soffianti per ripristinare il corretto passaggio d'aria, quindi riportare il sistema in automatico." }
+          ],
+          risk_list: [
+            "Morte della massa batterica (shock anossico): senza ossigeno i batteri aerobi possono morire in poche ore.",
+            "Sviluppo di odori molesti: avvio di processi fermentativi e putrefattivi (formazione di H2S, odore di uova marce).",
+            "Risalita dei fanghi (bulking anossico): il fango scurisce, perde peso, galleggia e puo uscire con l'acqua chiarificata, riducendo drasticamente la resa allo scarico."
+          ],
+          tag: "Insufflaggio"
+        },
+        { p: 2, q: "Aereazione uniforme in vasca?", si: "L'aerazione uniforme garantisce una turbolenza omogenea, essenziale per mantenere i carrier in movimento costante su tutto il volume della vasca. Questo assicura che il biofilm sia sempre a contatto con l'acqua da trattare, eliminando le zone morte e ottimizzando il trasferimento di ossigeno.<br><br>Protezione a Valle<br>Il mantenimento di un'aerazione uniforme è la garanzia per la stabilità del biologico:<br><br>Efficienza di Abbattimento: Impedisce il \"corto circuito\" idraulico, assicurando che tutto il carico organico (COD) venga processato dai batteri prima dell'uscita.<br><br>Autopulizia del Biofilm: Lo sfregamento costante tra i carrier, generato dal moto uniforme, mantiene il biofilm sottile e attivo, evitando che fango vecchio o marcescente si stacchi improvvisamente sporcando il chiarificatore finale.<br><br>Salvaguardia Idraulica: Una distribuzione corretta evita l'accumulo di massa plastica contro le griglie di uscita, scongiurando occlusioni e pericolosi innalzamenti del livello in vasca.",
+          no: "Aereazione non uniforme / Diffusori ostruiti.",
+          actions: [
+            { c: "Controllo Visivo", a: "Monitorare e verificare corretta distribuzione aria nei diffusori" },
+            { c: "Controllo visivo - \"Zone morte\" (senza bolle) e aree con \"fontane\" (troppa aria in un punto)", a: "Individuare diffusori sporchi, rotti o occlusi nelle \"zone morte\" e diffusori rotti nelle aree a \"fontane\"; avvisare il responsabile per eventuale avviso di manutenzione." }
+          ],
+          risk_list: [
+            "Zone di Calma e Accumulo: Nelle aree con poca aerazione, i carrier non galleggiano correttamente e tendono a raggrupparsi. Questo crea delle \"isole\" di plastica ferme dove i batteri non ricevono più acqua nuova da depurare.",
+            "Corto Circuito Idraulico: Se l'aria spinge solo in una zona, l'acqua sporca segue il percorso di minor resistenza e scivola via verso l'uscita senza passare attraverso i carrier fermi. In pratica, metà della tua vasca diventa inutile.",
+            "Squilibrio del Biofilm: Nei punti con troppa aria (turbolenza eccessiva), il biofilm può subire uno stress da abrasione e staccarsi dai carrier. Nei punti con poca aria, il biofilm diventa troppo spesso e marcisce per mancanza di ossigeno.",
+            "Instabilità della Portata: La mancata uniformità può generare moti ondosi che spingono masse di carrier contro le griglie di uscita, causando ostruzioni e potenziali tracimazioni della vasca.",
+            "Rischio principale: l'impianto lavori ad una percentuale inferiore rispetto la sua capacità volumetrica, portando a un innalzamento dei valori di COD in uscita."
+          ],
+          tag: "Aerazione" },
+        { p: 3, q: "Schiuma presente su più di metà vasca?", 
+          control: true,
+          si: "Parametro a norma.<br><br>Una leggera schiuma è fisiologica: è generata dal naturale \"turnover\" del biofilm (il distacco della biomassa vecchia dai carrier) e dalle sostanze proteiche prodotte dai batteri stessi. Se l'acqua è limpida e i carrier si muovono liberamente, la scarsa schiuma conferma che non ci sono eccessi di tensioattivi o fenomeni di degradazione anomala. In queste condizioni, l'equilibrio tra carico organico e ossigenazione è da considerarsi ottimale.",
+          risk: "Schiuma diffusa su BIOLOGICO MBBR indica instabilità biologica generalizzata, stress dei supporti o eccessivo carico tensioattivo",
+          actions: [
+            { c: "Controllo Chiarificato chimico-fisico", a: "Verificare se presente schiuma su controllo chimico-fisico" },
+            { c: "Azione Coagulante (PAC)", a: "Ridurre dosaggio coagulante se in eccesso" },
+            { c: "Controllo Oli", a: "Controllare trascinamento oli da chiarificato chimico-fisico" },
+            { c: "Azione Coagulante (Oli)", a: "Aumentare dosaggi coagulante in caso di oli" },
+            { c: "Controllo COD", a: "Verificare innalzamento COD (shock load)" },
+            { c: "Azione COD", a: "Mettere in serie i sediflottatori" },
+            { c: "Ossigeno (O2)", a: "Se in eccesso provoca schiuma, usare un solo compressore" }
+          ],
+          tag: "Schiuma" 
+        },
+        { p: 4, q: "Presenza di schiuma nera?",
+          control: true,
+          si: "Parametro a norma.<br><br>L'assenza di schiuma nera conferma l'efficacia del trattamento a monte nella rimozione di oli, grassi e idrocarburi. La colorazione nera, infatti, è spesso indice di trascinamento di sostanze oleose che soffocano il biofilm o di fenomeni di setticità per carenza di ossigeno. Una schiuma chiara attesta che i carrier sono puliti, ben aerati e che la biomassa è in fase aerobica attiva.",
+          risk: "ALTISSIMO COD - SHOCK TOSSICO BIOMASSA SUI SUPPORTI",
+          actions: [
+            { c: "Presenza di oli residui sul reattore", a: "Controllare il corretto funzionamento della sezione chimico-fisico" },
+            { c: "Azione Shock", a: "Incrementare il dosaggio di carbone attivo sul biologico" }
+          ],
+          tag: "Shock"
+        },
+        { p: 5, q: "Temperatura nei range (15 - 35 °C)?", si: "Il mantenimento della temperatura entro questo intervallo assicura la stabilità del metabolismo batterico.", no: "Temperatura anomala.", tag: "Temp",
+          temp_consequences: true
+        },
+        { p: 6, q: "Il valore del Cono è inferiore a 400?", control: true,
+          si: "Un valore inferiore a 400 ml/l indica una carenza di biomassa attiva nel sistema. Per garantire la stabilità del processo e il corretto abbattimento degli inquinanti, è necessario nutrire la biologia. Procedere con il dosaggio di Urea a intervalli di 2 ore (come da protocollo) fino al raggiungimento del target di stabilità fissato a 600 ml/l.<br><br>Il valore è nella fascia di crescita verso il target ottimale. Una densità di fango superiore a 600 ml/l attesta che la popolazione batterica si sta sviluppando correttamente.",
+          risk: "CARENZA NUTRIENTI / ACCUMULO SOLIDI",
+          actions: [
+            { c: "Dosaggio Urea", a: "Procedere con dosaggio urea a intervalli di due ore fino a cono 600" }
+          ],
+          tag: "Nutrienti"
+        },
+        { p: 7, q: "Ossigeno disciolto rispecchia condizioni operative? Stabile > 2.0 mg/L Ideale: 2.5-4.5 mg/L ?", si: "Il mantenimento dell'ossigeno tra 2 e 4 mg/l è fondamentale per la stabilità del biofilm. Questo range garantisce che l'ossigeno penetri in profondità negli strati della biomassa adesa ai carrier, evitando la formazione di zone morte (anaerobiche) sotto la superficie marrone. Una corretta ossigenazione assicura un metabolismo aerobico efficiente, accelera l'abbattimento del carico organico e mantiene il fango vitale e reattivo.", no: "O2 fuori range (rif. operativo: DO stabile > 2,0 mg/L; ideale 2,5-4,5 mg/L).", tag: "O2",
+          o2_consequences: true
+        },
+        { p: 8, q: "Il fango si presenta marrone?", si: "Il colore marrone indica una biomassa sana, giovane e ben ossigenata. Questa tonalità conferma che il biofilm aderente ai carrier è composto da popolazioni batteriche attive nel degradare il carico organico. Un marrone vivace è il segnale che il turnover cellulare è corretto: il vecchio biofilm si stacca e viene sostituito da nuova biomassa vitale. È la conferma visiva che i parametri di ossigeno, temperatura e nutrienti (Urea) sono ben bilanciati.", no: "Fango NON marrone.", tag: "Salute" },
+        { p: 9, q: "Il fango si presenta nero?", control: true,
+          risk: "ALTISSIMO COD / SHOCK TOSSICO BIOMASSA",
+          actions: [
+            { c: "Verifica funzionamento skid carbonio attivo", a: "" },
+            { c: "Verifica chiarificato sedi flottatori", a: "Se sporco procedere con gestione in serie del chimico fisico" },
+            { c: "Verifica ariazione vasca A-10620", a: "Incrementare infrussaggio con k-11001 A/B" }
+          ],
+          tag: "Fango Nero"
+        }
+    ]
+};
+
+/* ========= Quiz (livelli 1–3, punteggi 5/10/15, stop al primo errore, classifica locale) ========= */
+const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
+let quizBankCache = null;
+const QUIZ_BANK_BUILD_ID = 9;
+const QUIZ_REF_SCHEMA = '3.1';
+let quizBankBuildStored = 0;
+let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1 };
+let quizAnswerLocked = false;
+/** Indice 0-based della prima domanda con countdown (5ª domanda). */
+const QUIZ_TIMER_FIRST_INDEX = 4;
+const QUIZ_TIMER_SECONDS = 10;
+let quizQuestionTimerId = null;
+
+function quizClearQuestionTimer() {
+    if (quizQuestionTimerId) {
+        clearInterval(quizQuestionTimerId);
+        quizQuestionTimerId = null;
+    }
+    const wrap = document.getElementById('quiz-timer-wrap');
+    if (wrap) {
+        wrap.classList.remove('quiz-timer-on', 'quiz-timer-urgent');
+        wrap.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizStartQuestionTimer() {
+    quizClearQuestionTimer();
+    const wrap = document.getElementById('quiz-timer-wrap');
+    const label = document.getElementById('quiz-timer-value');
+    if (!wrap || !label) return;
+    if (quizState.index < QUIZ_TIMER_FIRST_INDEX) {
+        wrap.setAttribute('aria-hidden', 'true');
+        return;
+    }
+    wrap.setAttribute('aria-hidden', 'false');
+    wrap.classList.add('quiz-timer-on');
+    let remaining = QUIZ_TIMER_SECONDS;
+    label.textContent = String(remaining);
+    wrap.classList.toggle('quiz-timer-urgent', remaining <= 3);
+    quizQuestionTimerId = setInterval(() => {
+        if (quizAnswerLocked) {
+            quizClearQuestionTimer();
+            return;
+        }
+        remaining -= 1;
+        label.textContent = String(Math.max(0, remaining));
+        wrap.classList.toggle('quiz-timer-urgent', remaining > 0 && remaining <= 3);
+        if (remaining <= 0) {
+            quizClearQuestionTimer();
+            if (!quizAnswerLocked) quizTimeUp();
+        }
+    }, 1000);
+}
+
+function quizTimeUp() {
+    if (quizAnswerLocked) return;
+    quizAnswerLocked = true;
+    const q = quizState.queue[quizState.index];
+    if (!q) {
+        quizAnswerLocked = false;
+        return;
+    }
+    const ch = document.getElementById('quiz-choices');
+    const fb = document.getElementById('quiz-feedback');
+    const buttons = ch ? ch.querySelectorAll('.quiz-choice-btn') : [];
+    buttons.forEach((b, i) => {
+        b.disabled = true;
+        b.onclick = null;
+        if (i === q.correctIndex) b.classList.add('quiz-opt-correct');
+        else b.classList.add('quiz-opt-dim');
+    });
+    if (fb) {
+        fb.style.display = 'flex';
+        fb.className = 'quiz-feedback quiz-feedback-ko';
+        fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">⏱</span><span>Tempo scaduto</span>';
+    }
+    setTimeout(() => {
+        quizAnswerLocked = false;
+        quizFinish(false, { timedOut: true });
+    }, 1150);
+}
+
+function quizSelectStartLevel() {
+    quizState.startLevel = 1;
+    const hid = document.getElementById('quiz-start-level');
+    if (hid) hid.value = '1';
+}
+
+function quizShuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function quizMakeQuestion(level, points, ref, qText, truth, wrongA, wrongB) {
+    const opts = quizShuffle([
+        { text: truth, ok: true },
+        { text: wrongA, ok: false },
+        { text: wrongB, ok: false }
+    ]);
+    return {
+        level,
+        points,
+        ref,
+        q: qText,
+        options: opts,
+        correctIndex: opts.findIndex(o => o.ok)
+    };
+}
+
+/** Banca curata: domande tecniche generiche su depurazione (allineate ai temi delle istruzioni operative). */
+const QUIZ_CURATED = [
+    { l: 1, ref: 'MBBR — principi', q: 'Cos\'è, in sintesi, un processo MBBR (Moving Bed Biofilm Reactor)?', ok: 'È un biologico a biomassa fissata su supporti (carrier) mobili in vasca, aerato, con biofilm che degrada il carico organico.', w1: 'È un filtro a membrane sottoposto solo a lavaggio controcorrente senza biologia.', w2: 'È un digestore anaerobico chiuso senza ossigeno e senza movimento dell\'acqua.' },
+    { l: 1, ref: 'MBBR — ossigeno', q: 'Nel biologico aerobico, a cosa serve principalmente l\'ossigeno disciolto (OD)?', ok: 'È terminale elettronico della respirazione aerobica: consente ai microrganismi di ossidare la materia organica.', w1: 'Serve solo a ridurre la densità dell\'acqua e favorire la galleggiabilità dei fanghi.', w2: 'Serve principalmente a precipitare i fosfati senza coinvolgere i batteri eterotrofi.' },
+    { l: 1, ref: 'Chimico-fisico — PAC', q: 'Che ruolo ha tipicamente un coagulante come il PAC nel trattamento chimico-fisico?', ok: 'Destabilizza le particelle colloidali neutralizzando cariche superficiali, favorendo l\'aggregazione.', w1: 'Ossida completamente il COD disciolto trasformandolo in anidride carbonica in pochi minuti.', w2: 'Aumenta la durezza dell\'acqua ed elimina la necessità di flocculante.' },
+    { l: 1, ref: 'Chimico-fisico — PAM', q: 'Che funzione svolge di solito il polielettrolita (PAM) dopo la coagulazione?', ok: 'Crea legami a ponte tra microfiocchi formando aggregati più grandi e più separabili.', w1: 'Uccide i batteri patogeni sostituendo la disinfezione con cloro.', w2: 'Alcalinizza permanentemente il refluo rendendo superfluo il controllo del pH.' },
+    { l: 1, ref: 'Flottazione / DAF', q: 'Nella flottazione ad aria disciolta (DAF), che cosa succede tipicamente all\'ingresso in vasca dell\'acqua satura?', ok: 'La brusca riduzione di pressione genera microbolle che aderiscono ai solidi/olio e ne aumentano la galleggiabilità.', w1: 'L\'aria resta disciolta all\'infinito senza formare bolle visibili fino allo scarico.', w2: 'Le bolle grandi millimetriche sono sempre più efficaci delle microbolle per ogni tipo di fiocco.' },
+    { l: 1, ref: 'pH & coagulazione', q: 'Perché il pH influenza fortemente l\'efficacia della coagulazione con sali di alluminio o ferro?', ok: 'Perché modifica l\'idrolisi delle specie metalliche e l\'interazione con le cariche delle particelle.', w1: 'Perché il pH non influenza mai la coagulazione: conta solo la temperatura ambiente esterna.', w2: 'Perché il pH deve essere sempre > 10 per qualsiasi coagulante, indipendentemente dal refluo.' },
+    { l: 1, ref: 'Saturatore / aria', q: 'Che ruolo ha il saturatore in una linea di flottazione con aria disciolta?', ok: 'Disciolve aria in acqua a pressione elevata per formare, al rilascio, le microbolle necessarie alla separazione.', w1: 'Riscalda il refluo per evaporare gli oli prima del biologico.', w2: 'Sostituisce il dosaggio di PAC assorbendo direttamente i colloidi sulla cartuccia filtrante.' },
+    { l: 1, ref: 'Raschiatori', q: 'Cosa fanno i raschiatori su un flottatore o chiarificatore a superficie?', ok: 'Convogliano e rimuovono il materiale accumulato in superficie (fango flottato, schiume, oli).', w1: 'Dosano automaticamente PAC e PAM misurando la portata in ingresso.', w2: 'Misurano l\'MLSS nel biologico e regolano l\'ossigeno disciolto.' },
+    { l: 1, ref: 'Chiarificazione', q: 'Cosa indica in genere una torbidità elevata del chiarificato a valle del chimico-fisico?', ok: 'Presenza di solidi fini non adeguatamente separati, con possibile impatto sul comparto biologico a valle.', w1: 'Conferma che il biologico è sempre sovra-dimensionato e non richiede controlli.', w2: 'È solo un effetto cromatico senza correlazione con solidi sospesi.' },
+    { l: 1, ref: 'Biologia — nutrienti', q: 'Perché in molti reflui industriali si integrano nutrienti (es. azoto come urea)?', ok: 'Per bilanciare BOD/COD e nutrienti quando il refluo è carente rispetto alle esigenze dei microrganismi.', w1: 'Per sostituire completamente l\'ossigeno disciolto nel reattore biologico.', w2: 'Per coagulare gli oli senza bisogno di PAC o PAM.' },
+    { l: 1, ref: 'MBBR — carrier', q: 'Cosa sono i «carrier» in un MBBR?', ok: 'Supporti plastici mobili su cui si sviluppa il biofilm batterico immerso e aerato.', w1: 'Cartucce di carbonio attivo fisse sul fondo vasca per adsorbimento primario.', w2: 'Piastre ceramiche per elettrodialisi senza aerazione.' },
+    { l: 1, ref: 'Griglie / idraulica', q: 'Perché si usano spesso griglie o reti di protezione a valle di un MBBR?', ok: 'Per trattenere eventuali carrier fuoriusciti e proteggere le apparecchiature a valle.', w1: 'Per aumentare la temperatura dell\'acqua e favorire la nitrificazione.', w2: 'Per dosare automaticamente il polielettrolita nel biologico.' },
+    { l: 1, ref: 'Cono / fango', q: 'Cosa misura in genere un cono Imhoff o simile sul fango di un impianto?', ok: 'Un volume o indicatore collegato alla sedimentabilità / concentrazione del fango nel campione.', w1: 'La pressione del saturatore della linea DAF.', w2: 'La velocità dell\'aria nei diffusori a disco.' },
+    { l: 1, ref: 'Trattamento — sintesi', q: 'Che cosa si intende per «trattamento chimico-fisico» a monte del biologico?', ok: 'Separazione di solidi, oli e parte del carico per coagulazione, flocculazione e flottazione o sedimentazione.', w1: 'Ossidazione biologica completa del nitrato senza consumo di ossigeno.', w2: 'Solo disinfezione UV senza rimozione di solidi o oli.' },
+    { l: 1, ref: 'COD / BOD', q: '«COD» nei report di impianto: in pratica cosa ti sta dicendo?', ok: 'Quanto ossigeno servirebbe per ossidare la materia organica (e altre specie riducibili) nel campione: è un indice di carico.', w1: 'Solo quanti cloruri ci sono, niente a che fare con l\'organico.', w2: 'La durezza totale dell\'acqua e nient\'altro.' },
+    { l: 1, ref: 'BOD', q: 'BOD5 (spesso scritto così): cosa misura di solito?', ok: 'Ossigeno consumato in condizioni standardizzate dalla degradazione biochimica: legato alla parte biodegradabile.', w1: 'La temperatura del fango nel cono.', w2: 'La pressione del saturatore in bar assoluti.' },
+    { l: 1, ref: 'Insufflaggio', q: 'Aria che bolle dal fondo in vasca MBBR: a cosa ti serve davvero, oltre al «rumore»?', ok: 'Portare ossigeno e mescolare bene acqua e biomassa sui carrier.', w1: 'Solo raffreddare l\'olio in superficie.', w2: 'Sterilizzare tutto come in autoclave.' },
+    { l: 1, ref: 'NTU', q: 'NTU alta sullo strumento: in parole da capanno cosa vuol dire?', ok: 'Tanta roba fine che «appanna» l\'acqua: solidi sospesi / torbidità.', w1: 'Solo che l\'acqua è colorata, punto.', w2: 'Che manca sempre e solo ossigeno, sempre.' },
+    { l: 1, ref: 'Ordine chimica', q: 'PAC e PAM: perché di solito il PAC sta prima?', ok: 'Prima destabilizzi le particelle, poi il polielettrolita le aggancia a ponte in fiocchi più grossi.', w1: 'Perché l\'ordine è uguale sempre: prima PAM poi PAC.', w2: 'Perché il PAM neutralizza le cariche al posto del PAC.' },
+    { l: 1, ref: 'pH — miti', q: 'pH completamente fuori range sulla coagulazione: cosa rischi sul campo?', ok: 'Coagulazione debole o assente: fiocchi scarsi e separazione che va a male.', w1: 'Zero differenza: il pH è solo cosmetico.', w2: 'Il PAC diventa magicamente più forte all\'infinito.' },
+    { l: 1, ref: 'Carrier persi', q: 'Vedi carrier che finiscono a valle: è una cosa da ignorare?', ok: 'No: rischi idraulici, intasamenti e biologia fuori posto.', w1: 'Sì, è segno che il biologico è perfetto.', w2: 'Sì, aiutano le membrane MBR a pulirsi da sole.' },
+    { l: 1, ref: 'Sludge blanket', q: 'Coperta di fango (sludge blanket) alta in chiarificatore: che sapore ha come problema?', ok: 'Separazione che non regge: rischio trascinamenti e qualità che peggiora.', w1: 'Segno sicuro che l\'ossigeno è troppo alto.', w2: 'Vuol dire che il PAC è sempre dosato bene.' },
+    { l: 1, ref: 'Pompe dosaggio', q: 'Pompa dosatrice del PAC: a cosa pensa chi la mette lì?', ok: 'A mandare in vasca una dose controllata e verificabile di coagulante.', w1: 'A mescolare l\'acqua al posto del mixer.', w2: 'A misurare il pH senza campionamento.' },
+    { l: 1, ref: 'Diffusori', q: 'Diffusori nell\'MBBR: che lavoro fanno?', ok: 'Distribuiscono le bolle d\'aria per ossigenare e fluidizzare i carrier.', w1: 'Dosano il PAM in microgocce.', w2: 'Filtrano i solidi al posto delle griglie.' },
+    { l: 1, ref: 'Schiuma leggera', q: 'Una schiuma leggera su biologico, con acqua limpida e carrier che si muovono: spesso è…', ok: 'Qualcosa di fisiologico (turnover biofilm, proteine): da contestualizzare, non sempre allarme rosso.', w1: 'Sempre shock tossico al 100%.', w2: 'Sempre mancanza totale di ossigeno.' },
+    { l: 1, ref: 'Chimico vs biologico', q: 'Chimico-fisico prima del biologico: perché c\'è quasi sempre?', ok: 'Per togliere roba «sporca» che altrimenti strozza o sporca il biologico.', w1: 'Perché il biologico non serve mai in impianto.', w2: 'Solo per abitudine storica, senza motivo tecnico.' },
+
+    { l: 2, ref: 'Mixer & PAC', q: 'Mixer di coagulazione spento ma dose PAC aumentata: quale effetto è più plausibile?', ok: 'Reagente concentrato in zone locali, fiocchi irregolari e spreco chimico con scarsa efficacia globale.', w1: 'Distribuzione perfetta del coagulante in tutta la vasca indipendentemente dal mixer.', w2: 'Eliminazione automatica della necessità di PAM perché il PAC si auto-dispersiona sempre.' },
+    { l: 2, ref: 'pH fuori range', q: 'pH di coagulazione molto fuori dal range tipico (es. 6,5–7,5 per molti sistemi alluminio): cosa succede spesso al PAC?', ok: 'L\'idrolisi e la speciazione dell\'alluminio non sono ottimali: coagulazione debole o assente.', w1: 'Il PAC diventa sempre più efficace al diminuire del pH, senza limiti.', w2: 'Il pH influenza solo il colore visivo, non la formazione del fiocco.' },
+    { l: 2, ref: 'Saturatore — pressione', q: 'Pressione nel saturatore troppo bassa rispetto al progetto: effetto tipico sulla DAF?', ok: 'Poche microbolle: separazione peggiore e rischio di torbidità o trascinamenti.', w1: 'Sempre più bolle fini indipendentemente dalla pressione, quindi miglior flottazione.', w2: 'Nessun effetto: la pressione serve solo al conteggio ore macchina.' },
+    { l: 2, ref: 'PAM — diluizione', q: 'Polielettrolita eccessivamente diluito o mal preparato: rischio principale?', ok: 'Catene polimeriche poco attive: ponte fiocculante debole e fango che non aggrega bene.', w1: 'Flocculazione sempre più forte perché il volume maggiore aumenta la viscosità utile.', w2: 'Eliminazione completa del bisogno di PAC a monte.' },
+    { l: 2, ref: 'MBBR — aerazione', q: 'Aerazione non uniforme (zone morte e «fontane» locali): effetto sul processo?', ok: 'Ridotto contatto acqua-biomassa, possibile corto circuito idraulico e biofilm spesso o stressato a chiazze.', w1: 'Non influenza il COD: l\'ossigeno si redistribuisce sempre istantaneamente omogeneo.', w2: 'Elimina la necessità di raschiatori in vasca perché i carrier si auto-puliscono sempre.' },
+    { l: 2, ref: 'O₂ & biofilm', q: 'Ossigeno disciolto cronicamente basso nel biologico aerobico: rischio sul biofilm?', ok: 'Spessore eccessivo o zone anaerobiche interne, distacchi irregolari e calo di efficienza.', w1: 'Il biofilm diventa sempre più sottile e attivo senza limite inferiore di O₂.', w2: 'L\'ossigeno basso favorisce solo la nitrificazione e mai la sofferenza batterica.' },
+    { l: 2, ref: 'Oli → MBBR', q: 'Oli o grassi nel chiarificato che raggiungono l\'MBBR: effetto tipico sui carrier?', ok: 'Film idrofobo sui supporti: barriera al passaggio dell\'acqua e riduzione contatto con i batteri.', w1: 'Nutrono sempre la biomassa aumentando il tasso di ossidazione senza effetti collaterali.', w2: 'Si neutralizzano automaticamente senza impatti sulla schiuma o sull\'ossigenazione.' },
+    { l: 2, ref: 'Temperatura', q: 'Temperatura del biologico molto fuori dalla finestra operativa tipica (es. molto sotto 15 °C o molto sopra 35 °C): cosa accade di solito?', ok: 'Cinetiche microbiche rallentate o stress termico: rischio calo rendimento e instabilità.', w1: 'I batteri non risentono mai della temperatura se c\'è PAC nel chiarificato.', w2: 'La temperatura alta aumenta sempre l\'ossigeno disciolto senza limiti pratici.' },
+    { l: 2, ref: 'Shock di carico', q: 'Picco improvviso di COD (shock load) nel biologico: effetto immediato sull\'ossigeno?', ok: 'Impennata del consumo di O₂: rischio crollo OD e stress o sofferenza della biomassa.', w1: 'Non modifica mai il fabbisogno di ossigeno finché il pH resta stabile.', w2: 'Riduce sempre il consumo di ossigeno perché i batteri «dormono» durante lo shock.' },
+    { l: 2, ref: 'Ricircolo DAF', q: 'Il ricircolo trattato verso il saturatore in DAF serve principalmente a…', ok: 'Portare in saturatore una corrente con caratteristiche adatte a dissolvere aria e alimentare le microbolle.', w1: 'Aumentare la velocità superficiale senza alcun legame con l\'aria disciolta.', w2: 'Sostituire la coagulazione chimica con aria compressa sola.' },
+    { l: 2, ref: 'PAC senza PAM', q: 'PAC dosato correttamente ma PAM assente o inefficace: cosa si osserva spesso?', ok: 'Microfiocchi che non aggregano: fango leggero, torbidità e trascinamenti possibili.', w1: 'Fiocchi sempre grandi e pesanti indipendentemente dal PAM.', w2: 'Il PAC precipita sempre da solo come fango denso senza flocculante.' },
+    { l: 2, ref: 'Torbidità NTU', q: 'Chiarificato con NTU molto più alto del target verso l\'MBBR: priorità operativa tipica?', ok: 'Ridurre solidi e oli a monte: protezione dei carrier e del trasferimento di ossigeno.', w1: 'Aumentare solo la portata biologica per diluire il problema.', w2: 'Ignorare il dato perché la torbidità non influenza mai i carrier.' },
+    { l: 2, ref: 'Carbonio attivo', q: 'Carbonio attivo sul biologico in emergenza da composti tossici/adsorbibili: ruolo atteso?', ok: 'Adsorbimento transitorio per guadagnare tempo e ridurre picco tossico verso la biomassa.', w1: 'Sostituisce in modo stabile tutta l\'ossigenazione e la biomassa.', w2: 'Elimina la necessità di controllare PAC e pH a monte.' },
+    { l: 2, ref: 'Pompa PAC a secco', q: 'Pompa PAC che «mangia aria» o va a vuoto: cosa sospetti per prima cosa?', ok: 'Pescaggio, valvole, intasamenti di linea o livello bulk insufficiente.', w1: 'Che il saturatore è troppo alto in pressione.', w2: 'Che i carrier sono troppo leggeri.' },
+    { l: 2, ref: 'Linea PAM', q: 'PAM che non scende in vasca ma la pompa «batte»: spesso dove guardi?', ok: 'Intasamenti, valvole chiuse, preparazione/diluizione errata, pescaggio.', w1: 'Solo il pH del biologico.', w2: 'Solo la temperatura del saturatore.' },
+    { l: 2, ref: 'Raschiatori lenti', q: 'Raschiatori lenti o fermi sulla superficie: rischio immediato?', ok: 'Accumulo superficiale, trascinamenti, chiarificato peggio e più roba verso valle.', w1: 'Nessun effetto: la superficie si autoregola.', w2: 'Migliora la dissoluzione dell\'aria nel saturatore.' },
+    { l: 2, ref: 'Microbolle che contano', q: 'In DAF, microbolle «scarse»: cosa vedi tipicamente in uscita?', ok: 'Torbidità, oli/solidi che passano, separazione che non regge.', w1: 'Acqua più limpida del solito.', w2: 'Biofilm più sottile sull\'MBBR.' },
+    { l: 2, ref: 'Fontane d\'aria', q: '«Fontana» d\'aria in un punto e zona morta accanto: che casino è?', ok: 'Distribuzione aria sbagliata: rischio corto circuito e biofilm irregolare.', w1: 'Segno che il saturatore è perfetto.', w2: 'Vuol dire che il PAM è dosato troppo poco.' },
+    { l: 2, ref: 'O2 all\'alba', q: 'OD che crolla ogni notte se riduci troppo l\'aria: perché è fastidioso?', ok: 'Di notte il carico può restare e i batteri continuano a consumare O₂: rischi valle.', w1: 'Di notte l\'acqua non consuma mai ossigeno.', w2: 'Perché il PAC smette di funzionare dopo le 22.' },
+    { l: 2, ref: 'Oli leggeri', q: 'Film oleoso sottile sui carrier: cosa temi per il processo?', ok: 'Barriera al contatto acqua-biofilm e calo di ossigenazione efficace.', w1: 'Niente: l\'olio nutre i batteri.', w2: 'Solo un problema estetico sulle scale.' },
+    { l: 2, ref: 'Serie sediflottatori', q: 'Mettere in serie i sediflottatori in gestione: che idea è?', ok: 'Aumentare il grado di trattamento a monte quando il carico/sporcizia lo richiede.', w1: 'Aumentare sempre la velocità senza criterio.', w2: 'A bypassare il biologico per legge fisica.' },
+    { l: 2, ref: 'Urea', q: 'Urea nel biologico: quando ha senso parlarne?', ok: 'Quando manca azoto rispetto al carico e la biologia va supportata.', w1: 'Quando vuoi coagulare gli oli al posto del PAC.', w2: 'Quando devi alzare la pressione del saturatore.' },
+    { l: 2, ref: 'Griglie MBBR', q: 'Griglia a valle MBBR intasata da plastica: effetto pratico?', ok: 'Risalita livelli, idraulica strozzata, possibili allagamenti a monte.', w1: 'Migliora l\'ossigenazione perché rallenta l\'acqua.', w2: 'Non cambia nulla finché la pompa regge.' },
+    { l: 2, ref: 'Campione cono', q: 'Cono che «non scende» come vorresti: che messaggio dà spesso?', ok: 'Fango che non sedimenta bene: possibile fango leggero o processo instabile.', w1: 'Che il saturatore è sotto pressione.', w2: 'Che il PAC è sempre dosato in eccesso.' },
+
+    { l: 3, ref: 'DAF + chimica', q: 'Perché in molti reflui oleosi la DAF richiede quasi sempre una buona coagulazione/flocculazione a monte?', ok: 'Le emulsioni oleose sono stabili: serve destabilizzazione e aggregazione prima che le microbolle siano efficaci.', w1: 'Le bolle da sole rompono sempre ogni emulsione senza chimica.', w2: 'Il PAC serve solo a colorare il fiocco per ispezione visiva, non alla separazione.' },
+    { l: 3, ref: 'MBBR — trasporto', q: 'Nel biofilm MBBR, cosa limita spesso il tasso di ossidazione quando il film diventa molto spesso?', ok: 'La diffusione di substrato e ossigeno nello spessore: zone interne possono diventare limitate.', w1: 'Lo spessore del biofilm non influenza mai la diffusione: conta solo la portata idraulica istantanea.', w2: 'Il biofilm spesso assorbe ossigeno meglio di uno sottile senza gradienti.' },
+    { l: 3, ref: 'N / P', q: 'Squilibrio marcato nutrienti (N e P) rispetto al carico organico in biologia industriale: effetto tipico?', ok: 'Può limitare sintesi batterica e rendimento se i macronutrienti sono carenti rispetto al BOD.', w1: 'Il fosforo è irrilevante per ogni popolazione batterica aerobia.', w2: 'L\'azoto in eccesso elimina sempre la necessità di ossigeno disciolto.' },
+    { l: 3, ref: 'Oli & schiuma', q: 'Schiuma scura persistente su biologico con sospetta fase oleosa a monte: ipotesi tecnica prudente?', ok: 'Trascinamento oleoso e/o sofferenza/setticità locale: intervenire anche sul chimico-fisico e sull\'ossigenazione.', w1: 'È sempre solo ossigeno in eccesso: ridurre solo la portata aria senza altre verifiche.', w2: 'È un effetto estetico senza correlazione con COD o oli.' },
+    { l: 3, ref: 'Doppio stress', q: 'Temperatura fuori range e contemporaneamente O₂ basso: perché è particolarmente critico?', ok: 'Doppio stress su cinetiche e respiro: la biomassa ha meno margine di adattamento.', w1: 'I due fattori sono sempre indipendenti: non si sommano mai sugli effetti.', w2: 'Il caldo aumenta sempre l\'OD disciolto quindi il rischio si annulla da solo.' },
+    { l: 3, ref: 'Portata CF', q: 'Riduzione temporanea della portata sul chimico-fisico in crisi di separazione: effetto atteso sulla qualità del chiarificato?', ok: 'Aumenta i tempi di trattamento e può ridurre turbolenze e trascinamenti migliorando la separazione.', w1: 'Peggiora sempre la separazione perché il fango resta meno tempo in vasca.', w2: 'Non ha effetto sulla torbidità: conta solo la velocità del biologico.' },
+    { l: 3, ref: 'Microbolle', q: 'Perché in DAF si cercano tipicamente microbolle e non solo bolle grossolane?', ok: 'Superficie specifica elevata e migliore contatto con particelle/fiocchi fini.', w1: 'Le bolle grandi hanno sempre la stessa efficacia con meno energia.', w2: 'Le microbolle servono solo a raffreddare il refluo, non alla flottazione.' },
+    { l: 3, ref: 'PAC vs ferro', q: 'PAC (alluminio) e sali di ferro come coagulanti: affermazione corretta in impiantistica?', ok: 'Sono coagulanti inorganici usati in contesti diversi in base al refluo e alla chimica delle particelle.', w1: 'Il PAM sostituisce sempre completamente sia PAC sia i sali di ferro.', w2: 'I sali di ferro non coagulano mai: servono solo a abbassare il pH sotto 4.' },
+    { l: 3, ref: 'Shear / biofilm', q: 'Moto dei carrier e turbolenza controllata in MBBR: contributo al biofilm?', ok: 'Shear che controlla lo spessore: aiuta a rinnovare superfici attive ed evitare eccessi marcescenti.', w1: 'Il distacco è sempre indice di collasso biologico senza eccezioni operative.', w2: 'I carrier fermi favoriscono sempre il massimo trasferimento di ossigeno.' },
+    { l: 3, ref: 'Monte → valle', q: 'Dopo un peggioramento marcato del chimico-fisico (oli/solidi), perché si interviene prioritariamente a monte?', ok: 'Perché il biologico eredita il difetto: oli e solidi danneggiano biofilm, ossigenazione e resa.', w1: 'Perché l\'MBBR depura sempre gli oli senza bisogno di pre-trattamento.', w2: 'Perché il problema si risolve aumentando solo la portata del biologico.' },
+    { l: 3, ref: 'Tensioattivi / schiuma', q: 'Eccesso di tensioattivi o stress biologico: legame plausibile con schiuma in vasca?', ok: 'Può favorire schiume stabili e alterare equilibri superficiali tra acqua e aria.', w1: 'I tensioattivi eliminano sempre la schiuma riducendo la tensione superficiale senza effetti collaterali.', w2: 'La schiuma dipende solo dal colore del refluo, non dalla chimica superficiale.' },
+    { l: 3, ref: 'Turbolenza DAF', q: 'Turbolenza pazzesca in vasca DAF mentre fiocchi delicati: che rischio è realistico?', ok: 'Shear che rompe i fiocchi: separazione peggiore e più solidi/olio che passano.', w1: 'I fiocchi diventano sempre più resistenti, punto.', w2: 'La turbolenza non tocca mai i fiocchi.' },
+    { l: 3, ref: 'Kinetic shock', q: 'Shock di carico organico improvviso: perché «non basta» spesso solo alzare un po\' l\'aria e basta?', ok: 'Il consumo di O₂ e la tossicità/penalizzazione batterica possono superare ciò che riesci a trasferire in tempo.', w1: 'Perché l\'aria non serve mai al biologico.', w2: 'Perché il COD non consuma mai ossigeno.' },
+    { l: 3, ref: 'Membrane a valle', q: 'Solidi e oli che passano verso un MBR a membrane: cosa temi di più nel medio periodo?', ok: 'Fouling/colmate e calo di permeabilità: la chimica «difende» anche le membrane.', w1: 'Le membrane amano gli oli: li assorbono senza danni.', w2: 'Gli oli lubrificano i filtri a membrana.' },
+    { l: 3, ref: 'Dosaggi in crisi', q: 'In crisi, aumentare tutto insieme (PAC, PAM, portata, aria) a caso: perché è una pessima idea?', ok: 'Perdi controllo causa-effetto e peggiori shear/turbolenza o sovradosaggi senza diagnosi.', w1: 'È sempre la mossa migliore: più è chaos, meglio va.', w2: 'Perché i reagenti non interagiscono mai tra loro.' },
+    { l: 3, ref: 'Raschiatura', q: 'Raschiatura inefficace + oli: perché il danno «scivola» spesso verso il biologico?', ok: 'L\'olio torna in acqua e segue la corrente: il biologico eredita un carico idrofobo difficile.', w1: 'L\'olio resta sempre incollato al raschiatore per sempre.', w2: 'Il biologico digerisce sempre l\'olio senza effetti.' },
+    { l: 3, ref: 'Coagulazione in fretta', q: 'Tempi di reazione troppo corti dopo PAC/PAM: cosa succede di frequente?', ok: 'Micro/macroaggregazione incompleta: separazione scarsa e più torbidità.', w1: 'I fiocchi maturano sempre in un secondo, non conta il tempo.', w2: 'Il PAM agisce sempre istantaneamente al 100%.' },
+    { l: 3, ref: 'Nitrificazione', q: 'Nitrificatori autotrofi vs eterotrofi sul COD: in impianto cosa implica spesso sull\'ossigeno?', ok: 'Competizione per O₂: con COD alto i eterotrofi possono «mangiare» ossigeno che servirebbe anche agli autotrofi.', w1: 'Gli autotrofi non usano mai ossigeno.', w2: 'Il COD non consuma mai ossigeno in biologia aerobia.' },
+    { l: 3, ref: 'Saturatore — energia', q: 'Aria fine vs grossolana: perché in progetto si bilancia efficienza e intasamento dei diffusori?', ok: 'Bolle fini trasferiscono meglio ma possono intasare; grossolane meno intasano ma trasferiscono peggio: si sceglie un compromesso.', w1: 'Non esiste mai un compromesso: si usa sempre solo aria fine.', w2: 'Le bolle grosse trasferiscono sempre più ossigeno di quelle fini in ogni caso.' },
+    { l: 3, ref: 'Monte oleoso', q: 'Oleo persistente a monte non risolto: perché «non lo recuperi» solo col biologico?', ok: 'Perché la fase oleosa può restare emulsionata/soffocante e stressare biofilm e O₂.', w1: 'Perché l\'MBBR dissolve sempre l\'olio senza chimica.', w2: 'Perché l\'olio evapora sempre prima del biologico.' }
+];
+
+/** Etichetta lunga per il box riferimento (chiarisce PAC vs ferro, acronimi, ecc.). */
+function quizRefLongLabel(ref) {
+    const map = {
+        'MBBR — principi': 'MBBR: reattore a letto mobile con biofilm su carrier plastici aerati.',
+        'MBBR — ossigeno': 'Biologia aerobica: ruolo dell\'ossigeno disciolto (OD) nel metabolismo.',
+        'Chimico-fisico — PAC': 'PAC = coagulante a base di alluminio (es. polialluminio cloruro): neutralizza cariche colloidali, non è sale di ferro.',
+        'Chimico-fisico — PAM': 'PAM = polielettrolita flocculante: ponti tra microfiocchi dopo la coagulazione.',
+        'Flottazione / DAF': 'DAF: Dissolved Air Flotation; microbolle da aria disciolta per galleggiare oli e solidi.',
+        'pH & coagulazione': 'pH modifica idrolisi e speciazione di coagulanti alluminio/ferro vs particelle.',
+        'Saturatore / aria': 'Saturatore: dissolve aria in pressione per generare microbolle in DAF.',
+        'Raschiatori': 'Superficie flottatore/chiarificatore: convogliano fango flottato, schiume, oli.',
+        'Chiarificazione': 'Qualità del chiarificato: torbidità e solidi fini verso valle.',
+        'Biologia — nutrienti': 'Integrazione N/P (es. urea) quando il carico organico supera i nutrienti disponibili.',
+        'MBBR — carrier': 'Carrier: supporti mobili per biofilm; non carbonio né membrane fisse.',
+        'Griglie / idraulica': 'Protezione idraulica a valle MBBR: trattiene carrier persi.',
+        'Cono / fango': 'Cono Imhoff / sedimentazione: volume e sedimentabilità del fango.',
+        'Trattamento — sintesi': 'Chimico-fisico: coagulazione, flocculazione, flottazione o sedimentazione a monte biologico.',
+        'COD / BOD': 'COD: richiesta chimica di ossigeno; indice di carico ossidabile.',
+        'BOD': 'BOD5: ossigeno consumato in degradazione biochimica standardizzata.',
+        'Insufflaggio': 'MBBR: aria dal fondo per OD e mescolamento carrier–biomassa.',
+        'NTU': 'NTU: unità di torbidità; solidi sospesi che «appannano» l\'acqua.',
+        'Ordine chimica': 'Sequenza reagenti: di solito coagulante (PAC) prima, poi PAM.',
+        'pH — miti': 'pH fuori range: coagulazione debole e separazione che fallisce.',
+        'Carrier persi': 'Carrier a valle: intasamenti, idraulica, biologia fuori posto.',
+        'Sludge blanket': 'Sludge blanket alto: separazione insufficiente, rischio trascinamenti.',
+        'Pompe dosaggio': 'Pompa dosatrice PAC: dose controllata e verificabile in vasca.',
+        'Diffusori': 'Diffusori MBBR: distribuzione bolle per ossigenazione e fluidizzazione.',
+        'Schiuma leggera': 'Schiuma leggera con acqua limpida: spesso turnover biofilm / proteine, da contestualizzare.',
+        'Chimico vs biologico': 'Pre-trattamento chimico-fisico: toglie solidi e oli che strozzerebbero il biologico.',
+        'Mixer & PAC': 'Mixer spento + PAC: zone concentrate, fiocchi irregolari, spreco reagente.',
+        'pH fuori range': 'pH lontano dalla finestra tipica alluminio: speciazione PAC non ottimale.',
+        'Saturatore — pressione': 'Pressione saturatore bassa: meno microbolle, DAF meno efficace.',
+        'PAM — diluizione': 'PAM diluito/mal preparato: ponti polimerici deboli, fiocchi scarsi.',
+        'MBBR — aerazione': 'Aerazione a chiazze: contatto acqua–biofilm irregolare, possibili zone morte.',
+        'O₂ & biofilm': 'OD basso: biofilm spesso, zone anaerobiche interne, distacchi irregolari.',
+        'Oli → MBBR': 'Oli su carrier: film idrofobo, barriera a ossigeno e substrato.',
+        'Temperatura': 'Temperatura fuori finestra: cinetiche microbiche e stress termico.',
+        'Shock di carico': 'Picco COD: picco consumo O₂, rischio crollo OD.',
+        'Ricircolo DAF': 'Ricircolo verso saturatore: corrente adatta per dissolvere aria e alimentare microbolle.',
+        'PAC senza PAM': 'PAC ok ma PAM assente: microfiocchi, fango leggero, torbidità.',
+        'Torbidità NTU': 'NTU alta verso MBBR: ridurre solidi/oli a monte, proteggere carrier e O₂.',
+        'Carbonio attivo': 'GAC in emergenza: adsorbimento transitorio di composti tossici/adsorbibili.',
+        'Pompa PAC a secco': 'Pompa PAC a vuoto: pescaggio, valvole, intasamenti, livello bulk.',
+        'Linea PAM': 'PAM non scende: intasamenti, valvole, diluizione, pescaggio.',
+        'Raschiatori lenti': 'Raschiatori fermi: accumulo superficiale, chiarificato peggiore.',
+        'Microbolle che contano': 'DAF con poche microbolle: separazione scarsa, torbidità.',
+        'Fontane d\'aria': 'Fontana d\'aria + zona morta: distribuzione O₂ errata, biofilm irregolare.',
+        'O2 all\'alba': 'OD che crolla di notte: carico continua a consumare O₂ senza adeguata aria.',
+        'Oli leggeri': 'Film oleoso su carrier: barriera al contatto acqua–biofilm.',
+        'Serie sediflottatori': 'Sediflottatori in serie: più grado di trattamento a monte in crisi.',
+        'Urea': 'Urea: fonte di azoto quando manca rispetto al carico batterico.',
+        'Griglie MBBR': 'Griglia intasata: risalita livelli, idraulica strozzata.',
+        'Campione cono': 'Cono che non scende: fango leggero o processo instabile.',
+        'DAF + chimica': 'Reflui oleosi: emulsioni stabili richiedono coag./floc. prima delle microbolle.',
+        'MBBR — trasporto': 'Biofilm spesso: limitazione da diffusione di substrato e ossigeno.',
+        'N / P': 'Squilibrio N/P vs carico: può limitare sintesi batterica.',
+        'Oli & schiuma': 'Schiuma scura + oli: intervenire chimico-fisico e ossigenazione.',
+        'Doppio stress': 'Temperatura + O₂ bassi: stress cumulativo sulla biomassa.',
+        'Portata CF': 'Riduzione portata chimico-fisico: più tempo di separazione, meno trascinamenti.',
+        'Microbolle': 'Microbolle DAF: superficie specifica elevata vs bolle grossolane.',
+        'PAC vs ferro': 'PAC (alluminio) e sali di ferro sono entrambi coagulanti inorganici; scelta in base a refluo e chimica delle particelle — non vanno confusi con PAM (flocculante).',
+        'Shear / biofilm': 'Shear da carrier: controlla spessore biofilm e rinnovo superfici attive.',
+        'Monte → valle': 'Crisi a monte: il biologico eredita oli e solidi dannosi.',
+        'Tensioattivi / schiuma': 'Tensioattivi e stress: schiume stabili, equilibri superficiali alterati.',
+        'Turbolenza DAF': 'Turbolenza eccessiva: shear su fiocchi, separazione peggiore.',
+        'Kinetic shock': 'Shock COD: solo un po\' più aria spesso non basta vs consumo O₂ e tossicità.',
+        'Membrane a valle': 'MBR: oli e solidi portano fouling e calo permeabilità.',
+        'Dosaggi in crisi': 'Tirare tutto a caso: si perde causa-effetto e si peggiora shear/dosaggi.',
+        'Raschiatura': 'Raschiatura + oli: olio torna in acqua e scivola verso il biologico.',
+        'Coagulazione in fretta': 'Tempi reazione troppo corti: aggregazione incompleta, più NTU.',
+        'Nitrificazione': 'Autotrofi vs eterotrofi: competizione per ossigeno sul COD alto.',
+        'Saturatore — energia': 'Bolle fini vs grossolane: compromesso trasferimento O₂ e intasamento diffusori.',
+        'Monte oleoso': 'Oleo a monte: emulsioni e stress biofilm non risolvibili «solo» col biologico.'
+    };
+    const k = String(ref || '');
+    if (map[k]) return map[k];
+    return k.replace(/\s*—\s*/g, ' · ').replace(/\s*\/\s*/g, ' / ');
+}
+
+function quizBuildBank() {
+    const bank = { 1: [], 2: [], 3: [] };
+    QUIZ_CURATED.forEach((row, idx) => {
+        const pts = row.pts != null ? row.pts : (row.l === 1 ? 5 : (row.l === 2 ? 10 : 15));
+        const qq = quizMakeQuestion(1, pts, row.ref, row.q, row.ok, row.w1, row.w2);
+        qq.refCode = `${QUIZ_REF_SCHEMA}.${String(idx + 1).padStart(2, '0')}`;
+        qq.refPretty = quizRefLongLabel(row.ref);
+        bank[1].push(qq);
+    });
+    bank[1] = bank[1].filter(q => q.correctIndex >= 0 && q.options.every(o => o.text && String(o.text).trim().length > 0));
+    bank[2] = [];
+    bank[3] = [];
+    return bank;
+}
+
+function quizGetBank() {
+    if (!quizBankCache || quizBankBuildStored !== QUIZ_BANK_BUILD_ID) {
+        quizBankCache = quizBuildBank();
+        quizBankBuildStored = QUIZ_BANK_BUILD_ID;
+    }
+    return quizBankCache;
+}
+
+/** Quante domande estrarre da un livello (variabile a ogni partita, mai tutto il mazzo uguale). */
+function quizDrawCount(total, minPick, maxPick) {
+    if (total <= 0) return 0;
+    if (total <= minPick) return total;
+    const capHi = Math.min(total, maxPick);
+    const capLo = Math.min(total, minPick);
+    return capLo + Math.floor(Math.random() * (capHi - capLo + 1));
+}
+
+function quizBuildQueue() {
+    const bank = quizGetBank();
+    const pool = quizShuffle((bank[1] || []).slice());
+    const n = quizDrawCount(pool.length, 12, Math.min(pool.length, 32));
+    return quizShuffle(pool.slice(0, n));
+}
+
+function quizLoadLeaderboard() {
+    try {
+        const raw = localStorage.getItem(QUIZ_LS_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function quizSaveLeaderboard(rows) {
+    try {
+        localStorage.setItem(QUIZ_LS_KEY, JSON.stringify(rows.slice(0, 50)));
+    } catch (e) { /* ignore */ }
+}
+
+function quizRenderLeaderboard() {
+    const body = document.getElementById('quiz-rank-body');
+    if (!body) return;
+    let rows = quizLoadLeaderboard();
+    rows.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return new Date(a.at) - new Date(b.at);
+    });
+    if (!rows.length) {
+        body.innerHTML = '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Nessun punteggio ancora. Completa un quiz per vedere la classifica aggiornata.</p></div>';
+        return;
+    }
+    const display = rows.slice(0, 15);
+    function fmtWhen(iso) {
+        const d = new Date(iso);
+        return isNaN(d.getTime()) ? '—' : d.toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+
+    const order = [1, 0, 2];
+    const medals = ['silver', 'gold', 'bronze'];
+    const podiumIcons = ['\u{1F948}', '\u{1F947}', '\u{1F949}'];
+    let podium = '<div class="quiz-podium" aria-label="Podio primi tre">';
+    order.forEach((idx, slot) => {
+        const rank = idx + 1;
+        const r = display[idx];
+        const cls = medals[slot];
+        if (!r) {
+            podium += `<div class="quiz-podium-slot ${cls} empty" aria-hidden="true"></div>`;
+            return;
+        }
+        const icon = podiumIcons[slot];
+        podium += `<div class="quiz-podium-slot ${cls}"><div class="quiz-podium-emoji" aria-hidden="true">${icon}</div><div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
+    });
+    podium += '</div>';
+
+    let restSection = '';
+    if (display.length > 3) {
+        let rest = '<div class="quiz-rank-rest-head"><span>Pos.</span><span>Operatore</span><span>Punti</span></div>';
+        for (let i = 3; i < display.length; i++) {
+            const r = display[i];
+            const rank = i + 1;
+            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span></span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
+        }
+        restSection = `<div class="quiz-rank-rest-wrap"><div class="quiz-rank-rest-title">Dal 4\u00B0 posto in gi\u00F9</div>${rest}</div>`;
+    }
+
+    body.innerHTML = `
+<div class="quiz-rank-canvas">
+<div class="quiz-rank-live">
+  <p class="quiz-rank-rt-hint">Classifica in tempo reale dopo ogni partita (memoria locale su questo dispositivo).</p>
+  <div class="quiz-podium-label">Podio</div>
+  ${podium}
+  ${restSection}
+</div>
+</div>`;
+}
+
+function escapeQuizHtml(s) {
+    return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function quizShowScreen(which) {
+    const intro = document.getElementById('quiz-screen-intro');
+    const play = document.getElementById('quiz-screen-play');
+    const over = document.getElementById('quiz-screen-over');
+    if (!intro || !play || !over) return;
+    intro.style.display = which === 'intro' ? 'block' : 'none';
+    play.style.display = which === 'play' ? 'block' : 'none';
+    over.style.display = which === 'over' ? 'block' : 'none';
+}
+
+function quizRenderQuestion(opts) {
+    opts = opts || {};
+    quizClearQuestionTimer();
+    const body = document.getElementById('quiz-play-body');
+    if (body) body.classList.remove('quiz-fade-out', 'quiz-fade-in');
+
+    const q = quizState.queue[quizState.index];
+    const prog = document.getElementById('quiz-progress');
+    const meta = document.getElementById('quiz-meta');
+    const qEl = document.getElementById('quiz-question');
+    const ch = document.getElementById('quiz-choices');
+    const fb = document.getElementById('quiz-feedback');
+    if (!q || !prog || !meta || !qEl || !ch) return;
+
+    if (fb) {
+        fb.style.display = 'none';
+        fb.innerHTML = '';
+        fb.className = 'quiz-feedback';
+    }
+
+    prog.textContent = `Domanda ${quizState.index + 1} di ${quizState.queue.length} — Punteggio: ${quizState.score}`;
+    let badgeClass = 'l1';
+    let grad = 'base';
+    if (q.points >= 15) {
+        badgeClass = 'l3';
+        grad = 'avanzata';
+    } else if (q.points >= 10) {
+        badgeClass = 'l2';
+        grad = 'intermedia';
+    }
+    const refCode = q.refCode ? `<span class="quiz-ref-code">Rif. ${escapeQuizHtml(q.refCode)}</span>` : '';
+    const refPretty = escapeQuizHtml(q.refPretty || q.ref);
+    meta.innerHTML = `<span class="quiz-badge ${badgeClass}">Livello 1 — difficoltà ${grad} (+${q.points} pt)</span><div class="quiz-ref-wrap">${refCode}<span class="quiz-ref-pretty">${refPretty}</span></div>`;
+    qEl.textContent = q.q;
+    ch.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'quiz-choice-btn';
+        b.textContent = opt.text;
+        b.onclick = () => quizAnswer(idx);
+        ch.appendChild(b);
+    });
+
+    if (!opts.instant && body) {
+        body.classList.add('quiz-fade-in');
+        setTimeout(() => body.classList.remove('quiz-fade-in'), 420);
+    }
+    quizStartQuestionTimer();
+}
+
+function quizAdvanceCorrect() {
+    const wrap = document.getElementById('quiz-play-body');
+    if (!wrap) {
+        quizState.index += 1;
+        if (quizState.index >= quizState.queue.length) quizFinish(true);
+        else quizRenderQuestion({ instant: true });
+        quizAnswerLocked = false;
+        return;
+    }
+    wrap.classList.add('quiz-fade-out');
+    setTimeout(() => {
+        quizState.index += 1;
+        if (quizState.index >= quizState.queue.length) {
+            wrap.classList.remove('quiz-fade-out');
+            quizAnswerLocked = false;
+            quizFinish(true);
+            return;
+        }
+        quizRenderQuestion({ instant: true });
+        wrap.classList.remove('quiz-fade-out');
+        void wrap.offsetWidth;
+        wrap.classList.add('quiz-fade-in');
+        setTimeout(() => {
+            wrap.classList.remove('quiz-fade-in');
+            quizAnswerLocked = false;
+        }, 420);
+    }, 280);
+}
+
+function quizAnswer(idx) {
+    if (quizAnswerLocked) return;
+    const q = quizState.queue[quizState.index];
+    if (!q) return;
+    quizClearQuestionTimer();
+    quizAnswerLocked = true;
+
+    const ch = document.getElementById('quiz-choices');
+    const fb = document.getElementById('quiz-feedback');
+    const buttons = ch ? ch.querySelectorAll('.quiz-choice-btn') : [];
+
+    buttons.forEach((b, i) => {
+        b.disabled = true;
+        b.onclick = null;
+        if (i === q.correctIndex) b.classList.add('quiz-opt-correct');
+        else if (i === idx) b.classList.add('quiz-opt-wrong');
+        else b.classList.add('quiz-opt-dim');
+    });
+
+    if (idx === q.correctIndex) {
+        quizState.score += q.points;
+        const prog = document.getElementById('quiz-progress');
+        if (prog) prog.textContent = `Domanda ${quizState.index + 1} di ${quizState.queue.length} — Punteggio: ${quizState.score}`;
+        if (fb) {
+            fb.style.display = 'flex';
+            fb.className = 'quiz-feedback quiz-feedback-ok';
+            fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>Esatto — +' + q.points + ' punti</span>';
+        }
+        setTimeout(() => quizAdvanceCorrect(), 1350);
+    } else {
+        if (fb) {
+            fb.style.display = 'flex';
+            fb.className = 'quiz-feedback quiz-feedback-ko';
+            fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✗</span><span>Sbagliato</span>';
+        }
+        setTimeout(() => {
+            quizAnswerLocked = false;
+            quizFinish(false);
+        }, 1150);
+    }
+}
+
+function quizFinish(completedAll, opts) {
+    opts = opts || {};
+    quizClearQuestionTimer();
+    quizAnswerLocked = false;
+    const rows = quizLoadLeaderboard();
+    rows.push({
+        name: quizState.name || 'Operatore',
+        score: quizState.score,
+        startLevel: quizState.startLevel,
+        at: new Date().toISOString(),
+        completedAll: !!completedAll,
+        aborted: !!opts.aborted
+    });
+    quizSaveLeaderboard(rows);
+
+    const msg = document.getElementById('quiz-over-msg');
+    const sc = document.getElementById('quiz-final-score');
+    if (msg) {
+        if (completedAll) {
+            msg.textContent = 'Hai completato tutte le domande del percorso senza errori.';
+        } else if (opts.aborted) {
+            msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
+        } else if (opts.timedOut) {
+            msg.textContent = 'Tempo scaduto: il quiz termina qui (dalla 5ª domanda hai 10 secondi per risposta).';
+        } else {
+            msg.textContent = 'Risposta errata: il quiz termina qui (regola "un errore e stop").';
+        }
+    }
+    if (sc) sc.textContent = String(quizState.score);
+
+    quizShowScreen('over');
+    quizRenderLeaderboard();
+}
+
+function quizStart() {
+    quizAnswerLocked = false;
+    quizClearQuestionTimer();
+    const nameIn = document.getElementById('quiz-name');
+    const lvlIn = document.getElementById('quiz-start-level');
+    quizState.name = (nameIn && nameIn.value) ? nameIn.value.trim() : '';
+    quizState.startLevel = 1;
+    if (lvlIn) lvlIn.value = '1';
+    quizSelectStartLevel();
+
+    quizState.queue = quizBuildQueue();
+    quizState.index = 0;
+    quizState.score = 0;
+
+    if (!quizState.queue.length) {
+        alert('Banca domande non disponibile. Ricarica la pagina.');
+        return;
+    }
+
+    quizShowScreen('play');
+    quizRenderQuestion({ instant: true });
+    quizRenderLeaderboard();
+}
+
+function quizRestart() {
+    quizShowScreen('intro');
+    quizRenderLeaderboard();
+}
+
+function quizAbort() {
+    quizFinish(false, { aborted: true });
+}
+
+function render() {
+    document.getElementById(`cf-content`).innerHTML = '';
+    document.getElementById(`mbr-content`).innerHTML = '';
+
+    ["cf", "mbr"].forEach(s => {
+        const cont = document.getElementById(`${s}-content`);
+        
+        // Aggiungi titolo della sezione
+        const sectionTitle = s === 'cf' ? '🧪 CHIMICO-FISICO' : '🧬 BIOLOGICO MBBR';
+        cont.innerHTML += `
+            <div class="section-title-box">
+                <h2>${sectionTitle}</h2>
+            </div>`;
+        
+        db[s].forEach(item => {
+            cont.innerHTML += `
+                <div class="card" id="card-${s}-${item.p}">
+                    <div style="color:var(--accent); font-size:0.8rem; font-weight:bold;">${s === 'cf' ? 'CHIMICO-FISICO' : 'BIOLOGICO MBBR'} - PUNTO ${item.p}</div>
+                    <div class="question-header">
+                        <div class="question">${item.q}</div>
+                        <button class="btn-return-inline" id="return-btn-${s}-${item.p}" onclick="executeReturn()">CONTINUA RELAZIONE ➔</button>
+                    </div>
+                    <div class="btns">
+                        <button class="si" id="btn-${s}-${item.p}-si" onclick="check('${s}',${item.p},true,this)">SÌ</button>
+                        <button class="no" id="btn-${s}-${item.p}-no" onclick="check('${s}',${item.p},false,this)">NO</button>
+                    </div>
+                    <div class="res" id="r-${s}-${item.p}"></div>
+                </div>`;
+        });
+    });
+    setupScrollObserver();
+}
+
+function selectConsequence(s, p, type) {
+    const logItem = log.find(l => l.s === s && l.p === p);
+    if (logItem) {
+        logItem.subType = type;
+        document.querySelectorAll(`#r-${s}-${p} .col-box`).forEach(box => box.classList.remove('selected'));
+        const targetBox = document.getElementById(`box-${s}-${p}-${type}`);
+        if(targetBox) targetBox.classList.add('selected');
+        
+        const detailsDiv = document.getElementById(`consequences-details-${s}-${p}`);
+        if (detailsDiv) {
+            let detailsHtml = '';
+            
+            if (logItem.tag === "Temp") {
+                if (type === 'low') {
+                    detailsHtml = `
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list">
+                                    <li>Rallentamento dell'attività metabolica del biofilm sui carrier</li>
+                                    <li>Riduzione della velocità di degradazione del COD</li>
+                                    <li>Peggioramento dell'efficienza depurativa complessiva</li>
+                                    <li>Possibile aumento della viscosità del mixed liquor con minore scambio di ossigeno</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                } else if (type === 'high') {
+                    detailsHtml = `
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list">
+                                    <li>Stress termico del biofilm sui carrier</li>
+                                    <li>Instabilità della biomassa con possibile distacco del biofilm dai carrier</li>
+                                    <li>Aumento della produzione di EPS (sostanze polimeriche extracellulari che rendono il fango più "vischioso" e instabile)</li>
+                                    <li>Formazione di schiume da squilibrio biologico</li>
+                                    <li>Riduzione della capacità di abbattimento del COD</li>
+                                    <li>Rischio di perdita di efficienza del processo BIOLOGICO MBBR</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+            else if (logItem.tag === "O2") {
+                if (type === 'low') {
+                    detailsHtml = `
+                        <strong>❗ OSSIGENO DISCIOLTO < 1 mg/L</strong>
+                        <table class="table" style="margin-top: 15px;">
+                            <tr><th>Controllo</th><th>Azione</th></tr>
+                            <tr><td>Soffianti (pressione/portata)</td><td>Aumentare aerazione: incrementare esercizio soffianti/valvole aria servizi (settaggi P.I.D. compressori) e verificare disponibilità macchine.</td></tr>
+                            <tr><td>Diffusori aria (intasamento/rottura)</td><td>Eseguire pulizia o sostituzione diffusori e verificare impatto del carico organico in ingresso.</td></tr>
+                            <tr><td>Distribuzione aria in vasca</td><td>Riequilibrare distribuzione aria per eliminare zone con insufficiente insufflaggio.</td></tr>
+                            <tr><td>Taratura sonda O2</td><td>Verificare calibrazione/affidabilità misura e riallineare il controllo automatico.</td></tr>
+                            <tr><td>Stato apparecchiature</td><td>In caso di guasto elettrico/meccanico, avvisare responsabile ed emettere avviso di manutenzione.</td></tr>
+                        </table>
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list" style="color: #c2410c;">
+                                    <li>Condizione di anossia critica</li>
+                                    <li>Forte riduzione dell'attività del biofilm sui carrier</li>
+                                    <li>Possibile formazione di condizioni fermentative (odori, H₂S)</li>
+                                    <li>Aumento COD in uscita per inefficienza biologica</li>
+                                    <li>Progressiva perdita di biomassa attiva</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                } else if (type === 'high') {
+                    detailsHtml = `
+                        <strong>❗ OSSIGENO DISCIOLTO > 4 mg/L</strong>
+                        <table class="table" style="margin-top: 15px;">
+                            <tr><th>Controllo</th><th>Azione</th></tr>
+                            <tr><td>Setpoint controllo ossigeno</td><td>Ritarare setpoint DO e logica di regolazione per rientrare nel range operativo.</td></tr>
+                            <tr><td>Inverter / soffianti</td><td>Ridurre portata aria (soffianti/valvole) e parzializzare esercizio su controllo P.I.D.</td></tr>
+                            <tr><td>Distribuzione aria in vasca</td><td>Ottimizzare aerazione per evitare sovraossigenazione localizzata.</td></tr>
+                            <tr><td>Confronto sonda vs valore reale</td><td>Verificare misura strumentale e correggere eventuali derive di lettura.</td></tr>
+                        </table>
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list" style="color: #c2410c;">
+                                    <li>Sovraossigenazione del sistema biologico</li>
+                                    <li>Squilibrio dell'attività del biofilm sui carrier</li>
+                                    <li>Possibile aumento produzione EPS (matrice viscosa che rende il biofilm più instabile e meno efficiente)</li>
+                                    <li>Consumo energetico eccessivo senza beneficio depurativo</li>
+                                    <li>Possibile distacco parziale del biofilm in condizioni prolungate</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+            else if (logItem.tag === "pH") {
+                if (type === 'low') {
+                    detailsHtml = `
+                        <strong>❗ pH < 6,5 (ACIDO)</strong>
+                        <div class="grid-split" style="margin-top: 15px;">
+                            <div>
+                                <strong>🔍 Controllo:</strong>
+                                <p style="margin: 5px 0;">Verifica calibrazione pHmetro.</p>
+                            </div>
+                            <div>
+                                <strong>🔧 Azione:</strong>
+                                <p style="margin: 5px 0;">Aumentare dosaggio base (NaOH).</p>
+                            </div>
+                        </div>
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio chimico-fisico</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list" style="color: #c2410c;">
+                                    <li>Il coagulante (PAC) non forma il fiocco; l'olio resta emulsionato e passa al biologico.</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                } else if (type === 'high') {
+                    detailsHtml = `
+                        <strong>❗ pH > 7,5 (BASICO)</strong>
+                        <div class="grid-split" style="margin-top: 15px;">
+                            <div>
+                                <strong>🔍 Controllo:</strong>
+                                <p style="margin: 5px 0;">Verifica calibrazione pHmetro.</p>
+                            </div>
+                            <div>
+                                <strong>🔧 Azione:</strong>
+                                <p style="margin: 5px 0;">Aumentare dosaggio acido.</p>
+                            </div>
+                        </div>
+                        <details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio chimico-fisico</summary>
+                            <div class="risk-accordion-body">
+                                <ul class="critical-list" style="color: #c2410c;">
+                                    <li>Possibile ridissoluzione del fiocco (fango che galleggia male) e trascinamento di oli/solidi nel chiarificato.</li>
+                                </ul>
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+
+            if (detailsHtml) {
+                detailsDiv.innerHTML = detailsHtml;
+                detailsDiv.style.display = 'block';
+                const preControlBox = document.getElementById(`pre-control-${s}-${p}`);
+                if (preControlBox) {
+                    preControlBox.style.display = 'none';
+                }
+            }
+        }
+        updateRealTimeReport();
+    }
+}
+
+function isMobileBrowser() {
+    return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "")
+        || (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 900px)").matches);
+}
+
+function scheduleMbrViewportRestore() {
+    if (!mbrViewportSticky) return;
+    const snap = mbrViewportSticky;
+    const apply = () => {
+        const el = document.getElementById(snap.id);
+        if (!el) return;
+        const d = el.getBoundingClientRect().top - snap.top;
+        if (Math.abs(d) > 0.5) window.scrollBy(0, d);
+    };
+    requestAnimationFrame(apply);
+    requestAnimationFrame(() => requestAnimationFrame(apply));
+    [0, 50, 120, 220].forEach((ms) => setTimeout(apply, ms));
+    setTimeout(() => { mbrViewportSticky = null; }, 320);
+}
+
+function syncCf2CorrelationUpdate() {
+    const cf2ResDiv = document.getElementById('r-cf-2');
+    if (!cf2ResDiv) return;
+
+    cf2ResDiv.querySelectorAll('.correlation-status-banner, .correlation-update-box, .correlation-update-box-biomass').forEach(box => box.remove());
+
+    const oilCorr = correlationYes['mbr-4'] === true && correlationYes['cf-2'] === true;
+    const biomassAlarm = correlationYes['mbr-9'] === true;
+
+    if (!oilCorr && !biomassAlarm) return;
+
+    let inject = '';
+    inject += `
+        <div class="correlation-status-banner"><strong>Stato aggiornato. Impatto MBBR confermato.</strong></div>
+    `;
+
+    if (oilCorr) {
+        const cf2 = db['cf'].find(x => x.p === 2);
+        if (cf2 && cf2.correlation_update) {
+            inject += `
+                <div class="correlation-update-box">
+                    ${cf2.correlation_update}
+                </div>
+            `;
+        }
+    }
+
+    if (biomassAlarm) {
+        inject += `
+            <div class="correlation-update-box correlation-update-box-biomass">
+                <strong>ATTENZIONE: ANOMALIA BIOMASSA SETTICA (FANGO NERO MBBR)</strong><br><br>
+                <strong>DESCRIZIONE:</strong><br>
+                Rilevato stato di sofferenza estrema dei batteri. Il colore nero indica che la biomassa e asfissiata, probabilmente a causa di un trascinamento di oli o di un carico organico (COD) insostenibile che ha consumato tutto l'ossigeno.<br><br>
+                <strong>1. DIAGNOSTICA DI URGENZA</strong><br>
+                <strong>Analisi COD:</strong> Verificare il valore nel chiarificato. Se e troppo alto, l'MBBR e in sovraccarico.<br><br>
+                <strong>Controllo Oli:</strong> Verificare iridescenze nel chiarificato. Se presenti, i batteri sono "schermati" dall'olio e non respirano.<br><br>
+                <strong>2. AZIONI OPERATIVE IMMEDIATE</strong><br>
+                <strong>Gestione in Serie:</strong> Se il chiarificato e sporco e COD alto, configurare i comparti chimico-fisici in serie per bloccare l'inquinamento alla fonte.
+            </div>
+        `;
+    }
+
+    cf2ResDiv.innerHTML += inject;
+}
+
+function clearAnswerToggle(s, p) {
+    if (s === 'mbr' && (p === 8 || p === 9)) {
+        delete correlationYes['mbr-8'];
+        delete correlationYes['mbr-9'];
+        [8, 9].forEach((pp) => {
+            const res = document.getElementById(`r-mbr-${pp}`);
+            if (res) {
+                res.style.display = 'none';
+                res.className = 'res';
+                res.innerHTML = '';
+            }
+            ['si', 'no'].forEach((side) => {
+                const b = document.getElementById(`btn-mbr-${pp}-${side}`);
+                if (b) b.classList.remove('btn-status-ok', 'btn-status-bad');
+            });
+        });
+        log = log.filter((l) => !(l.s === 'mbr' && (l.p === 8 || l.p === 9)));
+    } else {
+        delete correlationYes[`${s}-${p}`];
+        const res = document.getElementById(`r-${s}-${p}`);
+        if (res) {
+            res.style.display = 'none';
+            res.className = 'res';
+            res.innerHTML = '';
+        }
+        document.querySelectorAll(`#btn-${s}-${p}-si, #btn-${s}-${p}-no`).forEach((b) => {
+            b.classList.remove('btn-status-ok', 'btn-status-bad');
+        });
+        log = log.filter((l) => !(l.s === s && l.p === p));
+    }
+    syncCf2CorrelationUpdate();
+    updateRealTimeReport();
+}
+
+function check(s, p, val, btn) {
+    mbrCheckDepth += 1;
+    try {
+    const item = db[s].find(x => x.p === p);
+
+    // Secondo click sulla stessa risposta (Sì/No gia attiva): annulla e torna ai pulsanti neutri
+    if (!isUpdating && correlationYes[`${s}-${p}`] === val) {
+        clearAnswerToggle(s, p);
+        return;
+    }
+
+    // Mobile: ancorare la card su cui l'utente ha cliccato (8<->9 richiama check in modo annidato)
+    if (!isUpdating && s === "mbr" && (p === 4 || p === 8 || p === 9) && isMobileBrowser()) {
+        const stickEl = document.getElementById(`card-mbr-${p}`);
+        if (stickEl) {
+            mbrViewportSticky = { id: `card-mbr-${p}`, top: stickEl.getBoundingClientRect().top };
+        }
+    }
+
+    // salva stato
+    correlationYes[`${s}-${p}`] = val;
+
+    // 👉 CASO GIUSTO: MBBR punto 3 → CF punto 2
+    if (s === 'mbr' && p === 4 && val === true) {
+        syncCf2CorrelationUpdate();
+    }
+
+    // Rimuovi immediatamente l'allarme correlato quando MBBR punto 3 = NO
+    if (s === 'mbr' && p === 4 && val === false) {
+        syncCf2CorrelationUpdate();
+    }
+
+    // Gestione allarme biomassa settica (MBBR punto 9) su correlazione CF punto 2
+    if (s === 'mbr' && p === 9) {
+        syncCf2CorrelationUpdate();
+    }
+
+    // Logica di mutua esclusione per Punti 7 e 8 del MBBR
+    if (s === 'mbr' && !isUpdating) {
+        if (p === 8) {
+            // Se Fango Marrone cambia, Fango Nero deve andare all'opposto
+            isUpdating = true;
+            const btn9 = document.getElementById(`btn-mbr-9-${val ? 'no' : 'si'}`);
+            if (btn9) {
+                btn9.click();
+            }
+            setTimeout(() => isUpdating = false, 100);
+        } else if (p === 9) {
+            // Se Fango Nero cambia, Fango Marrone deve andare all'opposto
+            isUpdating = true;
+            const btn8 = document.getElementById(`btn-mbr-8-${val ? 'no' : 'si'}`);
+            if (btn8) {
+                btn8.click();
+            }
+            setTimeout(() => isUpdating = false, 100);
+        }
+    }
+
+    const resDiv = document.getElementById(`r-${s}-${p}`);
+    btn.parentNode.querySelectorAll("button").forEach(b => {
+        b.classList.remove("btn-status-ok", "btn-status-bad");
+    });
+
+    let isAlert = item.control ? (val === true) : (val === false);
+    
+    if (isAlert) {
+        btn.classList.add("btn-status-bad"); 
+    } else {
+        btn.classList.add("btn-status-ok");
+    }
+
+    resDiv.style.display = "block";
+    resDiv.className = `res ${isAlert ? 'bad' : 'ok'}`;
+
+    if (isAlert) {
+        log = log.filter(l => !(l.s === s && l.p === p));
+        log.push({ s, p, q: item.q, tag: item.tag, subType: null });
+
+        let html = ``;
+
+        if (item.temp_consequences) {
+            html += `<div class="risk-section" style="background: #fff; border: 2px solid var(--danger);">
+                        <b class="warning-label" style="text-align: center;">⚠️ SELEZIONA CONDIZIONE</b>
+                        <div class="grid-split">
+                            <div class="col-box box-left-blue" id="box-${s}-${p}-low" onclick="selectConsequence('${s}',${p},'low')">
+                                <span class="box-title">❄️ Temp. < 15 °C</span>
+                                <ul class="box-list">
+                                    <li><b>Biofilm:</b> rallentato</li>
+                                    <li><b>COD:</b> degradazione ridotta</li>
+                                    <li><b>Efficienza:</b> peggiorata</li>
+                                </ul>
+                            </div>
+                            <div class="col-box box-right-orange" id="box-${s}-${p}-high" onclick="selectConsequence('${s}',${p},'high')">
+                                <span class="box-title">🔥 Temp. > 35 °C</span>
+                                <ul class="box-list">
+                                    <li><b>Stress:</b> termico</li>
+                                    <li><b>Biomassa:</b> distacco</li>
+                                    <li><b>EPS:</b> fango vischioso</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="consequences-details-${s}-${p}" class="dynamic-details-box" style="display: none;"></div>
+                    </div>`;
+        }
+
+        if (item.o2_consequences) {
+            html += `<div class="risk-section" style="background: #fff; border: 2px solid var(--danger);">
+                        <b class="warning-label" style="text-align: center;">⚠️ SELEZIONA CONDIZIONE</b>
+                        <p style="margin: 10px 0 14px 0; font-weight: bold; text-align: center;">Riferimento operativo MBBR: DO stabile > 2,0 mg/L; range ideale 2,5-4,5 mg/L.</p>
+                        <div class="grid-split">
+                            <div class="col-box box-left-grey" id="box-${s}-${p}-low" onclick="selectConsequence('${s}',${p},'low')">
+                                <span class="box-title">🌬️ O2 < 1 mg/L</span>
+                            </div>
+                            <div class="col-box box-right-blue" id="box-${s}-${p}-high" onclick="selectConsequence('${s}',${p},'high')">
+                                <span class="box-title">🌬️ O2 > 4 mg/L</span>
+                            </div>
+                        </div>
+                        <div id="consequences-details-${s}-${p}" class="dynamic-details-box" style="display: none;"></div>
+                    </div>`;
+        }
+        
+        if (item.ph_consequences) {
+            html += `<div class="risk-section" style="background: #fff; border: 2px solid var(--danger);">
+                        <b class="warning-label" style="text-align: center;">⚠️ SELEZIONA CONDIZIONE</b>
+                        <div class="grid-split">
+                            <div class="col-box box-left-red" id="box-${s}-${p}-low" onclick="selectConsequence('${s}',${p},'low')">
+                                <span class="box-title">📉 pH < 6.5</span>
+                            </div>
+                            <div class="col-box box-right-purple" id="box-${s}-${p}-high" onclick="selectConsequence('${s}',${p},'high')">
+                                <span class="box-title">📈 pH > 7.5</span>
+                            </div>
+                        </div>
+                        <div id="pre-control-${s}-${p}" class="risk-section" style="margin-top: 12px;">
+                            <table class="table">
+                                <tr><th>Controllo</th><th>Azione</th></tr>
+                                <tr>
+                                    <td>Controllo dosimetrico</td>
+                                    <td>Verifica funzionamento P-111101 / P-111100 (acido e soda) e soluzioni Soda/Acido.</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="consequences-details-${s}-${p}" class="dynamic-details-box" style="display: none;"></div>
+                    </div>`;
+        }
+        // Non mostrare actions e risk_list direttamente se c'è ph_consequences, temp_consequences o o2_consequences
+        // Verranno mostrati dinamicamente dopo la selezione in selectConsequence
+        if (!item.ph_consequences && !item.temp_consequences && !item.o2_consequences) {
+            if (item.actions) {
+                html += `<table class="table"><tr><th>Controllo</th><th>Azione</th></tr>`;
+                item.actions.forEach(a => html += `<tr><td>${a.c}</td><td>${a.a}</td></tr>`);
+                html += `</table>`;
+            }
+
+            if (item.critical) {
+                html += `<details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">
+                            <ul class="critical-list" style="color: #c2410c;">`;
+                item.critical.forEach(c => html += `<li>${c}</li>`);
+                html += `</ul></div></details>`;
+            }
+
+            if (item.risk_list || item.risk) {
+                html += `<details class="risk-section risk-accordion">
+                            <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
+                            <div class="risk-accordion-body">`;
+                if (item.risk_list) {
+                    html += `<ul class="critical-list" style="color: #c2410c;">`;
+                    item.risk_list.forEach(r => html += `<li>${r}</li>`);
+                    html += `</ul>`;
+                } else {
+                    html += `<p style="margin: 0; color: #c2410c; font-weight: bold; font-size: 0.9rem;">${item.risk}</p>`;
+                }
+                html += `</div></details>`;
+            }
+        }
+
+        if (item.goto) {
+            let buttonText = `ANALIZZA CORRELAZIONE (${item.goto.s.toUpperCase()} P.${item.goto.p})`;
+            let buttonStyle = "";
+            let buttonAnimation = "";
+            if (s === 'cf' && p === 2) {
+                buttonText = "CORRELAZIONE — Possibile impatto su MBBR";
+                buttonStyle = "background: #dc2626; border-color: #dc2626;";
+                buttonAnimation = "animation: slow-blink 1.5s infinite;";
+            }
+            const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
+            if (s === 'cf' && p === 2) {
+                html += `<div class="correlation-action-row">${jumpBtn}</div>`;
+            } else {
+                html += jumpBtn;
+            }
+        }
+
+        // Aggiungi pulsante per tornare al punto cf.2 nel punto mbr.4 quando correlationYes['mbr-4'] === true
+        if (s === 'mbr' && p === 4 && correlationYes['mbr-4'] === true) {
+            html += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>`;
+        }
+        if (s === 'mbr' && p === 9 && correlationYes['mbr-9'] === true) {
+            html += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
+        }
+
+        resDiv.innerHTML = html;
+    } else {
+        log = log.filter(l => !(l.s === s && l.p === p));
+        let okHtml = `<strong>✓ OK</strong>: ${item.si || "Parametro a norma."}`;
+        if (item.expand_content && !(s === 'cf' && p === 8)) {
+            okHtml += `<div style="margin-top: 15px;">
+                <div style="text-align: right;">
+                    <button class="btn-expand" onclick="toggleExpand('${s}',${p})" style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">approfondisci</button>
+                </div>
+                <div id="expand-${s}-${p}" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--accent);">${item.expand_content}</div>
+            </div>`;
+        }
+        // Aggiungi pulsante per tornare al punto cf.2 nel punto mbr.4 quando correlationYes['mbr-4'] === true
+        if (s === 'mbr' && p === 4 && correlationYes['mbr-4'] === true) {
+            okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>`;
+        }
+        if (s === 'mbr' && p === 9 && correlationYes['mbr-9'] === true) {
+            okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
+        }
+        resDiv.innerHTML = okHtml;
+    }
+
+    if (s === 'cf' && p === 2) {
+        syncCf2CorrelationUpdate();
+    }
+
+    updateRealTimeReport();
+    } finally {
+        mbrCheckDepth -= 1;
+        if (mbrCheckDepth === 0 && mbrViewportSticky && isMobileBrowser()) {
+            scheduleMbrViewportRestore();
+        }
+    }
+}
+
+function forceClick(s, p, val) {
+    const btnId = val ? `btn-${s}-${p}-si` : `btn-${s}-${p}-no`;
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        // Usiamo un piccolo timeout per evitare loop infiniti se le logiche fossero più complesse
+        btn.onclick();
+    }
+}
+
+function toggleExpand(s, p) {
+    const expandDiv = document.getElementById(`expand-${s}-${p}`);
+    if (expandDiv) {
+        if (expandDiv.style.display === 'none') {
+            expandDiv.style.display = 'block';
+        } else {
+            expandDiv.style.display = 'none';
+        }
+    }
+}
+
+function updateRealTimeReport() {
+    const displayArea = document.getElementById("report-dynamic-content");
+    if (log.length === 0) {
+        displayArea.innerHTML = "<p style='color: var(--success); font-weight: bold;'>IMPIANTO IN EQUILIBRIO: Tutte le sezioni analizzate risultano conformi ai parametri operativi.</p>";
+        return;
+    }
+
+    const tags = [...new Set(log.map(l => l.tag))];
+    const keyAlerts = [];
+    const priorityActions = [];
+    const correlationNotes = [];
+
+    const getItem = (s, p) => (db[s] || []).find(x => x.p === p);
+    const addAction = (text) => {
+        if (text && !priorityActions.includes(text)) priorityActions.push(text);
+    };
+
+    log.forEach(entry => {
+        const item = getItem(entry.s, entry.p);
+        if (!item) return;
+
+        // Sintesi anomalia dalla scheda specifica
+        if (item.risk) keyAlerts.push(item.risk);
+        if (item.risk_list && item.risk_list.length) keyAlerts.push(item.risk_list[0]);
+        if (item.critical && item.critical.length) keyAlerts.push(item.critical[0]);
+
+        // Azione prioritaria dalla prima azione della scheda
+        if (item.actions && item.actions.length) {
+            const firstAction = item.actions[0];
+            addAction(`${firstAction.c}: ${firstAction.a}`);
+        }
+    });
+
+    // Lettura dettagliata delle selezioni condizionali (subType) per diagnosi/piano azione
+    const tempLog = log.find(l => l.tag === "Temp");
+    const o2Log = log.find(l => l.tag === "O2");
+    const phLog = log.find(l => l.tag === "pH");
+    const nutrientLog = log.find(l => l.tag === "Nutrienti");
+
+    if (phLog && phLog.subType === 'low') {
+        keyAlerts.push("pH acido (< 6,5): coagulazione instabile e rischio trascinamento carico verso valle.");
+        addAction("pH basso: verificare pHmetro e incrementare dosaggio base (NaOH) fino a rientro controllato nel range.");
+    } else if (phLog && phLog.subType === 'high') {
+        keyAlerts.push("pH basico (> 7,5): possibile ridissoluzione del fiocco e riduzione efficienza di separazione.");
+        addAction("pH alto: verificare pHmetro e aumentare dosaggio acido con correzione progressiva.");
+    }
+
+    if (tempLog && tempLog.subType === 'low') {
+        keyAlerts.push("Temperatura bassa (< 15°C): rallentamento metabolico del biofilm e riduzione velocita' depurativa.");
+        addAction("Temperatura bassa: ridurre sbalzi operativi e monitorare trend COD/DO per prevenire perdita resa.");
+    } else if (tempLog && tempLog.subType === 'high') {
+        keyAlerts.push("Temperatura alta (> 35°C): stress termico biomassa con rischio distacco biofilm/EPS.");
+        addAction("Temperatura alta: contenere picchi termici e stabilizzare ossigenazione per limitare stress biologico.");
+    }
+
+    if (o2Log && o2Log.subType === 'low') {
+        keyAlerts.push("Ossigeno disciolto critico (< 1 mg/L): rischio anossia e deriva fermentativa.");
+        addAction("O2 basso: priorita' a continuita' insufflaggio, verifica soffianti/diffusori e riallineamento setpoint.");
+    } else if (o2Log && o2Log.subType === 'high') {
+        keyAlerts.push("Ossigeno elevato (> 4 mg/L): sovra-aerazione con inefficienza energetica e stress del biofilm.");
+        addAction("O2 alto: ridurre portata aria e ottimizzare regolazione PID/comando soffianti.");
+    }
+
+    if (nutrientLog) {
+        keyAlerts.push("Cono < 400: biomassa insufficiente e rischio instabilita' del processo biologico.");
+        addAction("Nutrienti: proseguire supporto urea secondo protocollo fino al consolidamento verso target operativo.");
+    }
+
+    // Lettura intelligente delle correlazioni reali in campo
+    if (correlationYes['cf-2'] === true && correlationYes['mbr-4'] === true) {
+        correlationNotes.push("Correlazione attiva OLI + SCHIUMA NERA: possibile trascinamento fase oleosa dal Chimico-Fisico verso MBBR con sofferenza del biofilm.");
+        addAction("CF2 + MBBR4: verificare subito chiarificato, pH e dosaggio PAC/PAM; se necessario ridurre portata e aumentare separazione.");
+    }
+    if (correlationYes['mbr-9'] === true) {
+        correlationNotes.push("Correlazione attiva FANGO NERO: biomassa in stato settico/anossico con rischio perdita resa depurativa.");
+        addAction("MBBR9: analisi COD immediata e controllo oli nel chiarificato; se carico alto, mettere in serie i comparti chimico-fisici.");
+    }
+
+    // Integrazione regole corso (SOP/parametri critici)
+    if (tags.includes("Aria Sediflottatore") || tags.includes("Olio") || tags.includes("Torbidità")) {
+        addAction("Sediflottatore: verificare pressione saturatore 4,5-6 bar e valvola depressurizzazione (effetto acqua bianca).");
+        addAction("Sediflottatore: verificare ricircolo saturatore al 10-30% della portata e target torbidita' in uscita < 20 NTU.");
+        addAction("Sediflottatore: ispezionare raschiatori/superficie e gestire spurgo fanghi flottati per mantenere separazione efficace.");
+    }
+    if (tags.includes("pH") || tags.includes("Pompe PAC") || tags.includes("PAM")) {
+        addAction("Chimico-Fisico: riportare pH nel range 6,5-7,5 e riallineare dosaggi PAC/PAM per fiocco stabile.");
+        addAction("Chimico-Fisico: verificare tempo di contatto coagulante/flocculazione e uniformita' di miscelazione.");
+    }
+    if (tags.includes("PAM") || tags.includes("Poly")) {
+        addAction("Polielettrolita: verificare preparazione soluzione (concentrazione, viscosita' e filantezza) ed evitare sovradiluizione.");
+        addAction("Polielettrolita: controllare circuito di preparazione/diluizione (valvola XV-11134, filtro a monte, linea mandata e pescaggio bulk).");
+        addAction("Polielettrolita: confermare attivazione efficace prima del dosaggio, per garantire formazione fiocco robusto e separabile nel sediflottatore.");
+    }
+    if (tags.includes("Insufflaggio") || tags.includes("O2") || tags.includes("Aerazione")) {
+        addAction("MBBR: ripristinare DO stabile tra 2-4 mg/L (ideale 2,5-4,0), verificando soffianti, valvole e perdite aria.");
+        addAction("MBBR: verificare movimento omogeneo dei carrier ed eventuali intasamenti su diffusori/griglie.");
+    }
+    if (tags.includes("Nutrienti")) {
+        addAction("MBBR: verificare ammonio/nitrati e supportare la biomassa con dosaggio nutrienti secondo protocollo.");
+    }
+    if (tags.some(tag => ["Insufflaggio", "O2", "Temp", "pH", "Schiuma", "Shock", "Fango Nero", "Aria Sediflottatore", "Olio"].includes(tag))) {
+        addAction("Esercizio: registrare parametri e anomalie nel log operativo e segnalare immediatamente condizioni fuori range rispetto ai parametri critici di processo.");
+    }
+
+    // Diagnosi integrata stile tecnico-ingegneristico:
+    // identifica catena causa-effetto, formula ipotesi e conclude scenario operativo.
+    const causes = [];
+    const effects = [];
+    const conclusions = [];
+
+    if (tags.includes("Olio")) {
+        causes.push("presenza di fase oleosa nel chiarificato con separazione chimico-fisica non completa");
+        effects.push("riduzione del trasferimento di ossigeno e schermatura progressiva del biofilm sui carrier");
+    }
+    if (tags.includes("Shock") || tags.includes("Fango Nero")) {
+        causes.push("sovraccarico organico/COD o tossicita' locale nel reattore biologico");
+        effects.push("sofferenza estrema della biomassa con rischio di condizione settica/anossica");
+    }
+    if (tags.includes("Schiuma")) {
+        causes.push("instabilita' superficiale da squilibrio tra carico organico, coagulazione e aerazione");
+        effects.push("peggioramento del contatto acqua-biomassa e incremento variabilita' depurativa");
+    }
+    if (tags.includes("Temp")) {
+        effects.push(tempLog && tempLog.subType === 'high'
+            ? "stress termico con aumento probabilita' distacco biofilm e schiume"
+            : tempLog && tempLog.subType === 'low'
+                ? "rallentamento cinetico del biofilm con riduzione velocita' di degradazione"
+                : "variazione della cinetica batterica con riduzione della resilienza del biofilm");
+    }
+    if (tags.includes("O2")) {
+        effects.push(o2Log && o2Log.subType === 'low'
+            ? "assetto vicino all'anossia con riduzione severa metabolismo aerobico"
+            : o2Log && o2Log.subType === 'high'
+                ? "sovraossigenazione con stress biofilm e consumo energetico non utile"
+                : "squilibrio del metabolismo aerobico con perdita di efficienza nell'abbattimento del COD");
+    }
+    if (tags.includes("pH")) {
+        causes.push(phLog && phLog.subType === 'low'
+            ? "condizione chimica acida fuori campo ottimale (pH < 6,5 rispetto al target coagulazione 6,5-7,5)"
+            : phLog && phLog.subType === 'high'
+                ? "condizione chimica basica fuori campo ottimale (pH > 7,5 rispetto al target coagulazione 6,5-7,5)"
+                : "condizioni chimiche fuori campo ottimale per coagulazione (target pH 6,5-7,5) e stabilita' biologica");
+        effects.push(phLog && phLog.subType === 'low'
+            ? "coagulazione indebolita con rischio mancata separazione oli/solidi"
+            : phLog && phLog.subType === 'high'
+                ? "fiocco instabile e possibile ridissoluzione con trascinamento a valle"
+                : "formazione fiocchi non stabile e possibile trascinamento di carico verso valle");
+    }
+    if (tags.includes("Insufflaggio")) {
+        causes.push("insufficienza di aria servizi o regolazione non adeguata delle soffianti");
+        effects.push("rischio di rapido passaggio verso assetto anossico con decadimento della biomassa");
+    }
+
+    if (correlationYes['cf-2'] === true && correlationYes['mbr-4'] === true) {
+        conclusions.push("la correlazione OLI + SCHIUMA NERA indica una catena causale coerente: inefficienza a monte -> impatto diretto sul biologico.");
+    }
+    if (correlationYes['mbr-9'] === true) {
+        conclusions.push("la presenza di FANGO NERO conferma uno stadio avanzato di sofferenza biologica, non solo un'anomalia puntuale.");
+    }
+    if (!conclusions.length && tags.length >= 3) {
+        conclusions.push("il quadro evidenzia una propagazione di instabilita' tra sezioni, con priorita' al contenimento della causa primaria e alla protezione del biologico a valle.");
+    } else if (!conclusions.length && tags.length === 2) {
+        if (tags.includes("Olio") && tags.includes("Schiuma")) {
+            conclusions.push("la combinazione olio-schiuma suggerisce perdita di efficacia di separazione a monte con impatto diretto sul rendimento del reattore biologico.");
+        } else if (tags.includes("pH") && tags.includes("O2")) {
+            conclusions.push("la concomitanza pH-O2 indica una condizione di controllo processo non stabile che puo ridurre rapidamente l'efficienza depurativa.");
+        } else if (tags.includes("Temp") && tags.includes("O2")) {
+            conclusions.push("la coppia temperatura-ossigeno segnala stress cinetico della biomassa e necessita' di riallineamento graduale dei parametri critici.");
+        } else {
+            conclusions.push("le due anomalie attive risultano coerenti con una deriva di processo localizzata che va stabilizzata prima che coinvolga ulteriori comparti.");
+        }
+    } else if (!conclusions.length) {
+        if (tags.includes("Insufflaggio")) {
+            conclusions.push("la criticita' e' centrata sull'apporto aria: il ripristino della continuita' di insufflaggio e' determinante per la tenuta biologica.");
+        } else if (tags.includes("Nutrienti")) {
+            conclusions.push("la criticita' appare legata al bilancio di biomassa/nutrienti: va sostenuta la crescita batterica fino al rientro nel target operativo.");
+        } else {
+            conclusions.push("l'anomalia rilevata e' circoscritta ma con potenziale evolutivo: intervenire ora evita propagazione e perdita di resa a valle.");
+        }
+    }
+
+    const hasTag = (tag) => tags.includes(tag);
+    const scenarioRules = [
+        {
+            id: "shock_nero_con_olio",
+            when: () => (hasTag("Shock") || hasTag("Fango Nero")) && hasTag("Olio"),
+            text: "Scenario dedicato: shock biologico con trascinamento oleoso. Ipotesi principale: il carico non separato a monte sta schermando il biofilm e accelerando il collasso aerobico. Quadro atteso: resa depurativa in calo rapido, rischio setticita' e incremento COD in uscita.",
+            focus: "Priorita' assoluta su contenimento fonte (CF) + recupero ossigenazione e biomassa (MBBR)."
+        },
+        {
+            id: "olio_schiuma_nera",
+            when: () => correlationYes['cf-2'] === true && correlationYes['mbr-4'] === true,
+            text: "Scenario dedicato: correlazione OLI + SCHIUMA NERA confermata. Ipotesi tecnico-causale: inefficienza del chimico-fisico con trasferimento di fase oleosa al biologico, progressivo soffocamento del biofilm e instabilita' superficiale.",
+            focus: "Intervenire in parallelo su separazione a monte (sediflottatore: pressione saturatore 4,5-6 bar; ricircolo 10-30%; torbidita' target < 20 NTU), controllo pH coagulazione 6,5-7,5 e stabilita' di ossigenazione in vasca."
+        },
+        {
+            id: "fango_nero_attivo",
+            when: () => correlationYes['mbr-9'] === true,
+            text: "Scenario dedicato: biomassa nera in stato avanzato di sofferenza. Ipotesi principale: carico organico/tossico superiore alla capacita' di ossidazione del reattore con passaggio verso condizione anossica.",
+            focus: "Necessario ridurre immediatamente il carico in ingresso al biologico e ripristinare condizioni aerobiche stabili."
+        },
+        {
+            id: "insufflaggio_o2",
+            when: () => hasTag("Insufflaggio") && hasTag("O2"),
+            text: "Scenario dedicato: insufflaggio e ossigeno fuori controllo contemporaneamente. Ipotesi: squilibrio di erogazione aria (disponibilita'/regolazione soffianti) con impatto diretto sul metabolismo della biomassa.",
+            focus: "Ripristinare prima la continuita' aria e poi la regolazione fine del setpoint O2 per rientrare nel range 2-4 mg/L."
+        },
+        {
+            id: "temp_o2_ph",
+            when: () => hasTag("Temp") && hasTag("O2") && hasTag("pH"),
+            text: "Scenario dedicato: tripletta di stress di processo (Temperatura + O2 + pH). Ipotesi: instabilita' multifattoriale che riduce resilienza biologica e qualita' di chiarificazione.",
+            focus: "Stabilizzare in sequenza pH, ossigeno e profilo termico per evitare oscillazioni cicliche."
+        }
+    ];
+
+    const matchedScenario = scenarioRules.find(rule => rule.when());
+    const causeText = causes.length ? causes.join("; ") : "cause in fase di consolidamento diagnostico";
+    const effectText = effects.length ? effects.join("; ") : "effetti operativi non ancora estesi alle altre sezioni";
+    const conclusionText = conclusions.join(" ");
+
+    // Localizzazione anomalia nel processo (sede primaria e propagazione)
+    const hasCF = tags.some(tag => ["Torbidità", "Olio", "Pompe PAC", "PAM", "Raschiatori", "Poly", "pH", "Aria Sediflottatore"].includes(tag));
+    const hasMBBR = tags.some(tag => ["Insufflaggio", "Aerazione", "Schiuma", "Shock", "Temp", "Nutrienti", "O2", "Salute", "Fango Nero"].includes(tag));
+    const hasTransferCFtoMBBR = correlationYes['cf-2'] === true && (correlationYes['mbr-4'] === true || correlationYes['mbr-9'] === true);
+
+    let locationText = "";
+    if (hasTransferCFtoMBBR) {
+        locationText = "Localizzazione: anomalia originata/verosimilmente innescata nel Chimico-Fisico (sediflottazione/chiarificato) con propagazione al MBBR.";
+    } else if (hasCF && hasMBBR) {
+        locationText = "Localizzazione: criticita' distribuita tra Chimico-Fisico e MBBR, con possibile interazione tra le due sezioni.";
+    } else if (hasCF) {
+        locationText = "Localizzazione: anomalia prevalente nella sezione Chimico-Fisico (sediflottazione/chiarificato).";
+    } else if (hasMBBR) {
+        locationText = "Localizzazione: anomalia prevalente nella sezione Biologico MBBR.";
+    } else {
+        locationText = "Localizzazione: anomalia in valutazione, non ancora attribuita con certezza a una sezione unica.";
+    }
+
+    // Previsione tecnico-biologica su impatto a valle (membrane MBR)
+    const membraneForecastParts = [];
+    if (hasTransferCFtoMBBR && tags.includes("Olio")) {
+        membraneForecastParts.push("se la fase oleosa continua a superare la sediflottazione, e' probabile un rapido aumento del fouling idrofobico sulle membrane MBR (perdita di permeabilita', incremento TMP e lavaggi piu frequenti)");
+    }
+    if (hasTransferCFtoMBBR && (tags.includes("Shock") || tags.includes("Fango Nero"))) {
+        membraneForecastParts.push("in presenza di biomassa stressata/settica, aumenta il rilascio di solidi fini ed EPS con rischio di colmatazione progressiva del comparto membrane MBR");
+    }
+    if (tags.includes("Schiuma") && tags.includes("O2")) {
+        membraneForecastParts.push("la combinazione schiuma instabile e ossigenazione non bilanciata puo generare trascinamenti e peggiorare la qualita' del mixed liquor, con impatto indiretto sulla filtrabilita'");
+    }
+    if ((tags.includes("Shock") || tags.includes("Fango Nero")) && tags.includes("O2")) {
+        membraneForecastParts.push("con COD elevato e O2 instabile aumenta la competizione biologica: i nitrificanti perdono efficienza e cresce il rischio di sovraccarico sul comparto membrane MBR");
+    }
+
+    const membraneForecastText = membraneForecastParts.length
+        ? ` Previsione a valle (parere biologico): ${membraneForecastParts.join("; ")}.`
+        : "";
+
+    const diagnosiTesto = matchedScenario
+        ? `${matchedScenario.text} ${matchedScenario.focus} ${locationText}${membraneForecastText}`
+        : `Quadro impiantistico: ${causeText}. Effetto di processo: ${effectText}. Ipotesi tecnico-biologica: instabilita' depurativa in evoluzione se le anomalie persistono. Conclusione: ${conclusionText} ${locationText}${membraneForecastText}`;
+
+    const uniqueAlerts = [...new Set(keyAlerts)].slice(0, 4);
+    const uniqueActions = [...new Set(priorityActions)].slice(0, 4);
+    const alertsHtml = uniqueAlerts.length
+        ? `<details class="risk-section risk-accordion"><summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Sintesi tecnica anomalie</summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #c2410c;">${uniqueAlerts.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
+        : '';
+    const unifiedSummaryHtml = `
+        <div class="bio-intervention">
+            <strong>Diagnosi integrata</strong><br><br>
+            ${diagnosiTesto}
+        </div>
+    `;
+    const actionsHtml = uniqueActions.length
+        ? `<details class="risk-section risk-accordion risk-accordion-priority"><summary class="risk-accordion-summary">Priorità operative<span class="warn-tri" aria-hidden="true">⚠️</span></summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #1e3a8a; font-weight: normal;">${uniqueActions.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
+        : '';
+
+    displayArea.innerHTML = `
+        <div class="anomalie-list"><b>Anomalie rilevate:</b> ${tags.join(", ")}</div>
+        ${alertsHtml}
+        ${unifiedSummaryHtml}
+        ${actionsHtml}
+    `;
+}
+
+function jumpWithReturn(fromS, fromP, toS, toP) {
+    returnPoint = { s: fromS, p: fromP };
+    document.querySelectorAll(".btn-return-inline").forEach(b => b.style.display = "none");
+    const btn = document.getElementById(`return-btn-${toS}-${toP}`);
+    if (btn) btn.style.display = "block";
+    
+    // Rimuovi l'animazione lampeggiante dal bottone di correlazione cliccato
+    const correlationBtn = document.getElementById(`btn-correlation-${fromS}-${fromP}`);
+    if (correlationBtn) {
+        correlationBtn.style.animation = "none";
+    }
+    
+    scrollToPoint(toS, toP, true);
+}
+
+function executeReturn() {
+    if (returnPoint) {
+        const destination = { ...returnPoint };
+        returnPoint = null;
+
+        // Scroll verso la card del punto di origine
+        scrollToPoint(destination.s, destination.p);
+
+        // Nasconde i pulsanti solo dopo l'avvio dello scroll per evitare salti di layout su iOS.
+        setTimeout(() => {
+            document.querySelectorAll(".btn-return-inline").forEach(b => b.style.display = "none");
+        }, 250);
+    }
+}
+
+function scrollToSec(s) {
+    isManualScrolling = true;
+    updateNav(s);
+    const target = document.getElementById(`${s}-content`);
+    if (!target) return;
+    const offset = 160;
+    const targetY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+    smoothScrollToY(targetY, 900);
+}
+
+function smoothScrollToY(targetY, duration = 1100, onDone = null) {
+    const startY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const delta = targetY - startY;
+
+    if (Math.abs(delta) < 2) {
+        isManualScrolling = false;
+        if (typeof onDone === 'function') onDone();
+        return;
+    }
+
+    const startTime = performance.now();
+    const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeInOutCubic(progress);
+        window.scrollTo(0, startY + delta * eased);
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            isManualScrolling = false;
+            if (typeof onDone === 'function') onDone();
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+function getScrollOffset() {
+    const fixedHeader = document.querySelector('.fixed-header');
+    const headerHeight = fixedHeader ? fixedHeader.getBoundingClientRect().height : 150;
+    return Math.round(headerHeight + 18);
+}
+
+function scrollToPointPrecise(target, duration = 1300) {
+    if (!target) return;
+    let attempts = 0;
+    const maxAttempts = 4;
+
+    const run = () => {
+        const offset = getScrollOffset();
+        const targetY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+        smoothScrollToY(targetY, duration, () => {
+            const distance = target.getBoundingClientRect().top - offset;
+            if (Math.abs(distance) > 10 && attempts < maxAttempts) {
+                attempts += 1;
+                isManualScrolling = true;
+                setTimeout(run, 140);
+                return;
+            }
+            // Allineamento finale se iOS cambia viewport/toolbar durante lo scroll
+            const correctionY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+            window.scrollTo(0, correctionY);
+        });
+    };
+
+    run();
+}
+
+function scrollToPoint(s, p, glow = false) {
+    const target = document.getElementById(`card-${s}-${p}`);
+    if(!target) return;
+    isManualScrolling = true;
+    updateNav(s);
+    scrollToPointPrecise(target, 1600);
+    if (glow) {
+        target.classList.add("highlight-glow");
+        setTimeout(() => target.classList.remove('highlight-glow'), 5000);
+    }
+}
+
+function openQuiz() {
+    if (!quizFeatureEnabled) return;
+    const panel = document.getElementById("quiz-panel");
+    if (!panel) return;
+    panel.classList.add("visible");
+    document.body.classList.add("quiz-open");
+    quizShowScreen("intro");
+    quizSelectStartLevel();
+    quizRenderLeaderboard();
+    const scrollBox = document.querySelector(".quiz-fs-scroll");
+    if (scrollBox) scrollBox.scrollTop = 0;
+    requestAnimationFrame(() => {
+        const ex = document.querySelector(".quiz-fs-exit");
+        if (ex) ex.focus();
+    });
+}
+
+function closeQuiz() {
+    const panel = document.getElementById("quiz-panel");
+    if (!panel) return;
+    panel.classList.remove("visible");
+    document.body.classList.remove("quiz-open");
+    quizClearQuestionTimer();
+}
+
+document.addEventListener("keydown", function quizFullscreenEscape(ev) {
+    if (ev.key === "Escape" && document.body.classList.contains("quiz-open")) {
+        ev.preventDefault();
+        closeQuiz();
+    }
+});
+
+function scrollToReport() {
+    document.getElementById("report-area").scrollIntoView({ behavior: "smooth" });
+}
+
+function updateNav(s) {
+    document.querySelectorAll('.navbar button').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btn-sec-${s}`);
+    if(btn) btn.classList.add('active');
+}
+
+function setupScrollObserver() {
+    const syncNavWithScroll = () => {
+        if (isManualScrolling) return;
+
+        const cf = document.getElementById('cf-content');
+        const mbr = document.getElementById('mbr-content');
+        if (!cf || !mbr) return;
+
+        const triggerY = 220; // offset fisso sotto header
+        const cfTop = cf.getBoundingClientRect().top;
+        const mbrTop = mbr.getBoundingClientRect().top;
+
+        // Finché il titolo MBBR non supera la linea di trigger, resta attivo CF.
+        // Quando MBBR entra stabilmente in vista, attiva MBBR.
+        if (mbrTop <= triggerY) {
+            updateNav('mbr');
+        } else if (cfTop <= triggerY) {
+            updateNav('cf');
+        }
+    };
+
+    window.addEventListener('scroll', syncNavWithScroll, { passive: true });
+    syncNavWithScroll();
+}
+
+function resetAll() {
+    log = [];
+    correlationYes = {};
+    isUpdating = false;
+    returnPoint = null;
+    render();
+    updateRealTimeReport();
+    window.scrollTo(0, 0);
+}
+
+window.addEventListener('load', function initQuizProtection() {
+    setupQuizTitleToggle();
+    applyQuizVisibility();
+    render();
+});
+</script>
+</body>
+</html>
