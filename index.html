@@ -202,25 +202,26 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 6px 10px;
             background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
         }
         .quiz-fs-topbar--solo-exit {
             justify-content: flex-end;
         }
         .quiz-fs-exit {
             flex-shrink: 0;
-            padding: 10px 18px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.55);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.5);
             background: rgba(255,255,255,0.12);
             color: #fff;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
         }
         .quiz-fs-exit:hover { background: rgba(255,255,255,0.22); }
         .quiz-fs-exit:active { transform: translateY(1px); }
@@ -231,7 +232,7 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            padding: 16px 14px 28px;
+            padding: 8px 10px 12px;
             width: 100%;
             max-width: 760px;
             margin: 0 auto;
@@ -949,19 +950,12 @@
         .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
         #quiz-screen-play .quiz-play-scoreboard {
             text-align: center;
-            padding: 10px 12px 12px;
-            margin: 0 0 12px;
-            border-radius: 12px;
+            padding: 6px 8px 7px;
+            margin: 0 0 5px;
+            border-radius: 10px;
             background: linear-gradient(145deg, #e3f2fd 0%, #ffffff 45%, #f5f9ff 100%);
             border: 1px solid #90caf9;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.08);
-        }
-        #quiz-screen-play .quiz-play-qline {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: #37474f;
-            margin-top: 8px;
-            text-align: center;
+            box-shadow: 0 2px 8px rgba(13, 71, 161, 0.07);
         }
         /* Una riga: posizione a sinistra, punti a destra (stessa scala tipografica) */
         .quiz-play-oneline {
@@ -969,9 +963,9 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: nowrap;
-            gap: 8px;
-            padding: 8px 10px;
-            border-radius: 10px;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 8px;
             background: rgba(255, 255, 255, 0.75);
             border: 1px solid rgba(25, 118, 210, 0.3);
             text-align: left;
@@ -1034,6 +1028,9 @@
         .quiz-play-oneline--first .quiz-play-oneline-lbl {
             color: #bf360c;
         }
+        #quiz-screen-play .quiz-play-oneline-val {
+            font-size: clamp(0.92rem, 3.1vw, 1.12rem);
+        }
         .quiz-play-oneline-val {
             font-size: clamp(1.05rem, 3.6vw, 1.28rem);
             font-weight: 900;
@@ -1045,14 +1042,14 @@
             color: #bf360c;
         }
         #quiz-screen-play .quiz-q {
-            font-size: clamp(1.15rem, 3.8vw, 1.42rem);
-            margin: 18px 0 16px;
-            line-height: 1.48;
+            font-size: clamp(0.98rem, 3.2vw, 1.22rem);
+            margin: 6px 0 5px;
+            line-height: 1.38;
         }
         .quiz-choices { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
         #quiz-screen-play .quiz-choices {
-            gap: 12px;
-            margin: 18px 0 20px;
+            gap: 6px;
+            margin: 6px 0 6px;
         }
         .quiz-choice-btn {
             text-align: left; padding: 14px 16px 14px 18px; border-radius: 12px; border: 1px solid #b0bec5;
@@ -1070,15 +1067,15 @@
         }
         .quiz-choice-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5d0d6, 0 3px 6px rgba(0,0,0,0.08); }
         #quiz-screen-play .quiz-choice-btn {
-            font-size: clamp(1.02rem, 2.8vw, 1.18rem);
-            padding: 17px 18px 17px 20px;
-            min-height: 3.55rem;
-            line-height: 1.4;
+            font-size: clamp(0.92rem, 2.5vw, 1.05rem);
+            padding: 10px 12px 10px 14px;
+            min-height: 2.55rem;
+            line-height: 1.32;
         }
         #quiz-screen-play .quiz-feedback {
-            font-size: 1.08rem;
-            padding: 14px 16px;
-            margin-top: 14px;
+            font-size: 0.95rem;
+            padding: 8px 10px;
+            margin-top: 6px;
         }
         .quiz-choice-btn:disabled { cursor: default; opacity: 1; }
         .quiz-choice-btn.quiz-opt-correct {
@@ -1198,16 +1195,16 @@
         }
         /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda, 25 s) */
         .quiz-play-time {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(25, 118, 210, 0.22);
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(25, 118, 210, 0.2);
         }
         .quiz-play-time-meta {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 3px;
         }
         .quiz-play-time-lbl {
             font-size: 0.62rem;
@@ -1218,7 +1215,7 @@
         }
         .quiz-play-time-sec {
             font-family: ui-monospace, "Cascadia Mono", "Consolas", "Segoe UI", monospace;
-            font-size: 1.05rem;
+            font-size: 0.88rem;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
             color: #0d47a1;
@@ -1231,7 +1228,7 @@
             margin-left: 2px;
         }
         .quiz-play-time-track {
-            height: 9px;
+            height: 5px;
             border-radius: 999px;
             background: rgba(15, 23, 42, 0.12);
             overflow: hidden;
@@ -1261,10 +1258,10 @@
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.12); }
         }
-        /* Vasca (sotto le risposte): senza cornice, più alta per visibilità */
+        /* Vasca: compatta in altezza, più larga in orizzontale */
         .quiz-bio-vat-wrap {
             --worm-dur: 2.35s;
-            margin: 10px 0 4px;
+            margin: 2px 0 0;
             padding: 0;
             background: none;
             border: none;
@@ -1273,9 +1270,9 @@
         .quiz-bio-vat-svg {
             display: block;
             width: 100%;
-            max-width: 560px;
+            max-width: 680px;
             height: auto;
-            min-height: 158px;
+            min-height: 68px;
             margin: 0 auto;
             overflow: visible;
         }
@@ -1296,7 +1293,7 @@
         @keyframes quizWormSink {
             0% { opacity: 1; filter: brightness(1); }
             100% {
-                transform: translateY(88px) rotate(18deg) scaleY(0.85);
+                transform: translateY(48px) rotate(18deg) scaleY(0.85);
                 opacity: 0.12;
                 filter: brightness(0.45);
             }
@@ -1788,15 +1785,15 @@
                 padding: 10px 12px;
             }
             .quiz-fs-topbar {
-                padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+                padding: calc(4px + env(safe-area-inset-top)) 8px 5px;
             }
             .quiz-fs-exit {
-                padding: 9px 13px;
-                font-size: 0.82rem;
+                padding: 5px 10px;
+                font-size: 0.68rem;
             }
             .quiz-fs-scroll {
                 max-width: 100%;
-                padding: 12px 10px calc(22px + env(safe-area-inset-bottom));
+                padding: 6px 8px calc(14px + env(safe-area-inset-bottom));
             }
             .quiz-choice-btn {
                 min-height: 46px;
@@ -2126,7 +2123,7 @@
                 <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
             </div>
             <div id="quiz-bio-vat-wrap" class="quiz-bio-vat-wrap" aria-hidden="true">
-                <svg class="quiz-bio-vat-svg" viewBox="0 0 360 172" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg class="quiz-bio-vat-svg" viewBox="0 0 400 102" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <defs>
                         <linearGradient id="quizBioWaterGrad" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#7dd3fc"/>
@@ -2138,21 +2135,21 @@
                             <stop offset="100%" stop-color="#90a4ae"/>
                         </linearGradient>
                         <clipPath id="quizBioVatClip">
-                            <rect x="28" y="54" width="304" height="100" rx="18" ry="18"/>
+                            <rect x="30" y="44" width="340" height="48" rx="12" ry="12"/>
                         </clipPath>
                     </defs>
-                    <path fill="url(#quizBioTubGrad)" stroke="#546e7a" stroke-width="1.2"
-                        d="M14 18 L34 132 Q42 156 58 158 L302 158 Q318 156 326 132 L346 18 Q344 10 330 10 L30 10 Q16 10 14 18Z"/>
+                    <path fill="url(#quizBioTubGrad)" stroke="#546e7a" stroke-width="1.1"
+                        d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12 Q390 6 378 6 L22 6 Q10 6 8 12Z"/>
                     <g clip-path="url(#quizBioVatClip)">
-                        <rect x="28" y="54" width="304" height="100" fill="#b0bec5" opacity="0.22"/>
-                        <rect id="quiz-bio-water-fill" x="28" y="140" width="304" height="14" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
-                        <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.32">
-                            <path fill="#e0f7fa" d="M0 68 Q48 58 96 68 T192 68 T288 68 T360 68 L360 172 L0 172Z"/>
+                        <rect x="30" y="44" width="340" height="48" fill="#b0bec5" opacity="0.22"/>
+                        <rect id="quiz-bio-water-fill" x="30" y="84" width="340" height="8" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
+                        <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.3">
+                            <path fill="#e0f7fa" d="M0 52 Q50 46 100 52 T200 52 T300 52 T400 52 L400 102 L0 102Z"/>
                         </g>
                         <g id="quiz-bio-worms"></g>
                     </g>
-                    <path fill="none" stroke="#37474f" stroke-width="2.2" stroke-linejoin="round"
-                        d="M14 18 L34 132 Q42 156 58 158 L302 158 Q318 156 326 132 L346 18"/>
+                    <path fill="none" stroke="#37474f" stroke-width="2" stroke-linejoin="round"
+                        d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12"/>
                 </svg>
             </div>
         </div>
@@ -2747,15 +2744,15 @@ function quizBioVatSetTimerUrgent(on) {
 function quizBioVatApplyFillFromState() {
     const rect = document.getElementById('quiz-bio-water-fill');
     if (!rect) return;
-    const bottom = 154;
-    const maxH = 100;
-    const minH = 14;
+    const bottom = 92;
+    const maxH = 48;
+    const minH = 8;
     const total = Math.max(1, (quizState.queue && quizState.queue.length) ? quizState.queue.length : 12);
     const ratio = Math.min(1, quizBioWormCount / total);
     const h = minH + ratio * (maxH - minH);
     const y = bottom - h;
-    rect.setAttribute('x', '28');
-    rect.setAttribute('width', '304');
+    rect.setAttribute('x', '30');
+    rect.setAttribute('width', '340');
     rect.setAttribute('y', String(y));
     rect.setAttribute('height', String(h));
 }
@@ -2778,8 +2775,8 @@ function quizBioVatOnCorrectAnswer() {
     const i = quizBioWormCount - 1;
     const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
     const xNorm = slots[i % slots.length];
-    const wx = 38 + xNorm * (360 - 76);
-    const wy = 92 + (i % 5) * 10;
+    const wx = 44 + xNorm * (400 - 88);
+    const wy = 54 + (i % 4) * 5;
     const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gPos.setAttribute('class', 'quiz-worm');
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
@@ -3250,7 +3247,7 @@ function quizUpdatePlayProgress(extra) {
           '</div></div>'
         : '';
     prog.innerHTML =
-        '<div class="' + boardCls + '">' +
+        '<div class="' + boardCls + '" aria-label="Domanda ' + i + ' di ' + tot + ' · posizione e punti">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
         '<div class="quiz-play-oneline-left">' +
         crown +
@@ -3263,7 +3260,6 @@ function quizUpdatePlayProgress(extra) {
         '</div>' +
         '</div>' +
         timeBlock +
-        '<div class="quiz-play-qline">Domanda ' + i + ' di ' + tot + '</div>' +
         '</div>';
     const trackAria = document.getElementById('quiz-time-track');
     if (trackAria && showTime) {
