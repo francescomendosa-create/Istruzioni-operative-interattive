@@ -406,7 +406,23 @@
             box-sizing: border-box;
         }
         .correlation-action-row.correlation-cf2-goto-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
             align-items: center;
+            column-gap: 10px;
+        }
+        .cf2-corr-hand-cell {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            min-width: 0;
+        }
+        .cf2-corr-btn-cell {
+            justify-self: center;
+            max-width: 100%;
+        }
+        .cf2-corr-balance-spacer {
+            min-width: 0;
         }
         @keyframes cf2-hand-nudge-lr {
             0%, 100% { transform: translateX(-2px); }
@@ -3049,7 +3065,11 @@ function check(s, p, val, btn) {
             if (s === 'cf' && p === 2) {
                 html += `<div class="cf2-mbbr-link-cluster" id="cf2-mbbr-link-cluster">
                     <div class="cf2-mbbr-link-cluster__correlation">
-                        <div class="correlation-action-row correlation-cf2-goto-wrap"><span class="cf2-corr-hand-hint" id="cf2-corr-hand-hint" aria-hidden="true">👉</span>${jumpBtn}</div>
+                        <div class="correlation-action-row correlation-cf2-goto-wrap">
+                            <div class="cf2-corr-hand-cell" aria-hidden="true"><span class="cf2-corr-hand-hint" id="cf2-corr-hand-hint">👉</span></div>
+                            <div class="cf2-corr-btn-cell">${jumpBtn}</div>
+                            <div class="cf2-corr-balance-spacer" aria-hidden="true"></div>
+                        </div>
                     </div>
                     <div class="cf2-mbbr-link-cluster__stato" id="cf2-mbbr-stato-slot"></div>
                 </div>`;
