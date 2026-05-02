@@ -243,6 +243,26 @@
             font-weight: bold;
         }
 
+        /* Solo titolo area report: intestazione molto evidente */
+        .section-title-box--diagnosi {
+            padding: 16px 24px;
+        }
+        .section-title-box--diagnosi h2.report-diagnosi-heading {
+            margin: 0;
+            font-size: clamp(1.85rem, 5.5vw, 2.75rem);
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            line-height: 1.15;
+            text-transform: uppercase;
+        }
+        .section-title-box--diagnosi h2.report-diagnosi-heading .report-diagnosi-ico {
+            font-size: 0.55em;
+            margin-right: 0.35em;
+            vertical-align: 0.08em;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
         .card {
             border: 1px solid #ddd;
             margin: 15px 0;
@@ -523,6 +543,21 @@
         }
         details.correlation-mbbr-status-accordion[open] summary.correlation-mbbr-status-summary {
             border-bottom: 2px solid #d97706;
+        }
+        .correlation-mbbr-status-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .correlation-mbbr-status-line1 {
+            display: block;
+        }
+        .correlation-mbbr-status-line2 {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #92400e;
         }
         /* Punto 2 CF — correlazione MBBR: lampeggio sul riquadro chiuso finché non si apre */
         @keyframes cf2-stato-ring {
@@ -1396,6 +1431,10 @@
                 font-size: 0.96rem;
                 line-height: 1.3;
             }
+            .section-title-box--diagnosi h2.report-diagnosi-heading {
+                font-size: clamp(1.45rem, 6vw, 2rem);
+                letter-spacing: 0.1em;
+            }
             .card {
                 padding: 12px;
                 margin: 12px 0;
@@ -1551,8 +1590,8 @@
     <div id="mbr-content" class="section-content"></div>
 
     <div id="report-area" class="report">
-        <div class="section-title-box">
-            <h2>📊 DIAGNOSI</h2>
+        <div class="section-title-box section-title-box--diagnosi">
+            <h2 class="report-diagnosi-heading"><span class="report-diagnosi-ico" aria-hidden="true">📊</span> DIAGNOSI</h2>
         </div>
         <div id="report-dynamic-content">
             <p style="color: #666;">Selezionare i punti delle istruzioni operative per generare il commento tecnico...</p>
@@ -2741,6 +2780,8 @@ function selectConsequence(s, p, type) {
                 if (preControlBox) {
                     preControlBox.style.display = 'none';
                 }
+                const resForAck = document.getElementById(`r-${s}-${p}`);
+                if (resForAck) restoreRiskAckForRes(resForAck);
             }
         }
         updateRealTimeReport();
@@ -2809,14 +2850,24 @@ function syncCf2CorrelationUpdate() {
     if (oilBody) {
         inject += `
         <details id="cf2-corr-mbbr-schiuma" class="correlation-mbbr-status-accordion${blinkOil ? ' cf2-stato-blink' : ''}">
-            <summary class="correlation-mbbr-status-summary"><strong>Stato aggiornato. Impatto MBBR confermato — presenza di schiuma nera in aria sul MBBR.</strong></summary>
+            <summary class="correlation-mbbr-status-summary">
+                <span class="correlation-mbbr-status-title">
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
+                    <span class="correlation-mbbr-status-line2">-Presenza schiuma nera su MBBR-</span>
+                </span>
+            </summary>
             <div class="correlation-mbbr-status-body">${oilBody}</div>
         </details>`;
     }
     if (biomassInner) {
         inject += `
         <details id="cf2-corr-mbbr-biomass" class="correlation-mbbr-status-accordion${blinkBio ? ' cf2-stato-blink' : ''}">
-            <summary class="correlation-mbbr-status-summary"><strong>Stato aggiornato. Impatto MBBR confermato. Presenza di fango nero su MBBR.</strong></summary>
+            <summary class="correlation-mbbr-status-summary">
+                <span class="correlation-mbbr-status-title">
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
+                    <span class="correlation-mbbr-status-line2">-Presenza di fango nero nel biologico-</span>
+                </span>
+            </summary>
             <div class="correlation-mbbr-status-body">${biomassInner}</div>
         </details>`;
     }
@@ -3087,6 +3138,7 @@ function check(s, p, val, btn) {
         }
 
         resDiv.innerHTML = html;
+        restoreRiskAckForRes(resDiv);
     } else {
         log = log.filter(l => !(l.s === s && l.p === p));
         let okHtml = `<strong>✓ OK</strong>: ${item.si || "Parametro a norma."}`;
@@ -3106,6 +3158,7 @@ function check(s, p, val, btn) {
             okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
         }
         resDiv.innerHTML = okHtml;
+        restoreRiskAckForRes(resDiv);
     }
 
     if (s === 'cf' && p === 2) {
@@ -3620,6 +3673,10 @@ function resetAll() {
     try {
         sessionStorage.removeItem('checklist-cf2-ack-schiuma');
         sessionStorage.removeItem('checklist-cf2-ack-biomass');
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const k = sessionStorage.key(i);
+            if (k && k.indexOf('checklist-risk-ack-') === 0) sessionStorage.removeItem(k);
+        }
     } catch (e) {}
     render();
     updateRealTimeReport();
@@ -3632,7 +3689,21 @@ window.addEventListener('load', function initQuizProtection() {
     render();
 });
 
-/* Lampeggio «Attenzione / Rischio associato»: dopo la prima apertura non riparte (anche se richiudi) */
+/* Memoria lampeggio «Attenzione / Rischio associato» per scheda (r-s-p): resta fino a RESET */
+function restoreRiskAckForRes(resEl) {
+    if (!resEl || !resEl.id) return;
+    const m = resEl.id.match(/^r-([a-z]+)-(\d+)$/);
+    if (!m) return;
+    const key = 'checklist-risk-ack-' + m[1] + '-' + m[2];
+    let ack = false;
+    try { ack = sessionStorage.getItem(key) === '1'; } catch (e) {}
+    if (!ack) return;
+    resEl.querySelectorAll('details.risk-blink-until-open').forEach((det) => {
+        det.classList.add('risk-accordion-opened');
+    });
+}
+
+/* Lampeggio «Attenzione / Rischio associato»: dopo la prima apertura non riparte (anche se richiudi o si ricostruisce l'HTML) */
 document.addEventListener('toggle', function (ev) {
     const t = ev.target;
     if (!t || t.tagName !== 'DETAILS') return;
@@ -3641,7 +3712,16 @@ document.addEventListener('toggle', function (ev) {
         return;
     }
     if (!t.classList.contains('risk-blink-until-open')) return;
-    if (t.open) t.classList.add('risk-accordion-opened');
+    if (t.open) {
+        t.classList.add('risk-accordion-opened');
+        const res = t.closest('.res');
+        if (res && res.id) {
+            const m = res.id.match(/^r-([a-z]+)-(\d+)$/);
+            if (m) {
+                try { sessionStorage.setItem('checklist-risk-ack-' + m[1] + '-' + m[2], '1'); } catch (e) {}
+            }
+        }
+    }
 }, true);
 </script>
 </body>
