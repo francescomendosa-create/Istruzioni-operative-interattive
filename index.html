@@ -18,13 +18,25 @@
             --o2-high: #2980b9;
         }
 
+        html {
+            height: 100%;
+        }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: var(--bg);
             margin: 0;
+            min-height: 100%;
             padding-top: 160px;
             padding-bottom: 72px;
             scroll-behavior: smooth;
+            /* Sfondo “fisso” allo schermo: non scorre con il contenuto (no effetto immagine che si muove) */
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse 100% 55% at 50% -15%, rgba(52, 152, 219, 0.12), transparent 58%),
+                radial-gradient(ellipse 80% 50% at 100% 40%, rgba(46, 204, 113, 0.07), transparent 52%),
+                linear-gradient(180deg, #e8eef0 0%, var(--bg) 42%, #eef2f1 100%);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
         }
 
         .fixed-header {
@@ -158,13 +170,32 @@
             width: 100%;
             height: 100%;
             height: 100dvh;
+            max-height: 100dvh;
             z-index: 10000;
-            background: linear-gradient(180deg, #e3ecf7 0%, #f5f8fc 45%, #eef3f9 100%);
             text-align: center;
             box-shadow: 0 0 0 4px rgba(31, 63, 104, 0.12);
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: pan-y;
+            /* Sfondo quiz fisso: strato sotto al contenuto che scorre */
+            background: transparent;
+        }
+        .quiz-panel.visible::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, #e3ecf7 0%, #f5f8fc 45%, #eef3f9 100%);
+        }
+        .quiz-panel.visible > .quiz-fs-topbar,
+        .quiz-panel.visible > .quiz-fs-scroll {
+            position: relative;
+            z-index: 1;
         }
         body.quiz-open {
             overflow: hidden;
+            overscroll-behavior: none;
         }
         .quiz-fs-topbar {
             flex-shrink: 0;
@@ -195,9 +226,11 @@
         .quiz-fs-exit:active { transform: translateY(1px); }
         .quiz-fs-scroll {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
             padding: 16px 14px 28px;
             width: 100%;
             max-width: 760px;
@@ -1062,6 +1095,107 @@
         }
         .quiz-choice-btn.quiz-opt-dim { opacity: 0.45; }
         .quiz-score-big { font-size: 2rem; font-weight: bold; color: var(--primary); margin: 12px 0; }
+        /* Punteggio “flipper”: conteggio a scatti con impulso visivo */
+        #quiz-play-points-val.quiz-play-oneline-val {
+            font-family: ui-monospace, "Cascadia Mono", "Consolas", "Segoe UI", monospace;
+            letter-spacing: 0.04em;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.65),
+                0 0 18px rgba(33, 150, 243, 0.45),
+                0 2px 4px rgba(13, 71, 161, 0.2);
+        }
+        .quiz-play-oneline--first #quiz-play-points-val.quiz-play-oneline-val {
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.5),
+                0 0 16px rgba(255, 193, 7, 0.55),
+                0 2px 4px rgba(191, 54, 0, 0.2);
+        }
+        .quiz-play-oneline-val--tick {
+            animation: quizPinballTick 0.12s ease-out;
+        }
+        @keyframes quizPinballTick {
+            0% { transform: scale(1.22) translateY(-4px); filter: brightness(1.2); }
+            55% { transform: scale(0.96) translateY(1px); }
+            100% { transform: scale(1) translateY(0); filter: brightness(1); }
+        }
+        .quiz-play-scoreboard--scoring {
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2), 0 4px 18px rgba(13, 71, 161, 0.12);
+        }
+        /* Modale spiegazione errore (prima dello schermo risultato) */
+        .quiz-wrong-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-wrong-modal.quiz-wrong-modal--open {
+            display: flex;
+        }
+        .quiz-wrong-modal__box {
+            width: 100%;
+            max-width: 420px;
+            padding: 22px 20px 20px;
+            border-radius: 16px;
+            background: linear-gradient(165deg, #ffffff 0%, #f0f7ff 55%, #e8f4fc 100%);
+            border: 1px solid rgba(25, 118, 210, 0.35);
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.5) inset,
+                0 18px 40px rgba(13, 71, 161, 0.22);
+            text-align: left;
+        }
+        .quiz-wrong-modal__box h3 {
+            margin: 0 0 10px;
+            font-size: 1.15rem;
+            color: #b71c1c;
+        }
+        .quiz-wrong-modal__box h3.quiz-wrong-modal__title--time {
+            color: #e65100;
+        }
+        .quiz-wrong-modal__lead {
+            margin: 0 0 14px;
+            font-size: 0.92rem;
+            color: #37474f;
+            line-height: 1.45;
+        }
+        .quiz-wrong-modal__label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #1565c0;
+            margin-bottom: 6px;
+        }
+        .quiz-wrong-modal-answer {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1a237e;
+            line-height: 1.45;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: linear-gradient(125deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 1px solid #43a047;
+            margin-bottom: 12px;
+        }
+        .quiz-wrong-modal-hint {
+            margin: 0 0 18px;
+            font-size: 0.82rem;
+            color: #455a64;
+            line-height: 1.45;
+        }
+        .quiz-wrong-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .quiz-wrong-modal__actions .btn-side {
+            min-width: 100px;
+        }
         .quiz-timer-wrap {
             display: none;
             align-items: center;
@@ -1941,6 +2075,18 @@
             <div id="quiz-rank-body" class="quiz-rank-body"></div>
         </div>
         </div>
+        <div id="quiz-wrong-modal" class="quiz-wrong-modal" aria-hidden="true" aria-labelledby="quiz-wrong-modal-title">
+            <div class="quiz-wrong-modal__box" role="alertdialog" aria-modal="true">
+                <h3 id="quiz-wrong-modal-title">Risposta errata</h3>
+                <p id="quiz-wrong-modal-lead" class="quiz-wrong-modal__lead"></p>
+                <div class="quiz-wrong-modal__label">Risposta corretta</div>
+                <div id="quiz-wrong-modal-correct" class="quiz-wrong-modal-answer"></div>
+                <p id="quiz-wrong-modal-hint" class="quiz-wrong-modal-hint"></p>
+                <div class="quiz-wrong-modal__actions">
+                    <button type="button" class="btn-side btn-report" id="quiz-wrong-modal-ok" onclick="quizWrongModalOk()">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="quiz-lock-overlay" class="quiz-lock-overlay" aria-hidden="true">
@@ -2334,6 +2480,125 @@ let quizAnswerLocked = false;
 const QUIZ_TIMER_FIRST_INDEX = 4;
 const QUIZ_TIMER_SECONDS = 10;
 let quizQuestionTimerId = null;
+let quizScoreAnimTimer = null;
+/** Opzioni passate a quizFinish dopo OK sul modale errore / timeout. */
+let quizWrongModalFinishOpts = null;
+
+function quizPrefersReducedMotion() {
+    try {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) {
+        return false;
+    }
+}
+
+function quizCancelScoreAnim() {
+    if (quizScoreAnimTimer) {
+        clearTimeout(quizScoreAnimTimer);
+        quizScoreAnimTimer = null;
+    }
+}
+
+/** Conteggio punti a scatti (stile flipper) da from+1 a to incluso. */
+function quizAnimateScorePoints(from, to, onDone) {
+    from = Number(from) || 0;
+    to = Number(to) || 0;
+    if (to <= from) {
+        quizUpdatePlayProgress();
+        if (onDone) onDone();
+        return;
+    }
+    if (quizPrefersReducedMotion()) {
+        quizUpdatePlayProgress();
+        if (onDone) onDone();
+        return;
+    }
+    quizCancelScoreAnim();
+    let cur = from;
+    const rise = to - from;
+    const perStep = rise <= 6 ? 52 : rise <= 12 ? 40 : rise <= 24 ? 30 : Math.max(22, Math.min(48, Math.floor(520 / rise)));
+
+    function advance() {
+        cur += 1;
+        quizUpdatePlayProgress({ scoreOverride: cur, scoreAnimTick: true, scoreboardScoring: true });
+        if (cur < to) {
+            quizScoreAnimTimer = setTimeout(advance, perStep);
+        } else {
+            quizScoreAnimTimer = null;
+            quizUpdatePlayProgress();
+            if (onDone) onDone();
+        }
+    }
+    quizScoreAnimTimer = setTimeout(advance, 28);
+}
+
+function quizWrongModalHide() {
+    const modal = document.getElementById('quiz-wrong-modal');
+    if (modal) {
+        modal.classList.remove('quiz-wrong-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    document.removeEventListener('keydown', quizWrongModalKeydown, true);
+}
+
+function quizWrongModalKeydown(ev) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+        const modal = document.getElementById('quiz-wrong-modal');
+        if (modal && modal.classList.contains('quiz-wrong-modal--open')) {
+            ev.preventDefault();
+            quizWrongModalOk();
+        }
+    }
+}
+
+function quizOpenWrongExplainModal(kind, q) {
+    const modal = document.getElementById('quiz-wrong-modal');
+    const titleEl = document.getElementById('quiz-wrong-modal-title');
+    const lead = document.getElementById('quiz-wrong-modal-lead');
+    const correctEl = document.getElementById('quiz-wrong-modal-correct');
+    const hint = document.getElementById('quiz-wrong-modal-hint');
+    const okBtn = document.getElementById('quiz-wrong-modal-ok');
+    if (!modal || !q || !q.options || q.correctIndex < 0) {
+        quizFinish(false, kind === 'timeout' ? { timedOut: true } : {});
+        return;
+    }
+    const correctText = (q.options[q.correctIndex] && q.options[q.correctIndex].text) ? String(q.options[q.correctIndex].text) : '—';
+    const shortHint = (q.refPretty && String(q.refPretty).trim()) ? String(q.refPretty).trim() : '';
+
+    quizWrongModalFinishOpts = kind === 'timeout' ? { timedOut: true } : {};
+
+    if (titleEl) {
+        titleEl.classList.toggle('quiz-wrong-modal__title--time', kind === 'timeout');
+        titleEl.textContent = kind === 'timeout' ? 'Tempo scaduto' : 'Risposta errata';
+    }
+    if (lead) {
+        lead.textContent = kind === 'timeout'
+            ? 'Non è stata data la risposta entro il tempo limite. Ecco la soluzione attesa per questa domanda.'
+            : 'La scelta selezionata non è corretta. Memorizza il concetto e prosegui verso il riepilogo.';
+    }
+    if (correctEl) correctEl.textContent = correctText;
+    if (hint) {
+        hint.textContent = shortHint
+            ? shortHint.length > 220 ? shortHint.slice(0, 217) + '…' : shortHint
+            : 'Continua a studiare le istruzioni operative collegate al tema della domanda.';
+    }
+
+    modal.classList.add('quiz-wrong-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizWrongModalKeydown, true);
+    if (okBtn) {
+        setTimeout(() => {
+            try { okBtn.focus(); } catch (e) { /* ignore */ }
+        }, 80);
+    }
+}
+
+function quizWrongModalOk() {
+    const opts = quizWrongModalFinishOpts || {};
+    quizWrongModalFinishOpts = null;
+    quizWrongModalHide();
+    quizFinish(false, opts);
+}
 
 function quizClearQuestionTimer() {
     if (quizQuestionTimerId) {
@@ -2399,9 +2664,8 @@ function quizTimeUp() {
         fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">⏱</span><span>Tempo scaduto</span>';
     }
     setTimeout(() => {
-        quizAnswerLocked = false;
-        quizFinish(false, { timedOut: true });
-    }, 1150);
+        quizOpenWrongExplainModal('timeout', q);
+    }, 900);
 }
 
 function quizSelectStartLevel() {
@@ -2743,19 +3007,22 @@ function quizShowScreen(which) {
     if (rankWrap) rankWrap.style.display = which === 'intro' ? 'block' : 'none';
 }
 
-function quizUpdatePlayProgress() {
+function quizUpdatePlayProgress(extra) {
+    extra = extra || {};
     const prog = document.getElementById('quiz-progress');
     if (!prog || !quizState.queue || !quizState.queue.length) return;
     const i = quizState.index + 1;
     const tot = quizState.queue.length;
-    const sc = quizState.score;
+    const sc = extra.scoreOverride != null ? Number(extra.scoreOverride) : quizState.score;
     const { rank } = quizComputeLiveRank(sc);
     const ord = rank + '\u00B0';
     const isFirst = rank === 1;
     const rowClass = 'quiz-play-oneline' + (isFirst ? ' quiz-play-oneline--first' : '');
     const crown = isFirst ? '<span class="quiz-play-oneline-crown" aria-hidden="true">\u{1F451}</span>' : '';
+    const tickCls = extra.scoreAnimTick ? ' quiz-play-oneline-val--tick' : '';
+    const boardCls = 'quiz-play-scoreboard' + (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '');
     prog.innerHTML =
-        '<div class="quiz-play-scoreboard">' +
+        '<div class="' + boardCls + '">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
         '<div class="quiz-play-oneline-left">' +
         crown +
@@ -2764,7 +3031,7 @@ function quizUpdatePlayProgress() {
         '</div>' +
         '<div class="quiz-play-oneline-right">' +
         '<span class="quiz-play-oneline-lbl">Punti</span>' +
-        '<strong class="quiz-play-oneline-val">' + sc + '</strong>' +
+        '<strong id="quiz-play-points-val" class="quiz-play-oneline-val' + tickCls + '">' + sc + '</strong>' +
         '</div>' +
         '</div>' +
         '<div class="quiz-play-qline">Domanda ' + i + ' di ' + tot + '</div>' +
@@ -2773,6 +3040,7 @@ function quizUpdatePlayProgress() {
 
 function quizRenderQuestion(opts) {
     opts = opts || {};
+    quizCancelScoreAnim();
     quizClearQuestionTimer();
     const body = document.getElementById('quiz-play-body');
     if (body) body.classList.remove('quiz-fade-out', 'quiz-fade-in');
@@ -2858,14 +3126,22 @@ function quizAnswer(idx) {
     });
 
     if (idx === q.correctIndex) {
+        const prevScore = quizState.score;
         quizState.score += q.points;
-        quizUpdatePlayProgress();
         if (fb) {
-            fb.style.display = 'flex';
-            fb.className = 'quiz-feedback quiz-feedback-ok';
-            fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>Esatto — +' + q.points + ' punti</span>';
+            fb.style.display = 'none';
+            fb.innerHTML = '';
+            fb.className = 'quiz-feedback';
         }
-        setTimeout(() => quizAdvanceCorrect(), 1350);
+        quizAnimateScorePoints(prevScore, quizState.score, () => {
+            quizUpdatePlayProgress();
+            if (fb) {
+                fb.style.display = 'flex';
+                fb.className = 'quiz-feedback quiz-feedback-ok';
+                fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>Esatto — +' + q.points + ' punti</span>';
+            }
+            setTimeout(() => quizAdvanceCorrect(), 1050);
+        });
     } else {
         if (fb) {
             fb.style.display = 'flex';
@@ -2873,9 +3149,8 @@ function quizAnswer(idx) {
             fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✗</span><span>Sbagliato</span>';
         }
         setTimeout(() => {
-            quizAnswerLocked = false;
-            quizFinish(false);
-        }, 1150);
+            quizOpenWrongExplainModal('wrong', q);
+        }, 750);
     }
 }
 
@@ -2915,6 +3190,9 @@ function quizFinish(completedAll, opts) {
 
 function quizStart() {
     quizAnswerLocked = false;
+    quizCancelScoreAnim();
+    quizWrongModalHide();
+    quizWrongModalFinishOpts = null;
     quizClearQuestionTimer();
     const nameIn = document.getElementById('quiz-name');
     const lvlIn = document.getElementById('quiz-start-level');
@@ -2943,6 +3221,9 @@ function quizRestart() {
 }
 
 function quizAbort() {
+    quizWrongModalHide();
+    quizWrongModalFinishOpts = null;
+    quizCancelScoreAnim();
     quizFinish(false, { aborted: true });
 }
 
@@ -3972,6 +4253,17 @@ function openQuiz() {
 }
 
 function closeQuiz() {
+    quizCancelScoreAnim();
+    const wrongModal = document.getElementById('quiz-wrong-modal');
+    if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
+        const opts = quizWrongModalFinishOpts || {};
+        quizWrongModalFinishOpts = null;
+        quizWrongModalHide();
+        quizFinish(false, opts);
+    } else {
+        quizWrongModalHide();
+        quizWrongModalFinishOpts = null;
+    }
     const panel = document.getElementById("quiz-panel");
     if (!panel) return;
     panel.classList.remove("visible");
