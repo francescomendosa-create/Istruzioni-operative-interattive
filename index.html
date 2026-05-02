@@ -408,12 +408,17 @@
         .correlation-action-row.correlation-cf2-goto-wrap {
             align-items: center;
         }
+        @keyframes cf2-hand-nudge-lr {
+            0%, 100% { transform: translateX(-2px); }
+            50% { transform: translateX(6px); }
+        }
         .cf2-corr-hand-hint {
+            display: inline-block;
             font-size: 2rem;
             line-height: 1;
             flex-shrink: 0;
             user-select: none;
-            animation: slow-blink 1.2s ease-in-out infinite;
+            animation: cf2-hand-nudge-lr 1.35s ease-in-out infinite;
         }
 
         .btn-return-inline {
