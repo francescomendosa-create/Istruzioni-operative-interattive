@@ -519,6 +519,32 @@
         details.cf2-stato-blink.correlation-mbbr-status-accordion:not([open]) summary.correlation-mbbr-status-summary {
             animation: slow-blink 1.05s ease-in-out infinite;
         }
+        /* Cornice unica: tasto correlazione + blocchi «Stato aggiornato» sotto */
+        .cf2-mbbr-link-cluster {
+            margin-top: 16px;
+            border: 2px solid #c2410c;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 70%);
+            box-shadow: 0 4px 16px rgba(194, 65, 12, 0.14);
+        }
+        .cf2-mbbr-link-cluster__correlation {
+            padding: 12px 12px 10px;
+            background: rgba(255, 251, 235, 0.65);
+        }
+        .cf2-mbbr-link-cluster:has(.cf2-mbbr-link-cluster__stato:not(:empty)) .cf2-mbbr-link-cluster__correlation {
+            border-bottom: 2px dashed #f59e0b;
+        }
+        .cf2-mbbr-link-cluster__stato {
+            padding: 6px 8px 12px;
+            background: #fff;
+        }
+        .cf2-mbbr-link-cluster__stato:empty {
+            display: none;
+        }
+        .cf2-mbbr-link-cluster__stato .correlation-mbbr-status-accordion:first-child {
+            margin-top: 0;
+        }
         .correlation-mbbr-status-body {
             padding: 0;
         }
@@ -2776,9 +2802,15 @@ function syncCf2CorrelationUpdate() {
         </details>`;
     }
 
-    cf2ResDiv.innerHTML += inject;
+    const statoSlot = document.getElementById('cf2-mbbr-stato-slot');
+    if (statoSlot) {
+        statoSlot.innerHTML = inject;
+    } else {
+        cf2ResDiv.innerHTML += inject;
+    }
 
-    cf2ResDiv.querySelectorAll('.correlation-mbbr-status-accordion').forEach((det) => {
+    const listenerRoot = statoSlot || cf2ResDiv;
+    listenerRoot.querySelectorAll('.correlation-mbbr-status-accordion').forEach((det) => {
         det.addEventListener('toggle', function cf2CorrToggle() {
             if (!det.open) return;
             det.classList.remove('cf2-stato-blink');
@@ -3012,7 +3044,12 @@ function check(s, p, val, btn) {
             }
             const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
             if (s === 'cf' && p === 2) {
-                html += `<div class="correlation-action-row correlation-cf2-goto-wrap"><span class="cf2-corr-hand-hint" id="cf2-corr-hand-hint" aria-hidden="true">👉</span>${jumpBtn}</div>`;
+                html += `<div class="cf2-mbbr-link-cluster" id="cf2-mbbr-link-cluster">
+                    <div class="cf2-mbbr-link-cluster__correlation">
+                        <div class="correlation-action-row correlation-cf2-goto-wrap"><span class="cf2-corr-hand-hint" id="cf2-corr-hand-hint" aria-hidden="true">👉</span>${jumpBtn}</div>
+                    </div>
+                    <div class="cf2-mbbr-link-cluster__stato" id="cf2-mbbr-stato-slot"></div>
+                </div>`;
             } else {
                 html += jumpBtn;
             }
