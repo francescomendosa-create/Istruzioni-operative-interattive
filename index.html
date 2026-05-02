@@ -1705,38 +1705,79 @@
                 word-break: break-word;
                 padding: 0 2px;
             }
+            /* MBBR p.7 O2: ogni riga = cornice che unisce CONTROLLO (titolo+fascia) e AZIONE (titolo+fascia) */
             #consequences-details-mbr-7 .table {
                 display: block;
                 width: 100%;
                 max-width: 100%;
-                font-size: 0.76rem;
+                font-size: 0.78rem;
             }
             #consequences-details-mbr-7 .table tr:first-child {
                 display: none;
             }
             #consequences-details-mbr-7 .table tr:not(:first-child) {
                 display: block;
-                margin-bottom: 11px;
-                border: 1px solid #ccc;
-                border-radius: 8px;
+                margin-bottom: 14px;
+                border: 2px solid #1e4d7b;
+                border-radius: 12px;
                 overflow: hidden;
                 background: #fff;
+                box-shadow: 0 2px 10px rgba(30, 77, 123, 0.1);
             }
             #consequences-details-mbr-7 .table tr:not(:first-child) td {
                 display: block;
                 width: 100%;
                 box-sizing: border-box;
-                border-left: none;
-                border-right: none;
-                padding: 8px 10px;
+                border: none;
                 overflow-wrap: anywhere;
                 word-break: break-word;
-                line-height: 1.4;
+                line-height: 1.45;
             }
             #consequences-details-mbr-7 .table tr:not(:first-child) td:first-of-type {
-                background: #f2f2f2;
-                font-weight: 700;
-                border-bottom: 1px solid #ddd;
+                margin: 0;
+                padding: 0 12px 12px 12px;
+                background: #f7fafd;
+                font-weight: 600;
+                color: #1a2f45;
+                font-size: 0.8rem;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) td:first-of-type::before {
+                content: 'CONTROLLO';
+                display: block;
+                box-sizing: border-box;
+                width: calc(100% + 24px);
+                max-width: calc(100% + 24px);
+                margin: 0 -12px 10px -12px;
+                padding: 10px 12px;
+                background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+                color: #fff;
+                font-weight: 800;
+                font-size: 0.66rem;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) td:last-of-type {
+                padding: 0 12px 14px 12px;
+                margin: 0;
+                background: #fffdf9;
+                font-size: 0.78rem;
+                color: #1f2937;
+                border-top: 1px dashed #94a3b8;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) td:last-of-type::before {
+                content: 'AZIONE';
+                display: block;
+                box-sizing: border-box;
+                width: calc(100% + 24px);
+                max-width: calc(100% + 24px);
+                margin: 0 -12px 10px -12px;
+                padding: 10px 12px;
+                background: linear-gradient(180deg, #c62828 0%, #8c1212 100%);
+                color: #fff;
+                font-weight: 800;
+                font-size: 0.66rem;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
             }
 
             #consequences-details-mbr-5 {
