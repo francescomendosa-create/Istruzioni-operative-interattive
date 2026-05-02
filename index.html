@@ -480,6 +480,33 @@
         details.correlation-mbbr-status-accordion[open] summary.correlation-mbbr-status-summary {
             border-bottom: 2px solid #d97706;
         }
+        /* Punto 2 CF — stati correlazione MBBR: CHIUSO, lampeggio finché non si apre */
+        .cf2-stato-chiuso-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #b91c1c;
+            color: #fff;
+            border: 1px solid #7f1d1d;
+            flex-shrink: 0;
+        }
+        details.correlation-mbbr-status-accordion[open] .cf2-stato-chiuso-badge {
+            display: none;
+        }
+        @keyframes cf2-stato-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.45); }
+            50% { box-shadow: 0 0 0 8px rgba(217, 119, 6, 0.12); }
+        }
+        details.cf2-stato-blink.correlation-mbbr-status-accordion:not([open]) {
+            animation: cf2-stato-ring 1.15s ease-in-out infinite;
+        }
+        details.cf2-stato-blink.correlation-mbbr-status-accordion:not([open]) summary.correlation-mbbr-status-summary {
+            animation: slow-blink 1.05s ease-in-out infinite;
+        }
         .correlation-mbbr-status-body {
             padding: 0;
         }
@@ -2701,23 +2728,39 @@ function syncCf2CorrelationUpdate() {
 
     if (!oilBody && !biomassInner) return;
 
+    const ackOil = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf2-ack-schiuma') === '1');
+    const ackBio = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf2-ack-biomass') === '1');
+    const blinkOil = oilBody && !ackOil;
+    const blinkBio = biomassInner && !ackBio;
+
     let inject = '';
     if (oilBody) {
         inject += `
-        <details class="correlation-mbbr-status-accordion" open>
-            <summary class="correlation-mbbr-status-summary"><strong>Stato aggiornato. Impatto MBBR confermato — presenza di schiuma nera in aria sul MBBR.</strong></summary>
+        <details id="cf2-corr-mbbr-schiuma" class="correlation-mbbr-status-accordion${blinkOil ? ' cf2-stato-blink' : ''}">
+            <summary class="correlation-mbbr-status-summary"><span class="cf2-stato-chiuso-badge">Chiuso</span><strong>Stato aggiornato. Impatto MBBR confermato — presenza di schiuma nera in aria sul MBBR.</strong></summary>
             <div class="correlation-mbbr-status-body">${oilBody}</div>
         </details>`;
     }
     if (biomassInner) {
         inject += `
-        <details class="correlation-mbbr-status-accordion" open>
-            <summary class="correlation-mbbr-status-summary"><strong>Stato aggiornato. Impatto MBBR confermato. Presenza di fango nero su MBBR.</strong></summary>
+        <details id="cf2-corr-mbbr-biomass" class="correlation-mbbr-status-accordion${blinkBio ? ' cf2-stato-blink' : ''}">
+            <summary class="correlation-mbbr-status-summary"><span class="cf2-stato-chiuso-badge">Chiuso</span><strong>Stato aggiornato. Impatto MBBR confermato. Presenza di fango nero su MBBR.</strong></summary>
             <div class="correlation-mbbr-status-body">${biomassInner}</div>
         </details>`;
     }
 
     cf2ResDiv.innerHTML += inject;
+
+    cf2ResDiv.querySelectorAll('.correlation-mbbr-status-accordion').forEach((det) => {
+        det.addEventListener('toggle', function cf2CorrToggle() {
+            if (!det.open) return;
+            det.classList.remove('cf2-stato-blink');
+            try {
+                if (det.id === 'cf2-corr-mbbr-schiuma') sessionStorage.setItem('checklist-cf2-ack-schiuma', '1');
+                if (det.id === 'cf2-corr-mbbr-biomass') sessionStorage.setItem('checklist-cf2-ack-biomass', '1');
+            } catch (e) {}
+        });
+    });
 }
 
 function clearAnswerToggle(s, p) {
@@ -3480,6 +3523,10 @@ function resetAll() {
     correlationYes = {};
     isUpdating = false;
     returnPoint = null;
+    try {
+        sessionStorage.removeItem('checklist-cf2-ack-schiuma');
+        sessionStorage.removeItem('checklist-cf2-ack-biomass');
+    } catch (e) {}
     render();
     updateRealTimeReport();
     window.scrollTo(0, 0);
