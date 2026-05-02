@@ -1196,46 +1196,70 @@
         .quiz-wrong-modal__actions .btn-side {
             min-width: 100px;
         }
-        .quiz-timer-wrap {
-            display: none;
-            align-items: center;
-            justify-content: center;
+        /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda, 25 s) */
+        .quiz-play-time {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(25, 118, 210, 0.22);
+        }
+        .quiz-play-time-meta {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
             gap: 10px;
-            margin: 0 0 12px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #e8f5e9 0%, #e3f2fd 100%);
-            border: 1px solid #81c784;
-            box-shadow: 0 2px 8px rgba(21, 101, 192, 0.08);
+            margin-bottom: 8px;
         }
-        .quiz-timer-wrap.quiz-timer-on { display: flex; }
-        .quiz-timer-label {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #2e7d32;
+        .quiz-play-time-lbl {
+            font-size: 0.62rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
+            color: #546e7a;
         }
-        .quiz-timer-value {
-            font-size: 1.65rem;
+        .quiz-play-time-sec {
+            font-family: ui-monospace, "Cascadia Mono", "Consolas", "Segoe UI", monospace;
+            font-size: 1.05rem;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
-            min-width: 2.2rem;
-            text-align: center;
             color: #0d47a1;
             line-height: 1;
         }
-        .quiz-timer-unit { font-size: 0.85rem; font-weight: 700; color: #546e7a; }
-        .quiz-timer-wrap.quiz-timer-urgent {
-            background: linear-gradient(90deg, #fff3e0 0%, #ffecb3 100%);
-            border-color: #ff9800;
-            animation: quizTimerPulse 0.9s ease-in-out infinite;
+        .quiz-play-time-unit {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #607d8b;
+            margin-left: 2px;
         }
-        .quiz-timer-wrap.quiz-timer-urgent .quiz-timer-label { color: #e65100; }
-        .quiz-timer-wrap.quiz-timer-urgent .quiz-timer-value { color: #bf360c; }
-        @keyframes quizTimerPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.88; }
+        .quiz-play-time-track {
+            height: 9px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+        .quiz-play-time-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #22c55e 0%, #38bdf8 42%, #6366f1 92%);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+            transform-origin: left center;
+            will-change: width;
+        }
+        .quiz-play-time--urgent .quiz-play-time-lbl {
+            color: #e65100;
+        }
+        .quiz-play-time--urgent .quiz-play-time-sec {
+            color: #bf360c;
+        }
+        .quiz-play-time-track--urgent .quiz-play-time-fill {
+            background: linear-gradient(90deg, #fb923c 0%, #ef4444 88%);
+            box-shadow: 0 0 16px rgba(249, 115, 22, 0.55);
+            animation: quizEnergyUrgentPulse 0.85s ease-in-out infinite;
+        }
+        @keyframes quizEnergyUrgentPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.12); }
         }
         .quiz-ref-wrap {
             margin-top: 10px;
@@ -2019,7 +2043,7 @@
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
-            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. Un errore termina il quiz.</p>
+            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. Un errore termina il quiz. Dalla <strong>3ª domanda</strong> compare una barra tempo nella riga punteggio: hai <strong>25 secondi</strong> per risposta (si svuota come energia).</p>
             <div class="quiz-row">
                 <label for="quiz-name">Nome (per classifica)</label>
                 <input type="text" id="quiz-name" maxlength="40" placeholder="Es. Mario Rossi" autocomplete="name">
@@ -2040,11 +2064,6 @@
         <div id="quiz-screen-play" style="display:none;">
             <div id="quiz-play-body">
                 <div id="quiz-progress" class="quiz-progress-wrap" aria-live="polite"></div>
-                <div id="quiz-timer-wrap" class="quiz-timer-wrap" aria-hidden="true">
-                    <span class="quiz-timer-label">Tempo</span>
-                    <span id="quiz-timer-value" class="quiz-timer-value">10</span>
-                    <span class="quiz-timer-unit">s</span>
-                </div>
                 <div id="quiz-question" class="quiz-q"></div>
                 <div id="quiz-choices" class="quiz-choices"></div>
                 <div id="quiz-feedback" class="quiz-feedback" style="display:none;" aria-live="assertive"></div>
@@ -2476,10 +2495,14 @@ const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
 let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1 };
 let quizAnswerLocked = false;
-/** Indice 0-based della prima domanda con countdown (5ª domanda). */
-const QUIZ_TIMER_FIRST_INDEX = 4;
-const QUIZ_TIMER_SECONDS = 10;
+/** Prima domanda con limite di tempo: indice 0-based 2 = 3ª domanda. */
+const QUIZ_TIMER_FIRST_INDEX = 2;
+const QUIZ_TIMER_SECONDS = 25;
+/** Sotto questa soglia (secondi) la barra passa a stile “energia bassa”. */
+const QUIZ_TIMER_URGENT_SEC = 5;
 let quizQuestionTimerId = null;
+let quizTimerDeadline = null;
+let quizTimerVisualActive = false;
 let quizScoreAnimTimer = null;
 /** Opzioni passate a quizFinish dopo OK sul modale errore / timeout. */
 let quizWrongModalFinishOpts = null;
@@ -2601,44 +2624,57 @@ function quizWrongModalOk() {
 }
 
 function quizClearQuestionTimer() {
-    if (quizQuestionTimerId) {
-        clearInterval(quizQuestionTimerId);
+    if (quizQuestionTimerId != null) {
+        cancelAnimationFrame(quizQuestionTimerId);
         quizQuestionTimerId = null;
     }
-    const wrap = document.getElementById('quiz-timer-wrap');
-    if (wrap) {
-        wrap.classList.remove('quiz-timer-on', 'quiz-timer-urgent');
-        wrap.setAttribute('aria-hidden', 'true');
-    }
+    quizTimerDeadline = null;
+    quizTimerVisualActive = false;
+}
+
+function quizTimerPaint(frac, displaySec, urgent) {
+    const fill = document.getElementById('quiz-time-fill');
+    const secEl = document.getElementById('quiz-time-sec');
+    const track = document.getElementById('quiz-time-track');
+    const host = document.getElementById('quiz-play-time');
+    if (!fill || !secEl || !track || !host) return;
+    const p = Math.max(0, Math.min(1, frac));
+    fill.style.width = (p * 100) + '%';
+    const ds = Math.max(0, displaySec);
+    secEl.textContent = String(ds);
+    track.setAttribute('aria-valuenow', String(Math.min(QUIZ_TIMER_SECONDS, ds)));
+    track.classList.toggle('quiz-play-time-track--urgent', !!urgent);
+    host.classList.toggle('quiz-play-time--urgent', !!urgent);
 }
 
 function quizStartQuestionTimer() {
     quizClearQuestionTimer();
-    const wrap = document.getElementById('quiz-timer-wrap');
-    const label = document.getElementById('quiz-timer-value');
-    if (!wrap || !label) return;
     if (quizState.index < QUIZ_TIMER_FIRST_INDEX) {
-        wrap.setAttribute('aria-hidden', 'true');
         return;
     }
-    wrap.setAttribute('aria-hidden', 'false');
-    wrap.classList.add('quiz-timer-on');
-    let remaining = QUIZ_TIMER_SECONDS;
-    label.textContent = String(remaining);
-    wrap.classList.toggle('quiz-timer-urgent', remaining <= 3);
-    quizQuestionTimerId = setInterval(() => {
+    quizTimerVisualActive = true;
+    quizTimerDeadline = Date.now() + QUIZ_TIMER_SECONDS * 1000;
+
+    function frame() {
         if (quizAnswerLocked) {
             quizClearQuestionTimer();
             return;
         }
-        remaining -= 1;
-        label.textContent = String(Math.max(0, remaining));
-        wrap.classList.toggle('quiz-timer-urgent', remaining > 0 && remaining <= 3);
-        if (remaining <= 0) {
+        const leftMs = Math.max(0, quizTimerDeadline - Date.now());
+        const leftSec = leftMs / 1000;
+        const frac = QUIZ_TIMER_SECONDS > 0 ? leftSec / QUIZ_TIMER_SECONDS : 0;
+        const displaySec = leftMs <= 0 ? 0 : Math.ceil(leftSec - 1e-6);
+        const urgent = leftSec > 0 && leftSec <= QUIZ_TIMER_URGENT_SEC;
+        quizTimerPaint(frac, displaySec, urgent);
+
+        if (leftMs <= 0) {
             quizClearQuestionTimer();
             if (!quizAnswerLocked) quizTimeUp();
+            return;
         }
-    }, 1000);
+        quizQuestionTimerId = requestAnimationFrame(frame);
+    }
+    quizQuestionTimerId = requestAnimationFrame(frame);
 }
 
 function quizTimeUp() {
@@ -3021,6 +3057,30 @@ function quizUpdatePlayProgress(extra) {
     const crown = isFirst ? '<span class="quiz-play-oneline-crown" aria-hidden="true">\u{1F451}</span>' : '';
     const tickCls = extra.scoreAnimTick ? ' quiz-play-oneline-val--tick' : '';
     const boardCls = 'quiz-play-scoreboard' + (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '');
+    const showTime = quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerVisualActive;
+    let leftMsForInit = 0;
+    let initFrac = 1;
+    let initSec = QUIZ_TIMER_SECONDS;
+    let initUrgent = false;
+    if (showTime && quizTimerDeadline) {
+        leftMsForInit = Math.max(0, quizTimerDeadline - Date.now());
+        const ls = leftMsForInit / 1000;
+        initFrac = QUIZ_TIMER_SECONDS > 0 ? ls / QUIZ_TIMER_SECONDS : 0;
+        initSec = leftMsForInit <= 0 ? 0 : Math.ceil(ls - 1e-6);
+        initUrgent = ls > 0 && ls <= QUIZ_TIMER_URGENT_SEC;
+    }
+    const timeHostCls = 'quiz-play-time' + (initUrgent ? ' quiz-play-time--urgent' : '');
+    const timeTrackCls = 'quiz-play-time-track' + (initUrgent ? ' quiz-play-time-track--urgent' : '');
+    const timeBlock = showTime
+        ? '<div class="' + timeHostCls + '" id="quiz-play-time" role="timer" aria-live="polite" aria-atomic="true">' +
+          '<div class="quiz-play-time-meta">' +
+          '<span class="quiz-play-time-lbl">Energia tempo</span>' +
+          '<span><span id="quiz-time-sec" class="quiz-play-time-sec">' + initSec + '</span><span class="quiz-play-time-unit">s</span></span>' +
+          '</div>' +
+          '<div class="' + timeTrackCls + '" id="quiz-time-track" role="progressbar" aria-valuemin="0" aria-valuemax="' + QUIZ_TIMER_SECONDS + '" aria-valuenow="' + initSec + '">' +
+          '<div class="quiz-play-time-fill" id="quiz-time-fill" style="width:' + (Math.max(0, Math.min(1, initFrac)) * 100) + '%"></div>' +
+          '</div></div>'
+        : '';
     prog.innerHTML =
         '<div class="' + boardCls + '">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
@@ -3034,8 +3094,13 @@ function quizUpdatePlayProgress(extra) {
         '<strong id="quiz-play-points-val" class="quiz-play-oneline-val' + tickCls + '">' + sc + '</strong>' +
         '</div>' +
         '</div>' +
+        timeBlock +
         '<div class="quiz-play-qline">Domanda ' + i + ' di ' + tot + '</div>' +
         '</div>';
+    const trackAria = document.getElementById('quiz-time-track');
+    if (trackAria && showTime) {
+        trackAria.setAttribute('aria-valuenow', String(Math.min(QUIZ_TIMER_SECONDS, initSec)));
+    }
 }
 
 function quizRenderQuestion(opts) {
@@ -3058,7 +3123,6 @@ function quizRenderQuestion(opts) {
         fb.className = 'quiz-feedback';
     }
 
-    quizUpdatePlayProgress();
     qEl.textContent = q.q;
     ch.innerHTML = '';
     q.options.forEach((opt, idx) => {
@@ -3070,11 +3134,13 @@ function quizRenderQuestion(opts) {
         ch.appendChild(b);
     });
 
+    quizStartQuestionTimer();
+    quizUpdatePlayProgress();
+
     if (!opts.instant && body) {
         body.classList.add('quiz-fade-in');
         setTimeout(() => body.classList.remove('quiz-fade-in'), 420);
     }
-    quizStartQuestionTimer();
 }
 
 function quizAdvanceCorrect() {
@@ -3177,7 +3243,7 @@ function quizFinish(completedAll, opts) {
         } else if (opts.aborted) {
             msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
         } else if (opts.timedOut) {
-            msg.textContent = 'Tempo scaduto: il quiz termina qui (dalla 5ª domanda hai 10 secondi per risposta).';
+            msg.textContent = 'Tempo scaduto: il quiz termina qui (dalla 3ª domanda hai 25 secondi per risposta, barra nella riga punteggio).';
         } else {
             msg.textContent = 'Risposta errata: il quiz termina qui (regola "un errore e stop").';
         }
