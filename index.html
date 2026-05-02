@@ -2925,7 +2925,7 @@ function selectConsequence(s, p, type) {
             if (logItem.tag === "Temp") {
                 if (type === 'low') {
                     detailsHtml = `
-                        <details open class="risk-section risk-accordion risk-blink-until-open risk-details-always-open">
+                        <details open class="risk-section risk-accordion risk-blink-until-open">
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">
                                 <ul class="critical-list">
@@ -2939,7 +2939,7 @@ function selectConsequence(s, p, type) {
                     `;
                 } else if (type === 'high') {
                     detailsHtml = `
-                        <details open class="risk-section risk-accordion risk-blink-until-open risk-details-always-open">
+                        <details open class="risk-section risk-accordion risk-blink-until-open">
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">
                                 <ul class="critical-list">
@@ -3369,7 +3369,11 @@ function check(s, p, val, btn) {
             }
 
             if (item.risk_list || item.risk) {
-                html += `<details class="risk-section risk-accordion risk-blink-until-open">
+                const riskMbr69AlwaysOpen = s === 'mbr' && (p === 6 || p === 9);
+                const riskDetailsTagOpen = riskMbr69AlwaysOpen
+                    ? '<details open class="risk-section risk-accordion risk-blink-until-open">'
+                    : '<details class="risk-section risk-accordion risk-blink-until-open">';
+                html += `${riskDetailsTagOpen}
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">`;
                 if (item.risk_list) {
@@ -3738,7 +3742,7 @@ function updateRealTimeReport() {
     const uniqueAlerts = [...new Set(keyAlerts)].slice(0, 4);
     const uniqueActions = [...new Set(priorityActions)].slice(0, 4);
     const alertsHtml = uniqueAlerts.length
-        ? `<details open class="risk-section risk-accordion risk-details-always-open"><summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Sintesi tecnica anomalie</summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #c2410c;">${uniqueAlerts.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
+        ? `<details open class="risk-section risk-accordion"><summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Sintesi tecnica anomalie</summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #c2410c;">${uniqueAlerts.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
         : '';
     const unifiedSummaryHtml = `
         <div class="bio-intervention">
@@ -3747,7 +3751,7 @@ function updateRealTimeReport() {
         </div>
     `;
     const actionsHtml = uniqueActions.length
-        ? `<details open class="risk-section risk-accordion risk-accordion-priority risk-details-always-open"><summary class="risk-accordion-summary">Priorità operative</summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #1e3a8a; font-weight: normal;">${uniqueActions.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
+        ? `<details open class="risk-section risk-accordion risk-accordion-priority"><summary class="risk-accordion-summary">Priorità operative</summary><div class="risk-accordion-body"><ul class="critical-list" style="color: #1e3a8a; font-weight: normal;">${uniqueActions.map(a => `<li>${a}</li>`).join('')}</ul></div></details>`
         : '';
 
     displayArea.innerHTML = `
@@ -3987,10 +3991,6 @@ function restoreRiskAckForRes(resEl) {
 document.addEventListener('toggle', function (ev) {
     const t = ev.target;
     if (!t || t.tagName !== 'DETAILS') return;
-    if (t.classList.contains('risk-details-always-open') && !t.open) {
-        requestAnimationFrame(() => { t.open = true; });
-        return;
-    }
     if (!t.classList.contains('risk-blink-until-open')) return;
     if (t.open) {
         t.classList.add('risk-accordion-opened');
