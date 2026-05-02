@@ -1642,6 +1642,127 @@
                 font-size: 0.58rem;
             }
         }
+
+        /*
+         * Solo smartphone (touch): viewport stretto + hover:none → i PC con mouse restano fuori
+         * anche con finestra ridotta. Solo MBBR punto 5 (temp) e 7 (O2).
+         */
+        @media (max-width: 480px) and (hover: none) {
+            #r-mbr-5 .mbr-branch-select-ui,
+            #r-mbr-7 .mbr-branch-select-ui {
+                max-width: 100%;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .grid-split,
+            #r-mbr-7 .mbr-branch-select-ui .grid-split {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .col-box,
+            #r-mbr-7 .mbr-branch-select-ui .col-box {
+                padding: 11px 10px;
+                font-size: 0.8rem;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .col-box.selected,
+            #r-mbr-7 .mbr-branch-select-ui .col-box.selected {
+                transform: none;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .box-title,
+            #r-mbr-7 .mbr-branch-select-ui .box-title {
+                font-size: 0.88rem;
+                line-height: 1.25;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .box-list {
+                padding-left: 14px;
+                font-size: 0.78rem;
+            }
+            #r-mbr-5 .mbr-branch-select-ui .warning-label,
+            #r-mbr-7 .mbr-branch-select-ui .warning-label {
+                font-size: 0.82rem !important;
+                line-height: 1.25;
+                padding: 0 4px;
+            }
+            #r-mbr-7 .mbr-branch-select-ui > p {
+                font-size: 0.76rem !important;
+                line-height: 1.35 !important;
+                margin: 8px 6px 10px !important;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            #consequences-details-mbr-7 {
+                max-width: 100%;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+            #consequences-details-mbr-7 > strong {
+                display: block;
+                max-width: 100%;
+                font-size: 0.82rem;
+                line-height: 1.3;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                padding: 0 2px;
+            }
+            #consequences-details-mbr-7 .table {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                font-size: 0.76rem;
+            }
+            #consequences-details-mbr-7 .table tr:first-child {
+                display: none;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) {
+                display: block;
+                margin-bottom: 11px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #fff;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                border-left: none;
+                border-right: none;
+                padding: 8px 10px;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                line-height: 1.4;
+            }
+            #consequences-details-mbr-7 .table tr:not(:first-child) td:first-of-type {
+                background: #f2f2f2;
+                font-weight: 700;
+                border-bottom: 1px solid #ddd;
+            }
+
+            #consequences-details-mbr-5 {
+                max-width: 100%;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+            #consequences-details-mbr-5 .risk-accordion-summary {
+                font-size: 0.85rem;
+                line-height: 1.25;
+            }
+            #consequences-details-mbr-5 .risk-accordion-body,
+            #consequences-details-mbr-5 .critical-list {
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                font-size: 0.8rem;
+            }
+            #consequences-details-mbr-7 .risk-accordion-body,
+            #consequences-details-mbr-7 .critical-list {
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3125,7 +3246,7 @@ function check(s, p, val, btn) {
         let html = ``;
 
         if (item.temp_consequences) {
-            html += `<div class="risk-section" style="background: #fff; border: 2px solid var(--danger);">
+            html += `<div class="risk-section mbr-branch-select-ui" style="background: #fff; border: 2px solid var(--danger);">
                         <b class="warning-label" style="text-align: center;">⚠️ SELEZIONA CONDIZIONE</b>
                         <div class="grid-split">
                             <div class="col-box box-left-blue" id="box-${s}-${p}-low" onclick="selectConsequence('${s}',${p},'low')">
@@ -3150,7 +3271,7 @@ function check(s, p, val, btn) {
         }
 
         if (item.o2_consequences) {
-            html += `<div class="risk-section" style="background: #fff; border: 2px solid var(--danger);">
+            html += `<div class="risk-section mbr-branch-select-ui" style="background: #fff; border: 2px solid var(--danger);">
                         <b class="warning-label" style="text-align: center;">⚠️ SELEZIONA CONDIZIONE</b>
                         <p style="margin: 10px 0 14px 0; font-weight: bold; text-align: center;">Riferimento operativo MBBR: DO stabile > 2,0 mg/L; range ideale 2,5-4,5 mg/L.</p>
                         <div class="grid-split">
