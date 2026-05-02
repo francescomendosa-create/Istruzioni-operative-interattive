@@ -2925,7 +2925,7 @@ function selectConsequence(s, p, type) {
             if (logItem.tag === "Temp") {
                 if (type === 'low') {
                     detailsHtml = `
-                        <details class="risk-section risk-accordion risk-blink-until-open">
+                        <details open class="risk-section risk-accordion risk-blink-until-open risk-details-always-open">
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">
                                 <ul class="critical-list">
@@ -2939,7 +2939,7 @@ function selectConsequence(s, p, type) {
                     `;
                 } else if (type === 'high') {
                     detailsHtml = `
-                        <details class="risk-section risk-accordion risk-blink-until-open">
+                        <details open class="risk-section risk-accordion risk-blink-until-open risk-details-always-open">
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">
                                 <ul class="critical-list">
