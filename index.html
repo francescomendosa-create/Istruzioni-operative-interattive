@@ -177,10 +177,8 @@
             color: #fff;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .quiz-fs-title {
-            font-weight: bold;
-            font-size: 1.05rem;
-            letter-spacing: 0.02em;
+        .quiz-fs-topbar--solo-exit {
+            justify-content: flex-end;
         }
         .quiz-fs-exit {
             flex-shrink: 0;
@@ -925,135 +923,93 @@
             border: 1px solid #90caf9;
             box-shadow: 0 3px 12px rgba(13, 71, 161, 0.08);
         }
-        #quiz-screen-play .quiz-play-score-lbl {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #546e7a;
-            margin-bottom: 2px;
-        }
-        #quiz-screen-play .quiz-play-score-num {
-            display: block;
-            font-size: clamp(1.2rem, 4.2vw, 1.55rem);
-            font-weight: 800;
-            font-variant-numeric: tabular-nums;
-            color: #0d47a1;
-            line-height: 1.15;
-            margin-bottom: 4px;
-        }
         #quiz-screen-play .quiz-play-qline {
             font-size: 0.88rem;
             font-weight: 600;
             color: #37474f;
-        }
-        .quiz-play-rank-row {
-            margin: 0 0 10px;
-            padding: 9px 10px 10px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.65);
-            border: 1px solid rgba(25, 118, 210, 0.28);
+            margin-top: 8px;
             text-align: center;
         }
-        .quiz-play-rank-row--first {
-            background: linear-gradient(145deg, #fff8e1 0%, #ffe082 38%, #fffde7 72%, #fff8e1 100%);
+        /* Una riga: posizione a sinistra, punti a destra (stessa scala tipografica) */
+        .quiz-play-oneline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(25, 118, 210, 0.3);
+            text-align: left;
+        }
+        .quiz-play-oneline--first {
+            background: linear-gradient(145deg, #fff8e1 0%, #ffe082 40%, #fffde7 100%);
             border: 2px solid #f9a825;
             box-shadow:
                 0 0 0 2px rgba(255, 193, 7, 0.35),
-                0 6px 22px rgba(245, 127, 23, 0.18);
+                0 4px 16px rgba(245, 127, 23, 0.14);
             animation: quizRankFirstGlow 2.4s ease-in-out infinite;
         }
         @keyframes quizRankFirstGlow {
             0%, 100% {
                 box-shadow:
                     0 0 0 2px rgba(255, 193, 7, 0.35),
-                    0 6px 22px rgba(245, 127, 23, 0.18);
+                    0 4px 16px rgba(245, 127, 23, 0.14);
             }
             50% {
                 box-shadow:
-                    0 0 0 3px rgba(255, 193, 7, 0.55),
-                    0 8px 28px rgba(245, 127, 23, 0.28);
+                    0 0 0 3px rgba(255, 193, 7, 0.5),
+                    0 6px 22px rgba(245, 127, 23, 0.22);
             }
         }
-        .quiz-play-rank-first-line {
-            font-size: 0.78rem;
-            font-weight: 800;
-            color: #bf360c;
-            margin: 0 0 6px;
-            letter-spacing: 0.02em;
-        }
-        .quiz-play-rank-head {
-            font-size: 0.6rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #546e7a;
-            margin-bottom: 4px;
-        }
-        .quiz-play-rank-row--first .quiz-play-rank-head {
-            color: #e65100;
-        }
-        .quiz-play-rank-main {
+        .quiz-play-oneline-left {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            flex-wrap: wrap;
-            line-height: 1.1;
+            min-width: 0;
+            flex: 1;
         }
-        .quiz-play-rank-crown {
-            font-size: 1.35rem;
+        .quiz-play-oneline-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+        .quiz-play-oneline-crown {
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             line-height: 1;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+            flex-shrink: 0;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
             animation: quizCrownNod 1.8s ease-in-out infinite;
         }
         @keyframes quizCrownNod {
             0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-6deg); }
-            75% { transform: rotate(6deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
         }
-        .quiz-play-rank-num {
-            font-size: clamp(1.15rem, 4vw, 1.45rem);
+        .quiz-play-oneline-lbl {
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #546e7a;
+            white-space: nowrap;
+        }
+        .quiz-play-oneline--first .quiz-play-oneline-lbl {
+            color: #bf360c;
+        }
+        .quiz-play-oneline-val {
+            font-size: clamp(1.05rem, 3.6vw, 1.28rem);
             font-weight: 900;
             font-variant-numeric: tabular-nums;
-            color: #1565c0;
+            color: #0d47a1;
+            line-height: 1;
         }
-        .quiz-play-rank-row--first .quiz-play-rank-num {
+        .quiz-play-oneline--first .quiz-play-oneline-val {
             color: #bf360c;
-            font-size: clamp(1.25rem, 4.5vw, 1.65rem);
-        }
-        .quiz-play-rank-sub {
-            margin-top: 4px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: #607d8b;
-            line-height: 1.3;
-        }
-        .quiz-play-rank-row--first .quiz-play-rank-sub {
-            color: #e65100;
-            font-weight: 700;
-        }
-        .quiz-play-ref-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            margin-top: 6px;
-            padding: 0 2px 4px;
-            max-width: 640px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .quiz-play-ref-mini {
-            font-size: 0.65rem;
-            line-height: 1.35;
-            color: #78909c;
-            flex: 1;
-            min-width: 0;
-        }
-        .quiz-play-ref-mini--right {
-            text-align: right;
         }
         #quiz-screen-play .quiz-q {
             font-size: clamp(1.15rem, 3.8vw, 1.42rem);
@@ -1619,9 +1575,6 @@
             .quiz-fs-topbar {
                 padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
             }
-            .quiz-fs-title {
-                font-size: 0.96rem;
-            }
             .quiz-fs-exit {
                 padding: 9px 13px;
                 font-size: 0.82rem;
@@ -1927,8 +1880,7 @@
 </div>
 
     <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
-        <div class="quiz-fs-topbar">
-            <span class="quiz-fs-title">Quiz operativo</span>
+        <div class="quiz-fs-topbar quiz-fs-topbar--solo-exit">
             <button type="button" class="quiz-fs-exit" onclick="closeQuiz()">Esci</button>
         </div>
         <div class="quiz-fs-scroll">
@@ -1965,10 +1917,6 @@
             </div>
             <div class="quiz-actions quiz-actions-play-exit">
                 <button type="button" class="btn-side btn-reset" onclick="quizAbort()">Esci dal quiz</button>
-            </div>
-            <div id="quiz-play-ref-row" class="quiz-play-ref-row" aria-label="Riferimento domanda">
-                <span id="quiz-ref-left" class="quiz-play-ref-mini"></span>
-                <span id="quiz-ref-right" class="quiz-play-ref-mini quiz-play-ref-mini--right"></span>
             </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
@@ -2801,27 +2749,24 @@ function quizUpdatePlayProgress() {
     const i = quizState.index + 1;
     const tot = quizState.queue.length;
     const sc = quizState.score;
-    const { rank, total } = quizComputeLiveRank(sc);
+    const { rank } = quizComputeLiveRank(sc);
     const ord = rank + '\u00B0';
     const isFirst = rank === 1;
-    const rankRowClass = 'quiz-play-rank-row' + (isFirst ? ' quiz-play-rank-row--first' : '');
-    const rankSub = total <= 1
-        ? 'Confronto con la classifica salvata'
-        : ('Su ' + total + ' risultati in classifica (tutti i tempi)');
-    const firstLine = isFirst
-        ? '<div class="quiz-play-rank-first-line">Sei in testa alla classifica!</div>'
-        : '';
-    const crown = isFirst ? '<span class="quiz-play-rank-crown" aria-hidden="true">\u{1F451}</span>' : '';
+    const rowClass = 'quiz-play-oneline' + (isFirst ? ' quiz-play-oneline--first' : '');
+    const crown = isFirst ? '<span class="quiz-play-oneline-crown" aria-hidden="true">\u{1F451}</span>' : '';
     prog.innerHTML =
         '<div class="quiz-play-scoreboard">' +
-        '<div class="' + rankRowClass + '" aria-live="polite">' +
-        '<div class="quiz-play-rank-head">Posizione (aggiornata in tempo reale)</div>' +
-        firstLine +
-        '<div class="quiz-play-rank-main">' + crown + '<strong class="quiz-play-rank-num">' + ord + '</strong></div>' +
-        '<div class="quiz-play-rank-sub">' + rankSub + '</div>' +
+        '<div class="' + rowClass + '" aria-live="polite">' +
+        '<div class="quiz-play-oneline-left">' +
+        crown +
+        '<span class="quiz-play-oneline-lbl">Posizione</span>' +
+        '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
         '</div>' +
-        '<span class="quiz-play-score-lbl">Punteggio</span>' +
-        '<strong class="quiz-play-score-num">' + sc + '</strong>' +
+        '<div class="quiz-play-oneline-right">' +
+        '<span class="quiz-play-oneline-lbl">Punti</span>' +
+        '<strong class="quiz-play-oneline-val">' + sc + '</strong>' +
+        '</div>' +
+        '</div>' +
         '<div class="quiz-play-qline">Domanda ' + i + ' di ' + tot + '</div>' +
         '</div>';
 }
@@ -2837,8 +2782,6 @@ function quizRenderQuestion(opts) {
     const qEl = document.getElementById('quiz-question');
     const ch = document.getElementById('quiz-choices');
     const fb = document.getElementById('quiz-feedback');
-    const refL = document.getElementById('quiz-ref-left');
-    const refR = document.getElementById('quiz-ref-right');
     if (!q || !prog || !qEl || !ch) return;
 
     if (fb) {
@@ -2848,8 +2791,6 @@ function quizRenderQuestion(opts) {
     }
 
     quizUpdatePlayProgress();
-    if (refL) refL.textContent = q.refCode ? ('Rif. ' + String(q.refCode)) : '';
-    if (refR) refR.textContent = String(q.refPretty || q.ref || '').trim();
     qEl.textContent = q.q;
     ch.innerHTML = '';
     q.options.forEach((opt, idx) => {
