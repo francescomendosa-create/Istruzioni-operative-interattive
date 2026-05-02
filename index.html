@@ -458,6 +458,52 @@
         .correlation-status-banner + .correlation-update-box {
             margin-top: 0;
         }
+        .correlation-status-banner + details.correlation-oil-accordion {
+            margin-top: 0;
+        }
+
+        details.correlation-oil-accordion {
+            border: 3px solid #dc2626;
+            border-radius: 8px;
+            margin-top: 15px;
+            overflow: hidden;
+            background: #fff;
+        }
+        details.correlation-oil-accordion summary.correlation-oil-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: bold;
+            color: #991b1b;
+            font-size: 1.02rem;
+            line-height: 1.35;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            background: linear-gradient(180deg, #fef2f2 0%, #fff 100%);
+        }
+        details.correlation-oil-accordion summary.correlation-oil-summary::-webkit-details-marker {
+            display: none;
+        }
+        details.correlation-oil-accordion summary.correlation-oil-summary::after {
+            content: '▼';
+            margin-left: auto;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            padding: 4px 2px;
+        }
+        details.correlation-oil-accordion[open] summary.correlation-oil-summary::after {
+            content: '▲';
+        }
+        details.correlation-oil-accordion[open] summary.correlation-oil-summary {
+            border-bottom: 2px solid #fecaca;
+        }
+        .correlation-oil-body {
+            padding: 15px;
+            animation: flash-alert 0.5s ease-in-out 10;
+        }
 
         .bio-intervention {
             background: #f8f9fa;
@@ -2629,7 +2675,7 @@ function syncCf2CorrelationUpdate() {
     const cf2ResDiv = document.getElementById('r-cf-2');
     if (!cf2ResDiv) return;
 
-    cf2ResDiv.querySelectorAll('.correlation-status-banner, .correlation-update-box, .correlation-update-box-biomass').forEach(box => box.remove());
+    cf2ResDiv.querySelectorAll('.correlation-status-banner, .correlation-oil-accordion, .correlation-update-box, .correlation-update-box-biomass').forEach(box => box.remove());
 
     const oilCorr = correlationYes['mbr-4'] === true && correlationYes['cf-2'] === true;
     const biomassAlarm = correlationYes['mbr-9'] === true;
@@ -2645,9 +2691,12 @@ function syncCf2CorrelationUpdate() {
         const cf2 = db['cf'].find(x => x.p === 2);
         if (cf2 && cf2.correlation_update) {
             inject += `
-                <div class="correlation-update-box">
-                    ${cf2.correlation_update}
-                </div>
+                <details class="correlation-oil-accordion" open>
+                    <summary class="correlation-oil-summary">Riferimenti operativi — trascinamento fase oleosa (Chimico-Fisico → Biologico)</summary>
+                    <div class="correlation-oil-body">
+                        ${cf2.correlation_update}
+                    </div>
+                </details>
             `;
         }
     }
