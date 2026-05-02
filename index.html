@@ -421,6 +421,19 @@
             animation: cf2-hand-nudge-lr 1.35s ease-in-out infinite;
         }
 
+        .return-relation-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .return-relation-hand {
+            display: none;
+        }
+        .return-relation-wrap .btn-return-inline {
+            margin-left: 0;
+        }
+
         .btn-return-inline {
             background: var(--warning);
             color: white;
@@ -2517,7 +2530,10 @@ function render() {
                     <div style="color:var(--accent); font-size:0.8rem; font-weight:bold;">${s === 'cf' ? 'CHIMICO-FISICO' : 'BIOLOGICO MBBR'} - PUNTO ${item.p}</div>
                     <div class="question-header">
                         <div class="question">${item.q}</div>
-                        <button class="btn-return-inline" id="return-btn-${s}-${item.p}" onclick="executeReturn()">CONTINUA RELAZIONE ➔</button>
+                        <div class="return-relation-wrap">
+                            <span class="cf2-corr-hand-hint return-relation-hand" id="return-hand-${s}-${item.p}" aria-hidden="true">👉</span>
+                            <button class="btn-return-inline" id="return-btn-${s}-${item.p}" onclick="executeReturn()">CONTINUA RELAZIONE ↑</button>
+                        </div>
                     </div>
                     <div class="btns">
                         <button class="si" id="btn-${s}-${item.p}-si" onclick="check('${s}',${item.p},true,this)">SÌ</button>
@@ -3351,9 +3367,12 @@ function updateRealTimeReport() {
 
 function jumpWithReturn(fromS, fromP, toS, toP) {
     returnPoint = { s: fromS, p: fromP };
-    document.querySelectorAll(".btn-return-inline").forEach(b => b.style.display = "none");
+    document.querySelectorAll(".btn-return-inline").forEach(b => { b.style.display = "none"; });
+    document.querySelectorAll(".return-relation-hand").forEach(h => { h.style.display = "none"; });
     const btn = document.getElementById(`return-btn-${toS}-${toP}`);
     if (btn) btn.style.display = "block";
+    const returnHand = document.getElementById(`return-hand-${toS}-${toP}`);
+    if (returnHand) returnHand.style.display = "inline-block";
     
     const correlationBtn = document.getElementById(`btn-correlation-${fromS}-${fromP}`);
     if (correlationBtn) {
@@ -3377,7 +3396,8 @@ function executeReturn() {
 
         // Nasconde i pulsanti solo dopo l'avvio dello scroll per evitare salti di layout su iOS.
         setTimeout(() => {
-            document.querySelectorAll(".btn-return-inline").forEach(b => b.style.display = "none");
+            document.querySelectorAll(".btn-return-inline").forEach(b => { b.style.display = "none"; });
+            document.querySelectorAll(".return-relation-hand").forEach(h => { h.style.display = "none"; });
         }, 250);
     }
 }
