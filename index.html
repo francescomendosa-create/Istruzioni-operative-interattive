@@ -2831,50 +2831,72 @@
         document.body.classList.add('splash-active');
     }
 })();
-var SPLASH_ENTER_SOUND_URL = 'assets/sounds/bubble/bubble-dragon-pop.mp3';
+var SPLASH_ENTER_SOUND_REL = 'assets/sounds/bubble/bubble-dragon-pop.mp3';
+function getSplashEnterSoundAbsoluteUrl() {
+    try {
+        var m = document.querySelector('link[rel="manifest"]');
+        if (m && m.href) {
+            var u = new URL(m.href);
+            var dir = u.pathname.replace(/[^/]+$/, '');
+            return u.origin + dir + SPLASH_ENTER_SOUND_REL;
+        }
+    } catch (e0) {}
+    try {
+        return new URL(SPLASH_ENTER_SOUND_REL, window.location.href).href;
+    } catch (e1) {
+        return SPLASH_ENTER_SOUND_REL;
+    }
+}
 function playSplashBubblePop() {
     try {
-        var url = SPLASH_ENTER_SOUND_URL;
+        var url = getSplashEnterSoundAbsoluteUrl();
         if (!playSplashBubblePop._holder) {
             var h = document.createElement('div');
             h.setAttribute('aria-hidden', 'true');
-            h.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
+            h.id = 'splash-snd-holder';
+            h.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
             document.body.appendChild(h);
             playSplashBubblePop._holder = h;
         }
         var holder = playSplashBubblePop._holder;
-        var a = playSplashBubblePop._pool;
-        if (!a) {
-            a = document.createElement('audio');
-            a.setAttribute('playsinline', '');
-            a.setAttribute('webkit-playsinline', '');
-            a.preload = 'auto';
-            holder.appendChild(a);
-            playSplashBubblePop._pool = a;
-        }
-        a.pause();
-        a.removeAttribute('src');
-        a.load();
+        var a = document.createElement('audio');
+        a.setAttribute('playsinline', '');
+        a.setAttribute('webkit-playsinline', '');
+        a.preload = 'auto';
         a.src = url;
-        a.volume = 0.78;
+        a.volume = 0.95;
+        holder.appendChild(a);
+        var detach = function () {
+            try {
+                if (a.parentNode) a.parentNode.removeChild(a);
+            } catch (e4) {}
+        };
+        a.addEventListener('ended', detach, { once: true });
+        a.addEventListener('error', detach, { once: true });
+        setTimeout(detach, 8000);
+        try {
+            a.load();
+        } catch (eL) {}
         var pr = a.play();
         if (pr && typeof pr.then === 'function') {
             pr.catch(function () {
+                detach();
                 try {
                     var b = document.createElement('audio');
                     b.setAttribute('playsinline', '');
-                    b.volume = 0.78;
+                    b.volume = 0.95;
                     b.src = url;
                     holder.appendChild(b);
                     var pr2 = b.play();
-                    var cleanup = function () {
+                    var rm = function () {
                         try {
                             if (b.parentNode) b.parentNode.removeChild(b);
-                        } catch (e4) {}
+                        } catch (e5) {}
                     };
-                    b.addEventListener('ended', cleanup, { once: true });
-                    b.addEventListener('error', cleanup, { once: true });
-                    if (pr2 && typeof pr2.then === 'function') pr2.catch(cleanup);
+                    b.addEventListener('ended', rm, { once: true });
+                    b.addEventListener('error', rm, { once: true });
+                    setTimeout(rm, 8000);
+                    if (pr2 && typeof pr2.then === 'function') pr2.catch(rm);
                 } catch (e3) {}
             });
         }
