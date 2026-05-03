@@ -5905,15 +5905,32 @@ function quizAdelfoWarmFrames() {
     quizAdelfoEnsureFrames(function () {});
 }
 
+function quizAdelfoPrepareStripCanvas(cv, canvasArr) {
+    if (!cv || !canvasArr || !canvasArr.length) return;
+    var maxW = 0;
+    var maxH = 0;
+    var i;
+    for (i = 0; i < canvasArr.length; i++) {
+        maxW = Math.max(maxW, canvasArr[i].width);
+        maxH = Math.max(maxH, canvasArr[i].height);
+    }
+    if (cv.width !== maxW || cv.height !== maxH) {
+        cv.width = maxW;
+        cv.height = maxH;
+    }
+}
+
+/** Disegna il frame dentro il buffer fisso (stesse dimensioni per tutta la camminata: niente “pulsare”). */
 function quizAdelfoBlit(cv, srcCanvas) {
     if (!cv || !srcCanvas) return;
     var ctx = cv.getContext('2d');
-    if (cv.width !== srcCanvas.width || cv.height !== srcCanvas.height) {
-        cv.width = srcCanvas.width;
-        cv.height = srcCanvas.height;
-    }
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(srcCanvas, 0, 0);
+    var W = cv.width | 0;
+    var H = cv.height | 0;
+    if (!W || !H) return;
+    ctx.clearRect(0, 0, W, H);
+    var x = Math.floor((W - srcCanvas.width) / 2);
+    var y = H - srcCanvas.height;
+    ctx.drawImage(srcCanvas, x, y);
 }
 
 function quizAdelfoDelay(ms) {
@@ -5923,16 +5940,17 @@ function quizAdelfoDelay(ms) {
     });
 }
 
-function quizAdelfoPhaseMove(fig, cv, canvasArr, fromVw, toVw, durationMs) {
+function quizAdelfoPhaseMove(fig, cv, canvasArr, fromVw, toVw, durationMs, mirrorX) {
     var frames = Math.max(1, canvasArr ? canvasArr.length : 1);
     var sc = QUIZ_ADELFO.displayScale;
+    var flip = mirrorX ? ' scaleX(-1)' : '';
     return new Promise(function (resolve) {
         var t0 = performance.now();
         function tick(now) {
             var u = Math.min(1, (now - t0) / durationMs);
             var ease = 1 - Math.pow(1 - u, 2);
             var x = fromVw + (toVw - fromVw) * ease;
-            fig.style.transform = 'translateX(' + x + 'vw) scale(' + sc + ')';
+            fig.style.transform = 'translateX(' + x + 'vw) scale(' + sc + ')' + flip;
             var fi = Math.floor(((now - t0) / 85) % frames);
             quizAdelfoBlit(cv, canvasArr[fi]);
             if (u < 1) {
@@ -5964,8 +5982,8 @@ function quizRunAdelfoIntro() {
 
         var sc = QUIZ_ADELFO.displayScale;
         var wr = quizAdelfoStripped.walkRight;
-        cv.width = wr[0].width;
-        cv.height = wr[0].height;
+        var pr = quizAdelfoStripped.pointRight;
+        quizAdelfoPrepareStripCanvas(cv, wr);
 
         function runSeq() {
             layer.setAttribute('aria-hidden', 'false');
@@ -5976,8 +5994,9 @@ function quizRunAdelfoIntro() {
 
             quizAdelfoPhaseMove(fig, cv, wr, -52, -8, 2600)
                 .then(function () {
-                    if (quizAdelfoStripped.pointRight[0]) {
-                        quizAdelfoBlit(cv, quizAdelfoStripped.pointRight[0]);
+                    if (pr[0]) {
+                        quizAdelfoPrepareStripCanvas(cv, pr);
+                        quizAdelfoBlit(cv, pr[0]);
                     }
                     fig.style.transform = 'translateX(-8vw) scale(' + sc + ') translateY(-4px) rotate(-3deg)';
                     if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
@@ -5986,7 +6005,9 @@ function quizRunAdelfoIntro() {
                 .then(function () {
                     if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
                     fig.style.transform = 'translateX(-8vw) scale(' + sc + ')';
-                    return quizAdelfoPhaseMove(fig, cv, quizAdelfoStripped.walkLeft, -8, -52, 2300);
+                    /* Ritorno: stessa camminata “in avanti” di walkRight, specchiata → avanza verso sinistra, non di schiena. */
+                    quizAdelfoPrepareStripCanvas(cv, wr);
+                    return quizAdelfoPhaseMove(fig, cv, wr, -8, -52, 2300, true);
                 })
                 .then(function () {
                     quizAdelfoCancelIntro();
