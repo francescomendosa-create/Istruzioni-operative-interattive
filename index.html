@@ -2832,59 +2832,137 @@
     }
 })();
 function playSplashBubblePop() {
-    try {
-        var Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-        if (!playSplashBubblePop._ctx) playSplashBubblePop._ctx = new Ctx();
-        var ctx = playSplashBubblePop._ctx;
-        if (ctx.state === 'suspended') ctx.resume();
-        var t0 = ctx.currentTime;
-        var dur = 0.14;
+    function playWebAudio(ctx) {
+        var t0 = ctx.currentTime + 0.04;
+        var dur = 0.15;
         var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
         var buf = ctx.createBuffer(1, len, ctx.sampleRate);
         var d = buf.getChannelData(0);
         for (var i = 0; i < len; i++) {
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.2);
         }
+        var master = ctx.createGain();
+        master.gain.value = 0.95;
+        master.connect(ctx.destination);
         var noise = ctx.createBufferSource();
         noise.buffer = buf;
         var bp = ctx.createBiquadFilter();
         bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(1800, t0);
-        bp.frequency.exponentialRampToValueAtTime(450, t0 + dur);
-        bp.Q.value = 1.2;
+        bp.frequency.setValueAtTime(2200, t0);
+        bp.frequency.exponentialRampToValueAtTime(500, t0 + dur);
+        bp.Q.value = 1.35;
         var gn = ctx.createGain();
-        gn.gain.setValueAtTime(0.38, t0);
+        gn.gain.setValueAtTime(0, t0);
+        gn.gain.linearRampToValueAtTime(0.72, t0 + 0.006);
         gn.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
         noise.connect(bp);
         bp.connect(gn);
-        gn.connect(ctx.destination);
+        gn.connect(master);
         noise.start(t0);
-        noise.stop(t0 + dur + 0.02);
+        noise.stop(t0 + dur + 0.03);
         var osc = ctx.createOscillator();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, t0);
-        osc.frequency.exponentialRampToValueAtTime(280, t0 + 0.055);
+        osc.frequency.setValueAtTime(920, t0);
+        osc.frequency.exponentialRampToValueAtTime(260, t0 + 0.06);
         var go = ctx.createGain();
-        go.gain.setValueAtTime(0.14, t0);
-        go.gain.exponentialRampToValueAtTime(0.001, t0 + 0.07);
+        go.gain.setValueAtTime(0, t0);
+        go.gain.linearRampToValueAtTime(0.32, t0 + 0.004);
+        go.gain.exponentialRampToValueAtTime(0.001, t0 + 0.085);
         osc.connect(go);
-        go.connect(ctx.destination);
+        go.connect(master);
         osc.start(t0);
-        osc.stop(t0 + 0.08);
+        osc.stop(t0 + 0.09);
         var osc2 = ctx.createOscillator();
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(2100, t0 + 0.012);
-        osc2.frequency.exponentialRampToValueAtTime(900, t0 + 0.04);
+        osc2.frequency.setValueAtTime(2400, t0 + 0.01);
+        osc2.frequency.exponentialRampToValueAtTime(700, t0 + 0.038);
         var g2 = ctx.createGain();
         g2.gain.setValueAtTime(0, t0);
-        g2.gain.linearRampToValueAtTime(0.06, t0 + 0.008);
-        g2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.045);
+        g2.gain.linearRampToValueAtTime(0.14, t0 + 0.006);
+        g2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.048);
         osc2.connect(g2);
-        g2.connect(ctx.destination);
+        g2.connect(master);
         osc2.start(t0);
-        osc2.stop(t0 + 0.05);
-    } catch (e) {}
+        osc2.stop(t0 + 0.055);
+    }
+    function playHtmlAudioFallback() {
+        try {
+            var sr = 44100;
+            var n = Math.floor(sr * 0.14);
+            var ab = new ArrayBuffer(44 + n * 2);
+            var v = new DataView(ab);
+            var w = function (o, s) {
+                for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
+            };
+            w(0, 'RIFF');
+            v.setUint32(4, 36 + n * 2, true);
+            w(8, 'WAVE');
+            w(12, 'fmt ');
+            v.setUint32(16, 16, true);
+            v.setUint16(20, 1, true);
+            v.setUint16(22, 1, true);
+            v.setUint32(24, sr, true);
+            v.setUint32(28, sr * 2, true);
+            v.setUint16(32, 2, true);
+            v.setUint16(34, 16, true);
+            w(36, 'data');
+            v.setUint32(40, n * 2, true);
+            var off = 44;
+            for (var i = 0; i < n; i++) {
+                var t = i / sr;
+                var env = Math.pow(1 - i / n, 3);
+                var pop = Math.sin(t * 2 * Math.PI * (920 * Math.exp(-t * 28) + 180)) * env;
+                var hiss = (Math.random() * 2 - 1) * env * 0.45;
+                var s = Math.max(-1, Math.min(1, pop + hiss)) * 0.92;
+                v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(s * 32767))), true);
+                off += 2;
+            }
+            var blob = new Blob([ab], { type: 'audio/wav' });
+            var url = URL.createObjectURL(blob);
+            var a = new Audio();
+            a.src = url;
+            a.volume = 1;
+            var done = function () {
+                try {
+                    URL.revokeObjectURL(url);
+                } catch (e2) {}
+            };
+            a.addEventListener('ended', done);
+            a.addEventListener('error', done);
+            var p = a.play();
+            if (p && typeof p.catch === 'function') p.catch(done);
+        } catch (e3) {}
+    }
+    try {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) {
+            playHtmlAudioFallback();
+            return;
+        }
+        if (!playSplashBubblePop._ctx) playSplashBubblePop._ctx = new Ctx();
+        var ctx = playSplashBubblePop._ctx;
+        function run() {
+            try {
+                playWebAudio(ctx);
+            } catch (e0) {
+                playHtmlAudioFallback();
+            }
+        }
+        if (ctx.state === 'suspended' && ctx.resume) {
+            var rp = ctx.resume();
+            if (rp && typeof rp.then === 'function') {
+                rp.then(run).catch(function () {
+                    playHtmlAudioFallback();
+                });
+            } else {
+                setTimeout(run, 30);
+            }
+        } else {
+            run();
+        }
+    } catch (e) {
+        playHtmlAudioFallback();
+    }
 }
 function dismissAppSplash() {
     playSplashBubblePop();
