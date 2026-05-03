@@ -2468,8 +2468,8 @@
             }
         }
         /*
-          PNG (assets/splash-worm-icon.png) + bolle CSS sopra (z-index): il file è opaco, quindi bolle “dietro” non si vedono.
-          Bolle = highlight vetro/acqua, non sostituiscono il verme.
+          Mascotte splash: bruco SVG animato al centro; PNG nascosto (display:none) per evitare sovrapposizioni.
+          Bolle CSS sopra (z-index). Per riattivare il PNG: .app-splash-raster { display:block; object-fit:contain; }.
         */
         .app-splash-mascot-wrap {
             display: flex;
@@ -2503,6 +2503,7 @@
             animation: splashTailWag 2.4s ease-in-out infinite;
             transform-origin: 56% 82%;
         }
+        /* PNG opzionale (splash: mascotte = bruco SVG). */
         .app-splash-raster {
             position: absolute;
             inset: 0;
@@ -2510,56 +2511,76 @@
             height: 100%;
             object-fit: contain;
             object-position: 50% 48%;
-            display: block;
+            display: none;
             pointer-events: none;
             user-select: none;
-            z-index: 1;
-            transform: scale(0.82);
-            transform-origin: 50% 45%;
-        }
-        /* Pennello vettoriale: sempre visibile sopra al PNG (grafica + animazione). */
-        .app-splash-paintbrush-svg {
-            position: absolute;
-            right: 4%;
-            bottom: 10%;
-            width: 38%;
-            height: auto;
-            max-height: 58%;
-            z-index: 2;
-            pointer-events: none;
-            filter: drop-shadow(0 4px 10px rgba(15, 39, 68, 0.35)) drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4));
-            animation: splashBrushTilt 2.8s ease-in-out infinite;
-            transform-origin: 70% 92%;
-        }
-        .app-splash-paintbrush-svg .brush-bristles {
-            animation: splashBristleFlex 1.6s ease-in-out infinite;
-            transform-origin: 50px 28px;
+            z-index: 0;
         }
         .app-splash-icon-live-inner.is-missing-img .app-splash-raster {
             display: none;
         }
-        .app-splash-icon-live-inner.is-missing-img .app-splash-paintbrush-svg {
-            right: auto;
-            bottom: auto;
+        /* Bruco / verme vettoriale, centrato nel cerchio. */
+        .app-splash-bruco-svg {
+            position: absolute;
             left: 50%;
-            top: 52%;
-            width: min(52%, 120px);
-            max-height: 72%;
+            top: 50%;
+            width: 88%;
+            height: auto;
+            max-height: 78%;
             transform: translate(-50%, -50%);
-            transform-origin: 50px 118px;
-            animation: splashBrushTiltHero 3s ease-in-out infinite;
+            z-index: 2;
+            pointer-events: none;
+            filter: drop-shadow(0 6px 14px rgba(15, 39, 68, 0.38)) drop-shadow(0 2px 0 rgba(255, 255, 255, 0.25));
+            animation: splashBrucoBob 3.2s ease-in-out infinite;
         }
-        @keyframes splashBrushTilt {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(7deg); }
+        .app-splash-bruco-svg .bruco-inchworm {
+            animation: splashBrucoSway 2.6s ease-in-out infinite;
+            transform-origin: 120px 100px;
         }
-        @keyframes splashBrushTiltHero {
-            0%, 100% { transform: translate(-50%, -50%) rotate(-4deg); }
-            50% { transform: translate(-50%, -50%) rotate(6deg); }
+        .app-splash-bruco-svg .bruco-seg {
+            animation: splashBrucoSeg 2s ease-in-out infinite;
         }
-        @keyframes splashBristleFlex {
-            0%, 100% { transform: scaleX(1) scaleY(1); }
-            50% { transform: scaleX(1.04) scaleY(0.98); }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(1) { animation-delay: 0s; }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(2) { animation-delay: 0.12s; }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(3) { animation-delay: 0.24s; }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(4) { animation-delay: 0.36s; }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(5) { animation-delay: 0.48s; }
+        .app-splash-bruco-svg .bruco-segments .bruco-seg:nth-child(6) { animation-delay: 0.6s; }
+        .app-splash-bruco-svg .bruco-antennae {
+            animation: splashBrucoAntenna 2.4s ease-in-out infinite;
+            transform-origin: 52px 78px;
+        }
+        .app-splash-bruco-svg .bruco-tail {
+            animation: splashBrucoTail 1.8s ease-in-out infinite;
+            transform-origin: 208px 96px;
+        }
+        .app-splash-bruco-svg .bruco-blink {
+            animation: splashBrucoBlink 4.5s ease-in-out infinite;
+            transform-origin: 52px 102px;
+        }
+        @keyframes splashBrucoBob {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-5px); }
+        }
+        @keyframes splashBrucoSway {
+            0%, 100% { transform: rotate(-2.5deg); }
+            50% { transform: rotate(3.5deg); }
+        }
+        @keyframes splashBrucoSeg {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-2px, -3px); }
+        }
+        @keyframes splashBrucoAntenna {
+            0%, 100% { transform: rotate(-6deg); }
+            50% { transform: rotate(8deg); }
+        }
+        @keyframes splashBrucoTail {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+        }
+        @keyframes splashBrucoBlink {
+            0%, 92%, 100% { transform: scaleY(1); }
+            94%, 96% { transform: scaleY(0.08); }
         }
         /* Bolle “aria” sul liquido: strato sopra al PNG (altrimenti resta solo il cerchio pieno). */
         .app-splash-bubbles-fx {
@@ -2650,19 +2671,27 @@
             .app-splash-icon-live,
             .app-splash-worm-swing,
             .app-splash-bubbles-fx span,
-            .app-splash-paintbrush-svg,
-            .app-splash-paintbrush-svg .brush-bristles {
+            .app-splash-bruco-svg,
+            .app-splash-bruco-svg .bruco-inchworm,
+            .app-splash-bruco-svg .bruco-seg,
+            .app-splash-bruco-svg .bruco-antennae,
+            .app-splash-bruco-svg .bruco-tail,
+            .app-splash-bruco-svg .bruco-blink {
                 animation: none !important;
             }
             .app-splash-bubbles-fx span {
                 opacity: 0.55;
                 transform: none;
             }
-            .app-splash-paintbrush-svg .brush-bristles {
-                transform: none;
-            }
-            .app-splash-icon-live-inner.is-missing-img .app-splash-paintbrush-svg {
+            .app-splash-bruco-svg {
                 transform: translate(-50%, -50%);
+            }
+            .app-splash-bruco-svg .bruco-inchworm,
+            .app-splash-bruco-svg .bruco-seg,
+            .app-splash-bruco-svg .bruco-antennae,
+            .app-splash-bruco-svg .bruco-tail,
+            .app-splash-bruco-svg .bruco-blink {
+                transform: none;
             }
         }
         @media (max-width: 480px) {
@@ -2716,30 +2745,60 @@
                     <div class="app-splash-worm-swing">
                         <img class="app-splash-raster" id="app-splash-raster-img" src="assets/splash-worm-icon.png" width="512" height="512" alt=""
                             decoding="async">
-                        <svg class="app-splash-paintbrush-svg" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <svg class="app-splash-bruco-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <defs>
-                                <linearGradient id="splashBrushHandle" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#c4a574"/>
-                                    <stop offset="45%" stop-color="#e8d4a8"/>
-                                    <stop offset="100%" stop-color="#9a7b52"/>
+                                <linearGradient id="splashBrucoTop" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#fce7f3"/>
+                                    <stop offset="45%" stop-color="#f9a8d4"/>
+                                    <stop offset="100%" stop-color="#ec4899"/>
                                 </linearGradient>
-                                <linearGradient id="splashBrushBristle" x1="0%" y1="100%" x2="0%" y2="0%">
-                                    <stop offset="0%" stop-color="#f9a8d4"/>
-                                    <stop offset="55%" stop-color="#fbcfe8"/>
-                                    <stop offset="100%" stop-color="#f472b6"/>
+                                <linearGradient id="splashBrucoBelly" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#fdf4ff"/>
+                                    <stop offset="100%" stop-color="#fbcfe8"/>
                                 </linearGradient>
-                                <linearGradient id="splashBrushFerrule" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stop-color="#e2e8f0"/>
-                                    <stop offset="50%" stop-color="#94a3b8"/>
-                                    <stop offset="100%" stop-color="#cbd5e1"/>
-                                </linearGradient>
+                                <radialGradient id="splashBrucoHead" cx="35%" cy="30%" r="70%">
+                                    <stop offset="0%" stop-color="#fff1f8"/>
+                                    <stop offset="55%" stop-color="#f9a8d4"/>
+                                    <stop offset="100%" stop-color="#db2777"/>
+                                </radialGradient>
                             </defs>
-                            <path fill="url(#splashBrushHandle)" d="M38 118 L42 78 L58 78 L62 118 Q50 128 38 118Z"/>
-                            <path fill="url(#splashBrushFerrule)" d="M40 78 L60 78 L59 68 L41 68Z"/>
-                            <g class="brush-bristles">
-                                <path fill="url(#splashBrushBristle)" d="M28 68 Q50 8 72 68 Q50 58 28 68Z"/>
-                                <path fill="rgba(255,255,255,0.55)" d="M44 22 Q50 14 56 22 Q52 28 44 22Z"/>
-                                <path fill="none" stroke="rgba(236,72,153,0.35)" stroke-width="0.8" d="M38 58 Q50 24 62 58"/>
+                            <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                            <g class="bruco-inchworm">
+                                <g class="bruco-tail">
+                                    <ellipse cx="208" cy="96" rx="22" ry="15" fill="url(#splashBrucoTop)" transform="rotate(-18 208 96)" stroke="#f472b6" stroke-width="0.6" stroke-opacity="0.5"/>
+                                </g>
+                                <g class="bruco-segments">
+                                    <g class="bruco-seg"><ellipse cx="178" cy="90" rx="24" ry="17" fill="url(#splashBrucoTop)" transform="rotate(-8 178 90)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
+                                    <g class="bruco-seg"><ellipse cx="148" cy="84" rx="26" ry="18" fill="url(#splashBrucoTop)" transform="rotate(2 148 84)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
+                                    <g class="bruco-seg"><ellipse cx="118" cy="88" rx="27" ry="19" fill="url(#splashBrucoTop)" transform="rotate(6 118 88)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
+                                    <g class="bruco-seg"><ellipse cx="88" cy="98" rx="28" ry="19" fill="url(#splashBrucoTop)" transform="rotate(14 88 98)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
+                                    <g class="bruco-seg"><ellipse cx="62" cy="112" rx="28" ry="20" fill="url(#splashBrucoTop)" transform="rotate(22 62 112)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
+                                    <g class="bruco-seg">
+                                        <circle cx="48" cy="128" r="30" fill="url(#splashBrucoHead)" stroke="#db2777" stroke-width="0.75" stroke-opacity="0.35"/>
+                                        <ellipse cx="48" cy="138" rx="18" ry="10" fill="url(#splashBrucoBelly)" opacity="0.9"/>
+                                        <g class="bruco-blink">
+                                            <ellipse cx="40" cy="118" rx="7" ry="8" fill="#fff"/>
+                                            <ellipse cx="58" cy="116" rx="6.5" ry="7.5" fill="#fff"/>
+                                            <circle cx="41" cy="119" r="3.2" fill="#1e3a5f"/>
+                                            <circle cx="57" cy="117" r="2.8" fill="#1e3a5f"/>
+                                            <circle cx="42.2" cy="117.3" r="1" fill="#fff" opacity="0.9"/>
+                                            <circle cx="58" cy="115.5" r="0.9" fill="#fff" opacity="0.9"/>
+                                        </g>
+                                        <path d="M38 134 Q48 142 58 132" fill="none" stroke="#be185d" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+                                    </g>
+                                </g>
+                                <g fill="#86efac" opacity="0.85">
+                                    <ellipse cx="100" cy="118" rx="4" ry="3" transform="rotate(-20 100 118)"/>
+                                    <ellipse cx="128" cy="104" rx="4" ry="3" transform="rotate(8 128 104)"/>
+                                    <ellipse cx="158" cy="98" rx="4" ry="3.5" transform="rotate(12 158 98)"/>
+                                    <ellipse cx="188" cy="102" rx="3.5" ry="3" transform="rotate(-10 188 102)"/>
+                                </g>
+                                <g class="bruco-antennae" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round">
+                                    <path d="M34 82 Q28 58 22 48"/>
+                                    <path d="M54 78 Q62 52 70 44"/>
+                                    <circle cx="22" cy="48" r="3" fill="#f472b6" stroke="none"/>
+                                    <circle cx="70" cy="44" r="3" fill="#f472b6" stroke="none"/>
+                                </g>
                             </g>
                         </svg>
                     </div>
