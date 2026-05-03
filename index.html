@@ -1518,7 +1518,7 @@
                 margin-bottom: 4px;
             }
         }
-        /* Quiz PC schermata domande: niente scroll esterno, vasca più alta, tutto nel viewport */
+        /* Quiz PC schermata domande: niente scroll esterno; vasca stessa dimensione di prima, rialzata di pochissimo */
         @media (min-width: 769px) {
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play > .quiz-fs-scroll {
                 display: flex;
@@ -1527,7 +1527,7 @@
                 min-height: 0;
                 overflow-y: hidden;
                 overflow-x: hidden;
-                padding: 6px 12px 8px;
+                padding: 6px 12px 10px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play {
                 flex: 1 1 auto;
@@ -1544,33 +1544,28 @@
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
                 flex-shrink: 0;
-                margin-top: 10px;
-                margin-bottom: 4px;
-            }
-            body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                max-height: 76px;
-                min-height: 0;
-                width: 100%;
+                margin-top: 30px;
+                margin-bottom: 10px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
-                margin: 8px auto 18px;
-                font-size: clamp(1.08rem, 2vw, 1.38rem);
+                margin: 12px auto 28px;
+                font-size: clamp(1.18rem, 2.2vw, 1.48rem);
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choices {
-                gap: 11px;
-                margin: 0 auto 10px;
+                gap: 14px;
+                margin: 0 auto 20px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choice-btn {
-                padding: 12px 18px 12px 20px;
-                min-height: 2.85rem;
-                line-height: 1.42;
+                padding: 15px 20px 15px 22px;
+                min-height: 3.2rem;
+                line-height: 1.45;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-feedback {
-                margin-top: 8px;
-                padding: 8px 12px;
+                margin-top: 10px;
+                padding: 10px 14px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-play-scoreboard {
-                margin-bottom: 4px;
+                margin-bottom: 6px;
             }
         }
         .quiz-ref-wrap {
