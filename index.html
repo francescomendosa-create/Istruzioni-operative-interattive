@@ -1332,7 +1332,8 @@
             width: 100%;
             max-width: min(100%, 720px);
             height: auto;
-            min-height: 68px;
+            min-height: 62px;
+            max-height: 172px;
             margin: 0 auto;
             overflow: visible;
         }
@@ -1465,6 +1466,11 @@
                 padding: 6px max(10px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-right, 0px));
                 box-sizing: border-box;
             }
+            /* Schermata domande: niente scroll sulla pagina esterna; solo area domande/risposte se serve */
+            body.quiz-open .quiz-panel.visible.quiz-panel--screen-play > .quiz-fs-scroll {
+                overflow-x: hidden;
+                overflow-y: hidden;
+            }
             body.quiz-open .quiz-panel.visible #quiz-screen-intro,
             body.quiz-open .quiz-panel.visible #quiz-screen-over,
             body.quiz-open .quiz-panel.visible #quiz-rank-wrap {
@@ -1478,27 +1484,28 @@
                 gap: 0;
             }
             body.quiz-open .quiz-panel.visible #quiz-play-body {
-                flex: 0 1 auto;
+                flex: 1 1 auto;
                 min-height: 0;
-                max-height: min(50dvh, 400px);
+                max-height: none;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 0 0 8px;
             }
             body.quiz-open .quiz-panel.visible #quiz-bio-vat-wrap {
-                flex: 1 1 auto;
+                flex: 0 0 auto;
                 margin-top: auto;
                 width: 100%;
-                min-height: min(28dvh, 240px);
+                min-height: 0;
                 display: flex;
                 align-items: flex-end;
                 justify-content: center;
-                padding: 8px 0 max(6px, env(safe-area-inset-bottom, 0px));
+                padding: 6px 0 max(6px, env(safe-area-inset-bottom, 0px));
             }
             body.quiz-open .quiz-panel.visible .quiz-bio-vat-svg {
                 width: 100%;
                 max-width: 100%;
                 min-height: 96px;
+                max-height: none;
                 height: auto;
             }
             body.quiz-open .quiz-panel.visible #quiz-screen-play .quiz-q {
