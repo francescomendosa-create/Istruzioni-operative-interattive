@@ -2440,7 +2440,7 @@
             gap: 0;
         }
         .app-splash-brand {
-            margin: 0 0 8px;
+            margin: 0;
             font-size: clamp(0.72rem, 2.8vw, 0.82rem);
             font-weight: 800;
             letter-spacing: 0.14em;
@@ -2448,42 +2448,50 @@
             color: rgba(255, 255, 255, 0.88);
             text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
         }
+        .app-splash-subbrand {
+            margin: 10px 0 6px;
+            font-size: clamp(0.92rem, 3.5vw, 1.12rem);
+            font-weight: 900;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: transparent;
+            background: linear-gradient(92deg, #86efac 0%, #4ade80 28%, #22c55e 55%, #15803d 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 2px 14px rgba(34, 197, 94, 0.55));
+        }
+        @supports not (background-clip: text) {
+            .app-splash-subbrand {
+                color: #4ade80;
+                background: none;
+                text-shadow: 0 0 20px rgba(74, 222, 128, 0.65), 0 2px 4px rgba(0, 0, 0, 0.35);
+            }
+        }
         .app-splash-mascot-wrap {
-            width: min(200px, 52vw);
-            height: min(200px, 52vw);
-            margin: 8px 0 20px;
-            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+            width: min(280px, 78vw);
+            height: min(120px, 34vw);
+            margin: 10px 0 18px;
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
+            overflow: visible;
         }
         .app-splash-mascot-wrap svg {
             width: 100%;
             height: 100%;
             display: block;
+            overflow: visible;
         }
-        .splash-puzzle-bac {
-            animation: splash-mascot-float 3.2s ease-in-out infinite;
-            transform-origin: 50% 55%;
+        /* Stesso “vermicello” del quiz (MBBR): path + occhi, animazione crawl come in vasca */
+        .app-splash-mascot-wrap .splash-worm-body {
+            transform-origin: 2px 3px;
+            transform-box: fill-box;
+            animation: quizWormCrawl 2.65s ease-in-out infinite;
         }
-        .splash-puzzle-piece {
-            animation: splash-puzzle-nudge 2.4s ease-in-out infinite;
-            transform-origin: 60px 60px;
+        .app-splash-mascot-wrap .splash-worm-glow {
+            animation: splashWormGlow 3s ease-in-out infinite;
         }
-        .splash-bac-dot {
-            animation: splash-bac-pulse 1.8s ease-in-out infinite;
-        }
-        .splash-bac-dot--d2 { animation-delay: 0.35s; }
-        .splash-bac-dot--d3 { animation-delay: 0.7s; }
-        @keyframes splash-mascot-float {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-10px) rotate(2deg); }
-        }
-        @keyframes splash-puzzle-nudge {
-            0%, 100% { transform: rotate(0deg); }
-            40% { transform: rotate(-4deg); }
-            70% { transform: rotate(5deg); }
-        }
-        @keyframes splash-bac-pulse {
-            0%, 100% { opacity: 0.85; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.08); }
+        @keyframes splashWormGlow {
+            0%, 100% { opacity: 0.35; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(1.03); }
         }
         .app-splash-enter {
             margin: 4px 0 16px;
@@ -2528,14 +2536,24 @@
             color: #fff;
             font-weight: 700;
         }
+        @media (prefers-reduced-motion: reduce) {
+            .app-splash-mascot-wrap .splash-worm-body,
+            .app-splash-mascot-wrap .splash-worm-glow {
+                animation: none !important;
+            }
+        }
         @media (max-width: 480px) {
             .app-splash-mascot-wrap {
-                margin-bottom: 14px;
+                margin-bottom: 12px;
+                height: min(108px, 30vw);
             }
             .app-splash-enter {
                 width: min(100%, 320px);
                 padding: 14px 24px;
                 letter-spacing: 0.12em;
+            }
+            .app-splash-subbrand {
+                letter-spacing: 0.14em;
             }
         }
     </style>
@@ -2564,29 +2582,29 @@
 <div id="app-splash" class="app-splash app-splash--visible" role="dialog" aria-modal="true" aria-labelledby="app-splash-enter-btn" aria-describedby="app-splash-tagline">
     <div class="app-splash-inner">
         <p class="app-splash-brand">Istruzioni operative interattive</p>
+        <p class="app-splash-subbrand">Sistema biologico</p>
         <div class="app-splash-mascot-wrap" aria-hidden="true">
-            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="splashPuzzleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#7dd3fc"/>
-                        <stop offset="55%" stop-color="#4ade80"/>
-                        <stop offset="100%" stop-color="#0e7490"/>
+                    <linearGradient id="splashVatSheen" x1="0%" y1="50%" x2="100%" y2="50%">
+                        <stop offset="0%" stop-color="rgba(56, 189, 248, 0.12)"/>
+                        <stop offset="50%" stop-color="rgba(52, 211, 153, 0.18)"/>
+                        <stop offset="100%" stop-color="rgba(56, 189, 248, 0.1)"/>
                     </linearGradient>
-                    <linearGradient id="splashBacGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stop-color="#14532d"/>
-                        <stop offset="100%" stop-color="#22c55e"/>
-                    </linearGradient>
+                    <radialGradient id="splashWormAura" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="rgba(74, 222, 128, 0.45)"/>
+                        <stop offset="70%" stop-color="rgba(34, 197, 94, 0.15)"/>
+                        <stop offset="100%" stop-color="transparent"/>
+                    </radialGradient>
                 </defs>
-                <g class="splash-puzzle-bac">
-                    <g class="splash-puzzle-piece">
-                        <path fill="url(#splashPuzzleGrad)" stroke="#0c4a6e" stroke-width="1.2"
-                            d="M52 12 L68 12 Q76 12 80 18 L80 28 Q88 28 92 34 Q96 40 92 46 Q88 52 80 52 L80 62 Q76 68 68 68 L52 68 Q44 68 40 74 Q36 80 40 86 Q44 92 52 92 L68 92 Q76 92 80 98 L80 108 Q76 114 68 114 L44 114 Q28 114 18 104 Q8 94 8 78 L8 48 Q8 32 18 22 Q28 12 44 12 Z"/>
-                        <ellipse cx="46" cy="42" rx="14" ry="10" fill="url(#splashBacGrad)" opacity="0.92"/>
-                        <ellipse cx="62" cy="56" rx="11" ry="9" fill="url(#splashBacGrad)" opacity="0.88"/>
-                        <ellipse cx="54" cy="74" rx="12" ry="9" fill="url(#splashBacGrad)" opacity="0.85"/>
-                        <circle class="splash-bac-dot" cx="42" cy="38" r="4" fill="#ecfdf5"/>
-                        <circle class="splash-bac-dot splash-bac-dot--d2" cx="58" cy="52" r="3.5" fill="#ecfdf5"/>
-                        <circle class="splash-bac-dot splash-bac-dot--d3" cx="50" cy="70" r="3.5" fill="#ecfdf5"/>
+                <rect x="4" y="26" width="112" height="36" rx="10" fill="url(#splashVatSheen)" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+                <ellipse class="splash-worm-glow" cx="60" cy="44" rx="42" ry="18" fill="url(#splashWormAura)"/>
+                <!-- Forme identiche al vermicello del quiz (quizBioVat) -->
+                <g transform="translate(60, 44) scale(1.85)">
+                    <g class="splash-worm-body">
+                        <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#7cb342" stroke="#33691e" stroke-width="0.65"/>
+                        <circle cx="-5" cy="-5" r="2.1" fill="#1b5e20"/>
+                        <circle cx="6" cy="-4" r="1.7" fill="#1b5e20"/>
                     </g>
                 </g>
             </svg>
