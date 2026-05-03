@@ -2847,73 +2847,85 @@ function getSplashEnterSoundAbsoluteUrl() {
         return SPLASH_ENTER_SOUND_REL;
     }
 }
+function ensureSplashEnterAudioEl() {
+    if (ensureSplashEnterAudioEl._a) return ensureSplashEnterAudioEl._a;
+    if (!ensureSplashEnterAudioEl._holder) {
+        var h = document.createElement('div');
+        h.setAttribute('aria-hidden', 'true');
+        h.id = 'splash-snd-holder';
+        h.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
+        document.body.appendChild(h);
+        ensureSplashEnterAudioEl._holder = h;
+    }
+    var a = document.createElement('audio');
+    a.id = 'splash-enter-snd';
+    a.setAttribute('playsinline', '');
+    a.setAttribute('webkit-playsinline', '');
+    a.setAttribute('preload', 'auto');
+    a.volume = 0.95;
+    ensureSplashEnterAudioEl._holder.appendChild(a);
+    ensureSplashEnterAudioEl._a = a;
+    return a;
+}
+function startSplashEnterSoundPreload() {
+    try {
+        var a = ensureSplashEnterAudioEl();
+        var url = getSplashEnterSoundAbsoluteUrl();
+        if (a.dataset.splashSrc !== url) {
+            a.dataset.splashSrc = url;
+            a.src = url;
+            try {
+                a.load();
+            } catch (eL) {}
+        }
+    } catch (e) {}
+}
+(function splashEnterSoundPreload() {
+    try {
+        var sp = document.getElementById('app-splash');
+        if (sp && sp.classList.contains('app-splash--visible')) {
+            setTimeout(startSplashEnterSoundPreload, 0);
+        }
+    } catch (e2) {}
+})();
 function playSplashBubblePop() {
     try {
         var url = getSplashEnterSoundAbsoluteUrl();
-        if (!playSplashBubblePop._holder) {
-            var h = document.createElement('div');
-            h.setAttribute('aria-hidden', 'true');
-            h.id = 'splash-snd-holder';
-            h.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
-            document.body.appendChild(h);
-            playSplashBubblePop._holder = h;
-        }
-        var holder = playSplashBubblePop._holder;
-        var a = document.createElement('audio');
-        a.setAttribute('playsinline', '');
-        a.setAttribute('webkit-playsinline', '');
-        a.preload = 'auto';
-        a.src = url;
-        a.volume = 0.95;
-        holder.appendChild(a);
-        var detach = function () {
+        var a = ensureSplashEnterAudioEl();
+        if (a.dataset.splashSrc !== url) {
+            a.dataset.splashSrc = url;
+            a.src = url;
             try {
-                if (a.parentNode) a.parentNode.removeChild(a);
-            } catch (e4) {}
-        };
-        a.addEventListener('ended', detach, { once: true });
-        a.addEventListener('error', detach, { once: true });
-        setTimeout(detach, 8000);
+                a.load();
+            } catch (eL) {}
+        }
+        a.volume = 0.95;
         try {
-            a.load();
-        } catch (eL) {}
+            a.pause();
+        } catch (p) {}
+        try {
+            a.currentTime = 0;
+        } catch (c) {}
         var pr = a.play();
         if (pr && typeof pr.then === 'function') {
-            pr.catch(function () {
-                detach();
-                try {
-                    var b = document.createElement('audio');
-                    b.setAttribute('playsinline', '');
-                    b.volume = 0.95;
-                    b.src = url;
-                    holder.appendChild(b);
-                    var pr2 = b.play();
-                    var rm = function () {
-                        try {
-                            if (b.parentNode) b.parentNode.removeChild(b);
-                        } catch (e5) {}
-                    };
-                    b.addEventListener('ended', rm, { once: true });
-                    b.addEventListener('error', rm, { once: true });
-                    setTimeout(rm, 8000);
-                    if (pr2 && typeof pr2.then === 'function') pr2.catch(rm);
-                } catch (e3) {}
-            });
+            pr.catch(function () {});
         }
     } catch (e) {}
 }
 function dismissAppSplash() {
     playSplashBubblePop();
-    var KEY = 'io-splash-dismissed-session';
-    var sp = document.getElementById('app-splash');
-    if (sp) {
-        sp.classList.remove('app-splash--visible');
-        sp.setAttribute('aria-hidden', 'true');
-    }
-    document.body.classList.remove('splash-active');
-    try {
-        sessionStorage.setItem(KEY, '1');
-    } catch (e) {}
+    requestAnimationFrame(function () {
+        var KEY = 'io-splash-dismissed-session';
+        var sp = document.getElementById('app-splash');
+        if (sp) {
+            sp.classList.remove('app-splash--visible');
+            sp.setAttribute('aria-hidden', 'true');
+        }
+        document.body.classList.remove('splash-active');
+        try {
+            sessionStorage.setItem(KEY, '1');
+        } catch (e) {}
+    });
 }
 (function splashRasterCheck() {
     var im = document.getElementById('app-splash-raster-img');
