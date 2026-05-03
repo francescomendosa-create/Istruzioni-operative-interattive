@@ -2853,12 +2853,12 @@
             </div>
         </div>
         <div class="app-splash-sound-row" id="app-splash-sound-row" role="group" aria-label="Scegli suono pulsante Entra">
-            <span class="app-splash-sound-legend">Suono di «Entra» — clic per anteprima e scelta</span>
+            <span class="app-splash-sound-legend">Suono «bolla di sapone» su Entra — clic per provare e salvare</span>
             <div class="app-splash-sound-btns">
-                <button type="button" class="app-splash-sound-btn" data-splash-sound="1" title="Bolla morbida, lunga">1 · Morbido</button>
-                <button type="button" class="app-splash-sound-btn" data-splash-sound="2" title="Pop breve e leggero">2 · Corto</button>
-                <button type="button" class="app-splash-sound-btn" data-splash-sound="3" title="Grave, sott’acqua">3 · Profondo</button>
-                <button type="button" class="app-splash-sound-btn" data-splash-sound="4" title="Lieve luccichio acuto + blop">4 · Cristallino</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="1" title="Scoppio classico, pellicola sottile">1 · Classica</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="2" title="Bollina piccola, pop breve">2 · Piccola</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="3" title="Bolla più grande, tono morbido">3 · Grande</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="4" title="Due micro-scoppi ravvicinati">4 · Doppio</button>
             </div>
         </div>
         <button type="button" id="app-splash-enter-btn" class="app-splash-enter" onclick="dismissAppSplash()">Entra</button>
@@ -2892,19 +2892,37 @@ function getSplashSoundVariant() {
     return '1';
 }
 function buildSplashBubbleWav(variant) {
+    /* Bolla di sapone ≈ transitorio brevissimo (film che si rompe): toni medi-alti
+       smorzati in pochi ms, micro-rumore “aria”, niente glissando lunghi da sintetizzatore. */
     var sr = 44100;
     var vs = String(variant || '1');
-    var dur = 0.32;
-    var peak = 30000;
+    var dur = 0.052;
+    var peak = 23500;
+    var f0 = 2580;
+    var tau = 0.0115;
+    var atk = 0.00075;
+    var nNoise = 0.0032;
     if (vs === '2') {
-        dur = 0.14;
-        peak = 25500;
+        dur = 0.038;
+        peak = 22000;
+        f0 = 3180;
+        tau = 0.0088;
+        atk = 0.00055;
+        nNoise = 0.0024;
     } else if (vs === '3') {
-        dur = 0.44;
-        peak = 26800;
+        dur = 0.068;
+        peak = 22800;
+        f0 = 2050;
+        tau = 0.016;
+        atk = 0.0011;
+        nNoise = 0.0048;
     } else if (vs === '4') {
-        dur = 0.29;
-        peak = 28500;
+        dur = 0.058;
+        peak = 23200;
+        f0 = 2720;
+        tau = 0.0095;
+        atk = 0.00065;
+        nNoise = 0.0028;
     }
     var n = Math.max(1, Math.floor(sr * dur));
     var ab = new ArrayBuffer(44 + n * 2);
@@ -2926,58 +2944,33 @@ function buildSplashBubbleWav(variant) {
     w(36, 'data');
     v.setUint32(40, n * 2, true);
     var off = 44;
-    var phase = 0;
-    var phaseHi = 0;
-    for (var i = 0; i < n; i++) {
-        var t = i / sr;
-        var y = 0;
-        if (vs === '1') {
-            var f1 = 275 * Math.exp(-t * 9.5) + 68;
-            phase += (2 * Math.PI * f1) / sr;
-            var atk1 = Math.min(1, t / 0.006);
-            var dec1 = Math.exp(-t * 4.8);
-            var env1 = atk1 * dec1;
-            y = Math.sin(phase) * env1 * 0.44;
-            y += Math.sin(phase * 2) * env1 * 0.028;
-            if (t < 0.022) {
-                y += (Math.random() * 2 - 1) * (1 - t / 0.022) * 0.022 * atk1;
-            }
-        } else if (vs === '2') {
-            var f2 = 430 * Math.exp(-t * 24) + 155;
-            phase += (2 * Math.PI * f2) / sr;
-            var atk2 = Math.min(1, t / 0.003);
-            var dec2 = Math.exp(-t * 18);
-            var env2 = atk2 * dec2;
-            y = Math.sin(phase) * env2 * 0.38;
-            if (t < 0.012) {
-                y += (Math.random() * 2 - 1) * (1 - t / 0.012) * 0.035 * atk2;
-            }
-        } else if (vs === '3') {
-            var f3 = 188 * Math.exp(-t * 5.6) + 50;
-            phase += (2 * Math.PI * f3) / sr;
-            var atk3 = Math.min(1, t / 0.011);
-            var dec3 = Math.exp(-t * 3.15);
-            var env3 = atk3 * dec3;
-            y = Math.sin(phase) * env3 * 0.52;
-            y += Math.sin(phase * 2) * env3 * 0.016;
-            if (t < 0.032) {
-                y += (Math.random() * 2 - 1) * (1 - t / 0.032) * 0.018 * atk3;
-            }
-        } else {
-            var f4 = 292 * Math.exp(-t * 10.5) + 70;
-            phase += (2 * Math.PI * f4) / sr;
-            var atk4 = Math.min(1, t / 0.005);
-            var dec4 = Math.exp(-t * 5.4);
-            var env4 = atk4 * dec4;
-            y = Math.sin(phase) * env4 * 0.37;
-            y += Math.sin(phase * 2) * env4 * 0.022;
-            if (t < 0.048) {
-                var fhi = 1050 * Math.exp(-t * 32) + 340;
-                phaseHi += (2 * Math.PI * fhi) / sr;
-                var hiEnv = Math.exp(-t * 28) * Math.min(1, t / 0.004);
-                y += Math.sin(phaseHi) * hiEnv * 0.11;
+    function soapEnv(tt) {
+        var a = tt < atk ? tt / atk : 1;
+        return a * Math.exp(-tt / tau);
+    }
+    function soapBurst(tt) {
+        var e = soapEnv(tt);
+        if (vs === '4') {
+            var tt2 = tt - 0.0125;
+            if (tt2 > 0) {
+                e += 0.42 * soapEnv(tt2);
             }
         }
+        return e;
+    }
+    for (var i = 0; i < n; i++) {
+        var t = i / sr;
+        var env = soapBurst(t);
+        var y = Math.sin(2 * Math.PI * f0 * t) * env * 0.4;
+        y += Math.sin(2 * Math.PI * f0 * 2.03 * t) * env * 0.13;
+        y += Math.sin(2 * Math.PI * f0 * 3.07 * t) * env * 0.045;
+        if (t < nNoise) {
+            y += (Math.random() * 2 - 1) * Math.exp(-t * (vs === '3' ? 420 : 520)) * (vs === '3' ? 0.1 : 0.075);
+        }
+        if (vs === '3') {
+            y += Math.sin(2 * Math.PI * 620 * t) * soapEnv(t) * 0.06;
+        }
+        y = Math.max(-0.94, Math.min(0.94, y));
         v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(y * peak))), true);
         off += 2;
     }
@@ -2985,10 +2978,10 @@ function buildSplashBubbleWav(variant) {
 }
 function splashBubbleVolumeFor(variant) {
     var vs = String(variant || '1');
-    if (vs === '2') return 0.56;
-    if (vs === '3') return 0.66;
-    if (vs === '4') return 0.58;
-    return 0.62;
+    if (vs === '2') return 0.72;
+    if (vs === '3') return 0.7;
+    if (vs === '4') return 0.7;
+    return 0.7;
 }
 function playSplashBubblePop(optVariant) {
     try {
