@@ -840,13 +840,6 @@
             color: #37474f;
             line-height: 1.35;
         }
-        .quiz-classifica-hint {
-            text-align: center;
-            font-size: 0.95rem;
-            color: #455a64;
-            margin: 6px 0 16px;
-            font-weight: 600;
-        }
         .quiz-level-single .quiz-level-title {
             display: block;
             font-weight: bold;
@@ -1160,6 +1153,128 @@
             padding: 8px 10px;
             margin-top: 6px;
         }
+        /* Adelfo: ingresso animato sopra la vasca (solo schermata gioco) */
+        #quiz-screen-play {
+            position: relative;
+        }
+        .quiz-adelfo-layer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: min(42vh, 260px);
+            z-index: 8;
+            pointer-events: none;
+            overflow: visible;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
+        }
+        .quiz-adelfo-layer--on {
+            opacity: 1;
+            visibility: visible;
+        }
+        .quiz-adelfo-ground {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .quiz-adelfo-figure {
+            position: relative;
+            width: min(38vw, 200px);
+            max-width: 200px;
+            transform-origin: 50% 100%;
+            will-change: transform;
+        }
+        .quiz-adelfo-figure--enter {
+            transform: translateX(38vw) scaleX(-1);
+            transition: none;
+        }
+        .quiz-adelfo-figure--walk {
+            transform: translateX(-6vw) scaleX(-1);
+            transition: transform 2.05s cubic-bezier(0.28, 0.9, 0.32, 1);
+        }
+        .quiz-adelfo-figure--shout {
+            transform: translateX(-6vw) scaleX(-1) translateY(-14px) rotate(-5deg);
+            transition: transform 0.38s ease-out;
+        }
+        .quiz-adelfo-figure--back {
+            transform: translateX(42vw) scaleX(1);
+            transition: transform 1.85s cubic-bezier(0.45, 0, 0.85, 0.35);
+        }
+        .quiz-adelfo-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+        @keyframes quiz-adelfo-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .quiz-adelfo-img--bob {
+            animation: quiz-adelfo-bob 0.32s steps(2, end) infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-adelfo-img--bob {
+                animation: none;
+            }
+            .quiz-adelfo-figure--walk,
+            .quiz-adelfo-figure--shout,
+            .quiz-adelfo-figure--back {
+                transition: none !important;
+            }
+        }
+        .quiz-adelfo-bubble {
+            position: absolute;
+            left: 52%;
+            bottom: 86%;
+            padding: 8px 12px;
+            background: #fffef7;
+            border: 2px solid #283593;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: clamp(0.82rem, 2.8vw, 1rem);
+            color: #c62828;
+            letter-spacing: 0.04em;
+            box-shadow: 0 3px 0 #3949ab, 0 10px 22px rgba(13, 27, 62, 0.15);
+            opacity: 0;
+            transform: scale(0.65);
+            transition: opacity 0.18s ease, transform 0.28s cubic-bezier(0.34, 1.45, 0.64, 1);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .quiz-adelfo-bubble--show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .quiz-adelfo-bubble::after {
+            content: '';
+            position: absolute;
+            left: 22px;
+            bottom: -7px;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 8px solid #fffef7;
+        }
+        .quiz-adelfo-sr {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
         .quiz-choice-btn:disabled { cursor: default; opacity: 1; }
         .quiz-choice-btn.quiz-opt-correct {
             background: linear-gradient(180deg, #c8e6c9 0%, #81c784 100%);
@@ -1382,6 +1497,73 @@
         }
         .quiz-wrong-modal__actions .btn-side {
             min-width: 100px;
+        }
+        /* Modale nome per ingresso in classifica (primi 10) */
+        .quiz-top10-name-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10060;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .quiz-top10-name-modal.quiz-top10-name-modal--open {
+            display: flex;
+        }
+        .quiz-top10-name-modal__box {
+            width: 100%;
+            max-width: 400px;
+            padding: 22px 20px 20px;
+            border-radius: 16px;
+            background: linear-gradient(165deg, #ffffff 0%, #f3e8ff 42%, #e8f4fc 100%);
+            border: 1px solid rgba(106, 27, 154, 0.28);
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.5) inset,
+                0 18px 40px rgba(49, 27, 146, 0.18);
+            text-align: left;
+        }
+        .quiz-top10-name-modal__box h3 {
+            margin: 0 0 10px;
+            font-size: 1.12rem;
+            color: #4a148c;
+        }
+        .quiz-top10-name-modal__lead {
+            margin: 0 0 14px;
+            font-size: 0.9rem;
+            color: #37474f;
+            line-height: 1.45;
+        }
+        .quiz-top10-name-modal__label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #6a1b9a;
+            margin-bottom: 6px;
+        }
+        .quiz-top10-name-modal__input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #b39ddb;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+        .quiz-top10-name-modal__hint {
+            margin: -8px 0 14px;
+            font-size: 0.78rem;
+            color: #616161;
+        }
+        .quiz-top10-name-modal__actions {
+            display: flex;
+            justify-content: flex-end;
         }
         /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda, 25 s) */
         .quiz-play-time {
@@ -1703,6 +1885,30 @@
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-play-scoreboard {
                 margin-bottom: 6px;
+            }
+            /* Scheda browser (barra indirizzi): viewport più bassa — compatta vasca e margini così le domande entrano meglio senza scroll */
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
+                margin-top: 10px;
+                margin-bottom: 2px;
+            }
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
+                max-height: 112px;
+                min-height: 48px;
+            }
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
+                margin: 8px auto 16px;
+            }
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choices {
+                gap: 11px;
+                margin: 0 auto 12px;
+            }
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choice-btn {
+                padding: 12px 18px 12px 20px;
+                min-height: 2.85rem;
+            }
+            body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-play-scoreboard {
+                margin-bottom: 4px;
+                padding: 5px 8px 6px;
             }
         }
         .quiz-ref-wrap {
@@ -3397,7 +3603,7 @@ function dismissAppSplash() {
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
-            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. <strong>Due errori</strong> chiudono la partita; a ogni errore perdi <strong>2 vermi</strong> dalla vasca (con <strong>0 vermi</strong>, un solo errore termina subito). Dopo ogni sbaglio vedi la <strong>motivazione</strong> della risposta giusta e tocchi <strong>Continua</strong>. A fine partita: <strong>+5 punti</strong> per ogni verme ancora in vasca. Dalla <strong>3ª domanda</strong> hai <strong>25 secondi</strong> per risposta (barra energia nella riga punteggio).</p>
+            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive.</p>
             <div class="quiz-row">
                 <label for="quiz-name">Nome (per classifica)</label>
                 <input type="text" id="quiz-name" maxlength="40" placeholder="Es. Mario Rossi" autocomplete="name">
@@ -3409,7 +3615,6 @@ function dismissAppSplash() {
                     <p class="quiz-level-tagline">Mettiti alla prova, sfida te stesso e gli altri</p>
                 </div>
             </div>
-            <p class="quiz-classifica-hint">Classifica condivisa tramite Firebase (se attivo), sempre aggiornata.</p>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
                 <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
@@ -3452,6 +3657,15 @@ function dismissAppSplash() {
                         d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12"/>
                 </svg>
             </div>
+            <div id="quiz-adelfo-layer" class="quiz-adelfo-layer" aria-hidden="true" aria-label="Adelfo">
+                <div class="quiz-adelfo-ground">
+                    <div class="quiz-adelfo-figure quiz-adelfo-figure--enter" id="quiz-adelfo-figure">
+                        <img id="quiz-adelfo-img" class="quiz-adelfo-img" src="adelfo.png" alt="" width="200" height="240" decoding="async" />
+                        <div class="quiz-adelfo-bubble" id="quiz-adelfo-bubble" aria-hidden="true">(!&amp;/%)</div>
+                    </div>
+                </div>
+                <span class="quiz-adelfo-sr">Adelfo arriva dalla destra verso la vasca, grida e torna indietro.</span>
+            </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
             <div class="quiz-over-card">
@@ -3493,6 +3707,18 @@ function dismissAppSplash() {
                 <p id="quiz-wrong-modal-hint" class="quiz-wrong-modal-hint"></p>
                 <div class="quiz-wrong-modal__actions">
                     <button type="button" class="btn-side btn-report" id="quiz-wrong-modal-ok" onclick="quizWrongModalOk()">Continua</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-top10-name-modal" class="quiz-top10-name-modal" aria-hidden="true" aria-labelledby="quiz-top10-name-modal-title">
+            <div class="quiz-top10-name-modal__box" role="dialog" aria-modal="true">
+                <h3 id="quiz-top10-name-modal-title">Sei nei primi 10!</h3>
+                <p id="quiz-top10-name-modal-lead" class="quiz-top10-name-modal__lead"></p>
+                <label class="quiz-top10-name-modal__label" for="quiz-top10-name-input">Nome in classifica</label>
+                <input type="text" id="quiz-top10-name-input" class="quiz-top10-name-modal__input" maxlength="40" autocomplete="nickname" aria-describedby="quiz-top10-name-modal-hint">
+                <p id="quiz-top10-name-modal-hint" class="quiz-top10-name-modal__hint">Lascia vuoto e premi OK per registrarti come «Operatore».</p>
+                <div class="quiz-top10-name-modal__actions">
+                    <button type="button" class="btn-side btn-report" id="quiz-top10-name-ok" onclick="quizTop10NameModalOk()">OK</button>
                 </div>
             </div>
         </div>
@@ -3610,9 +3836,13 @@ const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
 const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
 const QUIZ_FS_LEADERBOARD_DOC = 'global';
+/** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
+const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
 let quizFirebaseInitPromise = null;
 let quizFsSyncTimer = null;
+/** unsubscribe Firestore classifica tempo reale */
+let quizLeaderboardUnsub = null;
 
 function quizFirestoreConfigured() {
     try {
@@ -3712,7 +3942,7 @@ function quizPullPrefsFromFirestoreAndApply() {
 
 function quizSaveLeaderboardLocalOnly(rows) {
     try {
-        localStorage.setItem(QUIZ_LS_KEY, JSON.stringify(rows.slice(0, 50)));
+        localStorage.setItem(QUIZ_LS_KEY, JSON.stringify(rows.slice(0, QUIZ_LEADERBOARD_TOP_N)));
     } catch (e) { /* ignore */ }
 }
 
@@ -3726,7 +3956,7 @@ function quizAppendLeaderboardRow(newRow) {
         if (sb !== sa) return sb - sa;
         return new Date(a.at) - new Date(b.at);
     });
-    rows = rows.slice(0, 50);
+    rows = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
     quizSaveLeaderboardLocalOnly(rows);
     if (quizFirestoreConfigured()) {
         quizAppendLeaderboardRowFirestore(newRow);
@@ -3749,7 +3979,7 @@ function quizAppendLeaderboardRowFirestore(newRow) {
                         if (sb !== sa) return sb - sa;
                         return new Date(a.at) - new Date(b.at);
                     });
-                    rows = rows.slice(0, 50);
+                    rows = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
                     transaction.set(ref, {
                         rows: rows,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3776,7 +4006,7 @@ function quizPullLeaderboardFromFirestore() {
                 var local = quizLoadLeaderboard();
                 if (local.length) {
                     return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
-                        rows: local.slice(0, 50),
+                        rows: local.slice(0, QUIZ_LEADERBOARD_TOP_N),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
@@ -3788,6 +4018,57 @@ function quizPullLeaderboardFromFirestore() {
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard pull]', e);
+        })
+        .then(function () {
+            quizAttachLeaderboardRealtime();
+        });
+}
+
+function quizDetachLeaderboardRealtime() {
+    if (typeof quizLeaderboardUnsub === 'function') {
+        try {
+            quizLeaderboardUnsub();
+        } catch (e) { /* ignore */ }
+        quizLeaderboardUnsub = null;
+    }
+}
+
+/** Classifica unica su Firestore: aggiornamenti in tempo reale su tutti i client connessi. */
+function quizAttachLeaderboardRealtime() {
+    if (!quizFirestoreConfigured()) return;
+    quizDetachLeaderboardRealtime();
+    quizEnsureFirebase()
+        .then(function () {
+            var db = firebase.firestore();
+            var ref = db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+            quizLeaderboardUnsub = ref.onSnapshot(
+                function (snap) {
+                    if (!snap.exists) {
+                        try {
+                            quizRenderLeaderboard();
+                        } catch (e0) { /* ignore */ }
+                        try {
+                            if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
+                        } catch (e1) { /* ignore */ }
+                        return;
+                    }
+                    var d = snap.data() || {};
+                    var rows = Array.isArray(d.rows) ? d.rows.slice(0, QUIZ_LEADERBOARD_TOP_N) : [];
+                    quizSaveLeaderboardLocalOnly(rows);
+                    try {
+                        quizRenderLeaderboard();
+                    } catch (e2) { /* ignore */ }
+                    try {
+                        if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
+                    } catch (e3) { /* ignore */ }
+                },
+                function (err) {
+                    console.warn('[quiz leaderboard realtime]', err);
+                }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz leaderboard realtime attach]', e);
         });
 }
 
@@ -3799,7 +4080,7 @@ function quizSortLeaderboardRows(rows) {
         if (sb !== sa) return sb - sa;
         return new Date(x.at) - new Date(y.at);
     });
-    return a.slice(0, 50);
+    return a.slice(0, QUIZ_LEADERBOARD_TOP_N);
 }
 
 function quizSaveLeaderboardFullSync(rows) {
@@ -4406,6 +4687,8 @@ let quizBioMenaceG = null;
 let quizScoreAnimTimer = null;
 /** Opzioni passate a quizFinish dopo OK sul modale errore / timeout. */
 let quizWrongModalFinishOpts = null;
+/** Contesto modale nome top 10: callback dopo conferma. */
+let quizTop10NameModalCtx = null;
 
 function quizPrefersReducedMotion() {
     try {
@@ -5056,7 +5339,7 @@ function quizRenderLeaderboard() {
         body.innerHTML = '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Nessun punteggio ancora. Completa un quiz per vedere la classifica aggiornata.</p></div>';
         return;
     }
-    const display = rows.slice(0, 15);
+    const display = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
     function fmtWhen(iso) {
         const d = new Date(iso);
         return isNaN(d.getTime()) ? '—' : d.toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -5366,27 +5649,86 @@ function quizAnswer(idx) {
     }
 }
 
-function quizFinish(completedAll, opts) {
-    opts = opts || {};
-    quizClearQuestionTimer();
-    quizAnswerLocked = false;
-
-    const baseScore = Number(quizState.score) || 0;
-    let wormBonus = 0;
-    if (!opts.aborted) {
-        wormBonus = (Number(quizBioWormCount) || 0) * QUIZ_BONUS_POINTS_PER_WORM;
-        quizState.score = baseScore + wormBonus;
-    }
-
-    quizAppendLeaderboardRow({
-        name: quizState.name || 'Operatore',
-        score: quizState.score,
-        startLevel: quizState.startLevel,
-        at: new Date().toISOString(),
-        completedAll: !!completedAll && !opts.seenAllQuestions,
-        aborted: !!opts.aborted
+/** Posizione (1-based) che avrebbe il punteggio se inserito ora in classifica. */
+function quizSimulatedInsertRank(finalScore) {
+    const rows = quizLoadLeaderboard();
+    const at = new Date().toISOString();
+    const pending = { score: Number(finalScore) || 0, at: at, __p: 1 };
+    const merged = rows.map(function (r) {
+        return { score: Number(r.score) || 0, at: r.at || new Date(0).toISOString() };
+    }).concat([pending]);
+    merged.sort(function (a, b) {
+        if (b.score !== a.score) return b.score - a.score;
+        return new Date(a.at) - new Date(b.at);
     });
+    for (let i = 0; i < merged.length; i++) {
+        if (merged[i].__p) return i + 1;
+    }
+    return merged.length;
+}
 
+function quizTop10NameModalHide() {
+    const modal = document.getElementById('quiz-top10-name-modal');
+    if (modal) {
+        modal.classList.remove('quiz-top10-name-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    document.removeEventListener('keydown', quizTop10NameModalKeydown, true);
+    quizTop10NameModalCtx = null;
+}
+
+function quizTop10NameModalKeydown(ev) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+        const modal = document.getElementById('quiz-top10-name-modal');
+        if (modal && modal.classList.contains('quiz-top10-name-modal--open')) {
+            ev.preventDefault();
+            quizTop10NameModalOk();
+        }
+    }
+}
+
+function quizTop10NameModalOk() {
+    const ctx = quizTop10NameModalCtx;
+    if (!ctx || typeof ctx.finishCommit !== 'function') {
+        quizTop10NameModalHide();
+        return;
+    }
+    const inp = document.getElementById('quiz-top10-name-input');
+    let raw = inp && inp.value != null ? String(inp.value).trim() : '';
+    if (!raw) raw = 'Operatore';
+    else if (raw.length > 40) raw = raw.slice(0, 40);
+    quizTop10NameModalHide();
+    ctx.finishCommit(raw);
+}
+
+function quizOpenTop10NameModal(pendingRow, finishCommit) {
+    const modal = document.getElementById('quiz-top10-name-modal');
+    const lead = document.getElementById('quiz-top10-name-modal-lead');
+    const inp = document.getElementById('quiz-top10-name-input');
+    const okBtn = document.getElementById('quiz-top10-name-ok');
+    if (!modal || !inp) {
+        finishCommit((pendingRow.name && String(pendingRow.name).trim()) || 'Operatore');
+        return;
+    }
+    quizTop10NameModalCtx = { finishCommit: finishCommit };
+    const rank = quizSimulatedInsertRank(pendingRow.score);
+    if (lead) {
+        lead.textContent = 'Con ' + pendingRow.score + ' punti sei al ' + rank + '° posto tra i migliori. Inserisci il nome da mostrare in classifica, oppure premi OK senza scrivere per usare «Operatore».';
+    }
+    const nameIn = document.getElementById('quiz-name');
+    const preset = (nameIn && nameIn.value) ? String(nameIn.value).trim() : ((pendingRow.name && String(pendingRow.name).trim()) || '');
+    inp.value = preset;
+    modal.classList.add('quiz-top10-name-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizTop10NameModalKeydown, true);
+    if (okBtn) {
+        setTimeout(function () {
+            try { inp.focus(); inp.select(); } catch (e) { /* ignore */ }
+        }, 80);
+    }
+}
+
+function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     const msg = document.getElementById('quiz-over-msg');
     const sc = document.getElementById('quiz-final-score');
     const bd = document.getElementById('quiz-over-breakdown');
@@ -5436,11 +5778,52 @@ function quizFinish(completedAll, opts) {
     }
 }
 
+function quizFinish(completedAll, opts) {
+    opts = opts || {};
+    quizClearQuestionTimer();
+    quizAnswerLocked = false;
+
+    const baseScore = Number(quizState.score) || 0;
+    let wormBonus = 0;
+    if (!opts.aborted) {
+        wormBonus = (Number(quizBioWormCount) || 0) * QUIZ_BONUS_POINTS_PER_WORM;
+        quizState.score = baseScore + wormBonus;
+    }
+
+    const pendingRow = {
+        name: (quizState.name && String(quizState.name).trim()) ? String(quizState.name).trim().slice(0, 40) : 'Operatore',
+        score: Number(quizState.score) || 0,
+        startLevel: quizState.startLevel,
+        at: new Date().toISOString(),
+        completedAll: !!completedAll && !opts.seenAllQuestions,
+        aborted: !!opts.aborted
+    };
+
+    function finishCommit(displayName) {
+        let nm = displayName != null ? String(displayName).trim() : '';
+        if (!nm) nm = 'Operatore';
+        else if (nm.length > 40) nm = nm.slice(0, 40);
+        pendingRow.name = nm;
+        quizState.name = nm;
+        const nameIn = document.getElementById('quiz-name');
+        if (nameIn) nameIn.value = nm;
+        quizAppendLeaderboardRow(pendingRow);
+        quizFinishPopulateOverScreen(completedAll, opts, baseScore);
+    }
+
+    if (!opts.aborted && !opts.goIntro && quizSimulatedInsertRank(pendingRow.score) <= QUIZ_LEADERBOARD_TOP_N) {
+        quizOpenTop10NameModal(pendingRow, finishCommit);
+        return;
+    }
+    finishCommit(pendingRow.name);
+}
+
 function quizStart() {
     quizAnswerLocked = false;
     quizCancelScoreAnim();
     quizWrongModalHide();
     quizWrongModalFinishOpts = null;
+    quizTop10NameModalHide();
     quizClearQuestionTimer();
     const nameIn = document.getElementById('quiz-name');
     const lvlIn = document.getElementById('quiz-start-level');
@@ -5475,6 +5858,11 @@ function quizRestart() {
 
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
+    const top10m = document.getElementById('quiz-top10-name-modal');
+    if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
+        quizTop10NameModalOk();
+        return;
+    }
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
@@ -6519,10 +6907,29 @@ function scrollToPoint(s, p, glow = false) {
     }
 }
 
+/** True se la pagina è in modalità «app» (PWA installata / fullscreen UI), false in scheda browser con barra. */
+function quizIsAppLikeDisplayMode() {
+    try {
+        if (window.matchMedia('(display-mode: standalone)').matches) return true;
+        if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+        if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+        if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
+    } catch (e) { /* ignore */ }
+    try {
+        if (window.navigator.standalone === true) return true;
+    } catch (e2) { /* ignore */ }
+    return false;
+}
+
+function quizSyncBrowserTabClass() {
+    document.body.classList.toggle('quiz-in-browser-tab', !quizIsAppLikeDisplayMode());
+}
+
 function openQuiz() {
     if (!quizFeatureEnabled) return;
     const panel = document.getElementById("quiz-panel");
     if (!panel) return;
+    quizSyncBrowserTabClass();
     panel.classList.add("visible");
     document.body.classList.add("quiz-open");
     quizSavePanelOpen(true);
@@ -6539,6 +6946,10 @@ function openQuiz() {
 
 function closeQuiz() {
     quizCancelScoreAnim();
+    const top10m = document.getElementById('quiz-top10-name-modal');
+    if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
+        quizTop10NameModalOk();
+    }
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
@@ -6677,6 +7088,25 @@ document.addEventListener('toggle', function (ev) {
         }
     }
 }, true);
+
+(function quizBrowserTabDisplayModeWatch() {
+    function onDmChange() {
+        quizSyncBrowserTabClass();
+    }
+    quizSyncBrowserTabClass();
+    const modes = ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'];
+    for (let i = 0; i < modes.length; i++) {
+        try {
+            const mq = window.matchMedia('(display-mode: ' + modes[i] + ')');
+            if (mq.addEventListener) mq.addEventListener('change', onDmChange);
+            else if (mq.addListener) mq.addListener(onDmChange);
+        } catch (e) { /* ignore */ }
+    }
+})();
+
+window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
+    quizDetachLeaderboardRealtime();
+});
 </script>
 <script>
 (function () {
