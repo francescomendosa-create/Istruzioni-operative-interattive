@@ -206,7 +206,10 @@
             z-index: 1;
         }
         body.quiz-open,
-        body.producer-open {
+        body.producer-open,
+        body.settings-open,
+        body.quiz-password-open,
+        body.quiz-info-open {
             overflow: hidden;
             overscroll-behavior: none;
         }
@@ -1747,6 +1750,80 @@
             padding: 18px;
         }
         .quiz-lock-overlay.visible { display: flex; }
+        .quiz-settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            padding: 18px;
+        }
+        .quiz-settings-overlay.visible { display: flex; }
+        .quiz-settings-box {
+            width: min(92vw, 440px);
+            border-radius: 14px;
+            padding: 18px 16px 14px;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-settings-box > h4 {
+            margin: 0 0 14px;
+            color: #1a237e;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+        .quiz-settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 12px;
+            margin: 0 0 8px;
+            border-radius: 10px;
+            border: 1px solid #e0e7ee;
+            background: linear-gradient(180deg, #fafcfe 0%, #f5f8fb 100%);
+            font-size: 0.92rem;
+            color: #37474f;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .quiz-settings-row--toggle {
+            cursor: default;
+        }
+        .quiz-settings-row--toggle .quiz-settings-row-text {
+            flex: 1;
+            font-weight: 600;
+        }
+        .quiz-settings-row--action strong {
+            color: #1565c0;
+        }
+        .quiz-settings-info-row .quiz-settings-row-title {
+            font-weight: 700;
+            color: #1a237e;
+        }
+        .quiz-settings-info-row .quiz-settings-row-sub {
+            font-size: 0.82rem;
+            color: #607d8b;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .quiz-settings-info-chev {
+            font-size: 1.35rem;
+            color: #90a4ae;
+            line-height: 1;
+        }
+        .quiz-info-overlay {
+            z-index: 5200;
+        }
+        .quiz-lock-overlay--producer {
+            z-index: 5100;
+        }
         .quiz-lock-box {
             width: min(92vw, 360px);
             border-radius: 14px;
@@ -2341,15 +2418,52 @@
         </div>
     </div>
 
-    <div id="quiz-lock-overlay" class="quiz-lock-overlay" aria-hidden="true">
+    <div id="quiz-settings-overlay" class="quiz-settings-overlay" aria-hidden="true">
+        <div class="quiz-settings-box" role="dialog" aria-modal="true" aria-labelledby="quiz-settings-title">
+            <h4 id="quiz-settings-title">Impostazioni</h4>
+            <label class="quiz-settings-row quiz-settings-row--toggle">
+                <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
+                <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
+            </label>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="openQuizProducerPasswordFromSettings()">
+                <span><strong>Produttore</strong> — classifica e reset</span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
+                <div>
+                    <div class="quiz-settings-row-title">Info</div>
+                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">1.1</span></div>
+                </div>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <div class="quiz-lock-actions" style="margin-top:14px;">
+                <button type="button" class="btn-side btn-reset" onclick="hideQuizSettingsModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-lock-overlay" class="quiz-lock-overlay quiz-lock-overlay--producer" aria-hidden="true">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password Producer">
             <h4 class="quiz-lock-title">Modalità Producer</h4>
-            <p class="quiz-lock-hint">Inserisci la password per aprire il pannello Producer (stesso ingombro del quiz a schermo intero).</p>
-            <input id="quiz-lock-input" class="quiz-lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="1629" maxlength="8">
+            <p class="quiz-lock-hint">Inserisci la password per gestire la classifica (come il quiz a schermo intero).</p>
+            <input id="quiz-lock-input" class="quiz-lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="" maxlength="8">
             <p id="quiz-lock-error" class="quiz-lock-error"></p>
             <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="hideQuizPasswordModal()">Annulla</button>
+                <button type="button" class="btn-side btn-reset" onclick="cancelQuizPasswordModal()">Annulla</button>
                 <button type="button" class="btn-side btn-report" onclick="confirmQuizPassword()">Entra</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-info-overlay" class="quiz-lock-overlay quiz-info-overlay" aria-hidden="true">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-info-title" style="max-width:min(92vw, 520px);">
+            <h4 id="quiz-info-title" class="quiz-lock-title">Informazioni</h4>
+            <div style="color:#455a64;font-size:0.88rem;line-height:1.55;margin:0 0 14px;">
+                <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
+                <p style="margin:0;">Il software, i testi, le grafiche e il codice sorgente di questa applicazione sono proprietà esclusiva di <strong>Francesco Mellea</strong> e sono protetti dalle leggi internazionali sul copyright.</p>
+            </div>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-report" onclick="hideQuizInfoDetailModal()">Chiudi</button>
             </div>
         </div>
     </div>
@@ -2360,11 +2474,7 @@
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
         <div class="quiz-fs-scroll" style="text-align:left;">
-            <p style="color:#555;margin:0 0 12px;font-size:0.88rem;line-height:1.45;">Solo qui: <strong>reset classifica</strong>, modifica posizioni (nome e punti), opzione quiz visibile.</p>
-            <label style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eceff1;margin-bottom:12px;font-size:0.9rem;color:#37474f;">
-                <span>Mostra pulsante <strong>Quiz</strong> nella barra</span>
-                <input type="checkbox" id="quiz-producer-quiz-toggle" onchange="quizProducerQuizToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
-            </label>
+            <p style="color:#555;margin:0 0 12px;font-size:0.88rem;line-height:1.45;">Solo qui: <strong>reset classifica</strong>, modifica nomi e punti, rimuovi righe. Per il Quiz usa <strong>Impostazioni</strong>.</p>
             <div class="quiz-actions" style="margin-bottom:14px;">
                 <button type="button" class="btn-side btn-reset" onclick="quizProducerResetLeaderboard()">Reset record classifica</button>
             </div>
@@ -2389,6 +2499,8 @@ let quizFeatureEnabled = false;
 let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
+const APP_VERSION = '1.1';
+let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
@@ -2646,7 +2758,33 @@ function applyQuizVisibility() {
     }
 }
 
-function toggleQuizFeatureByPassword() {
+function syncSettingsQuizToggleUi() {
+    const cb = document.getElementById('quiz-settings-quiz-toggle');
+    if (cb) cb.checked = !!quizFeatureEnabled;
+}
+
+function showQuizSettingsModal() {
+    const overlay = document.getElementById('quiz-settings-overlay');
+    if (!overlay) return;
+    syncSettingsQuizToggleUi();
+    const vLab = document.getElementById('quiz-settings-version-label');
+    if (vLab) vLab.textContent = APP_VERSION;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('settings-open');
+}
+
+function hideQuizSettingsModal() {
+    const overlay = document.getElementById('quiz-settings-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('settings-open');
+}
+
+function openQuizProducerPasswordFromSettings() {
+    quizPasswordResumeSettings = true;
+    hideQuizSettingsModal();
     showQuizPasswordModal();
 }
 
@@ -2659,6 +2797,7 @@ function showQuizPasswordModal() {
     input.value = '';
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-password-open');
     requestAnimationFrame(() => input.focus());
 }
 
@@ -2668,7 +2807,15 @@ function hideQuizPasswordModal() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-password-open');
     if (err) err.textContent = '';
+}
+
+function cancelQuizPasswordModal() {
+    const resume = quizPasswordResumeSettings;
+    quizPasswordResumeSettings = false;
+    hideQuizPasswordModal();
+    if (resume) showQuizSettingsModal();
 }
 
 function confirmQuizPassword() {
@@ -2684,11 +2831,13 @@ function confirmQuizPassword() {
         }
         return;
     }
+    quizPasswordResumeSettings = false;
     hideQuizPasswordModal();
+    hideQuizSettingsModal();
     showQuizProducerModal();
 }
 
-function quizProducerQuizToggle(on) {
+function settingsQuizFeatureToggle(on) {
     quizFeatureEnabled = !!on;
     quizSaveFeatureFlag(quizFeatureEnabled);
     if (!quizFeatureEnabled) {
@@ -2696,6 +2845,22 @@ function quizProducerQuizToggle(on) {
         closeQuiz();
     }
     applyQuizVisibility();
+}
+
+function showQuizInfoDetailModal() {
+    const overlay = document.getElementById('quiz-info-overlay');
+    if (!overlay) return;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function hideQuizInfoDetailModal() {
+    const overlay = document.getElementById('quiz-info-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
 }
 
 function quizProducerResetLeaderboard() {
@@ -2709,8 +2874,6 @@ function quizProducerResetLeaderboard() {
 
 function showQuizProducerModal() {
     const el = document.getElementById('quiz-producer-overlay');
-    const cb = document.getElementById('quiz-producer-quiz-toggle');
-    if (cb) cb.checked = !!quizFeatureEnabled;
     if (el) {
         el.classList.add('visible');
         el.setAttribute('aria-hidden', 'false');
@@ -2801,14 +2964,14 @@ function setupQuizTitleToggle() {
                 clearTimeout(titleClickTimer);
                 titleClickTimer = null;
             }
-            toggleQuizFeatureByPassword();
+            showQuizSettingsModal();
         }
     }
 
     const title = document.getElementById('main-title') || document.querySelector('.fixed-header .header-top h2');
     if (title) {
         title.style.cursor = 'pointer';
-        title.title = 'Doppio click per Producer (password 1629)';
+        title.title = 'Doppio click per Impostazioni';
         title.addEventListener('dblclick', function preventNativeDblClick(ev) {
             ev.preventDefault();
         });
@@ -2820,8 +2983,17 @@ function setupQuizTitleToggle() {
     }, true);
 
     document.addEventListener('keydown', function quizModalsKeydown(ev) {
+        const info = document.getElementById('quiz-info-overlay');
         const prod = document.getElementById('quiz-producer-overlay');
         const lock = document.getElementById('quiz-lock-overlay');
+        const settings = document.getElementById('quiz-settings-overlay');
+        if (info && info.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideQuizInfoDetailModal();
+            }
+            return;
+        }
         if (prod && prod.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
@@ -2832,10 +3004,17 @@ function setupQuizTitleToggle() {
         if (lock && lock.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
-                hideQuizPasswordModal();
+                cancelQuizPasswordModal();
             } else if (ev.key === 'Enter') {
                 ev.preventDefault();
                 confirmQuizPassword();
+            }
+            return;
+        }
+        if (settings && settings.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideQuizSettingsModal();
             }
         }
     });
@@ -5182,6 +5361,7 @@ window.addEventListener('load', function initQuizProtection() {
     setupQuizTitleToggle();
     function finishQuizInit() {
         applyQuizVisibility();
+        syncSettingsQuizToggleUi();
         if (quizFeatureEnabled && quizShouldRestorePanelOpen()) {
             requestAnimationFrame(function () {
                 openQuiz();
