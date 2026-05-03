@@ -2468,16 +2468,28 @@
             }
         }
         /*
-          Bolla acqua: dentro si usa l’icona reale dell’app (pwa-192.png) — la stessa grafica del pennello/verme dell’icona.
-          Se il file non esiste, compare il vermicello SVG come nel quiz (fallback).
+          Solo il “contenuto” del verme (come nel quiz), senza riquadro PNG:
+          la bolla galleggia; dentro, il vermicello nuota e lampeggia con gli occhi.
         */
         .app-splash-mascot-wrap {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 10px 0 20px;
-            min-height: min(168px, 44vw);
+            margin: 6px 0 20px;
+            min-height: min(188px, 50vw);
             filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.48));
+        }
+        .app-splash-orbit {
+            width: min(52px, 14vw);
+            height: min(52px, 14vw);
+            margin-bottom: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                inset 0 0 20px rgba(56, 189, 248, 0.15),
+                0 0 24px rgba(52, 211, 153, 0.12);
+            flex-shrink: 0;
         }
         .app-splash-bubble {
             position: relative;
@@ -2502,64 +2514,50 @@
             overflow: hidden;
         }
         .app-splash-bubble-lens {
-            width: 82%;
-            height: 82%;
+            width: 88%;
+            height: 88%;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            background: radial-gradient(circle at 50% 45%, rgba(186, 230, 253, 0.18) 0%, rgba(15, 39, 68, 0.25) 90%);
+            background: radial-gradient(circle at 48% 42%, rgba(186, 230, 253, 0.22) 0%, rgba(15, 55, 75, 0.35) 72%, rgba(10, 35, 55, 0.45) 100%);
             overflow: hidden;
         }
-        .app-splash-pwa-icon {
-            width: 76%;
-            height: 76%;
-            object-fit: contain;
-            position: relative;
-            z-index: 2;
-            animation: appSplashIconDrift 2.75s ease-in-out infinite;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
-            pointer-events: none;
-        }
-        .app-splash-worm-fallback {
-            display: none;
-            position: absolute;
-            inset: 0;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-            padding: 8%;
-            box-sizing: border-box;
-        }
-        .app-splash-worm-fallback.app-splash-worm-fallback--on {
-            display: flex;
-        }
-        .app-splash-worm-fallback svg {
-            width: 100%;
-            height: auto;
-            max-height: 100%;
+        .app-splash-creature-svg {
+            width: 118%;
+            height: 118%;
+            max-width: none;
+            display: block;
             overflow: visible;
         }
-        .app-splash-worm-fallback .splash-worm-body {
+        /* Nuota dentro la bolla (traslazione lenta), separata dalla bolla che galleggia */
+        .splash-inner-swim {
+            animation: appSplashInnerSwim 4.8s ease-in-out infinite;
+        }
+        .splash-worm-body {
             transform-origin: 2px 3px;
             transform-box: fill-box;
             animation: quizWormCrawl 2.65s ease-in-out infinite;
         }
-        .app-splash-worm-fallback .splash-worm-glow {
-            animation: splashWormGlow 3s ease-in-out infinite;
-        }
-        @keyframes splashWormGlow {
-            0%, 100% { opacity: 0.35; transform: scale(1); }
-            50% { opacity: 0.55; transform: scale(1.03); }
+        .splash-eyes {
+            transform-origin: 0.5px -4.5px;
+            transform-box: fill-box;
+            animation: splashEyeBlink 4.8s ease-in-out infinite;
         }
         @keyframes appSplashBubbleFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-7px); }
         }
-        @keyframes appSplashIconDrift {
-            0%, 100% { transform: translate(-2px, 1px) rotate(-2deg) scale(1); }
-            50% { transform: translate(3px, -3px) rotate(2deg) scale(1.03); }
+        @keyframes appSplashInnerSwim {
+            0%, 100% { transform: translate(0, 3px); }
+            22% { transform: translate(6px, -4px); }
+            48% { transform: translate(-5px, -6px); }
+            72% { transform: translate(-7px, 2px); }
+        }
+        @keyframes splashEyeBlink {
+            0%, 40%, 46%, 100% { transform: scaleY(1); }
+            42%, 44.5% { transform: scaleY(0.09); }
         }
         .app-splash-enter {
             margin: 4px 0 16px;
@@ -2606,20 +2604,25 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .app-splash-bubble,
-            .app-splash-pwa-icon,
-            .app-splash-worm-fallback .splash-worm-body,
-            .app-splash-worm-fallback .splash-worm-glow {
+            .splash-inner-swim,
+            .splash-worm-body,
+            .splash-eyes {
                 animation: none !important;
             }
         }
         @media (max-width: 480px) {
             .app-splash-mascot-wrap {
                 margin-bottom: 12px;
-                min-height: min(150px, 48vw);
+                min-height: min(170px, 52vw);
             }
             .app-splash-bubble {
                 width: min(138px, 44vw);
                 height: min(138px, 44vw);
+            }
+            .app-splash-orbit {
+                width: min(44px, 12vw);
+                height: min(44px, 12vw);
+                margin-bottom: 8px;
             }
             .app-splash-enter {
                 width: min(100%, 320px);
@@ -2658,34 +2661,27 @@
         <p class="app-splash-brand">Istruzioni operative interattive</p>
         <p class="app-splash-subbrand">Sistema biologico</p>
         <div class="app-splash-mascot-wrap" aria-hidden="true">
+            <div class="app-splash-orbit"></div>
             <div class="app-splash-bubble">
                 <div class="app-splash-bubble-lens">
-                    <img class="app-splash-pwa-icon" src="pwa-192.png" width="144" height="144" alt=""
-                        decoding="async"
-                        onerror="this.style.display='none';var fb=document.getElementById('app-splash-worm-fallback');if(fb){fb.classList.add('app-splash-worm-fallback--on');}">
-                    <div id="app-splash-worm-fallback" class="app-splash-worm-fallback">
-                        <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="splashVatSheenFb" x1="0%" y1="50%" x2="100%" y2="50%">
-                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.15)"/>
-                                    <stop offset="100%" stop-color="rgba(52, 211, 153, 0.12)"/>
-                                </linearGradient>
-                                <radialGradient id="splashWormAuraFb" cx="50%" cy="50%" r="50%">
-                                    <stop offset="0%" stop-color="rgba(74, 222, 128, 0.45)"/>
-                                    <stop offset="100%" stop-color="transparent"/>
-                                </radialGradient>
-                            </defs>
-                            <rect x="4" y="26" width="112" height="36" rx="10" fill="url(#splashVatSheenFb)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
-                            <ellipse class="splash-worm-glow" cx="60" cy="44" rx="42" ry="18" fill="url(#splashWormAuraFb)"/>
-                            <g transform="translate(60, 44) scale(1.85)">
-                                <g class="splash-worm-body">
-                                    <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#7cb342" stroke="#33691e" stroke-width="0.65"/>
+                    <svg class="app-splash-creature-svg" viewBox="-34 -30 68 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <radialGradient id="splashCreatureAura" cx="50%" cy="55%" r="55%">
+                                <stop offset="0%" stop-color="rgba(74, 222, 128, 0.38)"/>
+                                <stop offset="100%" stop-color="transparent"/>
+                            </radialGradient>
+                        </defs>
+                        <ellipse cx="0" cy="6" rx="26" ry="15" fill="url(#splashCreatureAura)" opacity="0.85"/>
+                        <g class="splash-inner-swim">
+                            <g class="splash-worm-body">
+                                <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#7cb342" stroke="#33691e" stroke-width="0.65"/>
+                                <g class="splash-eyes">
                                     <circle cx="-5" cy="-5" r="2.1" fill="#1b5e20"/>
                                     <circle cx="6" cy="-4" r="1.7" fill="#1b5e20"/>
                                 </g>
                             </g>
-                        </svg>
-                    </div>
+                        </g>
+                    </svg>
                 </div>
             </div>
         </div>
