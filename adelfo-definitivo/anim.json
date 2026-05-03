@@ -1,0 +1,25 @@
+{
+  "dir": "adelfo-definitivo/",
+  "displayScale": 0.32,
+  "walkRight": [
+    "frame_005.png",
+    "frame_006.png",
+    "frame_007.png",
+    "frame_008.png",
+    "frame_009.png",
+    "frame_010.png",
+    "frame_011.png",
+    "frame_012.png"
+  ],
+  "pointRight": ["frame_091.png"],
+  "walkLeft": [
+    "frame_026.png",
+    "frame_027.png",
+    "frame_028.png",
+    "frame_029.png",
+    "frame_030.png",
+    "frame_031.png",
+    "frame_032.png",
+    "frame_033.png"
+  ]
+}
