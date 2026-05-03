@@ -984,13 +984,12 @@
             border: 1px solid #90caf9;
             box-shadow: 0 2px 8px rgba(13, 71, 161, 0.07);
         }
-        /* Una riga: posizione a sinistra, punti a destra (stessa scala tipografica) */
+        /* Una riga: posizione | domanda (centro) | punti */
         .quiz-play-oneline {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: nowrap;
-            gap: 6px;
+            gap: 6px 8px;
             padding: 5px 8px;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.75);
@@ -1022,7 +1021,37 @@
             align-items: center;
             gap: 6px;
             min-width: 0;
-            flex: 1;
+            justify-self: start;
+        }
+        .quiz-play-oneline-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            justify-self: center;
+            text-align: center;
+            min-width: 0;
+            max-width: 100%;
+            padding: 0 4px;
+        }
+        .quiz-play-qcount-full {
+            margin: 0;
+            font-size: clamp(0.78rem, 2.6vw, 0.92rem);
+            font-weight: 800;
+            color: #37474f;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+        .quiz-play-oneline--first .quiz-play-qcount-full {
+            color: #5d4037;
+        }
+        .quiz-play-qcount-full #quiz-play-q-num {
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #0d47a1;
+        }
+        .quiz-play-oneline--first .quiz-play-qcount-full #quiz-play-q-num {
+            color: #bf360c;
         }
         .quiz-play-oneline-right {
             display: flex;
@@ -1030,7 +1059,7 @@
             justify-content: flex-end;
             gap: 6px;
             min-width: 0;
-            flex-shrink: 0;
+            justify-self: end;
         }
         .quiz-play-oneline-crown {
             font-size: clamp(1rem, 3.5vw, 1.2rem);
@@ -1152,6 +1181,107 @@
             color: #b71c1c;
         }
         .quiz-score-big { font-size: 2rem; font-weight: bold; color: var(--primary); margin: 12px 0; }
+        .quiz-over-card {
+            position: relative;
+            max-width: 420px;
+            margin: 0 auto 16px;
+            padding: 22px 20px 18px;
+            border-radius: 18px;
+            background: linear-gradient(145deg, #f8fbff 0%, #e3f2fd 38%, #eceff1 100%);
+            border: 1px solid rgba(25, 118, 210, 0.35);
+            box-shadow:
+                0 0 0 2px rgba(255, 255, 255, 0.65) inset,
+                0 14px 36px rgba(13, 71, 161, 0.18);
+            overflow: hidden;
+        }
+        .quiz-over-card-glow {
+            position: absolute;
+            width: 140%;
+            height: 55%;
+            left: -20%;
+            top: -28%;
+            background: radial-gradient(ellipse at center, rgba(100, 181, 246, 0.35), transparent 68%);
+            pointer-events: none;
+        }
+        .quiz-over-kicker {
+            position: relative;
+            margin: 0 0 6px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #1565c0;
+        }
+        .quiz-over-heading {
+            position: relative;
+            margin: 0 0 10px;
+            font-size: 1.35rem;
+            color: #0d47a1;
+        }
+        .quiz-over-msg {
+            position: relative;
+            margin: 0 0 14px;
+            color: #455a64;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+        .quiz-over-breakdown {
+            position: relative;
+            display: none;
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(144, 202, 249, 0.65);
+            font-size: 0.9rem;
+            color: #1a237e;
+            line-height: 1.55;
+            text-align: left;
+        }
+        .quiz-over-breakdown .quiz-over-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 4px 0;
+        }
+        .quiz-over-breakdown .quiz-over-line--bonus {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+        .quiz-over-total-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .quiz-over-total-lbl {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #37474f;
+        }
+        .quiz-score-big--over {
+            margin: 0;
+            font-size: 2.35rem;
+            color: #0d47a1;
+        }
+        .quiz-over-foot {
+            position: relative;
+            margin: 14px 0 0;
+            font-size: 0.88rem;
+            color: #546e7a;
+            line-height: 1.4;
+        }
+        .quiz-actions--over {
+            position: relative;
+            margin-top: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
         /* Punteggio “flipper”: conteggio a scatti con impulso visivo */
         #quiz-play-points-val.quiz-play-oneline-val {
             font-family: ui-monospace, "Cascadia Mono", "Consolas", "Segoe UI", monospace;
@@ -3267,7 +3397,7 @@ function dismissAppSplash() {
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
-            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. Un errore termina il quiz. Dalla <strong>3ª domanda</strong> compare una barra tempo nella riga punteggio: hai <strong>25 secondi</strong> per risposta (si svuota come energia).</p>
+            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive. <strong>Due errori</strong> chiudono la partita; a ogni errore perdi <strong>2 vermi</strong> dalla vasca (con <strong>0 vermi</strong>, un solo errore termina subito). Dopo ogni sbaglio vedi la <strong>motivazione</strong> della risposta giusta e tocchi <strong>Continua</strong>. A fine partita: <strong>+5 punti</strong> per ogni verme ancora in vasca. Dalla <strong>3ª domanda</strong> hai <strong>25 secondi</strong> per risposta (barra energia nella riga punteggio).</p>
             <div class="quiz-row">
                 <label for="quiz-name">Nome (per classifica)</label>
                 <input type="text" id="quiz-name" maxlength="40" placeholder="Es. Mario Rossi" autocomplete="name">
@@ -3324,13 +3454,21 @@ function dismissAppSplash() {
             </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
-            <h3>Risultato</h3>
-            <p id="quiz-over-msg" style="color:#555;"></p>
-            <div class="quiz-score-big" id="quiz-final-score">0</div>
-            <p style="font-size:0.9rem;color:#666;">Classifica sincronizzata su Firebase quando configurato; altrimenti solo su questo dispositivo.</p>
-            <div class="quiz-actions">
-                <button type="button" class="btn-side btn-report" onclick="quizRestart()">Nuovo quiz</button>
-                <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
+            <div class="quiz-over-card">
+                <div class="quiz-over-card-glow" aria-hidden="true"></div>
+                <p class="quiz-over-kicker">Fine partita</p>
+                <h3 class="quiz-over-heading">Risultato</h3>
+                <p id="quiz-over-msg" class="quiz-over-msg"></p>
+                <div id="quiz-over-breakdown" class="quiz-over-breakdown" aria-live="polite"></div>
+                <div class="quiz-over-total-row">
+                    <span class="quiz-over-total-lbl">Totale</span>
+                    <div class="quiz-score-big quiz-score-big--over" id="quiz-final-score">0</div>
+                </div>
+                <p class="quiz-over-foot">Classifica sincronizzata su Firebase quando configurato; altrimenti solo su questo dispositivo.</p>
+                <div class="quiz-actions quiz-actions--over">
+                    <button type="button" class="btn-side btn-report" onclick="quizRestart()">Nuovo quiz</button>
+                    <button type="button" class="btn-side btn-reset" onclick="closeQuiz()">Chiudi</button>
+                </div>
             </div>
         </div>
         <div id="quiz-rank-wrap" class="quiz-rank-section">
@@ -3351,9 +3489,10 @@ function dismissAppSplash() {
                 <p id="quiz-wrong-modal-lead" class="quiz-wrong-modal__lead"></p>
                 <div class="quiz-wrong-modal__label">Risposta corretta</div>
                 <div id="quiz-wrong-modal-correct" class="quiz-wrong-modal-answer"></div>
+                <div class="quiz-wrong-modal__label" id="quiz-wrong-modal-motivation-lbl">Motivazione</div>
                 <p id="quiz-wrong-modal-hint" class="quiz-wrong-modal-hint"></p>
                 <div class="quiz-wrong-modal__actions">
-                    <button type="button" class="btn-side btn-report" id="quiz-wrong-modal-ok" onclick="quizWrongModalOk()">OK</button>
+                    <button type="button" class="btn-side btn-report" id="quiz-wrong-modal-ok" onclick="quizWrongModalOk()">Continua</button>
                 </div>
             </div>
         </div>
@@ -4235,13 +4374,21 @@ const db = {
     ]
 };
 
-/* ========= Quiz (livelli 1–3, punteggi 5/10/15, stop al primo errore, classifica: Firestore + cache locale) ========= */
+/* ========= Quiz (livelli 1–3, punteggi 5/10/15, 2 errori = fine, bonus vermi, classifica: Firestore + cache locale) ========= */
 let quizBankCache = null;
 const QUIZ_BANK_BUILD_ID = 9;
 const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
-let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1 };
+let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0 };
 let quizAnswerLocked = false;
+/** Errori consecutivi nella partita per chiudere il quiz (dopo modale + Continua). */
+const QUIZ_RULE_MAX_ERRORS = 2;
+/** Vermi tolti dalla vasca a ogni risposta sbagliata (se ce ne sono abbastanza). */
+const QUIZ_WORMS_LOST_PER_ERROR = 2;
+/** Vermi iniziali in vasca all’avvio (0 = un errore con vasca vuota termina subito). */
+const QUIZ_START_WORM_COUNT = 3;
+/** Punti bonus per ogni verme ancora in vasca a fine partita. */
+const QUIZ_BONUS_POINTS_PER_WORM = 5;
 /** Prima domanda con limite di tempo: indice 0-based 2 = 3ª domanda. */
 const QUIZ_TIMER_FIRST_INDEX = 2;
 const QUIZ_TIMER_SECONDS = 25;
@@ -4314,6 +4461,8 @@ function quizWrongModalHide() {
         modal.classList.remove('quiz-wrong-modal--open');
         modal.setAttribute('aria-hidden', 'true');
     }
+    const okBtn = document.getElementById('quiz-wrong-modal-ok');
+    if (okBtn) okBtn.textContent = 'Continua';
     document.removeEventListener('keydown', quizWrongModalKeydown, true);
 }
 
@@ -4327,12 +4476,16 @@ function quizWrongModalKeydown(ev) {
     }
 }
 
-function quizOpenWrongExplainModal(kind, q) {
+function quizOpenWrongExplainModal(kind, q, modalOpts) {
+    modalOpts = modalOpts || {};
+    const continuePlay = !!modalOpts.continuePlay;
+    const fatalNoWorms = !!modalOpts.fatalNoWorms;
     const modal = document.getElementById('quiz-wrong-modal');
     const titleEl = document.getElementById('quiz-wrong-modal-title');
     const lead = document.getElementById('quiz-wrong-modal-lead');
     const correctEl = document.getElementById('quiz-wrong-modal-correct');
     const hint = document.getElementById('quiz-wrong-modal-hint');
+    const motLbl = document.getElementById('quiz-wrong-modal-motivation-lbl');
     const okBtn = document.getElementById('quiz-wrong-modal-ok');
     if (!modal || !q || !q.options || q.correctIndex < 0) {
         quizFinish(false, kind === 'timeout' ? { timedOut: true } : {});
@@ -4341,23 +4494,40 @@ function quizOpenWrongExplainModal(kind, q) {
     const correctText = (q.options[q.correctIndex] && q.options[q.correctIndex].text) ? String(q.options[q.correctIndex].text) : '—';
     const shortHint = (q.refPretty && String(q.refPretty).trim()) ? String(q.refPretty).trim() : '';
 
-    quizWrongModalFinishOpts = kind === 'timeout' ? { timedOut: true } : {};
+    if (kind === 'timeout') {
+        quizWrongModalFinishOpts = { timedOut: true, continuePlay: false };
+    } else if (continuePlay) {
+        quizWrongModalFinishOpts = { continuePlay: true };
+    } else {
+        quizWrongModalFinishOpts = { continuePlay: false };
+    }
 
     if (titleEl) {
         titleEl.classList.toggle('quiz-wrong-modal__title--time', kind === 'timeout');
-        titleEl.textContent = kind === 'timeout' ? 'Tempo scaduto' : 'Risposta errata';
+        if (kind === 'timeout') titleEl.textContent = 'Tempo scaduto';
+        else if (fatalNoWorms) titleEl.textContent = 'Partita terminata';
+        else if (!continuePlay) titleEl.textContent = 'Partita conclusa';
+        else titleEl.textContent = 'Risposta errata';
     }
     if (lead) {
-        lead.textContent = kind === 'timeout'
-            ? 'Non è stata data la risposta entro il tempo limite. Ecco la soluzione attesa per questa domanda.'
-            : 'La scelta selezionata non è corretta. Memorizza il concetto e prosegui verso il riepilogo.';
+        if (kind === 'timeout') {
+            lead.textContent = 'Non è stata data la risposta entro il tempo limite. Ecco la soluzione attesa e la motivazione; poi vedrai il risultato finale.';
+        } else if (fatalNoWorms) {
+            lead.textContent = 'In vasca non avevi vermi: con vasca vuota un solo errore termina la partita. Ecco comunque la risposta corretta e perché ha senso.';
+        } else if (continuePlay) {
+            lead.textContent = 'Risposta sbagliata: dalla vasca sono usciti (o sono stati penalizzati) fino a ' + QUIZ_WORMS_LOST_PER_ERROR + ' vermi. Leggi la motivazione della risposta giusta, poi tocca «Continua» per la prossima domanda.';
+        } else {
+            lead.textContent = 'Hai raggiunto ' + QUIZ_RULE_MAX_ERRORS + ' errori in questa partita. Leggi la motivazione, poi «Vedi risultato» per il riepilogo con bonus vermi.';
+        }
     }
     if (correctEl) correctEl.textContent = correctText;
+    if (motLbl) motLbl.textContent = 'Motivazione (perché è corretta)';
     if (hint) {
         hint.textContent = shortHint
-            ? shortHint.length > 220 ? shortHint.slice(0, 217) + '…' : shortHint
+            ? (shortHint.length > 320 ? shortHint.slice(0, 317) + '…' : shortHint)
             : 'Continua a studiare le istruzioni operative collegate al tema della domanda.';
     }
+    if (okBtn) okBtn.textContent = (continuePlay && kind !== 'timeout') ? 'Continua' : 'Vedi risultato';
 
     modal.classList.add('quiz-wrong-modal--open');
     modal.setAttribute('aria-hidden', 'false');
@@ -4373,6 +4543,11 @@ function quizWrongModalOk() {
     const opts = quizWrongModalFinishOpts || {};
     quizWrongModalFinishOpts = null;
     quizWrongModalHide();
+    if (opts.continuePlay) {
+        quizAnswerLocked = false;
+        quizAdvanceAfterWrongContinue();
+        return;
+    }
     quizFinish(false, opts);
 }
 
@@ -4528,6 +4703,22 @@ function quizBioVatOnCorrectAnswer() {
     gBody.appendChild(e2);
     gPos.appendChild(gBody);
     gRoot.appendChild(gPos);
+    quizBioVatApplyFillFromState();
+}
+
+/** Rimuove fino a n vermi dalla vasca (ultimi aggiunti per primi). */
+function quizBioRemoveWorms(n) {
+    const root = document.getElementById('quiz-bio-worms');
+    if (!root || n <= 0) return;
+    const list = [].slice.call(root.querySelectorAll('.quiz-worm'));
+    let left = Math.min(n, list.length);
+    for (let i = list.length - 1; i >= 0 && left > 0; i--) {
+        const g = list[i];
+        if (quizBioMenaceG === g) quizBioVatClearMenace();
+        g.remove();
+        left--;
+    }
+    quizBioWormCount = root.querySelectorAll('.quiz-worm').length;
     quizBioVatApplyFillFromState();
 }
 
@@ -4977,6 +5168,9 @@ function quizUpdatePlayProgress(extra) {
         '<span class="quiz-play-oneline-lbl">Posizione</span>' +
         '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
         '</div>' +
+        '<div class="quiz-play-oneline-center">' +
+        '<p class="quiz-play-qcount-full" id="quiz-play-qcount-line" aria-label="Domanda ' + i + ' di ' + tot + '">Domanda <span id="quiz-play-q-num">' + i + '</span></p>' +
+        '</div>' +
         '<div class="quiz-play-oneline-right">' +
         '<span class="quiz-play-oneline-lbl">Punti</span>' +
         '<strong id="quiz-play-points-val" class="quiz-play-oneline-val' + tickCls + '">' + sc + '</strong>' +
@@ -5075,6 +5269,39 @@ function quizAdvanceCorrect() {
     }, 280);
 }
 
+function quizAdvanceAfterWrongContinue() {
+    quizClearQuestionTimer();
+    quizBioVatClearMenace();
+    const fb = document.getElementById('quiz-feedback');
+    if (fb) {
+        fb.style.display = 'none';
+        fb.innerHTML = '';
+        fb.className = 'quiz-feedback';
+    }
+    const wrap = document.getElementById('quiz-play-body');
+    const step = () => {
+        quizState.index += 1;
+        if (quizState.index >= quizState.queue.length) {
+            quizFinish(false, { seenAllQuestions: true });
+            return;
+        }
+        quizRenderQuestion({ instant: true });
+        quizAnswerLocked = false;
+    };
+    if (wrap) {
+        wrap.classList.add('quiz-fade-out');
+        setTimeout(() => {
+            step();
+            wrap.classList.remove('quiz-fade-out');
+            void wrap.offsetWidth;
+            wrap.classList.add('quiz-fade-in');
+            setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+        }, 280);
+    } else {
+        step();
+    }
+}
+
 function quizAnswer(idx) {
     if (quizAnswerLocked) return;
     const q = quizState.queue[quizState.index];
@@ -5113,15 +5340,29 @@ function quizAnswer(idx) {
             setTimeout(() => quizAdvanceCorrect(), 1050);
         });
     } else {
-        quizBioVatSink();
+        let continuePlay = false;
+        let fatalNoWorms = false;
+        if (quizBioWormCount <= 0) {
+            fatalNoWorms = true;
+            quizState.wrongCount = QUIZ_RULE_MAX_ERRORS;
+        } else {
+            quizBioRemoveWorms(QUIZ_WORMS_LOST_PER_ERROR);
+            quizState.wrongCount += 1;
+            if (quizState.wrongCount < QUIZ_RULE_MAX_ERRORS) {
+                continuePlay = true;
+            }
+        }
+        if (!continuePlay) {
+            quizBioVatSink();
+        }
         if (fb) {
-            fb.style.display = 'flex';
-            fb.className = 'quiz-feedback quiz-feedback-ko';
-            fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✗</span><span>Sbagliato</span>';
+            fb.style.display = 'none';
+            fb.innerHTML = '';
+            fb.className = 'quiz-feedback';
         }
         setTimeout(() => {
-            quizOpenWrongExplainModal('wrong', q);
-        }, 750);
+            quizOpenWrongExplainModal('wrong', q, { continuePlay: continuePlay, fatalNoWorms: fatalNoWorms });
+        }, 420);
     }
 }
 
@@ -5129,29 +5370,60 @@ function quizFinish(completedAll, opts) {
     opts = opts || {};
     quizClearQuestionTimer();
     quizAnswerLocked = false;
+
+    const baseScore = Number(quizState.score) || 0;
+    let wormBonus = 0;
+    if (!opts.aborted) {
+        wormBonus = (Number(quizBioWormCount) || 0) * QUIZ_BONUS_POINTS_PER_WORM;
+        quizState.score = baseScore + wormBonus;
+    }
+
     quizAppendLeaderboardRow({
         name: quizState.name || 'Operatore',
         score: quizState.score,
         startLevel: quizState.startLevel,
         at: new Date().toISOString(),
-        completedAll: !!completedAll,
+        completedAll: !!completedAll && !opts.seenAllQuestions,
         aborted: !!opts.aborted
     });
 
     const msg = document.getElementById('quiz-over-msg');
     const sc = document.getElementById('quiz-final-score');
+    const bd = document.getElementById('quiz-over-breakdown');
     if (msg) {
         if (completedAll) {
-            msg.textContent = 'Hai completato tutte le domande del percorso senza errori.';
+            msg.textContent = 'Hai completato tutte le domande del percorso. Ottimo lavoro! Il totale include il bonus per i vermi ancora in vasca.';
+        } else if (opts.seenAllQuestions) {
+            msg.textContent = 'Hai risposto a tutte le domande della sessione. Il totale include il bonus per i vermi ancora in vasca.';
         } else if (opts.aborted) {
             msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
         } else if (opts.timedOut) {
-            msg.textContent = 'Tempo scaduto: il quiz termina qui (dalla 3ª domanda hai 25 secondi per risposta, barra nella riga punteggio).';
+            msg.textContent = 'Tempo scaduto: partita conclusa (dalla 3ª domanda hai 25 secondi per risposta).';
         } else {
-            msg.textContent = 'Risposta errata: il quiz termina qui (regola "un errore e stop").';
+            msg.textContent = 'Partita terminata: limite di errori raggiunto, oppure errore con vasca senza vermi. Qui sotto il riepilogo con bonus vermi.';
         }
     }
     if (sc) sc.textContent = String(quizState.score);
+
+    if (bd) {
+        if (opts.aborted) {
+            bd.style.display = 'none';
+            bd.innerHTML = '';
+        } else {
+            bd.style.display = 'block';
+            const wormsLeft = Number(quizBioWormCount) || 0;
+            const bonusPts = wormsLeft * QUIZ_BONUS_POINTS_PER_WORM;
+            const baseHtml = escapeQuizHtml(String(baseScore));
+            const bonusHtml = escapeQuizHtml(String(bonusPts));
+            const wormN = escapeQuizHtml(String(wormsLeft));
+            const lineBonus = bonusPts > 0
+                ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' + wormN + ' × ' + QUIZ_BONUS_POINTS_PER_WORM + ' pt)</span><span>+' + bonusHtml + '</span></div>'
+                : '<div class="quiz-over-line"><span>Bonus vermi (nessun verme in vasca)</span><span>+0</span></div>';
+            bd.innerHTML =
+                '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+                lineBonus;
+        }
+    }
 
     if (opts.goIntro) {
         quizShowScreen('intro');
@@ -5180,6 +5452,7 @@ function quizStart() {
     quizState.queue = quizBuildQueue();
     quizState.index = 0;
     quizState.score = 0;
+    quizState.wrongCount = 0;
 
     if (!quizState.queue.length) {
         alert('Banca domande non disponibile. Ricarica la pagina.');
@@ -5187,6 +5460,9 @@ function quizStart() {
     }
 
     quizBioVatReset();
+    for (let s = 0; s < QUIZ_START_WORM_COUNT; s++) {
+        quizBioVatOnCorrectAnswer();
+    }
     quizShowScreen('play');
     quizRenderQuestion({ instant: true });
     quizRenderLeaderboard();
@@ -5204,8 +5480,11 @@ function quizTopExit() {
         const opts = quizWrongModalFinishOpts || {};
         quizWrongModalFinishOpts = null;
         quizWrongModalHide();
-        opts.goIntro = true;
-        quizFinish(false, opts);
+        if (opts.continuePlay) {
+            quizFinish(false, { aborted: true, goIntro: true });
+        } else {
+            quizFinish(false, Object.assign({}, opts, { goIntro: true }));
+        }
         return;
     }
     const play = document.getElementById('quiz-screen-play');
@@ -6265,7 +6544,11 @@ function closeQuiz() {
         const opts = quizWrongModalFinishOpts || {};
         quizWrongModalFinishOpts = null;
         quizWrongModalHide();
-        quizFinish(false, opts);
+        if (opts.continuePlay) {
+            quizFinish(false, { aborted: true, goIntro: true });
+        } else {
+            quizFinish(false, opts);
+        }
     } else {
         quizWrongModalHide();
         quizWrongModalFinishOpts = null;
