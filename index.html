@@ -2468,8 +2468,8 @@
             }
         }
         /*
-          Solo l’icona PNG che invii (assets/splash-worm-icon.png): verme rosa + bolla turchese già nell’immagine.
-          Niente verme vettoriale di ricambio, niente bolle CSS (sono già nel PNG). Cerchio = cornice; coda = leggera rotazione.
+          PNG (assets/splash-worm-icon.png) + bolle CSS sopra (z-index): il file è opaco, quindi bolle “dietro” non si vedono.
+          Bolle = highlight vetro/acqua, non sostituiscono il verme.
         */
         .app-splash-mascot-wrap {
             display: flex;
@@ -2514,6 +2514,39 @@
             pointer-events: none;
             user-select: none;
             z-index: 1;
+        }
+        /* Bolle “aria” sul liquido: strato sopra al PNG (altrimenti resta solo il cerchio pieno). */
+        .app-splash-bubbles-fx {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .app-splash-bubbles-fx span {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.92) 0%, rgba(200, 245, 232, 0.35) 38%, rgba(125, 211, 252, 0.12) 62%, transparent 72%);
+            box-shadow:
+                inset -2px -3px 8px rgba(255, 255, 255, 0.55),
+                0 0 10px rgba(165, 243, 252, 0.45);
+            mix-blend-mode: soft-light;
+            opacity: 0.72;
+            animation: splashBubbleDrift 4.2s ease-in-out infinite;
+        }
+        .app-splash-bubbles-fx span:nth-child(1) { width: 10%; height: 10%; left: 14%; top: 58%; animation-duration: 3.6s; animation-delay: 0s; }
+        .app-splash-bubbles-fx span:nth-child(2) { width: 7%; height: 7%; left: 72%; top: 22%; animation-duration: 4.8s; animation-delay: -0.8s; }
+        .app-splash-bubbles-fx span:nth-child(3) { width: 5%; height: 5%; left: 58%; top: 68%; animation-duration: 3.2s; animation-delay: -1.4s; }
+        .app-splash-bubbles-fx span:nth-child(4) { width: 12%; height: 12%; left: 38%; top: 18%; animation-duration: 5.4s; animation-delay: -2s; }
+        .app-splash-bubbles-fx span:nth-child(5) { width: 6%; height: 6%; left: 82%; top: 48%; animation-duration: 4.1s; animation-delay: -0.3s; }
+        .app-splash-bubbles-fx span:nth-child(6) { width: 8%; height: 8%; left: 8%; top: 28%; animation-duration: 3.9s; animation-delay: -1.9s; }
+        .app-splash-bubbles-fx span:nth-child(7) { width: 4%; height: 4%; left: 48%; top: 42%; animation-duration: 2.8s; animation-delay: -0.5s; }
+        .app-splash-bubbles-fx span:nth-child(8) { width: 9%; height: 9%; left: 26%; top: 76%; animation-duration: 4.5s; animation-delay: -2.6s; }
+        @keyframes splashBubbleDrift {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+            33% { transform: translate(6px, -14px) scale(1.06); opacity: 0.88; }
+            66% { transform: translate(-5px, -6px) scale(0.96); opacity: 0.62; }
         }
         @keyframes splashBubbleOsc {
             0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -2569,8 +2602,13 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .app-splash-icon-live,
-            .app-splash-worm-swing {
+            .app-splash-worm-swing,
+            .app-splash-bubbles-fx span {
                 animation: none !important;
+            }
+            .app-splash-bubbles-fx span {
+                opacity: 0.55;
+                transform: none;
             }
         }
         @media (max-width: 480px) {
@@ -2624,6 +2662,10 @@
                     <div class="app-splash-worm-swing">
                         <img class="app-splash-raster" id="app-splash-raster-img" src="assets/splash-worm-icon.png" width="512" height="512" alt=""
                             decoding="async">
+                    </div>
+                    <div class="app-splash-bubbles-fx" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
                     </div>
                 </div>
             </div>
