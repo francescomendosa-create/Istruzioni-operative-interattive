@@ -4666,8 +4666,8 @@ let quizAnswerLocked = false;
 const QUIZ_RULE_MAX_ERRORS = 2;
 /** Vermi tolti dalla vasca a ogni risposta sbagliata (se ce ne sono abbastanza). */
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
-/** Vermi iniziali in vasca all’avvio (0 = un errore con vasca vuota termina subito). */
-const QUIZ_START_WORM_COUNT = 3;
+/** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
+const QUIZ_START_WORM_COUNT = 0;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
 /** Prima domanda con limite di tempo: indice 0-based 2 = 3ª domanda. */
@@ -5778,8 +5778,160 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     }
 }
 
+let quizAdelfoTimerHandles = [];
+let quizAdelfoWalkEndListener = null;
+
+function quizAdelfoCancelIntro() {
+    quizAdelfoTimerHandles.forEach(function (t) { clearTimeout(t); });
+    quizAdelfoTimerHandles = [];
+    const fig = document.getElementById('quiz-adelfo-figure');
+    if (fig && quizAdelfoWalkEndListener) {
+        fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
+        quizAdelfoWalkEndListener = null;
+    }
+    const layer = document.getElementById('quiz-adelfo-layer');
+    const bubble = document.getElementById('quiz-adelfo-bubble');
+    const img = document.getElementById('quiz-adelfo-img');
+    if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
+    if (img) img.classList.remove('quiz-adelfo-img--bob');
+    if (fig) fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
+    if (layer) {
+        layer.classList.remove('quiz-adelfo-layer--on');
+        layer.setAttribute('aria-hidden', 'true');
+    }
+}
+
+/** Rimuove il fondo bianco dal PNG pixel-art (canvas → PNG trasparente). */
+function quizStripAdelfoWhiteBg(img, cb) {
+    if (!img) {
+        if (typeof cb === 'function') cb();
+        return;
+    }
+    if (img.dataset.adelfoProcessed === '1') {
+        if (typeof cb === 'function') cb();
+        return;
+    }
+    function done(ok) {
+        img.dataset.adelfoProcessed = ok ? '1' : '0';
+        if (typeof cb === 'function') cb();
+    }
+    try {
+        var w = img.naturalWidth;
+        var h = img.naturalHeight;
+        if (!w || !h) {
+            done(false);
+            return;
+        }
+        var c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        var ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        var d = ctx.getImageData(0, 0, w, h);
+        for (var i = 0; i < d.data.length; i += 4) {
+            if (d.data[i] > 246 && d.data[i + 1] > 246 && d.data[i + 2] > 246) {
+                d.data[i + 3] = 0;
+            }
+        }
+        ctx.putImageData(d, 0, 0);
+        var url = c.toDataURL('image/png');
+        function onAdelfoPng() {
+            img.removeEventListener('load', onAdelfoPng);
+            done(true);
+        }
+        img.addEventListener('load', onAdelfoPng);
+        img.src = url;
+        if (img.complete && img.naturalWidth === w) {
+            img.removeEventListener('load', onAdelfoPng);
+            done(true);
+        }
+    } catch (e) {
+        console.warn('[Adelfo canvas]', e);
+        done(false);
+    }
+}
+
+/** Adelfo: da destra verso la vasca, fumetto (!&/%), ritorno a destra. */
+function quizRunAdelfoIntro() {
+    const layer = document.getElementById('quiz-adelfo-layer');
+    const fig = document.getElementById('quiz-adelfo-figure');
+    const img = document.getElementById('quiz-adelfo-img');
+    const bubble = document.getElementById('quiz-adelfo-bubble');
+    if (!layer || !fig || !img) return;
+    try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    } catch (e0) { /* ignore */ }
+
+    quizAdelfoCancelIntro();
+
+    function startAnim() {
+        layer.setAttribute('aria-hidden', 'false');
+        layer.classList.add('quiz-adelfo-layer--on');
+        fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
+        img.classList.add('quiz-adelfo-img--bob');
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--walk';
+            });
+        });
+
+        var walkFb = window.setTimeout(function () {
+            if (!quizAdelfoWalkEndListener) return;
+            fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
+            quizAdelfoWalkEndListener = null;
+            fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--shout';
+            if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
+            var t1b = window.setTimeout(function () {
+                if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
+                img.classList.remove('quiz-adelfo-img--bob');
+                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
+                var t2b = window.setTimeout(function () {
+                    quizAdelfoCancelIntro();
+                }, 1900);
+                quizAdelfoTimerHandles.push(t2b);
+            }, 1100);
+            quizAdelfoTimerHandles.push(t1b);
+        }, 2600);
+        quizAdelfoTimerHandles.push(walkFb);
+
+        quizAdelfoWalkEndListener = function (ev) {
+            if (ev.target !== fig || ev.propertyName !== 'transform') return;
+            clearTimeout(walkFb);
+            fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
+            quizAdelfoWalkEndListener = null;
+            fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--shout';
+            if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
+            var t1 = window.setTimeout(function () {
+                if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
+                img.classList.remove('quiz-adelfo-img--bob');
+                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
+                var t2 = window.setTimeout(function () {
+                    quizAdelfoCancelIntro();
+                }, 1900);
+                quizAdelfoTimerHandles.push(t2);
+            }, 1100);
+            quizAdelfoTimerHandles.push(t1);
+        };
+        fig.addEventListener('transitionend', quizAdelfoWalkEndListener);
+    }
+
+    function afterImgReady() {
+        quizStripAdelfoWhiteBg(img, function () { startAnim(); });
+    }
+
+    if (img.complete && img.naturalWidth) {
+        afterImgReady();
+    } else {
+        img.addEventListener('load', function adelfoOnce() {
+            img.removeEventListener('load', adelfoOnce);
+            afterImgReady();
+        });
+    }
+}
+
 function quizFinish(completedAll, opts) {
     opts = opts || {};
+    quizAdelfoCancelIntro();
     quizClearQuestionTimer();
     quizAnswerLocked = false;
 
@@ -5849,6 +6001,13 @@ function quizStart() {
     quizShowScreen('play');
     quizRenderQuestion({ instant: true });
     quizRenderLeaderboard();
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            try {
+                quizRunAdelfoIntro();
+            } catch (eAd) { /* ignore */ }
+        });
+    });
 }
 
 function quizRestart() {
@@ -6945,6 +7104,7 @@ function openQuiz() {
 }
 
 function closeQuiz() {
+    quizAdelfoCancelIntro();
     quizCancelScoreAnim();
     const top10m = document.getElementById('quiz-top10-name-modal');
     if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
