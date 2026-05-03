@@ -2831,7 +2831,63 @@
         document.body.classList.add('splash-active');
     }
 })();
+function playSplashBubblePop() {
+    try {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        if (!playSplashBubblePop._ctx) playSplashBubblePop._ctx = new Ctx();
+        var ctx = playSplashBubblePop._ctx;
+        if (ctx.state === 'suspended') ctx.resume();
+        var t0 = ctx.currentTime;
+        var dur = 0.14;
+        var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+        var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        var d = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) {
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+        }
+        var noise = ctx.createBufferSource();
+        noise.buffer = buf;
+        var bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(1800, t0);
+        bp.frequency.exponentialRampToValueAtTime(450, t0 + dur);
+        bp.Q.value = 1.2;
+        var gn = ctx.createGain();
+        gn.gain.setValueAtTime(0.38, t0);
+        gn.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        noise.connect(bp);
+        bp.connect(gn);
+        gn.connect(ctx.destination);
+        noise.start(t0);
+        noise.stop(t0 + dur + 0.02);
+        var osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, t0);
+        osc.frequency.exponentialRampToValueAtTime(280, t0 + 0.055);
+        var go = ctx.createGain();
+        go.gain.setValueAtTime(0.14, t0);
+        go.gain.exponentialRampToValueAtTime(0.001, t0 + 0.07);
+        osc.connect(go);
+        go.connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.08);
+        var osc2 = ctx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(2100, t0 + 0.012);
+        osc2.frequency.exponentialRampToValueAtTime(900, t0 + 0.04);
+        var g2 = ctx.createGain();
+        g2.gain.setValueAtTime(0, t0);
+        g2.gain.linearRampToValueAtTime(0.06, t0 + 0.008);
+        g2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.045);
+        osc2.connect(g2);
+        g2.connect(ctx.destination);
+        osc2.start(t0);
+        osc2.stop(t0 + 0.05);
+    } catch (e) {}
+}
 function dismissAppSplash() {
+    playSplashBubblePop();
     var KEY = 'io-splash-dismissed-session';
     var sp = document.getElementById('app-splash');
     if (sp) {
