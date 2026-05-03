@@ -8,6 +8,8 @@
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/pwa-180.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/pwa-192.png">
     <link rel="apple-touch-icon" href="icons/pwa-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icons/pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icons/pwa-512.png">
@@ -4644,7 +4646,12 @@ document.addEventListener('toggle', function (ev) {
 (function () {
     if (!('serviceWorker' in navigator)) return;
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () { /* offline o file:// */ });
+        try {
+            /* Percorsi assoluti dalla cartella della pagina: necessario su GitHub Pages (/repo/...) */
+            var base = new URL('.', window.location.href).href;
+            var swUrl = new URL('sw.js', base).href;
+            navigator.serviceWorker.register(swUrl, { scope: base }).catch(function () {});
+        } catch (e) { /* file:// o contesti particolari */ }
     });
 })();
 </script>
