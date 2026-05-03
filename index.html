@@ -2467,31 +2467,99 @@
                 text-shadow: 0 0 20px rgba(74, 222, 128, 0.65), 0 2px 4px rgba(0, 0, 0, 0.35);
             }
         }
+        /*
+          Bolla acqua: dentro si usa l’icona reale dell’app (pwa-192.png) — la stessa grafica del pennello/verme dell’icona.
+          Se il file non esiste, compare il vermicello SVG come nel quiz (fallback).
+        */
         .app-splash-mascot-wrap {
-            width: min(280px, 78vw);
-            height: min(120px, 34vw);
-            margin: 10px 0 18px;
-            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
-            overflow: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0 20px;
+            min-height: min(168px, 44vw);
+            filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.48));
         }
-        .app-splash-mascot-wrap svg {
+        .app-splash-bubble {
+            position: relative;
+            width: min(156px, 42vw);
+            height: min(156px, 42vw);
+            border-radius: 50%;
+            box-sizing: border-box;
+            background:
+                radial-gradient(ellipse 95% 42% at 50% 8%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 52%),
+                radial-gradient(circle at 70% 75%, rgba(52, 211, 153, 0.35) 0%, transparent 48%),
+                radial-gradient(circle at 22% 78%, rgba(56, 189, 248, 0.22) 0%, transparent 42%),
+                radial-gradient(circle at 50% 50%, rgba(30, 64, 95, 0.55) 0%, rgba(15, 39, 68, 0.92) 100%);
+            box-shadow:
+                inset 0 -18px 36px -6px rgba(0, 25, 40, 0.55),
+                inset 0 14px 28px rgba(255, 255, 255, 0.28),
+                0 0 0 1px rgba(255, 255, 255, 0.22),
+                0 10px 0 rgba(0, 0, 0, 0.18);
+            animation: appSplashBubbleFloat 3.3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .app-splash-bubble-lens {
+            width: 82%;
+            height: 82%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at 50% 45%, rgba(186, 230, 253, 0.18) 0%, rgba(15, 39, 68, 0.25) 90%);
+            overflow: hidden;
+        }
+        .app-splash-pwa-icon {
+            width: 76%;
+            height: 76%;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+            animation: appSplashIconDrift 2.75s ease-in-out infinite;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+            pointer-events: none;
+        }
+        .app-splash-worm-fallback {
+            display: none;
+            position: absolute;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            padding: 8%;
+            box-sizing: border-box;
+        }
+        .app-splash-worm-fallback.app-splash-worm-fallback--on {
+            display: flex;
+        }
+        .app-splash-worm-fallback svg {
             width: 100%;
-            height: 100%;
-            display: block;
+            height: auto;
+            max-height: 100%;
             overflow: visible;
         }
-        /* Stesso “vermicello” del quiz (MBBR): path + occhi, animazione crawl come in vasca */
-        .app-splash-mascot-wrap .splash-worm-body {
+        .app-splash-worm-fallback .splash-worm-body {
             transform-origin: 2px 3px;
             transform-box: fill-box;
             animation: quizWormCrawl 2.65s ease-in-out infinite;
         }
-        .app-splash-mascot-wrap .splash-worm-glow {
+        .app-splash-worm-fallback .splash-worm-glow {
             animation: splashWormGlow 3s ease-in-out infinite;
         }
         @keyframes splashWormGlow {
             0%, 100% { opacity: 0.35; transform: scale(1); }
             50% { opacity: 0.55; transform: scale(1.03); }
+        }
+        @keyframes appSplashBubbleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+        @keyframes appSplashIconDrift {
+            0%, 100% { transform: translate(-2px, 1px) rotate(-2deg) scale(1); }
+            50% { transform: translate(3px, -3px) rotate(2deg) scale(1.03); }
         }
         .app-splash-enter {
             margin: 4px 0 16px;
@@ -2537,15 +2605,21 @@
             font-weight: 700;
         }
         @media (prefers-reduced-motion: reduce) {
-            .app-splash-mascot-wrap .splash-worm-body,
-            .app-splash-mascot-wrap .splash-worm-glow {
+            .app-splash-bubble,
+            .app-splash-pwa-icon,
+            .app-splash-worm-fallback .splash-worm-body,
+            .app-splash-worm-fallback .splash-worm-glow {
                 animation: none !important;
             }
         }
         @media (max-width: 480px) {
             .app-splash-mascot-wrap {
                 margin-bottom: 12px;
-                height: min(108px, 30vw);
+                min-height: min(150px, 48vw);
+            }
+            .app-splash-bubble {
+                width: min(138px, 44vw);
+                height: min(138px, 44vw);
             }
             .app-splash-enter {
                 width: min(100%, 320px);
@@ -2584,30 +2658,36 @@
         <p class="app-splash-brand">Istruzioni operative interattive</p>
         <p class="app-splash-subbrand">Sistema biologico</p>
         <div class="app-splash-mascot-wrap" aria-hidden="true">
-            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="splashVatSheen" x1="0%" y1="50%" x2="100%" y2="50%">
-                        <stop offset="0%" stop-color="rgba(56, 189, 248, 0.12)"/>
-                        <stop offset="50%" stop-color="rgba(52, 211, 153, 0.18)"/>
-                        <stop offset="100%" stop-color="rgba(56, 189, 248, 0.1)"/>
-                    </linearGradient>
-                    <radialGradient id="splashWormAura" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="rgba(74, 222, 128, 0.45)"/>
-                        <stop offset="70%" stop-color="rgba(34, 197, 94, 0.15)"/>
-                        <stop offset="100%" stop-color="transparent"/>
-                    </radialGradient>
-                </defs>
-                <rect x="4" y="26" width="112" height="36" rx="10" fill="url(#splashVatSheen)" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
-                <ellipse class="splash-worm-glow" cx="60" cy="44" rx="42" ry="18" fill="url(#splashWormAura)"/>
-                <!-- Forme identiche al vermicello del quiz (quizBioVat) -->
-                <g transform="translate(60, 44) scale(1.85)">
-                    <g class="splash-worm-body">
-                        <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#7cb342" stroke="#33691e" stroke-width="0.65"/>
-                        <circle cx="-5" cy="-5" r="2.1" fill="#1b5e20"/>
-                        <circle cx="6" cy="-4" r="1.7" fill="#1b5e20"/>
-                    </g>
-                </g>
-            </svg>
+            <div class="app-splash-bubble">
+                <div class="app-splash-bubble-lens">
+                    <img class="app-splash-pwa-icon" src="pwa-192.png" width="144" height="144" alt=""
+                        decoding="async"
+                        onerror="this.style.display='none';var fb=document.getElementById('app-splash-worm-fallback');if(fb){fb.classList.add('app-splash-worm-fallback--on');}">
+                    <div id="app-splash-worm-fallback" class="app-splash-worm-fallback">
+                        <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="splashVatSheenFb" x1="0%" y1="50%" x2="100%" y2="50%">
+                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.15)"/>
+                                    <stop offset="100%" stop-color="rgba(52, 211, 153, 0.12)"/>
+                                </linearGradient>
+                                <radialGradient id="splashWormAuraFb" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="rgba(74, 222, 128, 0.45)"/>
+                                    <stop offset="100%" stop-color="transparent"/>
+                                </radialGradient>
+                            </defs>
+                            <rect x="4" y="26" width="112" height="36" rx="10" fill="url(#splashVatSheenFb)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+                            <ellipse class="splash-worm-glow" cx="60" cy="44" rx="42" ry="18" fill="url(#splashWormAuraFb)"/>
+                            <g transform="translate(60, 44) scale(1.85)">
+                                <g class="splash-worm-body">
+                                    <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#7cb342" stroke="#33691e" stroke-width="0.65"/>
+                                    <circle cx="-5" cy="-5" r="2.1" fill="#1b5e20"/>
+                                    <circle cx="6" cy="-4" r="1.7" fill="#1b5e20"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
         <button type="button" id="app-splash-enter-btn" class="app-splash-enter" onclick="dismissAppSplash()">Entra</button>
         <p id="app-splash-tagline" class="app-splash-tagline"><strong>Istruzioni operative interattive</strong> = hai davanti un impianto da gestire, non un capitolo da studiare: tocchi, scegli, vedi cosa si aggancia al processo biologico. Quiz + record salvati servono a rendere allenamento ciò che sulla carta resterebbe noioso.</p>
