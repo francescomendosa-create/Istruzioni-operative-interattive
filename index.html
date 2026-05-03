@@ -2667,6 +2667,46 @@
             color: #fff;
             font-weight: 700;
         }
+        .app-splash-sound-row {
+            margin: 0 auto 14px;
+            text-align: center;
+            max-width: 520px;
+            padding: 0 10px;
+        }
+        .app-splash-sound-legend {
+            display: block;
+            font-size: clamp(0.68rem, 2.4vw, 0.76rem);
+            color: rgba(232, 244, 252, 0.88);
+            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+        }
+        .app-splash-sound-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        .app-splash-sound-btn {
+            padding: 7px 12px;
+            font-size: clamp(0.62rem, 2.2vw, 0.72rem);
+            font-weight: 700;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.38);
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8f4fc;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .app-splash-sound-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .app-splash-sound-btn.active {
+            border-color: rgba(134, 239, 172, 0.95);
+            background: rgba(74, 222, 128, 0.22);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(74, 222, 128, 0.25);
+        }
         @media (prefers-reduced-motion: reduce) {
             .app-splash-icon-live,
             .app-splash-worm-swing,
@@ -2710,6 +2750,9 @@
             }
             .app-splash-subbrand {
                 letter-spacing: 0.14em;
+            }
+            .app-splash-sound-btn {
+                padding: 6px 9px;
             }
         }
     </style>
@@ -2809,6 +2852,15 @@
                 </div>
             </div>
         </div>
+        <div class="app-splash-sound-row" id="app-splash-sound-row" role="group" aria-label="Scegli suono pulsante Entra">
+            <span class="app-splash-sound-legend">Suono di «Entra» — clic per anteprima e scelta</span>
+            <div class="app-splash-sound-btns">
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="1" title="Bolla morbida, lunga">1 · Morbido</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="2" title="Pop breve e leggero">2 · Corto</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="3" title="Grave, sott’acqua">3 · Profondo</button>
+                <button type="button" class="app-splash-sound-btn" data-splash-sound="4" title="Lieve luccichio acuto + blop">4 · Cristallino</button>
+            </div>
+        </div>
         <button type="button" id="app-splash-enter-btn" class="app-splash-enter" onclick="dismissAppSplash()">Entra</button>
         <p id="app-splash-tagline" class="app-splash-tagline"><strong>Istruzioni operative interattive</strong> = hai davanti un impianto da gestire, non un capitolo da studiare: tocchi, scegli, vedi cosa si aggancia al processo biologico. Quiz + record salvati servono a rendere allenamento ciò che sulla carta resterebbe noioso.</p>
     </div>
@@ -2831,46 +2883,118 @@
         document.body.classList.add('splash-active');
     }
 })();
-function playSplashBubblePop() {
+var SPLASH_SOUND_KEY = 'io-splash-sound-variant';
+function getSplashSoundVariant() {
     try {
-        var sr = 44100;
-        var dur = 0.32;
-        var n = Math.floor(sr * dur);
-        var ab = new ArrayBuffer(44 + n * 2);
-        var v = new DataView(ab);
-        var w = function (o, s) {
-            for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
-        };
-        w(0, 'RIFF');
-        v.setUint32(4, 36 + n * 2, true);
-        w(8, 'WAVE');
-        w(12, 'fmt ');
-        v.setUint32(16, 16, true);
-        v.setUint16(20, 1, true);
-        v.setUint16(22, 1, true);
-        v.setUint32(24, sr, true);
-        v.setUint32(28, sr * 2, true);
-        v.setUint16(32, 2, true);
-        v.setUint16(34, 16, true);
-        w(36, 'data');
-        v.setUint32(40, n * 2, true);
-        var off = 44;
-        var phase = 0;
-        for (var i = 0; i < n; i++) {
-            var t = i / sr;
-            var f = 275 * Math.exp(-t * 9.5) + 68;
-            phase += (2 * Math.PI * f) / sr;
-            var atk = Math.min(1, t / 0.006);
-            var dec = Math.exp(-t * 4.8);
-            var env = atk * dec;
-            var y = Math.sin(phase) * env * 0.44;
-            y += Math.sin(phase * 2) * env * 0.028;
+        var s = localStorage.getItem(SPLASH_SOUND_KEY);
+        if (s === '2' || s === '3' || s === '4') return s;
+    } catch (e) {}
+    return '1';
+}
+function buildSplashBubbleWav(variant) {
+    var sr = 44100;
+    var vs = String(variant || '1');
+    var dur = 0.32;
+    var peak = 30000;
+    if (vs === '2') {
+        dur = 0.14;
+        peak = 25500;
+    } else if (vs === '3') {
+        dur = 0.44;
+        peak = 26800;
+    } else if (vs === '4') {
+        dur = 0.29;
+        peak = 28500;
+    }
+    var n = Math.max(1, Math.floor(sr * dur));
+    var ab = new ArrayBuffer(44 + n * 2);
+    var v = new DataView(ab);
+    var w = function (o, s) {
+        for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
+    };
+    w(0, 'RIFF');
+    v.setUint32(4, 36 + n * 2, true);
+    w(8, 'WAVE');
+    w(12, 'fmt ');
+    v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true);
+    v.setUint32(28, sr * 2, true);
+    v.setUint16(32, 2, true);
+    v.setUint16(34, 16, true);
+    w(36, 'data');
+    v.setUint32(40, n * 2, true);
+    var off = 44;
+    var phase = 0;
+    var phaseHi = 0;
+    for (var i = 0; i < n; i++) {
+        var t = i / sr;
+        var y = 0;
+        if (vs === '1') {
+            var f1 = 275 * Math.exp(-t * 9.5) + 68;
+            phase += (2 * Math.PI * f1) / sr;
+            var atk1 = Math.min(1, t / 0.006);
+            var dec1 = Math.exp(-t * 4.8);
+            var env1 = atk1 * dec1;
+            y = Math.sin(phase) * env1 * 0.44;
+            y += Math.sin(phase * 2) * env1 * 0.028;
             if (t < 0.022) {
-                y += (Math.random() * 2 - 1) * (1 - t / 0.022) * 0.022 * atk;
+                y += (Math.random() * 2 - 1) * (1 - t / 0.022) * 0.022 * atk1;
             }
-            v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(y * 30000))), true);
-            off += 2;
+        } else if (vs === '2') {
+            var f2 = 430 * Math.exp(-t * 24) + 155;
+            phase += (2 * Math.PI * f2) / sr;
+            var atk2 = Math.min(1, t / 0.003);
+            var dec2 = Math.exp(-t * 18);
+            var env2 = atk2 * dec2;
+            y = Math.sin(phase) * env2 * 0.38;
+            if (t < 0.012) {
+                y += (Math.random() * 2 - 1) * (1 - t / 0.012) * 0.035 * atk2;
+            }
+        } else if (vs === '3') {
+            var f3 = 188 * Math.exp(-t * 5.6) + 50;
+            phase += (2 * Math.PI * f3) / sr;
+            var atk3 = Math.min(1, t / 0.011);
+            var dec3 = Math.exp(-t * 3.15);
+            var env3 = atk3 * dec3;
+            y = Math.sin(phase) * env3 * 0.52;
+            y += Math.sin(phase * 2) * env3 * 0.016;
+            if (t < 0.032) {
+                y += (Math.random() * 2 - 1) * (1 - t / 0.032) * 0.018 * atk3;
+            }
+        } else {
+            var f4 = 292 * Math.exp(-t * 10.5) + 70;
+            phase += (2 * Math.PI * f4) / sr;
+            var atk4 = Math.min(1, t / 0.005);
+            var dec4 = Math.exp(-t * 5.4);
+            var env4 = atk4 * dec4;
+            y = Math.sin(phase) * env4 * 0.37;
+            y += Math.sin(phase * 2) * env4 * 0.022;
+            if (t < 0.048) {
+                var fhi = 1050 * Math.exp(-t * 32) + 340;
+                phaseHi += (2 * Math.PI * fhi) / sr;
+                var hiEnv = Math.exp(-t * 28) * Math.min(1, t / 0.004);
+                y += Math.sin(phaseHi) * hiEnv * 0.11;
+            }
         }
+        v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(y * peak))), true);
+        off += 2;
+    }
+    return ab;
+}
+function splashBubbleVolumeFor(variant) {
+    var vs = String(variant || '1');
+    if (vs === '2') return 0.56;
+    if (vs === '3') return 0.66;
+    if (vs === '4') return 0.58;
+    return 0.62;
+}
+function playSplashBubblePop(optVariant) {
+    try {
+        var vs = optVariant != null ? String(optVariant) : getSplashSoundVariant();
+        if (vs !== '1' && vs !== '2' && vs !== '3' && vs !== '4') vs = '1';
+        var ab = buildSplashBubbleWav(vs);
         var blob = new Blob([ab], { type: 'audio/wav' });
         var url = URL.createObjectURL(blob);
         var revokeLater = function () {
@@ -2899,7 +3023,7 @@ function playSplashBubblePop() {
         a.removeAttribute('src');
         a.load();
         a.src = url;
-        a.volume = 0.62;
+        a.volume = splashBubbleVolumeFor(vs);
         a.addEventListener('ended', revokeLater, { once: true });
         a.addEventListener('error', revokeLater, { once: true });
         var pr = a.play();
@@ -2908,7 +3032,7 @@ function playSplashBubblePop() {
                 try {
                     var b = document.createElement('audio');
                     b.setAttribute('playsinline', '');
-                    b.volume = 0.62;
+                    b.volume = splashBubbleVolumeFor(vs);
                     b.src = url;
                     holder.appendChild(b);
                     var pr2 = b.play();
@@ -2928,6 +3052,27 @@ function playSplashBubblePop() {
         }
     } catch (e) {}
 }
+(function splashSoundPickerInit() {
+    var row = document.getElementById('app-splash-sound-row');
+    if (!row) return;
+    function setActive(v) {
+        row.querySelectorAll('[data-splash-sound]').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-splash-sound') === v);
+        });
+    }
+    setActive(getSplashSoundVariant());
+    row.addEventListener('click', function (ev) {
+        var t = ev.target && ev.target.closest ? ev.target.closest('[data-splash-sound]') : null;
+        if (!t || !row.contains(t)) return;
+        var v = t.getAttribute('data-splash-sound');
+        if (v !== '1' && v !== '2' && v !== '3' && v !== '4') return;
+        try {
+            localStorage.setItem(SPLASH_SOUND_KEY, v);
+        } catch (e) {}
+        setActive(v);
+        playSplashBubblePop(v);
+    });
+})();
 function dismissAppSplash() {
     playSplashBubblePop();
     var KEY = 'io-splash-dismissed-session';
