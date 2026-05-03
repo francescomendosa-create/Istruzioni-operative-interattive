@@ -2508,18 +2508,64 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: 50% 50%;
+            object-fit: contain;
+            object-position: 50% 48%;
             display: block;
             pointer-events: none;
             user-select: none;
             z-index: 1;
+            transform: scale(0.82);
+            transform-origin: 50% 45%;
+        }
+        /* Pennello vettoriale: sempre visibile sopra al PNG (grafica + animazione). */
+        .app-splash-paintbrush-svg {
+            position: absolute;
+            right: 4%;
+            bottom: 10%;
+            width: 38%;
+            height: auto;
+            max-height: 58%;
+            z-index: 2;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 10px rgba(15, 39, 68, 0.35)) drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4));
+            animation: splashBrushTilt 2.8s ease-in-out infinite;
+            transform-origin: 70% 92%;
+        }
+        .app-splash-paintbrush-svg .brush-bristles {
+            animation: splashBristleFlex 1.6s ease-in-out infinite;
+            transform-origin: 50px 28px;
+        }
+        .app-splash-icon-live-inner.is-missing-img .app-splash-raster {
+            display: none;
+        }
+        .app-splash-icon-live-inner.is-missing-img .app-splash-paintbrush-svg {
+            right: auto;
+            bottom: auto;
+            left: 50%;
+            top: 52%;
+            width: min(52%, 120px);
+            max-height: 72%;
+            transform: translate(-50%, -50%);
+            transform-origin: 50px 118px;
+            animation: splashBrushTiltHero 3s ease-in-out infinite;
+        }
+        @keyframes splashBrushTilt {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(7deg); }
+        }
+        @keyframes splashBrushTiltHero {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-4deg); }
+            50% { transform: translate(-50%, -50%) rotate(6deg); }
+        }
+        @keyframes splashBristleFlex {
+            0%, 100% { transform: scaleX(1) scaleY(1); }
+            50% { transform: scaleX(1.04) scaleY(0.98); }
         }
         /* Bolle “aria” sul liquido: strato sopra al PNG (altrimenti resta solo il cerchio pieno). */
         .app-splash-bubbles-fx {
             position: absolute;
             inset: 0;
-            z-index: 2;
+            z-index: 3;
             pointer-events: none;
             overflow: hidden;
             border-radius: inherit;
@@ -2603,12 +2649,20 @@
         @media (prefers-reduced-motion: reduce) {
             .app-splash-icon-live,
             .app-splash-worm-swing,
-            .app-splash-bubbles-fx span {
+            .app-splash-bubbles-fx span,
+            .app-splash-paintbrush-svg,
+            .app-splash-paintbrush-svg .brush-bristles {
                 animation: none !important;
             }
             .app-splash-bubbles-fx span {
                 opacity: 0.55;
                 transform: none;
+            }
+            .app-splash-paintbrush-svg .brush-bristles {
+                transform: none;
+            }
+            .app-splash-icon-live-inner.is-missing-img .app-splash-paintbrush-svg {
+                transform: translate(-50%, -50%);
             }
         }
         @media (max-width: 480px) {
@@ -2662,6 +2716,32 @@
                     <div class="app-splash-worm-swing">
                         <img class="app-splash-raster" id="app-splash-raster-img" src="assets/splash-worm-icon.png" width="512" height="512" alt=""
                             decoding="async">
+                        <svg class="app-splash-paintbrush-svg" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="splashBrushHandle" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#c4a574"/>
+                                    <stop offset="45%" stop-color="#e8d4a8"/>
+                                    <stop offset="100%" stop-color="#9a7b52"/>
+                                </linearGradient>
+                                <linearGradient id="splashBrushBristle" x1="0%" y1="100%" x2="0%" y2="0%">
+                                    <stop offset="0%" stop-color="#f9a8d4"/>
+                                    <stop offset="55%" stop-color="#fbcfe8"/>
+                                    <stop offset="100%" stop-color="#f472b6"/>
+                                </linearGradient>
+                                <linearGradient id="splashBrushFerrule" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#e2e8f0"/>
+                                    <stop offset="50%" stop-color="#94a3b8"/>
+                                    <stop offset="100%" stop-color="#cbd5e1"/>
+                                </linearGradient>
+                            </defs>
+                            <path fill="url(#splashBrushHandle)" d="M38 118 L42 78 L58 78 L62 118 Q50 128 38 118Z"/>
+                            <path fill="url(#splashBrushFerrule)" d="M40 78 L60 78 L59 68 L41 68Z"/>
+                            <g class="brush-bristles">
+                                <path fill="url(#splashBrushBristle)" d="M28 68 Q50 8 72 68 Q50 58 28 68Z"/>
+                                <path fill="rgba(255,255,255,0.55)" d="M44 22 Q50 14 56 22 Q52 28 44 22Z"/>
+                                <path fill="none" stroke="rgba(236,72,153,0.35)" stroke-width="0.8" d="M38 58 Q50 24 62 58"/>
+                            </g>
+                        </svg>
                     </div>
                     <div class="app-splash-bubbles-fx" aria-hidden="true">
                         <span></span><span></span><span></span><span></span>
