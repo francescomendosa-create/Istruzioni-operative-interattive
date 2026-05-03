@@ -1183,11 +1183,11 @@
         }
         .quiz-adelfo-figure {
             position: relative;
-            width: min(22vw, 104px);
-            max-width: 104px;
+            width: min(38vw, 240px);
+            max-width: 240px;
             transform-origin: 50% 100%;
             will-change: transform;
-            transform: translateX(-64vw) scale(0.32);
+            transform: translateX(-76vw) scale(0.55);
         }
         .quiz-adelfo-sprwrap {
             width: 100%;
@@ -1205,7 +1205,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .quiz-adelfo-figure {
-                transform: translateX(-64vw) scale(0.32) !important;
+                transform: translateX(-76vw) scale(0.55) !important;
             }
         }
         .quiz-adelfo-bubble {
@@ -5763,16 +5763,16 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
  * Per tempi/posizioni modifica anim.json (walkRightDurationMs, pointPauseMs, returnDurationMs, frameStepMs, pathLeftVw, pathMidVw, …).
  */
 const QUIZ_ADELFO = {
-    displayScale: 0.32,
+    displayScale: 0.55,
     manifestUrl: 'adelfo-definitivo/anim.json',
-    /** Posizioni orizzontali (vw): sinistra scena; “mezzo” più a sinistra del centro schermo. */
-    pathLeftVw: -64,
-    pathMidVw: -28,
-    /** Tempi (ms): cammina verso dx, pausa “indica”, ritorno; frameStepMs = ritmo fotogrammi. */
-    walkRightDurationMs: 4500,
-    pointPauseMs: 1600,
-    returnDurationMs: 4000,
-    frameStepMs: 125
+    /** Percorso lungo (vw): sinistra; “mezzo” più a destra = tratto di strada più lungo. */
+    pathLeftVw: -76,
+    pathMidVw: -8,
+    /** Tempi (ms): lento e leggibile. frameStepMs più alto = passi più calmi. */
+    walkRightDurationMs: 7500,
+    pointPauseMs: 3000,
+    returnDurationMs: 7000,
+    frameStepMs: 175
 };
 
 let quizAdelfoAnimCfg = null;
@@ -5815,7 +5815,6 @@ function quizAdelfoResolveAnim() {
         })
         .catch(function () {
             quizAdelfoAnimCfg = quizAdelfoFallbackAnim();
-            QUIZ_ADELFO.displayScale = 0.32;
             return quizAdelfoAnimCfg;
         });
     return quizAdelfoManifestPromise;
@@ -5839,7 +5838,7 @@ function quizAdelfoCancelIntro() {
     if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
     if (fig) {
         const sc = QUIZ_ADELFO.displayScale;
-        const xl = (typeof QUIZ_ADELFO.pathLeftVw === 'number') ? QUIZ_ADELFO.pathLeftVw : -64;
+        const xl = (typeof QUIZ_ADELFO.pathLeftVw === 'number') ? QUIZ_ADELFO.pathLeftVw : -76;
         fig.style.transform = 'translateX(' + xl + 'vw) scale(' + sc + ')';
     }
     if (layer) {
@@ -5982,7 +5981,7 @@ function quizAdelfoPhaseMove(fig, cv, canvasArr, fromVw, toVw, durationMs, mirro
     var frames = Math.max(1, canvasArr ? canvasArr.length : 1);
     var sc = QUIZ_ADELFO.displayScale;
     var flip = mirrorX ? ' scaleX(-1)' : '';
-    var stepMs = (typeof QUIZ_ADELFO.frameStepMs === 'number' && QUIZ_ADELFO.frameStepMs > 40) ? QUIZ_ADELFO.frameStepMs : 125;
+    var stepMs = (typeof QUIZ_ADELFO.frameStepMs === 'number' && QUIZ_ADELFO.frameStepMs > 40) ? QUIZ_ADELFO.frameStepMs : 175;
     return new Promise(function (resolve) {
         var t0 = performance.now();
         function tick(now) {
@@ -6023,11 +6022,11 @@ function quizRunAdelfoIntro() {
         var wr = quizAdelfoStripped.walkRight;
         var pr = quizAdelfoStripped.pointRight;
         var wlArr = quizAdelfoStripped.walkLeft;
-        var xL = (typeof QUIZ_ADELFO.pathLeftVw === 'number') ? QUIZ_ADELFO.pathLeftVw : -64;
-        var xM = (typeof QUIZ_ADELFO.pathMidVw === 'number') ? QUIZ_ADELFO.pathMidVw : -28;
-        var tWalk = (typeof QUIZ_ADELFO.walkRightDurationMs === 'number' && QUIZ_ADELFO.walkRightDurationMs > 500) ? QUIZ_ADELFO.walkRightDurationMs : 4500;
-        var tPoint = (typeof QUIZ_ADELFO.pointPauseMs === 'number' && QUIZ_ADELFO.pointPauseMs > 200) ? QUIZ_ADELFO.pointPauseMs : 1600;
-        var tRet = (typeof QUIZ_ADELFO.returnDurationMs === 'number' && QUIZ_ADELFO.returnDurationMs > 500) ? QUIZ_ADELFO.returnDurationMs : 4000;
+        var xL = (typeof QUIZ_ADELFO.pathLeftVw === 'number') ? QUIZ_ADELFO.pathLeftVw : -76;
+        var xM = (typeof QUIZ_ADELFO.pathMidVw === 'number') ? QUIZ_ADELFO.pathMidVw : -8;
+        var tWalk = (typeof QUIZ_ADELFO.walkRightDurationMs === 'number' && QUIZ_ADELFO.walkRightDurationMs > 500) ? QUIZ_ADELFO.walkRightDurationMs : 7500;
+        var tPoint = (typeof QUIZ_ADELFO.pointPauseMs === 'number' && QUIZ_ADELFO.pointPauseMs > 200) ? QUIZ_ADELFO.pointPauseMs : 3000;
+        var tRet = (typeof QUIZ_ADELFO.returnDurationMs === 'number' && QUIZ_ADELFO.returnDurationMs > 500) ? QUIZ_ADELFO.returnDurationMs : 7000;
         quizAdelfoPrepareGlobalCanvas(cv, [wr, pr, wlArr]);
 
         function runSeq() {
