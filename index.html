@@ -1183,68 +1183,29 @@
         }
         .quiz-adelfo-figure {
             position: relative;
-            width: min(38vw, 200px);
-            max-width: 200px;
+            width: min(22vw, 104px);
+            max-width: 104px;
             transform-origin: 50% 100%;
             will-change: transform;
+            transform: translateX(-55vw) scale(0.42);
         }
-        /* Strip 4 frame camminata (sprite sheet orizzontale) */
         .quiz-adelfo-sprwrap {
             width: 100%;
-            overflow: hidden;
+            overflow: visible;
             line-height: 0;
         }
-        .quiz-adelfo-img--sheet {
+        .quiz-adelfo-canvas {
             display: block;
-            width: 400%;
-            max-width: none;
+            width: 100%;
             height: auto;
-            transform: translateX(0);
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             -webkit-user-drag: none;
             user-select: none;
         }
-        @keyframes quiz-adelfo-strip-walk {
-            from { transform: translateX(0); }
-            to { transform: translateX(-75%); }
-        }
-        .quiz-adelfo-figure--walk .quiz-adelfo-img--sheet,
-        .quiz-adelfo-figure--back .quiz-adelfo-img--sheet {
-            animation: quiz-adelfo-strip-walk 0.42s steps(4, end) infinite;
-        }
-        .quiz-adelfo-figure--shout .quiz-adelfo-img--sheet {
-            animation: none;
-            transform: translateX(-25%);
-        }
-        .quiz-adelfo-figure--enter .quiz-adelfo-img--sheet {
-            animation: none;
-            transform: translateX(0);
-        }
-        .quiz-adelfo-figure--enter {
-            transform: translateX(38vw) scaleX(-1);
-            transition: none;
-        }
-        .quiz-adelfo-figure--walk {
-            transform: translateX(-6vw) scaleX(-1);
-            transition: transform 2.05s cubic-bezier(0.28, 0.9, 0.32, 1);
-        }
-        .quiz-adelfo-figure--shout {
-            transform: translateX(-6vw) scaleX(-1) translateY(-14px) rotate(-5deg);
-            transition: transform 0.38s ease-out;
-        }
-        .quiz-adelfo-figure--back {
-            transform: translateX(42vw) scaleX(1);
-            transition: transform 1.85s cubic-bezier(0.45, 0, 0.85, 0.35);
-        }
         @media (prefers-reduced-motion: reduce) {
-            .quiz-adelfo-img--sheet {
-                animation: none !important;
-            }
-            .quiz-adelfo-figure--walk,
-            .quiz-adelfo-figure--shout,
-            .quiz-adelfo-figure--back {
-                transition: none !important;
+            .quiz-adelfo-figure {
+                transform: translateX(-55vw) scale(0.42) !important;
             }
         }
         .quiz-adelfo-bubble {
@@ -3676,14 +3637,14 @@ function dismissAppSplash() {
             </div>
             <div id="quiz-adelfo-layer" class="quiz-adelfo-layer" aria-hidden="true" aria-label="Adelfo">
                 <div class="quiz-adelfo-ground">
-                    <div class="quiz-adelfo-figure quiz-adelfo-figure--enter" id="quiz-adelfo-figure">
+                    <div class="quiz-adelfo-figure" id="quiz-adelfo-figure">
                         <div class="quiz-adelfo-sprwrap">
-                            <img id="quiz-adelfo-img" class="quiz-adelfo-img--sheet" src="adelfo-walk-sheet.png" alt="" decoding="async" />
+                            <canvas id="quiz-adelfo-canvas" class="quiz-adelfo-canvas" width="48" height="58" aria-hidden="true"></canvas>
                         </div>
                         <div class="quiz-adelfo-bubble" id="quiz-adelfo-bubble" aria-hidden="true">(!&amp;/%)</div>
                     </div>
                 </div>
-                <span class="quiz-adelfo-sr">Adelfo arriva dalla destra verso la vasca, grida e torna indietro.</span>
+                <span class="quiz-adelfo-sr">Adelfo cammina da sinistra verso destra, indica in alto, poi torna indietro.</span>
             </div>
         </div>
         <div id="quiz-screen-over" style="display:none;">
@@ -5797,151 +5758,197 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     }
 }
 
+/**
+ * Atlas `adelfo-sprite-master.png` (1024×631): ritagli approssimati — regola x0,y se i frame non coincidono.
+ * walkRight = CAMMINATA verso destra (8 frame in riga). pointUp = GUARDA IN SU. walkLeft = SINISTRA camminata (5 frame).
+ */
+const QUIZ_ADELFO_ATLAS = {
+    sheetSrc: 'adelfo-sprite-master.png',
+    fw: 48,
+    fh: 58,
+    displayScale: 0.4,
+    walkRight: { x0: 28, y: 100, frames: 8 },
+    pointUp: { x0: 608, y: 328, frames: 1 },
+    walkLeft: { x0: 64, y: 500, frames: 5 }
+};
+
 let quizAdelfoTimerHandles = [];
-let quizAdelfoWalkEndListener = null;
+let quizAdelfoRafId = 0;
+let quizAdelfoMasterCanvas = null;
+let quizAdelfoMasterPromise = null;
 
 function quizAdelfoCancelIntro() {
+    if (quizAdelfoRafId) {
+        cancelAnimationFrame(quizAdelfoRafId);
+        quizAdelfoRafId = 0;
+    }
     quizAdelfoTimerHandles.forEach(function (t) { clearTimeout(t); });
     quizAdelfoTimerHandles = [];
-    const fig = document.getElementById('quiz-adelfo-figure');
-    if (fig && quizAdelfoWalkEndListener) {
-        fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
-        quizAdelfoWalkEndListener = null;
-    }
     const layer = document.getElementById('quiz-adelfo-layer');
     const bubble = document.getElementById('quiz-adelfo-bubble');
-    const img = document.getElementById('quiz-adelfo-img');
+    const fig = document.getElementById('quiz-adelfo-figure');
     if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-    if (fig) fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
+    if (fig) {
+        const sc = QUIZ_ADELFO_ATLAS.displayScale;
+        fig.style.transform = 'translateX(-55vw) scale(' + sc + ')';
+    }
     if (layer) {
         layer.classList.remove('quiz-adelfo-layer--on');
         layer.setAttribute('aria-hidden', 'true');
     }
 }
 
-/** Rimuove il fondo bianco dal PNG pixel-art (canvas → PNG trasparente). */
-function quizStripAdelfoWhiteBg(img, cb) {
-    if (!img) {
-        if (typeof cb === 'function') cb();
+/** Carica lo sheet in memoria (canvas con fondo bianco reso trasparente). */
+function quizAdelfoEnsureMasterCanvas(cb) {
+    if (quizAdelfoMasterCanvas) {
+        if (typeof cb === 'function') cb(quizAdelfoMasterCanvas);
         return;
     }
-    if (img.dataset.adelfoProcessed === '1') {
-        if (typeof cb === 'function') cb();
+    if (quizAdelfoMasterPromise) {
+        quizAdelfoMasterPromise.then(function () {
+            if (typeof cb === 'function') cb(quizAdelfoMasterCanvas);
+        }).catch(function () {
+            if (typeof cb === 'function') cb(null);
+        });
         return;
     }
-    function done(ok) {
-        img.dataset.adelfoProcessed = ok ? '1' : '0';
-        if (typeof cb === 'function') cb();
-    }
-    try {
-        var w = img.naturalWidth;
-        var h = img.naturalHeight;
-        if (!w || !h) {
-            done(false);
-            return;
-        }
-        var c = document.createElement('canvas');
-        c.width = w;
-        c.height = h;
-        var ctx = c.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        var d = ctx.getImageData(0, 0, w, h);
-        for (var i = 0; i < d.data.length; i += 4) {
-            if (d.data[i] > 246 && d.data[i + 1] > 246 && d.data[i + 2] > 246) {
-                d.data[i + 3] = 0;
+    quizAdelfoMasterPromise = new Promise(function (resolve, reject) {
+        var im = new Image();
+        im.decoding = 'async';
+        im.onload = function () {
+            try {
+                var w = im.naturalWidth;
+                var h = im.naturalHeight;
+                if (!w || !h) {
+                    reject(new Error('Adelfo sheet vuoto'));
+                    return;
+                }
+                var c = document.createElement('canvas');
+                c.width = w;
+                c.height = h;
+                var ctx = c.getContext('2d');
+                ctx.drawImage(im, 0, 0);
+                var d = ctx.getImageData(0, 0, w, h);
+                for (var i = 0; i < d.data.length; i += 4) {
+                    if (d.data[i] > 246 && d.data[i + 1] > 246 && d.data[i + 2] > 246) {
+                        d.data[i + 3] = 0;
+                    }
+                }
+                ctx.putImageData(d, 0, 0);
+                quizAdelfoMasterCanvas = c;
+                resolve();
+            } catch (e) {
+                reject(e);
             }
-        }
-        ctx.putImageData(d, 0, 0);
-        var url = c.toDataURL('image/png');
-        function onAdelfoPng() {
-            img.removeEventListener('load', onAdelfoPng);
-            done(true);
-        }
-        img.addEventListener('load', onAdelfoPng);
-        img.src = url;
-        if (img.complete && img.naturalWidth === w) {
-            img.removeEventListener('load', onAdelfoPng);
-            done(true);
-        }
-    } catch (e) {
-        console.warn('[Adelfo canvas]', e);
-        done(false);
-    }
+        };
+        im.onerror = function () { reject(new Error('Adelfo load')); };
+        im.src = QUIZ_ADELFO_ATLAS.sheetSrc;
+    });
+    quizAdelfoMasterPromise.then(function () {
+        if (typeof cb === 'function') cb(quizAdelfoMasterCanvas);
+    }).catch(function (e) {
+        console.warn('[Adelfo master]', e);
+        if (typeof cb === 'function') cb(null);
+    });
 }
 
-/** Adelfo: da destra verso la vasca, fumetto (!&/%), ritorno a destra. */
+function quizAdelfoWarmMaster() {
+    quizAdelfoEnsureMasterCanvas(function () {});
+}
+
+function quizAdelfoBlit(master, cv, clip, frameIndex) {
+    if (!master || !cv || !clip) return;
+    var ctx = cv.getContext('2d');
+    var fw = QUIZ_ADELFO_ATLAS.fw;
+    var fh = QUIZ_ADELFO_ATLAS.fh;
+    var sx = clip.x0 + frameIndex * fw;
+    var sy = clip.y;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(master, sx, sy, fw, fh, 0, 0, cv.width, cv.height);
+}
+
+function quizAdelfoDelay(ms) {
+    return new Promise(function (resolve) {
+        var t = window.setTimeout(resolve, ms);
+        quizAdelfoTimerHandles.push(t);
+    });
+}
+
+function quizAdelfoPhaseMove(fig, cv, master, clipKey, fromVw, toVw, durationMs) {
+    var clip = QUIZ_ADELFO_ATLAS[clipKey];
+    var frames = Math.max(1, clip.frames | 0);
+    var sc = QUIZ_ADELFO_ATLAS.displayScale;
+    return new Promise(function (resolve) {
+        var t0 = performance.now();
+        function tick(now) {
+            var u = Math.min(1, (now - t0) / durationMs);
+            var ease = 1 - Math.pow(1 - u, 2);
+            var x = fromVw + (toVw - fromVw) * ease;
+            fig.style.transform = 'translateX(' + x + 'vw) scale(' + sc + ')';
+            var fi = Math.floor(((now - t0) / 85) % frames);
+            quizAdelfoBlit(master, cv, clip, fi);
+            if (u < 1) {
+                quizAdelfoRafId = requestAnimationFrame(tick);
+            } else {
+                quizAdelfoRafId = 0;
+                resolve();
+            }
+        }
+        quizAdelfoRafId = requestAnimationFrame(tick);
+    });
+}
+
+/** Adelfo: sinistra→destra (camminata), indica in alto, ritorno a sinistra. */
 function quizRunAdelfoIntro() {
-    const layer = document.getElementById('quiz-adelfo-layer');
-    const fig = document.getElementById('quiz-adelfo-figure');
-    const img = document.getElementById('quiz-adelfo-img');
-    const bubble = document.getElementById('quiz-adelfo-bubble');
-    if (!layer || !fig || !img) return;
+    var layer = document.getElementById('quiz-adelfo-layer');
+    var fig = document.getElementById('quiz-adelfo-figure');
+    var cv = document.getElementById('quiz-adelfo-canvas');
+    var bubble = document.getElementById('quiz-adelfo-bubble');
+    if (!layer || !fig || !cv) return;
     try {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     } catch (e0) { /* ignore */ }
 
     quizAdelfoCancelIntro();
 
-    function startAnim() {
-        layer.setAttribute('aria-hidden', 'false');
-        layer.classList.add('quiz-adelfo-layer--on');
-        fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--walk';
-            });
-        });
+    var fw = QUIZ_ADELFO_ATLAS.fw;
+    var fh = QUIZ_ADELFO_ATLAS.fh;
+    cv.width = fw;
+    cv.height = fh;
 
-        var walkFb = window.setTimeout(function () {
-            if (!quizAdelfoWalkEndListener) return;
-            fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
-            quizAdelfoWalkEndListener = null;
-            fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--shout';
-            if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
-            var t1b = window.setTimeout(function () {
-                if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
-                var t2b = window.setTimeout(function () {
+    quizAdelfoEnsureMasterCanvas(function (master) {
+        if (!master) return;
+
+        function runSeq() {
+            layer.setAttribute('aria-hidden', 'false');
+            layer.classList.add('quiz-adelfo-layer--on');
+            var sc = QUIZ_ADELFO_ATLAS.displayScale;
+            fig.style.transition = 'none';
+            fig.style.transform = 'translateX(-52vw) scale(' + sc + ')';
+            quizAdelfoBlit(master, cv, QUIZ_ADELFO_ATLAS.walkRight, 0);
+
+            quizAdelfoPhaseMove(fig, cv, master, 'walkRight', -52, -8, 2400)
+                .then(function () {
+                    quizAdelfoBlit(master, cv, QUIZ_ADELFO_ATLAS.pointUp, 0);
+                    fig.style.transform = 'translateX(-8vw) scale(' + sc + ') translateY(-6px) rotate(-4deg)';
+                    if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
+                    return quizAdelfoDelay(950);
+                })
+                .then(function () {
+                    if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
+                    fig.style.transform = 'translateX(-8vw) scale(' + sc + ')';
+                    return quizAdelfoPhaseMove(fig, cv, master, 'walkLeft', -8, -52, 2100);
+                })
+                .then(function () {
                     quizAdelfoCancelIntro();
-                }, 1900);
-                quizAdelfoTimerHandles.push(t2b);
-            }, 1100);
-            quizAdelfoTimerHandles.push(t1b);
-        }, 2600);
-        quizAdelfoTimerHandles.push(walkFb);
-
-        quizAdelfoWalkEndListener = function (ev) {
-            if (ev.target !== fig || ev.propertyName !== 'transform') return;
-            clearTimeout(walkFb);
-            fig.removeEventListener('transitionend', quizAdelfoWalkEndListener);
-            quizAdelfoWalkEndListener = null;
-            fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--shout';
-            if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
-            var t1 = window.setTimeout(function () {
-                if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-                fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
-                var t2 = window.setTimeout(function () {
+                })
+                .catch(function () {
                     quizAdelfoCancelIntro();
-                }, 1900);
-                quizAdelfoTimerHandles.push(t2);
-            }, 1100);
-            quizAdelfoTimerHandles.push(t1);
-        };
-        fig.addEventListener('transitionend', quizAdelfoWalkEndListener);
-    }
+                });
+        }
 
-    function afterImgReady() {
-        quizStripAdelfoWhiteBg(img, function () { startAnim(); });
-    }
-
-    if (img.complete && img.naturalWidth) {
-        afterImgReady();
-    } else {
-        img.addEventListener('load', function adelfoOnce() {
-            img.removeEventListener('load', adelfoOnce);
-            afterImgReady();
-        });
-    }
+        requestAnimationFrame(runSeq);
+    });
 }
 
 function quizFinish(completedAll, opts) {
@@ -7221,6 +7228,9 @@ window.addEventListener('load', function initQuizProtection() {
                 openQuiz();
             });
         }
+        try {
+            quizAdelfoWarmMaster();
+        } catch (eAdW) { /* ignore */ }
         render();
     }
     if (quizFirestoreConfigured()) {
