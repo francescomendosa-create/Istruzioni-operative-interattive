@@ -244,9 +244,9 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            padding: 10px 16px 20px;
+            padding: 8px 12px 14px;
             width: 100%;
-            max-width: min(100%, 980px);
+            max-width: min(100%, 820px);
             margin: 0 auto;
             box-sizing: border-box;
         }
@@ -782,7 +782,7 @@
         }
 
         .quiz-panel h3 { margin-top: 0; color: var(--primary); }
-        .quiz-row { margin: 12px 0; text-align: left; max-width: min(100%, 720px); margin-left: auto; margin-right: auto; }
+        .quiz-row { margin: 12px 0; text-align: left; max-width: min(100%, 600px); margin-left: auto; margin-right: auto; }
         .quiz-row label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
         .quiz-row input {
             width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem;
@@ -962,8 +962,8 @@
         .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
         #quiz-screen-play .quiz-play-scoreboard {
             text-align: center;
-            padding: 8px 10px 9px;
-            margin: 0 0 12px;
+            padding: 6px 8px 7px;
+            margin: 0 0 8px;
             border-radius: 10px;
             background: linear-gradient(145deg, #e3f2fd 0%, #ffffff 45%, #f5f9ff 100%);
             border: 1px solid #90caf9;
@@ -1054,19 +1054,19 @@
             color: #bf360c;
         }
         #quiz-screen-play .quiz-q {
-            font-size: clamp(1.08rem, 3.6vw, 1.42rem);
-            margin: 14px 0 16px;
-            line-height: 1.48;
-            max-width: min(100%, 880px);
+            font-size: clamp(1rem, 3.1vw, 1.22rem);
+            margin: 8px 0 10px;
+            line-height: 1.42;
+            max-width: min(100%, 720px);
             margin-left: auto;
             margin-right: auto;
-            padding: 0 4px;
+            padding: 0 2px;
         }
         .quiz-choices { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
         #quiz-screen-play .quiz-choices {
-            gap: 14px;
-            margin: 8px auto 10px;
-            max-width: min(100%, 880px);
+            gap: 9px;
+            margin: 4px auto 6px;
+            max-width: min(100%, 720px);
             width: 100%;
         }
         .quiz-choice-btn {
@@ -1085,10 +1085,10 @@
         }
         .quiz-choice-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5d0d6, 0 3px 6px rgba(0,0,0,0.08); }
         #quiz-screen-play .quiz-choice-btn {
-            font-size: clamp(1rem, 2.8vw, 1.14rem);
-            padding: 16px 18px 16px 20px;
-            min-height: 3.35rem;
-            line-height: 1.42;
+            font-size: clamp(0.94rem, 2.5vw, 1.06rem);
+            padding: 11px 14px 11px 16px;
+            min-height: 2.75rem;
+            line-height: 1.36;
         }
         #quiz-screen-play .quiz-feedback {
             font-size: 0.95rem;
@@ -1276,10 +1276,10 @@
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.12); }
         }
-        /* Vasca: sotto domande/risposte, più spazio sopra */
+        /* Vasca: sotto domande/risposte */
         .quiz-bio-vat-wrap {
             --worm-dur: 2.35s;
-            margin: 36px 0 8px;
+            margin: 18px 0 6px;
             padding: 0;
             background: none;
             border: none;
@@ -1288,50 +1288,81 @@
         .quiz-bio-vat-svg {
             display: block;
             width: 100%;
-            max-width: min(100%, 860px);
+            max-width: min(100%, 720px);
             height: auto;
-            min-height: 72px;
+            min-height: 68px;
             margin: 0 auto;
             overflow: visible;
         }
         .quiz-bio-vat-wrap .quiz-worm-body {
             transform-origin: center;
+            transform-box: fill-box;
             animation-duration: var(--worm-dur, 2.35s);
             animation-timing-function: ease-in-out;
             animation-iteration-count: infinite;
             animation-name: quizWormWiggle;
         }
-        .quiz-worm-body.quiz-worm-motion-1 { animation-name: quizWormWiggleRev; }
-        .quiz-worm-body.quiz-worm-motion-2 { animation-name: quizWormBob; }
-        .quiz-worm-body.quiz-worm-motion-3 { animation-name: quizWormDrift; }
-        .quiz-worm-body.quiz-worm-motion-4 { animation-name: quizWormSway; }
         .quiz-bio-vat-wrap--timer-urgent {
             --worm-dur: 0.5s;
         }
+        .quiz-worm.quiz-worm--menace .quiz-worm-body {
+            animation-duration: 0.45s !important;
+            animation-timing-function: linear;
+        }
+        .quiz-worm.quiz-worm--menace .quiz-worm-body path {
+            fill: #0a0a0a !important;
+            stroke: #000000 !important;
+            filter: drop-shadow(0 0 5px rgba(220, 38, 38, 0.85));
+        }
+        .quiz-worm.quiz-worm--menace .quiz-worm-body circle {
+            fill: #7f1d1d !important;
+            filter: drop-shadow(0 0 3px rgba(248, 113, 113, 0.9));
+        }
         @keyframes quizWormWiggle {
-            0%, 100% { transform: translateX(0) translateY(0) rotate(-5deg) scaleY(1); }
-            50% { transform: translateX(7px) translateY(-1px) rotate(7deg) scaleY(1.05); }
+            0%, 100% { transform: translate(0, 0) rotate(-5deg) scaleY(1); }
+            50% { transform: translate(8px, -1px) rotate(8deg) scaleY(1.06); }
         }
         @keyframes quizWormWiggleRev {
-            0%, 100% { transform: translateX(0) translateY(0) rotate(5deg) scaleY(1); }
-            50% { transform: translateX(-7px) translateY(1px) rotate(-7deg) scaleY(1.05); }
+            0%, 100% { transform: translate(0, 0) rotate(5deg) scaleY(1); }
+            50% { transform: translate(-8px, 2px) rotate(-8deg) scaleY(1.06); }
         }
         @keyframes quizWormBob {
-            0%, 100% { transform: translateX(0) translateY(0) rotate(-4deg) scaleY(1); }
-            33% { transform: translateX(4px) translateY(-4px) rotate(5deg) scaleY(1.06); }
-            66% { transform: translateX(-5px) translateY(3px) rotate(-6deg) scaleY(0.97); }
+            0%, 100% { transform: translate(0, 0) rotate(-4deg) scaleY(1); }
+            33% { transform: translate(5px, -3px) rotate(6deg) scaleY(1.07); }
+            66% { transform: translate(-6px, 3px) rotate(-7deg) scaleY(0.96); }
         }
         @keyframes quizWormDrift {
-            0%, 100% { transform: translateX(0) rotate(-2deg) scaleY(1); }
-            25% { transform: translateX(5px) rotate(6deg) scaleY(1.03); }
-            50% { transform: translateX(-3px) rotate(-5deg) scaleY(1.05); }
-            75% { transform: translateX(4px) rotate(4deg) scaleY(0.99); }
+            0%, 100% { transform: translate(0, 0) rotate(-2deg) scaleY(1); }
+            25% { transform: translate(7px, 1px) rotate(7deg) scaleY(1.04); }
+            50% { transform: translate(-4px, -2px) rotate(-6deg) scaleY(1.06); }
+            75% { transform: translate(5px, 2px) rotate(5deg) scaleY(0.98); }
         }
         @keyframes quizWormSway {
-            0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
-            20% { transform: translateX(-6px) translateY(-2px) rotate(-8deg) scaleY(1.04); }
-            60% { transform: translateX(6px) translateY(2px) rotate(8deg) scaleY(1.02); }
-            85% { transform: translateX(-2px) translateY(0) rotate(-3deg); }
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-7px, -2px) rotate(-9deg) scaleY(1.05); }
+            60% { transform: translate(7px, 3px) rotate(9deg) scaleY(1.03); }
+            85% { transform: translate(-3px, 0) rotate(-4deg); }
+        }
+        @keyframes quizWormCrawl {
+            0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+            25% { transform: translate(9px, 2px) rotate(5deg); }
+            50% { transform: translate(4px, -2px) rotate(7deg); }
+            75% { transform: translate(-7px, 2px) rotate(-6deg); }
+        }
+        @keyframes quizWormDance {
+            0%, 100% { transform: translate(0, 0) scaleY(1) rotate(0deg); }
+            33% { transform: translate(-6px, -2px) scaleY(1.1) rotate(-11deg); }
+            66% { transform: translate(7px, 2px) scaleY(0.94) rotate(11deg); }
+        }
+        @keyframes quizWormFigure8 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            12.5% { transform: translate(6px, -2px) rotate(4deg); }
+            25% { transform: translate(9px, 0) rotate(0deg); }
+            37.5% { transform: translate(6px, 2px) rotate(-5deg); }
+            50% { transform: translate(0, 3px) rotate(0deg); }
+            62.5% { transform: translate(-6px, 2px) rotate(-5deg); }
+            75% { transform: translate(-9px, 0) rotate(0deg); }
+            87.5% { transform: translate(-6px, -2px) rotate(4deg); }
         }
         .quiz-bio-vat-wrap--sink .quiz-worm-body {
             animation: quizWormSink 1.2s ease-in forwards !important;
@@ -1361,12 +1392,6 @@
             }
             .quiz-bio-vat-wrap--timer-urgent {
                 --worm-dur: 2.35s;
-            }
-            .quiz-worm-body.quiz-worm-motion-1,
-            .quiz-worm-body.quiz-worm-motion-2,
-            .quiz-worm-body.quiz-worm-motion-3,
-            .quiz-worm-body.quiz-worm-motion-4 {
-                animation-name: none !important;
             }
         }
         .quiz-ref-wrap {
@@ -2189,13 +2214,13 @@
                             <stop offset="100%" stop-color="#90a4ae"/>
                         </linearGradient>
                         <clipPath id="quizBioVatClip">
-                            <rect x="30" y="44" width="340" height="48" rx="12" ry="12"/>
+                            <rect x="26" y="32" width="348" height="62" rx="12" ry="12"/>
                         </clipPath>
                     </defs>
                     <path fill="url(#quizBioTubGrad)" stroke="#546e7a" stroke-width="1.1"
                         d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12 Q390 6 378 6 L22 6 Q10 6 8 12Z"/>
                     <g clip-path="url(#quizBioVatClip)">
-                        <rect x="30" y="44" width="340" height="48" fill="#b0bec5" opacity="0.22"/>
+                        <rect x="30" y="34" width="340" height="58" fill="#b0bec5" opacity="0.22"/>
                         <rect id="quiz-bio-water-fill" x="30" y="84" width="340" height="8" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
                         <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.3">
                             <path fill="#e0f7fa" d="M0 52 Q50 46 100 52 T200 52 T300 52 T400 52 L400 102 L0 102Z"/>
@@ -2635,11 +2660,15 @@ const QUIZ_TIMER_FIRST_INDEX = 2;
 const QUIZ_TIMER_SECONDS = 25;
 /** Sotto questa soglia (secondi) la barra passa a stile “energia bassa”. */
 const QUIZ_TIMER_URGENT_SEC = 5;
+/** Con tempo residuo ≤ questi secondi un verme diventa nero/minaccioso. */
+const QUIZ_TIMER_MENACE_SEC = 10;
 let quizQuestionTimerId = null;
 let quizTimerDeadline = null;
 let quizTimerVisualActive = false;
 /** Vermi aggiunti a ogni risposta corretta (vasca biologica). */
 let quizBioWormCount = 0;
+/** Gruppo SVG del verme “minaccioso” quando il timer è basso (≤ QUIZ_TIMER_MENACE_SEC). */
+let quizBioMenaceG = null;
 let quizScoreAnimTimer = null;
 /** Opzioni passate a quizFinish dopo OK sul modale errore / timeout. */
 let quizWrongModalFinishOpts = null;
@@ -2768,6 +2797,7 @@ function quizClearQuestionTimer() {
     quizTimerDeadline = null;
     quizTimerVisualActive = false;
     quizBioVatSetTimerUrgent(false);
+    quizBioVatClearMenace();
 }
 
 function quizTimerPaint(frac, displaySec, urgent) {
@@ -2777,6 +2807,9 @@ function quizTimerPaint(frac, displaySec, urgent) {
     const host = document.getElementById('quiz-play-time');
     if (!fill || !secEl || !track || !host) {
         quizBioVatSetTimerUrgent(false);
+        if (!quizTimerVisualActive) {
+            quizBioVatClearMenace();
+        }
         return;
     }
     const p = Math.max(0, Math.min(1, frac));
@@ -2793,6 +2826,35 @@ function quizBioVatSetTimerUrgent(on) {
     const wrap = document.getElementById('quiz-bio-vat-wrap');
     if (!wrap) return;
     wrap.classList.toggle('quiz-bio-vat-wrap--timer-urgent', !!on);
+}
+
+function quizBioVatClearMenace() {
+    if (quizBioMenaceG) {
+        quizBioMenaceG.classList.remove('quiz-worm--menace');
+        quizBioMenaceG = null;
+    }
+}
+
+/** Con ≤ QUIZ_TIMER_MENACE_SEC secondi ne sceglie uno a caso e lo rende “nero”. */
+function quizBioVatUpdateMenace(leftSec) {
+    const root = document.getElementById('quiz-bio-worms');
+    if (!root) return;
+    const active = typeof leftSec === 'number' && leftSec > 0 && leftSec <= QUIZ_TIMER_MENACE_SEC;
+    if (!active) {
+        quizBioVatClearMenace();
+        return;
+    }
+    const worms = root.querySelectorAll('.quiz-worm');
+    if (!worms.length) {
+        quizBioVatClearMenace();
+        return;
+    }
+    if (quizBioMenaceG && root.contains(quizBioMenaceG)) {
+        return;
+    }
+    quizBioVatClearMenace();
+    quizBioMenaceG = worms[Math.floor(Math.random() * worms.length)];
+    quizBioMenaceG.classList.add('quiz-worm--menace');
 }
 
 function quizBioVatApplyFillFromState() {
@@ -2819,6 +2881,7 @@ function quizBioVatReset() {
     if (wrap) {
         wrap.classList.remove('quiz-bio-vat-wrap--sink', 'quiz-bio-vat-wrap--timer-urgent');
     }
+    quizBioVatClearMenace();
     quizBioVatApplyFillFromState();
 }
 
@@ -2836,11 +2899,17 @@ function quizBioVatOnCorrectAnswer() {
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
     const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gBody.setAttribute('class', 'quiz-worm-body');
-    const wormMotion = Math.floor(Math.random() * 5);
-    if (wormMotion > 0) {
-        gBody.classList.add('quiz-worm-motion-' + wormMotion);
+    if (!quizPrefersReducedMotion()) {
+        const motionNames = [
+            'quizWormWiggle', 'quizWormWiggleRev', 'quizWormBob', 'quizWormDrift', 'quizWormSway',
+            'quizWormCrawl', 'quizWormDance', 'quizWormFigure8'
+        ];
+        gBody.style.animationName = motionNames[Math.floor(Math.random() * motionNames.length)];
+        gBody.style.animationDelay = (Math.random() * 1.6).toFixed(2) + 's';
+    } else {
+        gBody.style.animationName = 'none';
+        gBody.style.animationDelay = '0s';
     }
-    gBody.style.animationDelay = (Math.random() * 1.5).toFixed(2) + 's';
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', 'M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z');
     path.setAttribute('fill', '#7cb342');
@@ -2889,6 +2958,7 @@ function quizStartQuestionTimer() {
         const displaySec = leftMs <= 0 ? 0 : Math.ceil(leftSec - 1e-6);
         const urgent = leftSec > 0 && leftSec <= QUIZ_TIMER_URGENT_SEC;
         quizTimerPaint(frac, displaySec, urgent);
+        quizBioVatUpdateMenace(leftSec);
 
         if (leftMs <= 0) {
             quizClearQuestionTimer();
@@ -3323,6 +3393,11 @@ function quizUpdatePlayProgress(extra) {
     const trackAria = document.getElementById('quiz-time-track');
     if (trackAria && showTime) {
         trackAria.setAttribute('aria-valuenow', String(Math.min(QUIZ_TIMER_SECONDS, initSec)));
+    }
+    if (showTime && quizTimerDeadline) {
+        quizBioVatUpdateMenace(Math.max(0, quizTimerDeadline - Date.now()) / 1000);
+    } else {
+        quizBioVatClearMenace();
     }
 }
 
