@@ -1278,7 +1278,7 @@
         }
         /* Vasca: sotto domande/risposte */
         .quiz-bio-vat-wrap {
-            --worm-dur: 2.35s;
+            --worm-dur: 2.85s;
             margin: 18px 0 6px;
             padding: 0;
             background: none;
@@ -1295,9 +1295,9 @@
             overflow: visible;
         }
         .quiz-bio-vat-wrap .quiz-worm-body {
-            transform-origin: center;
+            transform-origin: 2px 3px;
             transform-box: fill-box;
-            animation-duration: var(--worm-dur, 2.35s);
+            animation-duration: var(--worm-dur, 2.85s);
             animation-timing-function: ease-in-out;
             animation-iteration-count: infinite;
             animation-name: quizWormWiggle;
@@ -1318,51 +1318,63 @@
             fill: #7f1d1d !important;
             filter: drop-shadow(0 0 3px rgba(248, 113, 113, 0.9));
         }
+        /* Scorri chiaro: parte a sinistra del “passo”, va verso destra e torna */
+        @keyframes quizWormSwimRight {
+            0%, 100% { transform: translate(-14px, 1px) rotate(-10deg) scaleY(1.02); }
+            45% { transform: translate(18px, -1px) rotate(8deg) scaleY(1.08); }
+            72% { transform: translate(6px, 2px) rotate(2deg) scaleY(1); }
+        }
+        /* Scorri chiaro: parte a destra, spinge verso sinistra */
+        @keyframes quizWormSwimLeft {
+            0%, 100% { transform: translate(14px, 1px) rotate(10deg) scaleY(1.02); }
+            45% { transform: translate(-18px, -1px) rotate(-8deg) scaleY(1.08); }
+            72% { transform: translate(-6px, 2px) rotate(-2deg) scaleY(1); }
+        }
         @keyframes quizWormWiggle {
-            0%, 100% { transform: translate(0, 0) rotate(-5deg) scaleY(1); }
-            50% { transform: translate(8px, -1px) rotate(8deg) scaleY(1.06); }
+            0%, 100% { transform: translate(-6px, 0) rotate(-6deg) scaleY(1); }
+            50% { transform: translate(14px, -1px) rotate(10deg) scaleY(1.08); }
         }
         @keyframes quizWormWiggleRev {
-            0%, 100% { transform: translate(0, 0) rotate(5deg) scaleY(1); }
-            50% { transform: translate(-8px, 2px) rotate(-8deg) scaleY(1.06); }
+            0%, 100% { transform: translate(6px, 0) rotate(6deg) scaleY(1); }
+            50% { transform: translate(-14px, 1px) rotate(-10deg) scaleY(1.08); }
         }
         @keyframes quizWormBob {
-            0%, 100% { transform: translate(0, 0) rotate(-4deg) scaleY(1); }
-            33% { transform: translate(5px, -3px) rotate(6deg) scaleY(1.07); }
-            66% { transform: translate(-6px, 3px) rotate(-7deg) scaleY(0.96); }
+            0%, 100% { transform: translate(-8px, 0) rotate(-5deg) scaleY(1); }
+            35% { transform: translate(12px, -3px) rotate(8deg) scaleY(1.09); }
+            70% { transform: translate(-12px, 3px) rotate(-9deg) scaleY(0.95); }
         }
         @keyframes quizWormDrift {
-            0%, 100% { transform: translate(0, 0) rotate(-2deg) scaleY(1); }
-            25% { transform: translate(7px, 1px) rotate(7deg) scaleY(1.04); }
-            50% { transform: translate(-4px, -2px) rotate(-6deg) scaleY(1.06); }
-            75% { transform: translate(5px, 2px) rotate(5deg) scaleY(0.98); }
+            0%, 100% { transform: translate(-10px, 0) rotate(-4deg) scaleY(1); }
+            30% { transform: translate(16px, 1px) rotate(8deg) scaleY(1.05); }
+            55% { transform: translate(-4px, -2px) rotate(-8deg) scaleY(1.07); }
+            80% { transform: translate(12px, 2px) rotate(6deg) scaleY(1); }
         }
         @keyframes quizWormSway {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            20% { transform: translate(-7px, -2px) rotate(-9deg) scaleY(1.05); }
-            60% { transform: translate(7px, 3px) rotate(9deg) scaleY(1.03); }
-            85% { transform: translate(-3px, 0) rotate(-4deg); }
+            0%, 100% { transform: translate(10px, 0) rotate(4deg); }
+            25% { transform: translate(-16px, -2px) rotate(-11deg) scaleY(1.06); }
+            55% { transform: translate(16px, 3px) rotate(11deg) scaleY(1.04); }
+            80% { transform: translate(-8px, 0) rotate(-5deg); }
         }
         @keyframes quizWormCrawl {
-            0%, 100% { transform: translate(0, 0) rotate(-3deg); }
-            25% { transform: translate(9px, 2px) rotate(5deg); }
-            50% { transform: translate(4px, -2px) rotate(7deg); }
-            75% { transform: translate(-7px, 2px) rotate(-6deg); }
+            0%, 100% { transform: translate(-12px, 1px) rotate(-5deg); }
+            30% { transform: translate(18px, -1px) rotate(7deg); }
+            60% { transform: translate(4px, -3px) rotate(4deg); }
+            85% { transform: translate(-16px, 2px) rotate(-8deg); }
         }
         @keyframes quizWormDance {
-            0%, 100% { transform: translate(0, 0) scaleY(1) rotate(0deg); }
-            33% { transform: translate(-6px, -2px) scaleY(1.1) rotate(-11deg); }
-            66% { transform: translate(7px, 2px) scaleY(0.94) rotate(11deg); }
+            0%, 100% { transform: translate(-10px, 0) scaleY(1) rotate(-6deg); }
+            40% { transform: translate(14px, -2px) scaleY(1.12) rotate(12deg); }
+            75% { transform: translate(-14px, 2px) scaleY(0.92) rotate(-12deg); }
         }
         @keyframes quizWormFigure8 {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            12.5% { transform: translate(6px, -2px) rotate(4deg); }
-            25% { transform: translate(9px, 0) rotate(0deg); }
-            37.5% { transform: translate(6px, 2px) rotate(-5deg); }
+            12.5% { transform: translate(10px, -2px) rotate(6deg); }
+            25% { transform: translate(18px, 0) rotate(2deg); }
+            37.5% { transform: translate(10px, 2px) rotate(-6deg); }
             50% { transform: translate(0, 3px) rotate(0deg); }
-            62.5% { transform: translate(-6px, 2px) rotate(-5deg); }
-            75% { transform: translate(-9px, 0) rotate(0deg); }
-            87.5% { transform: translate(-6px, -2px) rotate(4deg); }
+            62.5% { transform: translate(-10px, 2px) rotate(-6deg); }
+            75% { transform: translate(-18px, 0) rotate(-2deg); }
+            87.5% { transform: translate(-10px, -2px) rotate(6deg); }
         }
         .quiz-bio-vat-wrap--sink .quiz-worm-body {
             animation: quizWormSink 1.2s ease-in forwards !important;
@@ -1391,7 +1403,7 @@
                 animation: none !important;
             }
             .quiz-bio-vat-wrap--timer-urgent {
-                --worm-dur: 2.35s;
+                --worm-dur: 2.85s;
             }
         }
         .quiz-ref-wrap {
@@ -2900,12 +2912,23 @@ function quizBioVatOnCorrectAnswer() {
     const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gBody.setAttribute('class', 'quiz-worm-body');
     if (!quizPrefersReducedMotion()) {
-        const motionNames = [
+        const swimR = 'quizWormSwimRight';
+        const swimL = 'quizWormSwimLeft';
+        const other = [
             'quizWormWiggle', 'quizWormWiggleRev', 'quizWormBob', 'quizWormDrift', 'quizWormSway',
             'quizWormCrawl', 'quizWormDance', 'quizWormFigure8'
         ];
-        gBody.style.animationName = motionNames[Math.floor(Math.random() * motionNames.length)];
-        gBody.style.animationDelay = (Math.random() * 1.6).toFixed(2) + 's';
+        const r = Math.random();
+        let motionName;
+        if (r < 0.38) {
+            motionName = swimR;
+        } else if (r < 0.76) {
+            motionName = swimL;
+        } else {
+            motionName = other[Math.floor(Math.random() * other.length)];
+        }
+        gBody.style.animationName = motionName;
+        gBody.style.animationDelay = (Math.random() * 2.1).toFixed(2) + 's';
     } else {
         gBody.style.animationName = 'none';
         gBody.style.animationDelay = '0s';
