@@ -1831,17 +1831,50 @@
         }
         .quiz-info-overlay {
             z-index: 5200;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+        }
+        .quiz-info-box.quiz-lock-box {
+            width: min(92vw, 520px);
+            max-width: min(92vw, 520px);
+            display: flex;
+            flex-direction: column;
+            max-height: min(88dvh, calc(100dvh - 36px));
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .quiz-info-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            color: #455a64;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin: 0 0 0;
+            padding-right: 6px;
+        }
+        .quiz-info-overlay .quiz-lock-actions {
+            flex-shrink: 0;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eceff1;
+            background: #fff;
         }
         .quiz-info-roadmap {
             margin-top: 14px;
             padding-top: 12px;
             border-top: 1px solid #e0e7ee;
-            max-height: min(42vh, 360px);
-            overflow-y: auto;
             font-size: 0.82rem;
             line-height: 1.5;
             color: #546e7a;
-            -webkit-overflow-scrolling: touch;
         }
         .quiz-info-roadmap h5 {
             margin: 12px 0 6px;
@@ -2499,9 +2532,9 @@
     </div>
 
     <div id="quiz-info-overlay" class="quiz-lock-overlay quiz-info-overlay" aria-hidden="true">
-        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-info-title" style="max-width:min(92vw, 520px);">
+        <div class="quiz-lock-box quiz-info-box" role="dialog" aria-modal="true" aria-labelledby="quiz-info-title">
             <h4 id="quiz-info-title" class="quiz-lock-title">Informazioni</h4>
-            <div style="color:#455a64;font-size:0.88rem;line-height:1.55;margin:0 0 14px;">
+            <div class="quiz-info-body">
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
