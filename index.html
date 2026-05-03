@@ -1892,6 +1892,20 @@
             font-size: 0.78rem;
             color: #607d8b;
         }
+        .quiz-info-release-notes {
+            margin: 8px 0 0;
+            padding: 8px 0 0;
+            border-top: 1px dashed #cfd8dc;
+            font-size: 0.74rem;
+            line-height: 1.45;
+            color: #455a64;
+        }
+        .quiz-info-release-notes p {
+            margin: 0 0 6px;
+        }
+        .quiz-info-release-notes p:last-child {
+            margin-bottom: 0;
+        }
         .quiz-info-roadmap-title {
             margin: 0 0 6px;
             font-weight: 800;
@@ -2559,7 +2573,7 @@
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
                 <div>
                     <div class="quiz-settings-row-title">Info</div>
-                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">1.1</span></div>
+                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">1.2</span></div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -2589,9 +2603,15 @@
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.1</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong></p>
+                <div class="quiz-info-release-notes">
+                    <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
+                    <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica e record <strong>sempre attivi</strong> (anche online con Firebase configurato), animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
+                </div>
                 <div class="quiz-info-roadmap">
                     <p class="quiz-info-roadmap-title">Prossimi aggiornamenti</p>
+                    <h5>Versione 1.3</h5>
+                    <p style="margin:0 0 10px;">Possibilità di <strong>sfidarsi in tempo reale</strong>.</p>
                     <h5>Versione 2.1</h5>
                     <p style="margin:0 0 8px;">Possibilità di rendere l’app <strong>programmabile direttamente dalle Impostazioni</strong> tramite interfaccia grafica.</p>
                     <p style="margin:0 0 4px;"><strong>Implementazioni previste:</strong></p>
@@ -2642,7 +2662,7 @@ let quizFeatureEnabled = false;
 let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
