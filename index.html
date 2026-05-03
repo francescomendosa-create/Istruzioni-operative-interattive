@@ -2406,6 +2406,138 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* ========= Schermata iniziale (splash) ========= */
+        body.splash-active {
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+        #app-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 25000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: max(16px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+            box-sizing: border-box;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% 0%, rgba(46, 204, 113, 0.14), transparent 55%),
+                radial-gradient(ellipse 70% 50% at 100% 60%, rgba(52, 152, 219, 0.1), transparent 50%),
+                linear-gradient(165deg, #0f2744 0%, #1f3f68 38%, #243b55 70%, #1a3038 100%);
+            color: #e8f4fc;
+        }
+        #app-splash.app-splash--visible {
+            display: flex;
+        }
+        .app-splash-inner {
+            width: min(100%, 520px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0;
+        }
+        .app-splash-brand {
+            margin: 0 0 8px;
+            font-size: clamp(0.72rem, 2.8vw, 0.82rem);
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.88);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+        }
+        .app-splash-mascot-wrap {
+            width: min(200px, 52vw);
+            height: min(200px, 52vw);
+            margin: 8px 0 20px;
+            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
+        }
+        .app-splash-mascot-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .splash-puzzle-bac {
+            animation: splash-mascot-float 3.2s ease-in-out infinite;
+            transform-origin: 50% 55%;
+        }
+        .splash-puzzle-piece {
+            animation: splash-puzzle-nudge 2.4s ease-in-out infinite;
+            transform-origin: 60px 60px;
+        }
+        .splash-bac-dot {
+            animation: splash-bac-pulse 1.8s ease-in-out infinite;
+        }
+        .splash-bac-dot--d2 { animation-delay: 0.35s; }
+        .splash-bac-dot--d3 { animation-delay: 0.7s; }
+        @keyframes splash-mascot-float {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        @keyframes splash-puzzle-nudge {
+            0%, 100% { transform: rotate(0deg); }
+            40% { transform: rotate(-4deg); }
+            70% { transform: rotate(5deg); }
+        }
+        @keyframes splash-bac-pulse {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.08); }
+        }
+        .app-splash-enter {
+            margin: 4px 0 16px;
+            padding: 16px min(56px, 12vw);
+            font-size: clamp(1.35rem, 5vw, 2rem);
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: inherit;
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            background: linear-gradient(180deg, #43e89a 0%, #1fc96a 42%, #159944 100%);
+            box-shadow:
+                0 10px 0 #0a5c30,
+                0 18px 36px rgba(10, 92, 48, 0.45),
+                inset 0 2px 0 rgba(255, 255, 255, 0.35);
+            text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, filter 0.12s ease, box-shadow 0.12s ease;
+        }
+        .app-splash-enter:hover {
+            filter: brightness(1.06);
+        }
+        .app-splash-enter:active {
+            transform: translateY(6px);
+            box-shadow:
+                0 4px 0 #0a5c30,
+                0 8px 20px rgba(10, 92, 48, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        .app-splash-tagline {
+            margin: 0;
+            font-size: clamp(0.78rem, 2.9vw, 0.92rem);
+            line-height: 1.55;
+            color: rgba(232, 244, 252, 0.92);
+            max-width: 48em;
+            text-align: center;
+            text-wrap: balance;
+        }
+        .app-splash-tagline strong {
+            color: #fff;
+            font-weight: 700;
+        }
+        @media (max-width: 480px) {
+            .app-splash-mascot-wrap {
+                margin-bottom: 14px;
+            }
+            .app-splash-enter {
+                width: min(100%, 320px);
+                padding: 14px 24px;
+                letter-spacing: 0.12em;
+            }
+        }
     </style>
     <!-- Firebase: preferenze quiz in Firestore (stesso progetto della classifica). Incolla __FIREBASE_QUIZ_CONFIG__ sotto. Regole: collection quiz_settings, docId = request.auth.uid, accesso solo al proprio uid (auth anonima). -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -2428,6 +2560,72 @@
     -->
 </head>
 <body>
+
+<div id="app-splash" class="app-splash app-splash--visible" role="dialog" aria-modal="true" aria-labelledby="app-splash-enter-btn" aria-describedby="app-splash-tagline">
+    <div class="app-splash-inner">
+        <p class="app-splash-brand">Istruzioni operative interattive</p>
+        <div class="app-splash-mascot-wrap" aria-hidden="true">
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="splashPuzzleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7dd3fc"/>
+                        <stop offset="55%" stop-color="#4ade80"/>
+                        <stop offset="100%" stop-color="#0e7490"/>
+                    </linearGradient>
+                    <linearGradient id="splashBacGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#14532d"/>
+                        <stop offset="100%" stop-color="#22c55e"/>
+                    </linearGradient>
+                </defs>
+                <g class="splash-puzzle-bac">
+                    <g class="splash-puzzle-piece">
+                        <path fill="url(#splashPuzzleGrad)" stroke="#0c4a6e" stroke-width="1.2"
+                            d="M52 12 L68 12 Q76 12 80 18 L80 28 Q88 28 92 34 Q96 40 92 46 Q88 52 80 52 L80 62 Q76 68 68 68 L52 68 Q44 68 40 74 Q36 80 40 86 Q44 92 52 92 L68 92 Q76 92 80 98 L80 108 Q76 114 68 114 L44 114 Q28 114 18 104 Q8 94 8 78 L8 48 Q8 32 18 22 Q28 12 44 12 Z"/>
+                        <ellipse cx="46" cy="42" rx="14" ry="10" fill="url(#splashBacGrad)" opacity="0.92"/>
+                        <ellipse cx="62" cy="56" rx="11" ry="9" fill="url(#splashBacGrad)" opacity="0.88"/>
+                        <ellipse cx="54" cy="74" rx="12" ry="9" fill="url(#splashBacGrad)" opacity="0.85"/>
+                        <circle class="splash-bac-dot" cx="42" cy="38" r="4" fill="#ecfdf5"/>
+                        <circle class="splash-bac-dot splash-bac-dot--d2" cx="58" cy="52" r="3.5" fill="#ecfdf5"/>
+                        <circle class="splash-bac-dot splash-bac-dot--d3" cx="50" cy="70" r="3.5" fill="#ecfdf5"/>
+                    </g>
+                </g>
+            </svg>
+        </div>
+        <button type="button" id="app-splash-enter-btn" class="app-splash-enter" onclick="dismissAppSplash()">Entra</button>
+        <p id="app-splash-tagline" class="app-splash-tagline"><strong>Istruzioni operative interattive</strong> = hai davanti un impianto da gestire, non un capitolo da studiare: tocchi, scegli, vedi cosa si aggancia al processo biologico. Quiz + record salvati servono a rendere allenamento ciò che sulla carta resterebbe noioso.</p>
+    </div>
+</div>
+<script>
+(function splashInit() {
+    var KEY = 'io-splash-dismissed-session';
+    try {
+        if (sessionStorage.getItem(KEY) === '1') {
+            document.body.classList.remove('splash-active');
+            var sp = document.getElementById('app-splash');
+            if (sp) {
+                sp.classList.remove('app-splash--visible');
+                sp.setAttribute('aria-hidden', 'true');
+            }
+        } else {
+            document.body.classList.add('splash-active');
+        }
+    } catch (e) {
+        document.body.classList.add('splash-active');
+    }
+})();
+function dismissAppSplash() {
+    var KEY = 'io-splash-dismissed-session';
+    var sp = document.getElementById('app-splash');
+    if (sp) {
+        sp.classList.remove('app-splash--visible');
+        sp.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('splash-active');
+    try {
+        sessionStorage.setItem(KEY, '1');
+    } catch (e) {}
+}
+</script>
 
 <div class="fixed-header">
     <div class="header-top">
