@@ -2832,137 +2832,101 @@
     }
 })();
 function playSplashBubblePop() {
-    function playWebAudio(ctx) {
-        var t0 = ctx.currentTime + 0.04;
-        var dur = 0.15;
-        var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
-        var buf = ctx.createBuffer(1, len, ctx.sampleRate);
-        var d = buf.getChannelData(0);
-        for (var i = 0; i < len; i++) {
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.2);
-        }
-        var master = ctx.createGain();
-        master.gain.value = 0.95;
-        master.connect(ctx.destination);
-        var noise = ctx.createBufferSource();
-        noise.buffer = buf;
-        var bp = ctx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(2200, t0);
-        bp.frequency.exponentialRampToValueAtTime(500, t0 + dur);
-        bp.Q.value = 1.35;
-        var gn = ctx.createGain();
-        gn.gain.setValueAtTime(0, t0);
-        gn.gain.linearRampToValueAtTime(0.72, t0 + 0.006);
-        gn.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
-        noise.connect(bp);
-        bp.connect(gn);
-        gn.connect(master);
-        noise.start(t0);
-        noise.stop(t0 + dur + 0.03);
-        var osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(920, t0);
-        osc.frequency.exponentialRampToValueAtTime(260, t0 + 0.06);
-        var go = ctx.createGain();
-        go.gain.setValueAtTime(0, t0);
-        go.gain.linearRampToValueAtTime(0.32, t0 + 0.004);
-        go.gain.exponentialRampToValueAtTime(0.001, t0 + 0.085);
-        osc.connect(go);
-        go.connect(master);
-        osc.start(t0);
-        osc.stop(t0 + 0.09);
-        var osc2 = ctx.createOscillator();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(2400, t0 + 0.01);
-        osc2.frequency.exponentialRampToValueAtTime(700, t0 + 0.038);
-        var g2 = ctx.createGain();
-        g2.gain.setValueAtTime(0, t0);
-        g2.gain.linearRampToValueAtTime(0.14, t0 + 0.006);
-        g2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.048);
-        osc2.connect(g2);
-        g2.connect(master);
-        osc2.start(t0);
-        osc2.stop(t0 + 0.055);
-    }
-    function playHtmlAudioFallback() {
-        try {
-            var sr = 44100;
-            var n = Math.floor(sr * 0.14);
-            var ab = new ArrayBuffer(44 + n * 2);
-            var v = new DataView(ab);
-            var w = function (o, s) {
-                for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
-            };
-            w(0, 'RIFF');
-            v.setUint32(4, 36 + n * 2, true);
-            w(8, 'WAVE');
-            w(12, 'fmt ');
-            v.setUint32(16, 16, true);
-            v.setUint16(20, 1, true);
-            v.setUint16(22, 1, true);
-            v.setUint32(24, sr, true);
-            v.setUint32(28, sr * 2, true);
-            v.setUint16(32, 2, true);
-            v.setUint16(34, 16, true);
-            w(36, 'data');
-            v.setUint32(40, n * 2, true);
-            var off = 44;
-            for (var i = 0; i < n; i++) {
-                var t = i / sr;
-                var env = Math.pow(1 - i / n, 3);
-                var pop = Math.sin(t * 2 * Math.PI * (920 * Math.exp(-t * 28) + 180)) * env;
-                var hiss = (Math.random() * 2 - 1) * env * 0.45;
-                var s = Math.max(-1, Math.min(1, pop + hiss)) * 0.92;
-                v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(s * 32767))), true);
-                off += 2;
-            }
-            var blob = new Blob([ab], { type: 'audio/wav' });
-            var url = URL.createObjectURL(blob);
-            var a = new Audio();
-            a.src = url;
-            a.volume = 1;
-            var done = function () {
-                try {
-                    URL.revokeObjectURL(url);
-                } catch (e2) {}
-            };
-            a.addEventListener('ended', done);
-            a.addEventListener('error', done);
-            var p = a.play();
-            if (p && typeof p.catch === 'function') p.catch(done);
-        } catch (e3) {}
-    }
     try {
-        var Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) {
-            playHtmlAudioFallback();
-            return;
+        var sr = 44100;
+        var dur = 0.32;
+        var n = Math.floor(sr * dur);
+        var ab = new ArrayBuffer(44 + n * 2);
+        var v = new DataView(ab);
+        var w = function (o, s) {
+            for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
+        };
+        w(0, 'RIFF');
+        v.setUint32(4, 36 + n * 2, true);
+        w(8, 'WAVE');
+        w(12, 'fmt ');
+        v.setUint32(16, 16, true);
+        v.setUint16(20, 1, true);
+        v.setUint16(22, 1, true);
+        v.setUint32(24, sr, true);
+        v.setUint32(28, sr * 2, true);
+        v.setUint16(32, 2, true);
+        v.setUint16(34, 16, true);
+        w(36, 'data');
+        v.setUint32(40, n * 2, true);
+        var off = 44;
+        var phase = 0;
+        for (var i = 0; i < n; i++) {
+            var t = i / sr;
+            var f = 275 * Math.exp(-t * 9.5) + 68;
+            phase += (2 * Math.PI * f) / sr;
+            var atk = Math.min(1, t / 0.006);
+            var dec = Math.exp(-t * 4.8);
+            var env = atk * dec;
+            var y = Math.sin(phase) * env * 0.44;
+            y += Math.sin(phase * 2) * env * 0.028;
+            if (t < 0.022) {
+                y += (Math.random() * 2 - 1) * (1 - t / 0.022) * 0.022 * atk;
+            }
+            v.setInt16(off, Math.max(-32768, Math.min(32767, Math.round(y * 30000))), true);
+            off += 2;
         }
-        if (!playSplashBubblePop._ctx) playSplashBubblePop._ctx = new Ctx();
-        var ctx = playSplashBubblePop._ctx;
-        function run() {
+        var blob = new Blob([ab], { type: 'audio/wav' });
+        var url = URL.createObjectURL(blob);
+        var revokeLater = function () {
             try {
-                playWebAudio(ctx);
-            } catch (e0) {
-                playHtmlAudioFallback();
-            }
+                URL.revokeObjectURL(url);
+            } catch (e2) {}
+        };
+        if (!playSplashBubblePop._holder) {
+            var h = document.createElement('div');
+            h.setAttribute('aria-hidden', 'true');
+            h.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
+            document.body.appendChild(h);
+            playSplashBubblePop._holder = h;
         }
-        if (ctx.state === 'suspended' && ctx.resume) {
-            var rp = ctx.resume();
-            if (rp && typeof rp.then === 'function') {
-                rp.then(run).catch(function () {
-                    playHtmlAudioFallback();
-                });
-            } else {
-                setTimeout(run, 30);
-            }
-        } else {
-            run();
+        var holder = playSplashBubblePop._holder;
+        var a = playSplashBubblePop._pool;
+        if (!a) {
+            a = document.createElement('audio');
+            a.setAttribute('playsinline', '');
+            a.setAttribute('webkit-playsinline', '');
+            a.preload = 'auto';
+            holder.appendChild(a);
+            playSplashBubblePop._pool = a;
         }
-    } catch (e) {
-        playHtmlAudioFallback();
-    }
+        a.pause();
+        a.removeAttribute('src');
+        a.load();
+        a.src = url;
+        a.volume = 0.62;
+        a.addEventListener('ended', revokeLater, { once: true });
+        a.addEventListener('error', revokeLater, { once: true });
+        var pr = a.play();
+        if (pr && typeof pr.then === 'function') {
+            pr.catch(function () {
+                try {
+                    var b = document.createElement('audio');
+                    b.setAttribute('playsinline', '');
+                    b.volume = 0.62;
+                    b.src = url;
+                    holder.appendChild(b);
+                    var pr2 = b.play();
+                    var cleanup = function () {
+                        revokeLater();
+                        try {
+                            if (b.parentNode) b.parentNode.removeChild(b);
+                        } catch (e4) {}
+                    };
+                    b.addEventListener('ended', cleanup, { once: true });
+                    b.addEventListener('error', cleanup, { once: true });
+                    if (pr2 && typeof pr2.then === 'function') pr2.catch(cleanup);
+                } catch (e3) {
+                    revokeLater();
+                }
+            });
+        }
+    } catch (e) {}
 }
 function dismissAppSplash() {
     playSplashBubblePop();
