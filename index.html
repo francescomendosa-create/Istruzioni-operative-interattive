@@ -2468,9 +2468,8 @@
             }
         }
         /*
-          Icona PNG: cerchio con border-radius (niente clip-path % che tagliava il verme).
-          Bolle SOTTO il disegno (z-index), bassa opacità. PNG: object-fit cover al centro.
-          Fallback SVG se il file non carica.
+          Solo l’icona PNG che invii (assets/splash-worm-icon.png): verme rosa + bolla turchese già nell’immagine.
+          Niente verme vettoriale di ricambio, niente bolle CSS (sono già nel PNG). Cerchio = cornice; coda = leggera rotazione.
         */
         .app-splash-mascot-wrap {
             display: flex;
@@ -2491,36 +2490,18 @@
             inset: 0;
             border-radius: 50%;
             overflow: hidden;
-            background: linear-gradient(160deg, #0d4a3e 0%, #0a2540 50%, #051a2e 100%);
+            background: linear-gradient(160deg, #c8f5e8 0%, #a5e8fc 45%, #7dd3fc 100%);
             z-index: 0;
         }
-        .app-splash-mini-bubbles--bg {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            border-radius: 50%;
-            overflow: hidden;
+        .app-splash-icon-live-inner.is-missing-img {
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2);
         }
-        .app-splash-mini-bubbles--bg i {
-            position: absolute;
-            display: block;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.2) 55%, rgba(180, 235, 255, 0.15) 100%);
-            box-shadow: 0 0 4px rgba(255, 255, 255, 0.35);
-            opacity: 0.35;
-        }
-        .app-splash-mini-bubbles--bg i:nth-child(1) { width: 8px; height: 8px; left: 22%; top: 65%; animation: splashMiniFloatA 4s ease-in-out infinite; }
-        .app-splash-mini-bubbles--bg i:nth-child(2) { width: 5px; height: 5px; left: 72%; top: 58%; animation: splashMiniFloatB 3.3s ease-in-out infinite 0.4s; }
-        .app-splash-mini-bubbles--bg i:nth-child(3) { width: 6px; height: 6px; left: 18%; top: 38%; animation: splashMiniFloatC 3.8s ease-in-out infinite 0.2s; }
-        .app-splash-mini-bubbles--bg i:nth-child(4) { width: 4px; height: 4px; left: 78%; top: 32%; animation: splashMiniFloatD 4.4s ease-in-out infinite 0.7s; }
-        .app-splash-mini-bubbles--bg i:nth-child(5) { width: 7px; height: 7px; left: 52%; top: 72%; animation: splashMiniFloatE 3.6s ease-in-out infinite 0.1s; }
         .app-splash-worm-swing {
             position: absolute;
             inset: 0;
             z-index: 1;
-            animation: splashTailWag 2.2s ease-in-out infinite;
-            transform-origin: 50% 72%;
+            animation: splashTailWag 2.4s ease-in-out infinite;
+            transform-origin: 56% 82%;
         }
         .app-splash-raster {
             position: absolute;
@@ -2528,112 +2509,20 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: 50% 48%;
+            object-position: 50% 50%;
             display: block;
             pointer-events: none;
             user-select: none;
             z-index: 1;
         }
-        .app-splash-raster-fallback {
-            display: none;
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            align-items: center;
-            justify-content: center;
-            padding: 12%;
-            box-sizing: border-box;
-            background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.15) 0%, transparent 65%);
-        }
-        .app-splash-raster-fallback.is-on {
-            display: flex;
-        }
-        .app-splash-raster-fallback svg {
-            width: 100%;
-            height: auto;
-            max-height: 88%;
-            overflow: visible;
-        }
-        .app-splash-raster-fallback .splash-fb-worm {
-            transform-origin: 2px 3px;
-            transform-box: fill-box;
-            animation: quizWormCrawl 2.65s ease-in-out infinite;
-        }
-        /* Bolle leggere SOPRA il disegno (PNG opaco: quelle dietro non si vedono) */
-        .app-splash-mini-bubbles--fg {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-        .app-splash-mini-bubbles--fg i {
-            position: absolute;
-            display: block;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.08) 70%, transparent 100%);
-            opacity: 0.22;
-            mix-blend-mode: soft-light;
-        }
-        .app-splash-mini-bubbles--fg i:nth-child(1) { width: 7px; height: 7px; left: 24%; top: 68%; animation: splashMiniFloatA 4.2s ease-in-out infinite; }
-        .app-splash-mini-bubbles--fg i:nth-child(2) { width: 5px; height: 5px; left: 74%; top: 62%; animation: splashMiniFloatB 3.4s ease-in-out infinite 0.5s; }
-        .app-splash-mini-bubbles--fg i:nth-child(3) { width: 6px; height: 6px; left: 68%; top: 28%; animation: splashMiniFloatC 3.9s ease-in-out infinite 0.15s; }
-        .app-splash-eyelids {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 3;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-        .app-splash-lid {
-            position: absolute;
-            top: 36%;
-            width: 11%;
-            height: 5%;
-            border-radius: 50%;
-            background: linear-gradient(180deg, #fbcfe8 0%, #f9a8d4 100%);
-            box-shadow: 0 1px 2px rgba(131, 24, 67, 0.25);
-            transform: scaleY(0);
-            transform-origin: center top;
-            animation: splashLidBlink 5s ease-in-out infinite;
-            opacity: 0;
-        }
-        .app-splash-lid--l { left: 38.5%; }
-        .app-splash-lid--r { left: 49.5%; animation-delay: 0.05s; }
         @keyframes splashBubbleOsc {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             33% { transform: translateY(-8px) rotate(-2deg); }
             66% { transform: translateY(4px) rotate(2deg); }
         }
         @keyframes splashTailWag {
-            0%, 100% { transform: rotate(-2.5deg); }
-            50% { transform: rotate(4deg); }
-        }
-        @keyframes splashMiniFloatA {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(10px, -14px); }
-        }
-        @keyframes splashMiniFloatB {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-12px, 10px); }
-        }
-        @keyframes splashMiniFloatC {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(14px, 8px); }
-        }
-        @keyframes splashMiniFloatD {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-8px, -10px); }
-        }
-        @keyframes splashMiniFloatE {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(6px, -16px); }
-        }
-        @keyframes splashLidBlink {
-            0%, 44%, 49%, 100% { transform: scaleY(0); opacity: 0; }
-            45%, 47.5% { transform: scaleY(1); opacity: 0.92; }
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(5.5deg); }
         }
         .app-splash-enter {
             margin: 4px 0 16px;
@@ -2680,14 +2569,9 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .app-splash-icon-live,
-            .app-splash-worm-swing,
-            .app-splash-mini-bubbles--bg i,
-            .app-splash-mini-bubbles--fg i,
-            .app-splash-raster-fallback .splash-fb-worm,
-            .app-splash-lid {
+            .app-splash-worm-swing {
                 animation: none !important;
             }
-            .app-splash-lid { transform: scaleY(0); opacity: 0; }
         }
         @media (max-width: 480px) {
             .app-splash-mascot-wrap {
@@ -2736,31 +2620,11 @@
         <p class="app-splash-subbrand">Sistema biologico</p>
         <div class="app-splash-mascot-wrap" aria-hidden="true">
             <div class="app-splash-icon-live">
-                <div class="app-splash-icon-live-inner">
-                    <div class="app-splash-mini-bubbles--bg" aria-hidden="true">
-                        <i></i><i></i><i></i><i></i><i></i>
-                    </div>
+                <div class="app-splash-icon-live-inner" id="app-splash-icon-live-inner">
                     <div class="app-splash-worm-swing">
-                        <img class="app-splash-raster" id="app-splash-raster-img" src="assets/icon-worm-bubble.png" width="512" height="512" alt=""
-                            decoding="async"
-                            onerror="var fb=document.getElementById('splash-raster-fallback'); if(fb){ fb.classList.add('is-on'); } this.style.visibility='hidden';">
-                        <div class="app-splash-mini-bubbles--fg" aria-hidden="true">
-                            <i></i><i></i><i></i>
-                        </div>
-                        <div id="splash-raster-fallback" class="app-splash-raster-fallback" aria-hidden="true">
-                            <svg viewBox="-34 -28 68 56" xmlns="http://www.w3.org/2000/svg">
-                                <g class="splash-fb-worm">
-                                    <path d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z" fill="#fbcfe8" stroke="#db2777" stroke-width="0.55"/>
-                                    <ellipse cx="-5" cy="-5" rx="2.1" ry="2.1" fill="#581c3f"/>
-                                    <ellipse cx="6" cy="-4" rx="1.7" ry="1.7" fill="#581c3f"/>
-                                </g>
-                            </svg>
-                        </div>
+                        <img class="app-splash-raster" id="app-splash-raster-img" src="assets/splash-worm-icon.png" width="512" height="512" alt=""
+                            decoding="async">
                     </div>
-                </div>
-                <div class="app-splash-eyelids">
-                    <span class="app-splash-lid app-splash-lid--l"></span>
-                    <span class="app-splash-lid app-splash-lid--r"></span>
                 </div>
             </div>
         </div>
@@ -2800,17 +2664,18 @@ function dismissAppSplash() {
 }
 (function splashRasterCheck() {
     var im = document.getElementById('app-splash-raster-img');
-    if (!im) return;
-    function fallback() {
-        var fb = document.getElementById('splash-raster-fallback');
-        if (fb) fb.classList.add('is-on');
-        im.style.visibility = 'hidden';
+    var inner = document.getElementById('app-splash-icon-live-inner');
+    if (!im || !inner) return;
+    function onFail() {
+        im.style.display = 'none';
+        inner.classList.add('is-missing-img');
     }
-    im.addEventListener('error', fallback);
+    im.addEventListener('error', onFail);
     im.addEventListener('load', function () {
-        if (im.naturalWidth === 0) fallback();
+        if (im.naturalWidth === 0) onFail();
+        else inner.classList.remove('is-missing-img');
     });
-    if (im.complete && im.naturalWidth === 0) fallback();
+    if (im.complete && im.naturalWidth === 0) onFail();
 })();
 </script>
 
