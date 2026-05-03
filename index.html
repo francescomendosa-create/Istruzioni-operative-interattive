@@ -1188,6 +1188,39 @@
             transform-origin: 50% 100%;
             will-change: transform;
         }
+        /* Strip 4 frame camminata (sprite sheet orizzontale) */
+        .quiz-adelfo-sprwrap {
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+        .quiz-adelfo-img--sheet {
+            display: block;
+            width: 400%;
+            max-width: none;
+            height: auto;
+            transform: translateX(0);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+        @keyframes quiz-adelfo-strip-walk {
+            from { transform: translateX(0); }
+            to { transform: translateX(-75%); }
+        }
+        .quiz-adelfo-figure--walk .quiz-adelfo-img--sheet,
+        .quiz-adelfo-figure--back .quiz-adelfo-img--sheet {
+            animation: quiz-adelfo-strip-walk 0.42s steps(4, end) infinite;
+        }
+        .quiz-adelfo-figure--shout .quiz-adelfo-img--sheet {
+            animation: none;
+            transform: translateX(-25%);
+        }
+        .quiz-adelfo-figure--enter .quiz-adelfo-img--sheet {
+            animation: none;
+            transform: translateX(0);
+        }
         .quiz-adelfo-figure--enter {
             transform: translateX(38vw) scaleX(-1);
             transition: none;
@@ -1204,25 +1237,9 @@
             transform: translateX(42vw) scaleX(1);
             transition: transform 1.85s cubic-bezier(0.45, 0, 0.85, 0.35);
         }
-        .quiz-adelfo-img {
-            display: block;
-            width: 100%;
-            height: auto;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            -webkit-user-drag: none;
-            user-select: none;
-        }
-        @keyframes quiz-adelfo-bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        .quiz-adelfo-img--bob {
-            animation: quiz-adelfo-bob 0.32s steps(2, end) infinite;
-        }
         @media (prefers-reduced-motion: reduce) {
-            .quiz-adelfo-img--bob {
-                animation: none;
+            .quiz-adelfo-img--sheet {
+                animation: none !important;
             }
             .quiz-adelfo-figure--walk,
             .quiz-adelfo-figure--shout,
@@ -3660,7 +3677,9 @@ function dismissAppSplash() {
             <div id="quiz-adelfo-layer" class="quiz-adelfo-layer" aria-hidden="true" aria-label="Adelfo">
                 <div class="quiz-adelfo-ground">
                     <div class="quiz-adelfo-figure quiz-adelfo-figure--enter" id="quiz-adelfo-figure">
-                        <img id="quiz-adelfo-img" class="quiz-adelfo-img" src="adelfo.png" alt="" width="200" height="240" decoding="async" />
+                        <div class="quiz-adelfo-sprwrap">
+                            <img id="quiz-adelfo-img" class="quiz-adelfo-img--sheet" src="adelfo-walk-sheet.png" alt="" decoding="async" />
+                        </div>
                         <div class="quiz-adelfo-bubble" id="quiz-adelfo-bubble" aria-hidden="true">(!&amp;/%)</div>
                     </div>
                 </div>
@@ -5793,7 +5812,6 @@ function quizAdelfoCancelIntro() {
     const bubble = document.getElementById('quiz-adelfo-bubble');
     const img = document.getElementById('quiz-adelfo-img');
     if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-    if (img) img.classList.remove('quiz-adelfo-img--bob');
     if (fig) fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
     if (layer) {
         layer.classList.remove('quiz-adelfo-layer--on');
@@ -5868,7 +5886,6 @@ function quizRunAdelfoIntro() {
         layer.setAttribute('aria-hidden', 'false');
         layer.classList.add('quiz-adelfo-layer--on');
         fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--enter';
-        img.classList.add('quiz-adelfo-img--bob');
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
                 fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--walk';
@@ -5883,7 +5900,6 @@ function quizRunAdelfoIntro() {
             if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
             var t1b = window.setTimeout(function () {
                 if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-                img.classList.remove('quiz-adelfo-img--bob');
                 fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
                 var t2b = window.setTimeout(function () {
                     quizAdelfoCancelIntro();
@@ -5903,7 +5919,6 @@ function quizRunAdelfoIntro() {
             if (bubble) bubble.classList.add('quiz-adelfo-bubble--show');
             var t1 = window.setTimeout(function () {
                 if (bubble) bubble.classList.remove('quiz-adelfo-bubble--show');
-                img.classList.remove('quiz-adelfo-img--bob');
                 fig.className = 'quiz-adelfo-figure quiz-adelfo-figure--back';
                 var t2 = window.setTimeout(function () {
                     quizAdelfoCancelIntro();
