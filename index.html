@@ -1832,6 +1832,33 @@
         .quiz-info-overlay {
             z-index: 5200;
         }
+        .quiz-info-roadmap {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e7ee;
+            max-height: min(42vh, 360px);
+            overflow-y: auto;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: #546e7a;
+            -webkit-overflow-scrolling: touch;
+        }
+        .quiz-info-roadmap h5 {
+            margin: 12px 0 6px;
+            font-size: 0.86rem;
+            font-weight: 800;
+            color: #1a237e;
+        }
+        .quiz-info-roadmap h5:first-child {
+            margin-top: 0;
+        }
+        .quiz-info-roadmap ul {
+            margin: 6px 0 0;
+            padding-left: 1.1rem;
+        }
+        .quiz-info-roadmap li {
+            margin-bottom: 4px;
+        }
         .quiz-lock-overlay--producer {
             z-index: 5100;
         }
@@ -2442,7 +2469,7 @@
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="openQuizProducerPasswordFromSettings()">
-                <span><strong>Advanced mode</strong> · Producer</span>
+                <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
@@ -2459,8 +2486,8 @@
     </div>
 
     <div id="quiz-lock-overlay" class="quiz-lock-overlay quiz-lock-overlay--producer" aria-hidden="true">
-        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password Advanced mode · Producer">
-            <h4 class="quiz-lock-title">Advanced mode · Producer</h4>
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password Advanced mode · Sviluppatore">
+            <h4 class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
             <p class="quiz-lock-hint">Inserisci la password per accedere.</p>
             <input id="quiz-lock-input" class="quiz-lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="" maxlength="8">
             <p id="quiz-lock-error" class="quiz-lock-error"></p>
@@ -2476,7 +2503,24 @@
             <h4 id="quiz-info-title" class="quiz-lock-title">Informazioni</h4>
             <div style="color:#455a64;font-size:0.88rem;line-height:1.55;margin:0 0 14px;">
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
-                <p style="margin:0;">Il software, i testi, le grafiche e il codice sorgente di questa applicazione sono proprietà esclusiva di <strong>Francesco Mellea</strong> e sono protetti dalle leggi internazionali sul copyright.</p>
+                <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
+                <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
+                <p class="quiz-info-version-line" style="margin:14px 0 0;padding-top:12px;border-top:1px solid #e0e7ee;font-size:0.84rem;color:#607d8b;">Versione attuale: <strong id="quiz-info-version-label">1.1</strong></p>
+                <div class="quiz-info-roadmap">
+                    <p style="margin:0 0 8px;font-weight:800;color:#1a237e;font-size:0.88rem;">Prossimi aggiornamenti</p>
+                    <h5>Versione 2.1</h5>
+                    <p style="margin:0 0 8px;">Possibilità di rendere l’app <strong>programmabile direttamente dalle Impostazioni</strong> tramite interfaccia grafica.</p>
+                    <p style="margin:0 0 4px;"><strong>Implementazioni previste:</strong></p>
+                    <ul>
+                        <li>creare nuove domande con controlli e azioni personalizzabili;</li>
+                        <li>modificare quelle già esistenti;</li>
+                        <li>aggiungere nuove schede impianto (es. membrane MBR con domande dedicate);</li>
+                        <li>aggiungere domande e risposte personalizzate anche per la <strong>modalità Quiz</strong>, dalle Impostazioni tramite interfaccia dedicata, senza doversi interfacciare con lo sviluppatore.</li>
+                    </ul>
+                    <h5>Versione 3.1</h5>
+                    <p style="margin:0 0 8px;">Possibilità di integrare <strong>manuali tecnici e operativi</strong> e introdurre gradualmente <strong>API open source</strong> di intelligenza artificiale.</p>
+                    <p style="margin:0;">L’app sarà in grado di interfacciarsi con i manuali, generare in autonomia domande e percorsi formativi e apprendere nel tempo.</p>
+                </div>
             </div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-report" onclick="hideQuizInfoDetailModal()">Chiudi</button>
@@ -2484,9 +2528,9 @@
         </div>
     </div>
 
-    <div id="quiz-producer-overlay" class="quiz-panel quiz-producer-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Advanced mode · Producer">
+    <div id="quiz-producer-overlay" class="quiz-panel quiz-producer-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Advanced mode · Sviluppatore">
         <div class="quiz-fs-topbar" style="justify-content: space-between;">
-            <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · PRODUCER</span>
+            <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · SVILUPPATORE</span>
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
         <div class="quiz-fs-scroll" style="text-align:left;">
@@ -2864,6 +2908,8 @@ function settingsQuizFeatureToggle(on) {
 
 function showQuizInfoDetailModal() {
     const overlay = document.getElementById('quiz-info-overlay');
+    const verEl = document.getElementById('quiz-info-version-label');
+    if (verEl && typeof APP_VERSION !== 'undefined') verEl.textContent = APP_VERSION;
     if (!overlay) return;
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
@@ -5380,6 +5426,8 @@ window.addEventListener('load', function initQuizProtection() {
     function finishQuizInit() {
         applyQuizVisibility();
         syncSettingsQuizToggleUi();
+        const infoV = document.getElementById('quiz-info-version-label');
+        if (infoV) infoV.textContent = APP_VERSION;
         if (quizFeatureEnabled && quizShouldRestorePanelOpen()) {
             requestAnimationFrame(function () {
                 openQuiz();
