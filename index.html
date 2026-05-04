@@ -2900,7 +2900,7 @@
             display: flex;
         }
         .app-splash-inner {
-            width: min(100%, 520px);
+            width: min(100%, 900px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2943,50 +2943,57 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 0 10px;
+            margin: 10px 0 12px;
             min-height: min(200px, 52vw);
             filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.42));
         }
+        /* Palla sempre centrata; testo a destra; blocco intero centrato nella splash come prima. */
         .app-splash-intro-bio {
-            display: grid;
-            grid-template-columns: min(280px, 88vw) minmax(0, 1fr);
-            gap: clamp(14px, 3.5vw, 28px);
-            width: 100%;
-            max-width: min(960px, 100%);
-            margin: 8px auto 18px;
-            align-items: start;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
             justify-content: center;
+            align-items: flex-start;
+            gap: clamp(16px, 3vw, 28px);
+            width: 100%;
+            max-width: 100%;
+            margin: 6px auto 18px;
+            box-sizing: border-box;
         }
         .app-splash-intro-viz-col {
+            flex: 0 0 auto;
+            width: min(220px, 58vw);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            min-width: 0;
+            gap: 8px;
         }
         .app-splash-intro-desc-col {
-            min-width: 0;
+            flex: 1 1 260px;
+            min-width: min(260px, 100%);
+            max-width: min(520px, 100%);
             text-align: left;
+            margin: 0 auto;
         }
         .app-splash-worm-tabs {
             display: flex;
             flex-wrap: nowrap;
-            gap: 6px;
             justify-content: center;
+            align-items: center;
+            gap: 3px;
             width: 100%;
-            max-width: min(280px, 92vw);
-            overflow-x: auto;
-            padding: 4px 2px 2px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
+            max-width: 100%;
+            padding: 2px 0;
+            overflow: visible;
+            box-sizing: border-box;
         }
         .app-splash-worm-tab {
-            flex: 0 0 auto;
+            flex: 0 1 auto;
             white-space: nowrap;
-            padding: 6px 10px;
-            font-size: clamp(0.62rem, 2.4vw, 0.72rem);
+            padding: 4px 6px;
+            font-size: clamp(0.5rem, 1.35vw, 0.62rem);
             font-weight: 800;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
             border-radius: 999px;
             border: 2px solid rgba(255, 255, 255, 0.35);
@@ -3010,11 +3017,11 @@
             border: 1px solid rgba(165, 243, 252, 0.28);
             border-radius: 14px;
             padding: 12px 14px;
-            font-size: clamp(0.75rem, 2.4vw, 0.88rem);
+            font-size: clamp(0.75rem, 2.2vw, 0.88rem);
             line-height: 1.55;
             color: rgba(226, 242, 252, 0.95);
-            max-height: min(52vh, 420px);
-            overflow-y: auto;
+            max-height: none;
+            overflow: visible;
         }
         .app-splash-worm-desc-panel {
             display: none;
@@ -3042,15 +3049,19 @@
         .splash-worm-variant.splash-worm-variant--active {
             display: block;
         }
-        @media (max-width: 720px) {
+        @media (max-width: 640px) {
             .app-splash-intro-bio {
-                grid-template-columns: 1fr;
+                flex-direction: column;
+                align-items: center;
             }
             .app-splash-intro-desc-col {
-                order: 3;
+                width: 100%;
+                max-width: 100%;
             }
-            .app-splash-worm-desc {
-                max-height: none;
+            .app-splash-worm-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                row-gap: 5px;
             }
         }
         .app-splash-icon-live {
@@ -3535,11 +3546,11 @@
             </div>
         </div>
                 <div class="app-splash-worm-tabs" role="tablist" aria-label="Scegli il gruppo microbico">
-                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" onclick="splashSelectWorm(0)">I demolidori</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" onclick="splashSelectWorm(1)">I sottili</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" onclick="splashSelectWorm(2)">I filamentosi</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" onclick="splashSelectWorm(3)">I settici</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" onclick="splashSelectWorm(4)">I predatori</button>
+                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" title="I demolidori (batteri eterotrofi)" onclick="splashSelectWorm(0)">Demolidori</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" title="I sottili (batteri nitrificanti)" onclick="splashSelectWorm(1)">Sottili</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" title="I filamentosi (la rete)" onclick="splashSelectWorm(2)">Filamentosi</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" title="I settici (solfo-batteri)" onclick="splashSelectWorm(3)">Settici</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" title="I predatori (protozoi e rotiferi)" onclick="splashSelectWorm(4)">Predatori</button>
                 </div>
             </div>
             <aside class="app-splash-intro-desc-col">
