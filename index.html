@@ -5768,11 +5768,11 @@ const QUIZ_ADELFO = {
     /** Percorso lungo (vw): sinistra; “mezzo” più a destra = tratto di strada più lungo. */
     pathLeftVw: -76,
     pathMidVw: -8,
-    /** Tempi (ms): lento e leggibile. frameStepMs più alto = passi più calmi. */
+    /** Tempi (ms). frameStepMs ≈ ms per frame in un ciclo: insieme alla durata decide quanti “giri” di camminata (meno scivolata). */
     walkRightDurationMs: 7500,
     pointPauseMs: 3000,
     returnDurationMs: 7000,
-    frameStepMs: 175
+    frameStepMs: 130
 };
 
 let quizAdelfoAnimCfg = null;
@@ -5981,15 +5981,16 @@ function quizAdelfoPhaseMove(fig, cv, canvasArr, fromVw, toVw, durationMs, mirro
     var frames = Math.max(1, canvasArr ? canvasArr.length : 1);
     var sc = QUIZ_ADELFO.displayScale;
     var flip = mirrorX ? ' scaleX(-1)' : '';
-    var stepMs = (typeof QUIZ_ADELFO.frameStepMs === 'number' && QUIZ_ADELFO.frameStepMs > 40) ? QUIZ_ADELFO.frameStepMs : 175;
+    /* ms medi per fotogramma in un ciclo completo: da lì quanti cicli di camminata incastrare nel tratto (niente “scivola”). */
+    var stepMs = (typeof QUIZ_ADELFO.frameStepMs === 'number' && QUIZ_ADELFO.frameStepMs > 40) ? QUIZ_ADELFO.frameStepMs : 130;
+    var walkCycles = Math.max(1.35, durationMs / (frames * stepMs));
     return new Promise(function (resolve) {
         var t0 = performance.now();
         function tick(now) {
             var u = Math.min(1, (now - t0) / durationMs);
-            var ease = 1 - Math.pow(1 - u, 2);
-            var x = fromVw + (toVw - fromVw) * ease;
+            var x = fromVw + (toVw - fromVw) * u;
             fig.style.transform = 'translateX(' + x + 'vw) scale(' + sc + ')' + flip;
-            var fi = Math.floor(((now - t0) / stepMs) % frames);
+            var fi = frames > 1 ? (Math.floor(u * walkCycles * frames) % frames) : 0;
             quizAdelfoBlit(cv, canvasArr[fi]);
             if (u < 1) {
                 quizAdelfoRafId = requestAnimationFrame(tick);
