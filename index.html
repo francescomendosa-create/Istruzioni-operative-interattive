@@ -1101,7 +1101,7 @@
             min-width: 0;
             justify-self: start;
         }
-        /* Vite: icona tazza olio + numero — solo PC e tablet orizzontale (smartphone in seguito) */
+        /* Vite: ritratto operaio + numero — solo PC e tablet orizzontale (smartphone in seguito) */
         .quiz-play-lives-inline-wrap {
             display: none;
             align-items: center;
@@ -1124,17 +1124,18 @@
             padding: 2px 0 0;
         }
         .quiz-play-lives-icon {
-            width: 14px;
-            height: 14px;
+            width: 36px;
+            height: 36px;
             flex-shrink: 0;
             display: block;
             object-fit: contain;
             vertical-align: middle;
             pointer-events: none;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+            image-rendering: auto;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.18));
         }
         .quiz-play-lives-num {
-            font-size: 8px;
+            font-size: 12px;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
             color: #37474f;
@@ -7402,7 +7403,7 @@ function quizUpdatePlayProgress(extra) {
     const livesRow =
         '<span class="quiz-play-lives-inline-wrap">' +
         '<span class="quiz-play-lives-inline">' +
-        '<img class="quiz-play-lives-icon" src="assets/quiz-operator-life.png" width="14" height="14" alt="" decoding="async" draggable="false">' +
+        '<img class="quiz-play-lives-icon" src="assets/quiz-operator-life.png" width="128" height="128" alt="" decoding="async" draggable="false">' +
         '<span id="quiz-play-lives-val" class="quiz-play-lives-num">' +
         livesRemain +
         '</span>' +
