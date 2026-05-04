@@ -4459,10 +4459,13 @@ let quizLeaderboardUnsub = null;
 let quizLeaderboardHydrated = false;
 /** Connessione Realtime fallita: mostra avviso (cache eventualmente obsoleta). */
 let quizLeaderboardCloudError = false;
+/** Dettaglio ultimo errore (tooltip + console) per capire regole / dominio / rete. */
+let quizLeaderboardLastError = '';
 
 function quizInitLeaderboardSourceState() {
     quizLeaderboardHydrated = !quizFirestoreConfigured();
     quizLeaderboardCloudError = false;
+    quizLeaderboardLastError = '';
 }
 
 /** Righe usate per podio / posizione: mai una classifica solo-device fingendosi globale. */
@@ -4495,7 +4498,11 @@ function quizUpdateFirebaseSyncUi() {
     if (quizLeaderboardCloudError) {
         el.textContent = 'Sync non riuscita';
         el.classList.add('quiz-rank-heading-sub--localonly');
-        el.removeAttribute('title');
+        if (quizLeaderboardLastError) {
+            el.setAttribute('title', quizLeaderboardLastError);
+        } else {
+            el.setAttribute('title', 'Apri F12 → Console e cerca [classifica] o [quiz leaderboard]');
+        }
         return;
     }
     if (!quizLeaderboardHydrated) {
@@ -4509,9 +4516,25 @@ function quizUpdateFirebaseSyncUi() {
     el.removeAttribute('title');
 }
 
-function quizMarkLeaderboardHydratedFromCloud(isError) {
+function quizFormatSyncError(e) {
+    if (e == null) return '';
+    if (typeof e === 'string') return e;
+    var c = e.code != null ? String(e.code) : '';
+    var m = e.message != null ? String(e.message) : '';
+    return (c && m) ? c + ': ' + m : (c || m || String(e));
+}
+
+function quizMarkLeaderboardHydratedFromCloud(isError, errDetail) {
     quizLeaderboardHydrated = true;
     quizLeaderboardCloudError = !!isError;
+    if (isError && errDetail != null) {
+        quizLeaderboardLastError = quizFormatSyncError(errDetail);
+        try {
+            console.warn('[classifica]', quizLeaderboardLastError);
+        } catch (eL) { /* ignore */ }
+    } else if (!isError) {
+        quizLeaderboardLastError = '';
+    }
     try {
         quizRenderLeaderboard();
     } catch (e) {}
@@ -4834,13 +4857,13 @@ function quizAttachLeaderboardRealtime() {
                 },
                 function (err) {
                     console.warn('[quiz leaderboard realtime]', err);
-                    quizMarkLeaderboardHydratedFromCloud(true);
+                    quizMarkLeaderboardHydratedFromCloud(true, err);
                 }
             );
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard realtime attach]', e);
-            quizMarkLeaderboardHydratedFromCloud(true);
+            quizMarkLeaderboardHydratedFromCloud(true, e);
         });
 }
 
