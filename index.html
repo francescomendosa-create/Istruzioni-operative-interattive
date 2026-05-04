@@ -2042,6 +2042,64 @@
             animation-iteration-count: infinite;
             animation-name: quizWormWiggle;
         }
+        /* Caduta nel tank dopo OK modale milestone (+ spruzzi acqua) */
+        .quiz-worm--entry-pending .quiz-worm-body {
+            animation: none !important;
+        }
+        .quiz-worm-drop-shift {
+            transform: translate(0, -76px);
+        }
+        .quiz-worm-drop-shift.quiz-worm-drop-shift--run {
+            transition: transform 0.68s cubic-bezier(0.34, 1.18, 0.45, 1);
+            transform: translate(0, 0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-worm-drop-shift {
+                transform: none;
+            }
+            .quiz-worm-drop-shift.quiz-worm-drop-shift--run {
+                transition: none;
+            }
+        }
+        .quiz-bio-splash-burst {
+            pointer-events: none;
+        }
+        .quiz-bio-splash-burst ellipse {
+            transform-origin: center;
+            transform-box: fill-box;
+            opacity: 0;
+        }
+        .quiz-bio-splash-burst--play .quiz-bio-splash-ring--a {
+            animation: quizBioSplashRing 0.75s ease-out forwards;
+        }
+        .quiz-bio-splash-burst--play .quiz-bio-splash-ring--b {
+            animation: quizBioSplashRing 0.82s ease-out 0.06s forwards;
+        }
+        .quiz-bio-splash-burst--play .quiz-bio-splash-ring--c {
+            animation: quizBioSplashRing 0.88s ease-out 0.12s forwards;
+        }
+        @keyframes quizBioSplashRing {
+            0% {
+                opacity: 0.72;
+                transform: scale(0.35);
+            }
+            55% {
+                opacity: 0.38;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2.45);
+            }
+        }
+        .quiz-bio-water-plop-flash {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.32s ease-out;
+            mix-blend-mode: screen;
+        }
+        .quiz-bio-vat-wrap--water-plop .quiz-bio-water-plop-flash {
+            opacity: 0.34;
+        }
         .quiz-bio-vat-wrap--timer-urgent {
             --worm-dur: 0.5s;
         }
@@ -4483,10 +4541,22 @@ function dismissAppSplash() {
                         d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12 Q390 6 378 6 L22 6 Q10 6 8 12Z"/>
                     <g clip-path="url(#quizBioVatClip)">
                         <rect x="30" y="34" width="340" height="58" fill="#b0bec5" opacity="0.22"/>
+                        <rect
+                            id="quiz-bio-water-plop-flash"
+                            class="quiz-bio-water-plop-flash"
+                            x="30"
+                            y="34"
+                            width="340"
+                            height="58"
+                            rx="10"
+                            fill="#e0f7fa"
+                            opacity="0"
+                        />
                         <rect id="quiz-bio-water-fill" x="30" y="84" width="340" height="8" fill="url(#quizBioWaterGrad)" opacity="0.94"/>
                         <g class="quiz-bio-wave-layer" clip-path="url(#quizBioVatClip)" opacity="0.3">
                             <path fill="#e0f7fa" d="M0 52 Q50 46 100 52 T200 52 T300 52 T400 52 L400 102 L0 102Z"/>
                         </g>
+                        <g id="quiz-bio-splash-effects" aria-hidden="true"></g>
                         <g id="quiz-bio-worms"></g>
                     </g>
                     <path fill="none" stroke="#37474f" stroke-width="2" stroke-linejoin="round"
@@ -6232,11 +6302,142 @@ function quizBioVatReset() {
     const wrap = document.getElementById('quiz-bio-vat-wrap');
     const worms = document.getElementById('quiz-bio-worms');
     if (worms) worms.innerHTML = '';
+    const spl = document.getElementById('quiz-bio-splash-effects');
+    if (spl) spl.innerHTML = '';
     if (wrap) {
-        wrap.classList.remove('quiz-bio-vat-wrap--sink', 'quiz-bio-vat-wrap--timer-urgent');
+        wrap.classList.remove(
+            'quiz-bio-vat-wrap--sink',
+            'quiz-bio-vat-wrap--timer-urgent',
+            'quiz-bio-vat-wrap--water-plop'
+        );
     }
     quizBioVatClearMenace();
     quizBioVatApplyFillFromState();
+}
+
+function quizBioWaterPlopFlashBrief() {
+    const wrap = document.getElementById('quiz-bio-vat-wrap');
+    if (!wrap) {
+        return;
+    }
+    wrap.classList.add('quiz-bio-vat-wrap--water-plop');
+    window.setTimeout(function () {
+        try {
+            wrap.classList.remove('quiz-bio-vat-wrap--water-plop');
+        } catch (ePl) {
+            /* ignore */
+        }
+    }, 420);
+}
+
+/** Spruzzi sulla superficie (coordinate come i vermi nella vasca). */
+function quizBioSpawnWaterSplash(wx, wy) {
+    const layer = document.getElementById('quiz-bio-splash-effects');
+    if (!layer) {
+        return;
+    }
+    const NS = 'http://www.w3.org/2000/svg';
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'quiz-bio-splash-burst');
+    g.setAttribute('transform', 'translate(' + wx + ',' + wy + ')');
+    const specs = [
+        { cls: 'quiz-bio-splash-ring--a', rx: 15, ry: 8, sw: 2 },
+        { cls: 'quiz-bio-splash-ring--b', rx: 11, ry: 6, sw: 1.6 },
+        { cls: 'quiz-bio-splash-ring--c', rx: 19, ry: 10, sw: 1.25 }
+    ];
+    for (let si = 0; si < specs.length; si++) {
+        const sp = specs[si];
+        const ell = document.createElementNS(NS, 'ellipse');
+        ell.setAttribute('class', sp.cls);
+        ell.setAttribute('cx', '0');
+        ell.setAttribute('cy', '5');
+        ell.setAttribute('rx', String(sp.rx));
+        ell.setAttribute('ry', String(sp.ry));
+        ell.setAttribute('fill', 'none');
+        ell.setAttribute('stroke', 'rgba(224, 247, 250, 0.92)');
+        ell.setAttribute('stroke-width', String(sp.sw));
+        g.appendChild(ell);
+    }
+    layer.appendChild(g);
+    quizBioWaterPlopFlashBrief();
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            try {
+                g.classList.add('quiz-bio-splash-burst--play');
+            } catch (eP) {
+                /* ignore */
+            }
+        });
+    });
+    window.setTimeout(function () {
+        try {
+            if (g.parentNode) {
+                g.parentNode.removeChild(g);
+            }
+        } catch (eRm) {
+            /* ignore */
+        }
+    }, 980);
+}
+
+/** Caduta dall’alto + nuoto dopo impatto (solo milestone modale OK). */
+function quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy) {
+    if (quizPrefersReducedMotion()) {
+        quizBioWormApplySwimAnimation(gBody);
+        return;
+    }
+    let settled = false;
+    function onImpact() {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        try {
+            gPos.classList.remove('quiz-worm--entry-pending');
+        } catch (e0) {
+            /* ignore */
+        }
+        quizBioWormApplySwimAnimation(gBody);
+        quizBioSpawnWaterSplash(wx, wy);
+    }
+    try {
+        gPos.classList.add('quiz-worm--entry-pending');
+        gBody.style.animationName = 'none';
+        gBody.style.animationDuration = '0s';
+    } catch (e1) {
+        /* ignore */
+    }
+    function onTe(ev) {
+        if (!ev || ev.propertyName !== 'transform') {
+            return;
+        }
+        try {
+            gShift.removeEventListener('transitionend', onTe);
+        } catch (e2) {
+            /* ignore */
+        }
+        onImpact();
+    }
+    gShift.addEventListener('transitionend', onTe);
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            try {
+                gShift.classList.add('quiz-worm-drop-shift--run');
+            } catch (e3) {
+                /* ignore */
+            }
+        });
+    });
+    window.setTimeout(function () {
+        if (!settled) {
+            try {
+                gShift.removeEventListener('transitionend', onTe);
+            } catch (e4) {
+                /* ignore */
+            }
+            onImpact();
+        }
+    }, 950);
 }
 
 function quizBioWormApplySwimAnimation(gBody) {
@@ -6264,7 +6465,8 @@ function quizBioWormApplySwimAnimation(gBody) {
     }
 }
 
-function quizBioAppendGenericWorm(gRoot, i) {
+function quizBioAppendGenericWorm(gRoot, i, opts) {
+    opts = opts || {};
     const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
     const xNorm = slots[i % slots.length];
     const wx = 44 + xNorm * (400 - 88);
@@ -6299,11 +6501,13 @@ function quizBioAppendGenericWorm(gRoot, i) {
 }
 
 /** Verme dalla home (splash) nella vasca; variantIndex 0–4 come data-worm splash. */
-function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
+function quizBioAppendSplashWormVariant(gRoot, variantIndex, i, opts) {
+    opts = opts || {};
+    const doDrop = !!opts.dropEntry && !quizPrefersReducedMotion();
     const vi = Math.max(0, Math.min(4, variantIndex | 0));
     const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + vi + '"]');
     if (!src) {
-        quizBioAppendGenericWorm(gRoot, i);
+        quizBioAppendGenericWorm(gRoot, i, opts);
         return;
     }
     const clone = src.cloneNode(true);
@@ -6319,19 +6523,29 @@ function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
     const xNorm = slots[i % slots.length];
     const wx = 44 + xNorm * (400 - 88);
     const wy = 54 + (i % 4) * 5;
-    const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const NS = 'http://www.w3.org/2000/svg';
+    const gPos = document.createElementNS(NS, 'g');
     gPos.setAttribute('class', 'quiz-worm');
     gPos.setAttribute('data-quiz-worm-bonus', String(vi));
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ')');
-    const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const gBody = document.createElementNS(NS, 'g');
     gBody.setAttribute('class', 'quiz-worm-body');
-    quizBioWormApplySwimAnimation(gBody);
-    const inner = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const inner = document.createElementNS(NS, 'g');
     inner.setAttribute('transform', 'translate(-20,-12) scale(0.168)');
     inner.appendChild(clone);
     gBody.appendChild(inner);
-    gPos.appendChild(gBody);
+    if (!doDrop) {
+        quizBioWormApplySwimAnimation(gBody);
+        gPos.appendChild(gBody);
+        gRoot.appendChild(gPos);
+        return;
+    }
+    const gShift = document.createElementNS(NS, 'g');
+    gShift.setAttribute('class', 'quiz-worm-drop-shift');
+    gShift.appendChild(gBody);
+    gPos.appendChild(gShift);
     gRoot.appendChild(gPos);
+    quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy);
 }
 
 /** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento).
@@ -6342,7 +6556,8 @@ function quizBioRandomSplashFrom(choices) {
     return c[Math.floor(Math.random() * c.length)];
 }
 
-function quizBioVatOnCorrectAnswer(completedQuestionIndex) {
+function quizBioVatOnCorrectAnswer(completedQuestionIndex, opts) {
+    opts = opts || {};
     quizBioWormCount += 1;
     const gRoot = document.getElementById('quiz-bio-worms');
     if (!gRoot) return;
@@ -6371,9 +6586,9 @@ function quizBioVatOnCorrectAnswer(completedQuestionIndex) {
         splashVariant = quizBioRandomSplashFrom([0, 1, 2, 3, 4]);
     }
     if (splashVariant !== null) {
-        quizBioAppendSplashWormVariant(gRoot, splashVariant, slotIdx);
+        quizBioAppendSplashWormVariant(gRoot, splashVariant, slotIdx, opts);
     } else {
-        quizBioAppendGenericWorm(gRoot, slotIdx);
+        quizBioAppendGenericWorm(gRoot, slotIdx, opts);
     }
     quizBioVatApplyFillFromState();
 }
@@ -7080,7 +7295,10 @@ function quizAnswer(idx) {
             fb.className = 'quiz-feedback';
         }
         const continueAfterCorrectUi = function () {
-            quizBioVatOnCorrectAnswer(quizState.index);
+            const milestoneIx = [0, 4, 14, 19, 24];
+            quizBioVatOnCorrectAnswer(quizState.index, {
+                dropEntry: milestoneIx.indexOf(quizState.index) >= 0
+            });
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
