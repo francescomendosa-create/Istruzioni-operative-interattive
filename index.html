@@ -2160,6 +2160,19 @@
             font-weight: 800;
             text-shadow: 0 0 8px rgba(198, 40, 40, 0.45);
         }
+        .quiz-rank-sync-detail {
+            display: block;
+            margin: 6px 0 0;
+            max-width: 100%;
+            font-size: 0.64rem;
+            line-height: 1.35;
+            color: #ffccbc;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        .quiz-rank-sync-detail[hidden] {
+            display: none !important;
+        }
         .quiz-rank-section-pill {
             flex-shrink: 0;
             font-size: 0.68rem;
@@ -4303,6 +4316,7 @@ function dismissAppSplash() {
                 <div class="quiz-rank-section-titles">
                     <h4 class="quiz-rank-heading">Classifica aggiornata</h4>
                     <p class="quiz-rank-heading-sub" id="quiz-rank-sync-status"></p>
+                    <p class="quiz-rank-sync-detail" id="quiz-rank-sync-detail" hidden></p>
                 </div>
                 <span class="quiz-rank-section-pill">Livello 1</span>
             </div>
@@ -4488,32 +4502,46 @@ function quizFirestoreConfigured() {
 /** Sottotitolo classifica (breve). */
 function quizUpdateFirebaseSyncUi() {
     const el = document.getElementById('quiz-rank-sync-status');
-    if (!el) return;
-    if (!quizFirestoreConfigured()) {
-        el.textContent = 'Classifica non in cloud';
-        el.classList.add('quiz-rank-heading-sub--localonly');
-        el.removeAttribute('title');
-        return;
-    }
-    if (quizLeaderboardCloudError) {
-        el.textContent = 'Sync non riuscita';
-        el.classList.add('quiz-rank-heading-sub--localonly');
-        if (quizLeaderboardLastError) {
-            el.setAttribute('title', quizLeaderboardLastError);
+    if (el) {
+        if (!quizFirestoreConfigured()) {
+            el.textContent = 'Classifica non in cloud';
+            el.classList.add('quiz-rank-heading-sub--localonly');
+            el.removeAttribute('title');
+        } else if (quizLeaderboardCloudError) {
+            el.textContent = 'Sync non riuscita';
+            el.classList.add('quiz-rank-heading-sub--localonly');
+            if (quizLeaderboardLastError) {
+                el.setAttribute('title', quizLeaderboardLastError);
+            } else {
+                el.setAttribute('title', 'Dettaglio sotto, o F12 → Console');
+            }
+        } else if (!quizLeaderboardHydrated) {
+            el.textContent = 'Caricamento…';
+            el.classList.remove('quiz-rank-heading-sub--localonly');
+            el.removeAttribute('title');
         } else {
-            el.setAttribute('title', 'Apri F12 → Console e cerca [classifica] o [quiz leaderboard]');
+            el.textContent = 'Classifica in tempo reale';
+            el.classList.remove('quiz-rank-heading-sub--localonly');
+            el.removeAttribute('title');
         }
-        return;
     }
-    if (!quizLeaderboardHydrated) {
-        el.textContent = 'Caricamento…';
-        el.classList.remove('quiz-rank-heading-sub--localonly');
-        el.removeAttribute('title');
-        return;
+    const det = document.getElementById('quiz-rank-sync-detail');
+    if (det) {
+        if (quizLeaderboardCloudError) {
+            det.hidden = false;
+            var msg = quizLeaderboardLastError;
+            if (!msg) {
+                msg =
+                    'Suggerimento: Firebase → Authentication → Domini autorizzati: aggiungi «francescomendosa-create.github.io». Poi abilita accesso Anonimo e controlla le regole Firestore su quiz_leaderboard.';
+            } else if (msg.length > 240) {
+                msg = msg.slice(0, 238) + '…';
+            }
+            det.textContent = msg;
+        } else {
+            det.hidden = true;
+            det.textContent = '';
+        }
     }
-    el.textContent = 'Classifica in tempo reale';
-    el.classList.remove('quiz-rank-heading-sub--localonly');
-    el.removeAttribute('title');
 }
 
 function quizFormatSyncError(e) {
