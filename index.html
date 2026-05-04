@@ -1770,6 +1770,110 @@
         .quiz-exit-confirm-modal__actions .btn-quiz-exit-cancel:hover {
             background: #f5f9ff;
         }
+        /* Primo colpo: Demolitori in vasca (solo domanda 1) */
+        .quiz-first-demolitori-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10075;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(7px);
+            -webkit-backdrop-filter: blur(7px);
+        }
+        .quiz-first-demolitori-modal.quiz-first-demolitori-modal--open {
+            display: flex;
+        }
+        .quiz-first-demolitori-modal__box {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px 20px 18px;
+            border-radius: 16px;
+            background: linear-gradient(165deg, #ffffff 0%, #f3e8ff 38%, #e8f4fc 100%);
+            border: 1px solid rgba(106, 27, 154, 0.3);
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.5) inset,
+                0 20px 44px rgba(49, 27, 146, 0.2);
+            text-align: left;
+        }
+        .quiz-first-demolitori-modal__kicker {
+            margin: 0 0 6px;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #6a1b9a;
+        }
+        .quiz-first-demolitori-modal__box h3 {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+            line-height: 1.3;
+            color: #4a148c;
+        }
+        .quiz-first-demolitori-modal__subtitle {
+            margin: 0 0 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #7b1fa2;
+        }
+        .quiz-first-demolitori-modal__viz {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0 14px;
+            min-height: 120px;
+            border-radius: 14px;
+            background: linear-gradient(160deg, #c8f5e8 0%, #a5e8fc 45%, #7dd3fc 100%);
+            border: 1px solid rgba(21, 101, 192, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+        .quiz-first-demolitori-modal__svg {
+            width: min(100%, 220px);
+            height: auto;
+            max-height: 128px;
+            display: block;
+            filter: drop-shadow(0 4px 10px rgba(15, 39, 68, 0.25));
+        }
+        .quiz-first-demolitori-modal__lead {
+            margin: 0 0 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #37474f;
+        }
+        .quiz-first-demolitori-modal__more {
+            margin: 0 0 16px;
+            font-size: 0.84rem;
+            color: #455a64;
+            line-height: 1.45;
+        }
+        .quiz-first-demolitori-modal__more summary {
+            cursor: pointer;
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 6px;
+        }
+        .quiz-first-demolitori-modal__more ul {
+            margin: 8px 0 0;
+            padding-left: 1.15em;
+        }
+        .quiz-first-demolitori-modal__more li {
+            margin: 4px 0;
+        }
+        .quiz-first-demolitori-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .quiz-first-demolitori-modal__actions .btn-side {
+            min-width: 120px;
+        }
+        #quiz-first-demolitori-modal .quiz-vat-worm-graphic {
+            display: block !important;
+        }
         /* Modale nome per ingresso in classifica (primi 10) */
         .quiz-top10-name-modal {
             display: none;
@@ -4475,6 +4579,40 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
+        <div id="quiz-first-demolitori-modal" class="quiz-first-demolitori-modal" aria-hidden="true" aria-labelledby="quiz-first-demolitori-title" onclick="quizFirstDemolitoriModalBackdrop(event)">
+            <div class="quiz-first-demolitori-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <p class="quiz-first-demolitori-modal__kicker">Preso!</p>
+                <h3 id="quiz-first-demolitori-title">I demolitori (batteri eterotrofi)</h3>
+                <p class="quiz-first-demolitori-modal__subtitle">Come nella schermata iniziale</p>
+                <div id="quiz-first-demolitori-modal__viz" class="quiz-first-demolitori-modal__viz" aria-hidden="true"></div>
+                <p class="quiz-first-demolitori-modal__lead">
+                    <strong>Complimenti!</strong> Hai appena introdotto in vasca la prima popolazione di
+                    <strong>Demolitori</strong> (batteri eterotrofi): degradano il carico organico (COD) e costituiscono
+                    la massa biologica attiva alla base del processo.
+                </p>
+                <details class="quiz-first-demolitori-modal__more">
+                    <summary>Caratteristiche (riferimento home)</summary>
+                    <ul>
+                        <li><strong>Colore reale</strong> — marrone fango / testa di moro.</li>
+                        <li><strong>Forma</strong> — ovale, come chicco di riso; massa solida del fango.</li>
+                        <li>
+                            <strong>Cosa fanno</strong> — sono il «motore» dell’impianto: degradano la sostanza organica
+                            grezza (COD) in fango e CO<sub>2</sub>.
+                        </li>
+                        <li><strong>Velocità</strong> — alta: si moltiplicano in poche ore con substrato a sufficienza.</li>
+                        <li>
+                            <strong>Segnale</strong> — se sono numerosi e marroni, l’impianto sta digerendo bene il carico
+                            in ingresso.
+                        </li>
+                    </ul>
+                </details>
+                <div class="quiz-first-demolitori-modal__actions">
+                    <button type="button" class="btn-side btn-report" id="quiz-first-demolitori-ok" onclick="quizFirstDemolitoriModalOk()">
+                        OK — il verme entra in vasca
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="quiz-settings-overlay" class="quiz-settings-overlay" aria-hidden="true">
@@ -4891,10 +5029,10 @@ function quizMicrobeSplashPhaseActive() {
     }
 }
 
-/** Miniatura SVG microbo splash per pulsanti risposta (prime domande). */
+/** Miniatura SVG splash per pulsanti risposta: prime domande = solo Demolitori (worm 0). */
 function quizChoiceWormThumbHtml(optionIdx) {
     var qi = quizState.index | 0;
-    var wormIdx = ((qi | 0) + (optionIdx | 0)) % 5;
+    var wormIdx = 0;
     var src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + wormIdx + '"]');
     if (!src) {
         return '';
@@ -5679,7 +5817,7 @@ const QUIZ_RULE_MAX_ERRORS = 2;
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
 /** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
 const QUIZ_START_WORM_COUNT = 0;
-/** Prime domande: stesse grafiche microbi della home (splash) nelle risposte e nella vasca. */
+/** Prime domande: solo grafica Demolitori (splash worm 0) nelle risposte e in vasca; poi verme generico. */
 const QUIZ_MICROBE_SPLASH_PHASE_COUNT = 5;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
@@ -6146,7 +6284,7 @@ function quizBioAppendGenericWorm(gRoot, i) {
     gRoot.appendChild(gPos);
 }
 
-/** Verme dalla home (splash) nella vasca: prime risposte corrette = Demolitori → … → Predatori. */
+/** Verme dalla home (splash) nella vasca. Fase iniziale: solo variant 0 = Demolitori. */
 function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
     const vi = Math.max(0, Math.min(4, variantIndex | 0));
     const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + vi + '"]');
@@ -6190,7 +6328,7 @@ function quizBioVatOnCorrectAnswer(completedQuestionIndex) {
     const qIdx = typeof completedQuestionIndex === 'number' ? completedQuestionIndex : -1;
     const useSplash = qIdx >= 0 && qIdx < QUIZ_MICROBE_SPLASH_PHASE_COUNT;
     if (useSplash) {
-        quizBioAppendSplashWormVariant(gRoot, qIdx, slotIdx);
+        quizBioAppendSplashWormVariant(gRoot, 0, slotIdx);
     } else {
         quizBioAppendGenericWorm(gRoot, slotIdx);
     }
@@ -6919,8 +7057,7 @@ function quizAnswer(idx) {
             fb.innerHTML = '';
             fb.className = 'quiz-feedback';
         }
-        const finishCorrect = function () {
-            quizUpdatePlayProgress();
+        const continueAfterCorrectUi = function () {
             quizBioVatOnCorrectAnswer(quizState.index);
             if (fb) {
                 fb.style.display = 'flex';
@@ -6943,6 +7080,15 @@ function quizAnswer(idx) {
             setTimeout(function () {
                 quizAdvanceCorrect();
             }, 1050);
+        };
+
+        const finishCorrect = function () {
+            quizUpdatePlayProgress();
+            if (quizState.index === 0) {
+                quizOpenFirstDemolitoriModal(continueAfterCorrectUi);
+                return;
+            }
+            continueAfterCorrectUi();
         };
         if (timerBonusPts > 0) {
             quizUpdatePlayProgress({
@@ -7557,6 +7703,7 @@ function quizStart() {
     quizWrongModalHide();
     quizWrongModalFinishOpts = null;
     quizTop10NameModalHide();
+    quizFirstDemolitoriModalForceClose();
     quizClearQuestionTimer();
     quizOverArcadeClearTimers();
     quizOverWormBonusReset();
@@ -7687,8 +7834,105 @@ function quizOpenExitConfirmModal(onConfirm) {
     }, 60);
 }
 
+let quizFirstDemolitoriModalContinuation = null;
+
+function quizFirstDemolitoriModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-first-demolitori-modal') {
+        quizFirstDemolitoriModalOk();
+    }
+}
+
+function quizFirstDemolitoriModalFillViz() {
+    const viz = document.getElementById('quiz-first-demolitori-modal__viz');
+    if (!viz) return;
+    viz.innerHTML = '';
+    const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="0"]');
+    if (!src) return;
+    const clone = src.cloneNode(true);
+    clone.classList.remove('splash-worm-variant', 'splash-worm-variant--active');
+    clone.classList.add('quiz-vat-worm-graphic');
+    quizChoiceThumbSeq += 1;
+    const suf = 'fd1_' + quizChoiceThumbSeq;
+    try {
+        quizRemapSvgIds(clone, suf);
+    } catch (eR) {
+        /* ignore */
+    }
+    viz.innerHTML =
+        '<svg class="quiz-first-demolitori-modal__svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        clone.outerHTML +
+        '</svg>';
+}
+
+function quizFirstDemolitoriModalKeydown(ev) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        quizFirstDemolitoriModalOk();
+    }
+}
+
+function quizFirstDemolitoriModalHide() {
+    const modal = document.getElementById('quiz-first-demolitori-modal');
+    if (modal) {
+        modal.classList.remove('quiz-first-demolitori-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    document.removeEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
+    quizFirstDemolitoriModalContinuation = null;
+}
+
+function quizFirstDemolitoriModalForceClose() {
+    const modal = document.getElementById('quiz-first-demolitori-modal');
+    if (modal) {
+        modal.classList.remove('quiz-first-demolitori-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    document.removeEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
+    quizFirstDemolitoriModalContinuation = null;
+}
+
+function quizFirstDemolitoriModalOk() {
+    const fn = quizFirstDemolitoriModalContinuation;
+    quizFirstDemolitoriModalHide();
+    if (typeof fn === 'function') {
+        fn();
+    }
+}
+
+/** Solo dopo OK: verme in vasca + feedback + avanzamento. */
+function quizOpenFirstDemolitoriModal(onContinue) {
+    if (typeof onContinue !== 'function') {
+        return;
+    }
+    const modal = document.getElementById('quiz-first-demolitori-modal');
+    if (!modal) {
+        onContinue();
+        return;
+    }
+    quizFirstDemolitoriModalFillViz();
+    quizFirstDemolitoriModalContinuation = onContinue;
+    modal.classList.add('quiz-first-demolitori-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
+    setTimeout(function () {
+        const b = document.getElementById('quiz-first-demolitori-ok');
+        if (b) {
+            try {
+                b.focus();
+            } catch (e0) {
+                /* ignore */
+            }
+        }
+    }, 50);
+}
+
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
+    const fdem = document.getElementById('quiz-first-demolitori-modal');
+    if (fdem && fdem.classList.contains('quiz-first-demolitori-modal--open')) {
+        quizFirstDemolitoriModalOk();
+        return;
+    }
     const exitOpen = document.getElementById('quiz-exit-confirm-modal');
     if (exitOpen && exitOpen.classList.contains('quiz-exit-confirm-modal--open')) {
         quizExitConfirmNo();
@@ -8831,6 +9075,11 @@ function closeQuiz() {
         quizTop10NameModalOk();
         return;
     }
+    const fd1m = document.getElementById('quiz-first-demolitori-modal');
+    if (fd1m && fd1m.classList.contains('quiz-first-demolitori-modal--open')) {
+        quizFirstDemolitoriModalOk();
+        return;
+    }
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
@@ -8864,6 +9113,14 @@ function closeQuiz() {
 document.addEventListener("keydown", function quizFullscreenEscape(ev) {
     const exM = document.getElementById("quiz-exit-confirm-modal");
     if (exM && exM.classList.contains("quiz-exit-confirm-modal--open")) {
+        return;
+    }
+    const fd1 = document.getElementById("quiz-first-demolitori-modal");
+    if (fd1 && fd1.classList.contains("quiz-first-demolitori-modal--open")) {
+        if (ev.key === "Escape") {
+            ev.preventDefault();
+            quizFirstDemolitoriModalOk();
+        }
         return;
     }
     if (ev.key === "Escape" && document.body.classList.contains("quiz-open")) {
