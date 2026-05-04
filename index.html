@@ -4841,20 +4841,6 @@ function dismissAppSplash() {
                     <circle cx="38.9" cy="36.1" r="1" fill="#fff"/>
                     <path d="M24 46 Q32 51 40 46" stroke="#5d4037" stroke-width="1.7" fill="none" stroke-linecap="round"/>
                 </symbol>
-                <!-- Tazza olio (vite) — bianca, bordo leggero -->
-                <symbol id="quiz-icon-oil-cup-life" viewBox="0 0 64 64">
-                    <path
-                        d="M16 22 H44 Q48 22 48 26 V46 Q48 54 40 54 H24 Q16 54 16 46 V26 Q16 22 20 22 Z"
-                        fill="#fafafa"
-                        stroke="#b0bec5"
-                        stroke-width="2"
-                    />
-                    <path d="M48 30 L58 27 Q60 27 60 30 V40 Q60 43 58 43 L48 40 Z" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.6"/>
-                    <path d="M16 32 Q10 32 10 40 Q10 48 16 48" fill="none" stroke="#90a4ae" stroke-width="2.6" stroke-linecap="round"/>
-                    <ellipse cx="34" cy="40" rx="11" ry="9" fill="#ffffff" opacity="0.55"/>
-                    <path d="M22 26 H40" stroke="#eceff1" stroke-width="2.2" stroke-linecap="round"/>
-                    <circle cx="38" cy="28" r="2" fill="#e3f2fd" opacity="0.9"/>
-                </symbol>
             </defs>
         </svg>
         <div class="quiz-fs-topbar quiz-fs-topbar--solo-exit">
@@ -4867,11 +4853,11 @@ function dismissAppSplash() {
                 <div class="quiz-level-single quiz-level-single--plain">
                     <span class="quiz-level-title quiz-level-title--hero">Livello 1</span>
                     <p class="quiz-level-tagline">Mettiti alla prova, sfida te stesso e gli altri</p>
-                    <div class="quiz-life-icon-preview" role="group" aria-label="Esempio icona vite: tazza olio (barra punteggio)">
+                    <div class="quiz-life-icon-preview" role="group" aria-label="Esempio icona vite: operaio con elmetto">
                         <svg class="quiz-life-icon-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-                            <use href="#quiz-icon-oil-cup-life"/>
+                            <use href="#quiz-icon-operator-life"/>
                         </svg>
-                        <span class="quiz-life-icon-preview__cap">Icona «vite» — tazza olio (PC / tablet orizzontale)</span>
+                        <span class="quiz-life-icon-preview__cap">Icona «vite» — operaio con elmetto (PC / tablet orizzontale)</span>
                     </div>
                 </div>
             </div>
@@ -7475,7 +7461,7 @@ function quizUpdatePlayProgress(extra) {
         livesRemain +
         '">' +
         '<svg class="quiz-play-lives-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
-        '<use href="#quiz-icon-oil-cup-life"/>' +
+        '<use href="#quiz-icon-operator-life"/>' +
         '</svg>' +
         '<span id="quiz-play-lives-val" class="quiz-play-lives-num">' +
         livesRemain +
