@@ -2126,6 +2126,31 @@
             margin-bottom: 4px;
             filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
         }
+        .quiz-podium-worm-host {
+            width: 100%;
+            max-width: 92px;
+            height: 40px;
+            margin: 0 auto 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            flex-shrink: 0;
+        }
+        .quiz-podium-slot.gold .quiz-podium-worm-host {
+            max-width: 100px;
+            height: 44px;
+        }
+        .quiz-podium-worm-svg {
+            width: 100%;
+            height: 100%;
+            max-height: 44px;
+            display: block;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+        }
+        .quiz-podium-worm-svg .splash-worm-variant {
+            display: block !important;
+        }
         .quiz-podium-medal {
             display: inline-flex;
             align-items: center;
@@ -2749,6 +2774,17 @@
             .quiz-podium-meta {
                 font-size: 0.58rem;
             }
+            .quiz-podium-worm-host {
+                max-width: 84px;
+                height: 36px;
+            }
+            .quiz-podium-slot.gold .quiz-podium-worm-host {
+                max-width: 90px;
+                height: 40px;
+            }
+            .quiz-podium-worm-svg {
+                max-height: 40px;
+            }
         }
 
         /*
@@ -3096,113 +3132,10 @@
                 width: 100%;
                 max-width: 100%;
             }
-            /* Smartphone: niente paragrafo sotto «Entra» (ripete il titolo); spazio per tab vermi più grandi e comodi al tap */
-            .app-splash-tagline {
-                display: none !important;
-            }
-            .app-splash-enter {
-                margin: 4px 0 10px;
-            }
             .app-splash-worm-tabs {
                 flex-wrap: wrap;
                 justify-content: center;
-                row-gap: 10px;
-                column-gap: 8px;
-                padding: 4px 2px 8px;
-            }
-            .app-splash-worm-tab {
-                flex: 1 1 calc(50% - 6px);
-                min-width: min(160px, 44vw);
-                min-height: 52px;
-                padding: 12px 14px;
-                font-size: clamp(0.74rem, 3.8vw, 0.92rem);
-                font-weight: 800;
-                letter-spacing: 0.04em;
-                line-height: 1.2;
-                border-width: 2px;
-                box-sizing: border-box;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-        }
-        /* Desktop allargato: verme centrato nella home, testo spiegazione in colonna verticale a destra */
-        @media (min-width: 960px) {
-            .app-splash-inner {
-                width: min(100%, 1080px);
-            }
-            .app-splash-intro-bio {
-                position: relative;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-wrap: nowrap;
-                width: 100%;
-                max-width: 100%;
-                min-height: min(380px, 50vh);
-                padding: 10px clamp(170px, 19vw, 220px) 14px 16px;
-                margin: 8px auto 20px;
-                box-sizing: border-box;
-            }
-            .app-splash-intro-viz-col {
-                width: min(360px, 34vw);
-                max-width: 100%;
-                margin: 0 auto;
-                flex: 0 0 auto;
-            }
-            .app-splash-mascot-wrap {
-                min-height: min(320px, 36vw);
-                margin: 12px 0 14px;
-            }
-            .app-splash-icon-live {
-                width: min(360px, 34vw);
-                height: min(360px, 34vw);
-                max-width: 100%;
-            }
-            .app-splash-intro-desc-col {
-                position: absolute;
-                top: 50%;
-                right: max(6px, env(safe-area-inset-right, 0px));
-                transform: translateY(-50%);
-                width: min(200px, 19vw);
-                height: min(74vh, 640px);
-                max-width: 100%;
-                min-width: 0;
-                margin: 0;
-                overflow: visible;
-                pointer-events: auto;
-            }
-            .app-splash-worm-desc {
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                width: min(68vh, 560px);
-                max-width: min(85vw, 720px);
-                padding: 14px 18px;
-                margin: 0;
-                box-sizing: border-box;
-                font-size: clamp(0.74rem, 1.05vw, 0.86rem);
-                line-height: 1.55;
-                text-align: left;
-                transform: translate(-50%, -50%) rotate(-90deg);
-                transform-origin: center center;
-                max-height: min(80vw, 420px);
-                overflow-x: hidden;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .app-splash-worm-desc-panel h3 {
-                margin: 0 0 10px;
-                font-size: clamp(0.92rem, 1.15vw, 1.05rem);
-                letter-spacing: 0.06em;
-                line-height: 1.35;
-            }
-            .app-splash-worm-desc-panel p {
-                margin: 0 0 9px;
-            }
-            .app-splash-worm-desc-panel p:last-child {
-                margin-bottom: 0;
+                row-gap: 5px;
             }
         }
         .app-splash-icon-live {
@@ -4466,6 +4399,98 @@ function quizSaveLeaderboardLocalOnly(rows) {
     } catch (e) { /* ignore */ }
 }
 
+/** Podio: tre vermi (0–4) sempre diversi tra loro; campo `worm` persistito su ogni riga in top 3. */
+function quizNormalizePodiumWorms(sortedRows) {
+    var top = sortedRows.slice(0, 3);
+    var used = {};
+    var changed = false;
+    for (var i = 0; i < top.length; i++) {
+        var r = top[i];
+        if (!r) continue;
+        var w = Number(r.worm);
+        var valid = Number.isFinite(w) && w >= 0 && w <= 4 && Math.floor(w) === w;
+        if (valid && !used[w]) {
+            used[w] = true;
+            continue;
+        }
+        var choices = [];
+        for (var c = 0; c < 5; c++) {
+            if (!used[c]) choices.push(c);
+        }
+        var pick = choices.length ? choices[Math.floor(Math.random() * choices.length)] : 0;
+        if (r.worm !== pick) changed = true;
+        r.worm = pick;
+        used[pick] = true;
+    }
+    return changed;
+}
+
+var quizPodiumWormSeq = 0;
+
+function quizReIdEscapeRx(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Riassegna id nel sottoalbero SVG e aggiorna solo riferimenti `url(#id)` esatti (evita splashW0 vs splashW0Top). */
+function quizRemapSvgIds(root, suffix) {
+    var idNodes = [];
+    var list = root.querySelectorAll('[id]');
+    for (var i = 0; i < list.length; i++) {
+        var oid = list[i].getAttribute('id');
+        if (oid) idNodes.push({ el: list[i], oldId: oid, newId: oid + suffix });
+    }
+    idNodes.sort(function (a, b) {
+        return b.oldId.length - a.oldId.length;
+    });
+    var allNodes = [root];
+    var desc = root.querySelectorAll('*');
+    for (var d = 0; d < desc.length; d++) allNodes.push(desc[d]);
+    for (var j = 0; j < idNodes.length; j++) {
+        var oldId = idNodes[j].oldId;
+        var newId = idNodes[j].newId;
+        var rxUrl = new RegExp('url\\(#' + quizReIdEscapeRx(oldId) + '\\)', 'g');
+        var rxHref = new RegExp('href="#' + quizReIdEscapeRx(oldId) + '"', 'g');
+        for (var n = 0; n < allNodes.length; n++) {
+            var node = allNodes[n];
+            for (var k = 0; k < node.attributes.length; k++) {
+                var attr = node.attributes[k];
+                var v = attr.value;
+                if (v.indexOf('url(#') === -1 && v.indexOf('href="#') === -1) continue;
+                var nv = v.replace(rxUrl, 'url(#' + newId + ')').replace(rxHref, 'href="#' + newId + '"');
+                if (nv !== v) node.setAttribute(attr.name, nv);
+            }
+        }
+    }
+    for (var j = 0; j < idNodes.length; j++) {
+        idNodes[j].el.setAttribute('id', idNodes[j].newId);
+    }
+}
+
+var QUIZ_PODIUM_WORM_LABELS = ['Demolidori', 'Sottili', 'Filamentosi', 'Settici', 'Predatori'];
+
+function quizBuildPodiumWormHtml(wormIndex) {
+    var wi = Number(wormIndex);
+    if (!Number.isFinite(wi) || wi < 0 || wi > 4) wi = 0;
+    var src = document.querySelector('#app-splash .app-splash-bruco-svg .splash-worm-variant[data-worm="' + wi + '"]');
+    if (!src) return '';
+    var clone = src.cloneNode(true);
+    clone.classList.add('quiz-podium-worm-g');
+    quizPodiumWormSeq += 1;
+    var suf = 'p' + wi + '_' + quizPodiumWormSeq;
+    try {
+        quizRemapSvgIds(clone, suf);
+    } catch (eRem) { /* ignore */ }
+    var label = QUIZ_PODIUM_WORM_LABELS[wi] || 'Verme';
+    var labAttr = String(label).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return (
+        '<svg class="quiz-podium-worm-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+        labAttr +
+        '">' +
+        clone.outerHTML +
+        '</svg>'
+    );
+}
+
 /** Aggiunge un risultato: aggiorna subito il locale; su Firestore usa transazione (merge multi-utente). */
 function quizAppendLeaderboardRow(newRow) {
     var rows = quizLoadLeaderboard();
@@ -4477,6 +4502,7 @@ function quizAppendLeaderboardRow(newRow) {
         return new Date(a.at) - new Date(b.at);
     });
     rows = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
+    quizNormalizePodiumWorms(rows);
     quizSaveLeaderboardLocalOnly(rows);
     if (quizFirestoreConfigured()) {
         quizAppendLeaderboardRowFirestore(newRow);
@@ -4500,6 +4526,7 @@ function quizAppendLeaderboardRowFirestore(newRow) {
                         return new Date(a.at) - new Date(b.at);
                     });
                     rows = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
+                    quizNormalizePodiumWorms(rows);
                     transaction.set(ref, {
                         rows: rows,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -4525,16 +4552,20 @@ function quizPullLeaderboardFromFirestore() {
             if (!snap.exists) {
                 var local = quizLoadLeaderboard();
                 if (local.length) {
+                    var sortedUp = quizSortLeaderboardRows(local);
+                    quizNormalizePodiumWorms(sortedUp);
                     return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
-                        rows: local.slice(0, QUIZ_LEADERBOARD_TOP_N),
+                        rows: sortedUp,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
                 return;
             }
             var d = snap.data() || {};
-            var rows = Array.isArray(d.rows) ? d.rows : [];
-            quizSaveLeaderboardLocalOnly(rows);
+            var pulled = Array.isArray(d.rows) ? d.rows : [];
+            var sortedPull = quizSortLeaderboardRows(pulled);
+            quizNormalizePodiumWorms(sortedPull);
+            quizSaveLeaderboardLocalOnly(sortedPull);
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard pull]', e);
@@ -4574,6 +4605,7 @@ function quizAttachLeaderboardRealtime() {
                     }
                     var d = snap.data() || {};
                     var rows = Array.isArray(d.rows) ? d.rows.slice(0, QUIZ_LEADERBOARD_TOP_N) : [];
+                    quizNormalizePodiumWorms(rows);
                     quizSaveLeaderboardLocalOnly(rows);
                     try {
                         quizRenderLeaderboard();
@@ -4605,6 +4637,7 @@ function quizSortLeaderboardRows(rows) {
 
 function quizSaveLeaderboardFullSync(rows) {
     const sorted = quizSortLeaderboardRows(rows);
+    quizNormalizePodiumWorms(sorted);
     quizSaveLeaderboardLocalOnly(sorted);
     if (quizFirestoreConfigured()) {
         quizEnsureFirebase()
@@ -5896,6 +5929,11 @@ function quizRenderLeaderboard() {
         if (b.score !== a.score) return b.score - a.score;
         return new Date(a.at) - new Date(b.at);
     });
+    if (quizNormalizePodiumWorms(rows)) {
+        try {
+            quizSaveLeaderboardLocalOnly(rows);
+        } catch (eNorm) { /* ignore */ }
+    }
     if (!rows.length) {
         body.innerHTML = '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Nessun punteggio ancora. Completa un quiz per vedere la classifica aggiornata.</p></div>';
         return;
@@ -5919,7 +5957,11 @@ function quizRenderLeaderboard() {
             return;
         }
         const icon = podiumIcons[slot];
-        podium += `<div class="quiz-podium-slot ${cls}"><div class="quiz-podium-emoji" aria-hidden="true">${icon}</div><div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
+        const wh = quizBuildPodiumWormHtml(r.worm);
+        const wormBlock = wh
+            ? '<div class="quiz-podium-worm-host">' + wh + '</div>'
+            : '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
+        podium += `<div class="quiz-podium-slot ${cls}">${wormBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
     });
     podium += '</div>';
 
