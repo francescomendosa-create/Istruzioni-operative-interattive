@@ -1088,7 +1088,37 @@
             font-weight: 800;
             color: #37474f;
             letter-spacing: 0.02em;
-            white-space: nowrap;
+            white-space: normal;
+        }
+        .quiz-play-q-pts-pill {
+            font-weight: 800;
+            color: #1565c0;
+        }
+        .quiz-play-q-pts-num {
+            font-variant-numeric: tabular-nums;
+            font-weight: 900;
+        }
+        .quiz-play-q-hint {
+            margin: 3px 0 0;
+            padding: 0 2px;
+            font-size: clamp(0.58rem, 2vw, 0.68rem);
+            font-weight: 700;
+            color: #546e7a;
+            line-height: 1.3;
+            max-width: min(280px, 100%);
+        }
+        .quiz-play-q-hint--timer {
+            color: #0d47a1;
+        }
+        .quiz-feedback-turn-total {
+            display: inline;
+            font-weight: 900;
+            color: #1b5e20;
+            white-space: normal;
+        }
+        .quiz-play-scoreboard--timer-on {
+            border-color: rgba(13, 71, 161, 0.35);
+            box-shadow: 0 0 0 1px rgba(13, 71, 161, 0.2), 0 4px 16px rgba(13, 71, 161, 0.1);
         }
         .quiz-play-oneline--first .quiz-play-qcount-full {
             color: #5d4037;
@@ -5344,10 +5374,19 @@ const QUIZ_START_WORM_COUNT = 0;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
 /**
- * Indice 0-based della prima domanda con countdown.
- * 2 = terza domanda (1ª→0, 2ª→1, 3ª→2). Prima era 3 (= quarta domanda): da qui il malinteso «non parte alla terza».
+ * Da quale numero di domanda (1-based, come in UI: Domanda 1, 2, 3…) partono countdown e punti-tempo.
+ * 3 = sempre dalla terza domanda in poi, qualunque sia successo nelle precedenti.
  */
-const QUIZ_TIMER_FIRST_INDEX = 2;
+const QUIZ_TIMER_START_AT_QUESTION = 3;
+
+function quizQuestionHasTimer() {
+    try {
+        if (!quizState.queue || quizState.queue.length === 0) return false;
+        return quizState.index + 1 >= QUIZ_TIMER_START_AT_QUESTION;
+    } catch (e) {
+        return false;
+    }
+}
 /** Tick UI countdown (ms): setInterval più affidabile di requestAnimationFrame su molti mobile browser. */
 const QUIZ_TIMER_TICK_MS = 80;
 /** Durata massima domanda a tempo; i secondi ancora sul conteggio alla risposta esatta valgono altrettanti punti bonus «timer». */
@@ -5820,7 +5859,7 @@ function quizBioVatSink() {
  * quizClearQuestionTimer() è già stato chiamato da quizRenderQuestion.
  */
 function quizScheduleQuestionTimerTicks() {
-    if (quizState.index < QUIZ_TIMER_FIRST_INDEX || !quizTimerDeadline) {
+    if (!quizQuestionHasTimer() || !quizTimerDeadline) {
         return;
     }
     function tick() {
@@ -6232,9 +6271,21 @@ function quizUpdatePlayProgress(extra) {
     const rowClass = 'quiz-play-oneline' + (isFirst ? ' quiz-play-oneline--first' : '');
     const crown = isFirst ? '<span class="quiz-play-trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</span>' : '';
     const tickCls = extra.scoreAnimTick ? ' quiz-play-oneline-val--tick' : '';
-    const boardCls = 'quiz-play-scoreboard' + (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '');
-    /* Dipende dalla deadline, non da quizTimerVisualActive (evita barra assente se i flag si desincronizzano). */
-    const showTime = quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline != null;
+    /* Barra tempo: solo dalla terza domanda in poi e con deadline attiva. */
+    const showTime = quizQuestionHasTimer() && quizTimerDeadline != null;
+    prog.className = 'quiz-progress-wrap' + (showTime ? ' quiz-progress-wrap--timer-on' : '');
+    const boardCls =
+        'quiz-play-scoreboard' +
+        (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '') +
+        (showTime ? ' quiz-play-scoreboard--timer-on' : '');
+    const curQ = quizState.queue[quizState.index];
+    const rawQPts = curQ && typeof curQ.points === 'number' ? curQ.points : null;
+    const ptsEsc = rawQPts != null ? escapeQuizHtml(String(rawQPts)) : '\u2014';
+    const timerHint = quizQuestionHasTimer()
+        ? '<p class="quiz-play-q-hint quiz-play-q-hint--timer" role="note">Hai <strong>' +
+          QUIZ_TIMER_SECONDS +
+          '</strong> s · ogni secondo residuo a risposta esatta = <strong>+1 pt</strong> sommati al totale</p>'
+        : '<p class="quiz-play-q-hint" role="note">Senza countdown · solo punti domanda</p>';
     let leftMsForInit = 0;
     let initFrac = 1;
     let initSec = QUIZ_TIMER_SECONDS;
@@ -6246,7 +6297,7 @@ function quizUpdatePlayProgress(extra) {
         initSec = leftMsForInit <= 0 ? 0 : Math.ceil(ls - 1e-6);
         initUrgent = ls > 0 && ls <= QUIZ_TIMER_URGENT_SEC;
     }
-    const showTimerCumulUi = quizState.index >= QUIZ_TIMER_FIRST_INDEX;
+    const showTimerCumulUi = quizQuestionHasTimer();
     const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
     const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
     const timerSummaryRow =
@@ -6282,7 +6333,17 @@ function quizUpdatePlayProgress(extra) {
         '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
         '</div>' +
         '<div class="quiz-play-oneline-center">' +
-        '<p class="quiz-play-qcount-full" id="quiz-play-qcount-line" aria-label="Domanda ' + i + ' di ' + tot + '">Domanda <span id="quiz-play-q-num">' + i + '</span></p>' +
+        '<p class="quiz-play-qcount-full" id="quiz-play-qcount-line" aria-label="Domanda ' +
+        i +
+        ' di ' +
+        tot +
+        (rawQPts != null ? ', valore ' + rawQPts + ' punti' : '') +
+        '">Domanda <span id="quiz-play-q-num">' +
+        i +
+        '</span><span class="quiz-play-q-pts-pill"> · Vale <span class="quiz-play-q-pts-num">' +
+        ptsEsc +
+        '</span> pt</span></p>' +
+        timerHint +
         '</div>' +
         '<div class="quiz-play-oneline-right">' +
         '<div class="quiz-play-right-stack">' +
@@ -6349,7 +6410,7 @@ function quizRenderQuestion(opts) {
         ch.appendChild(b);
     });
 
-    if (quizState.index >= QUIZ_TIMER_FIRST_INDEX) {
+    if (quizQuestionHasTimer()) {
         quizTimerVisualActive = true;
         quizTimerDeadline = Date.now() + QUIZ_TIMER_SECONDS * 1000;
     } else {
@@ -6433,7 +6494,7 @@ function quizAnswer(idx) {
     if (!q) return;
 
     let timerBonusPts = 0;
-    if (idx === q.correctIndex && quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline) {
+    if (idx === q.correctIndex && quizQuestionHasTimer() && quizTimerDeadline) {
         const leftMs = Math.max(0, quizTimerDeadline - Date.now());
         if (leftMs > 0) {
             const leftSec = leftMs / 1000;
@@ -6473,13 +6534,19 @@ function quizAnswer(idx) {
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
-                let txt = 'Esatto — +' + q.points + ' pt dalla domanda';
-                if (timerBonusPts > 0) {
-                    txt +=
-                        ' · <span class="quiz-feedback-timer-bonus">+' +
-                        timerBonusPts +
-                        ' pt bonus tempo</span>';
-                }
+                const turnTot = q.points + timerBonusPts;
+                let txt =
+                    'Esatto — +' +
+                    q.points +
+                    ' pt domanda' +
+                    (timerBonusPts > 0
+                        ? '. <span class="quiz-feedback-timer-bonus">+' +
+                          timerBonusPts +
+                          ' pt dal timer</span> (sommati al punteggio come punti veri). ' +
+                          '<span class="quiz-feedback-turn-total">Totale turno: +' +
+                          turnTot +
+                          ' pt.</span>'
+                        : '');
                 fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>' + txt + '</span>';
             }
             setTimeout(function () {
