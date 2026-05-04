@@ -141,7 +141,7 @@
             box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
         }
 
-        /* Riga 3: Quiz centrato */
+        /* Riga 3: Quiz + Diagnostica (stessa riga, Diagnostica leggermente più piccola a destra del Quiz) */
         .header-quiz-row {
             display: flex;
             justify-content: center;
@@ -150,6 +150,13 @@
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
+        }
+        .header-quiz-actions {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px 10px;
         }
 
         .btn-side {
@@ -209,6 +216,24 @@
         }
         .btn-quiz:hover { filter: brightness(1.05); }
         .btn-quiz:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.15); }
+
+        .btn-diagnostica {
+            padding: 5px 11px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.58rem;
+            letter-spacing: 0.04em;
+            background: linear-gradient(180deg, #5be39a 0%, #2fc777 55%, #1fae64 100%);
+            color: #fff;
+            white-space: nowrap;
+            text-shadow: 0 1px 0 rgba(0,0,0,0.22);
+            box-shadow: 0 4px 0 rgba(10, 70, 45, 0.35), 0 6px 12px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.35);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+        .btn-diagnostica:hover { filter: brightness(1.06); }
+        .btn-diagnostica:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(10, 70, 45, 0.35), 0 3px 8px rgba(0,0,0,0.14); }
 
         .quiz-panel {
             display: none;
@@ -2759,9 +2784,16 @@
             .header-quiz-row {
                 margin-top: 8px;
             }
+            .header-quiz-actions {
+                gap: 6px 8px;
+            }
             .btn-quiz {
                 font-size: 0.72rem;
                 padding: 8px 16px;
+            }
+            .btn-diagnostica {
+                font-size: 0.64rem;
+                padding: 6px 12px;
             }
             .container {
                 margin: 0 8px 24px;
@@ -2892,6 +2924,10 @@
             .btn-quiz {
                 font-size: 0.66rem;
                 padding: 7px 12px;
+            }
+            .btn-diagnostica {
+                font-size: 0.58rem;
+                padding: 6px 10px;
             }
             .quiz-row label,
             .quiz-pts-hint,
@@ -4168,7 +4204,10 @@ function dismissAppSplash() {
         <button type="button" id="btn-sec-mbr" class="nav-sec-btn" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
     </div>
     <div class="header-quiz-row">
-        <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
+        <div class="header-quiz-actions">
+            <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
+            <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
+        </div>
     </div>
 </div>
 
