@@ -37,7 +37,7 @@
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             min-height: 100%;
-            padding-top: 160px;
+            padding-top: 188px;
             padding-bottom: 72px;
             scroll-behavior: smooth;
             /* Sfondo “fisso” allo schermo: non scorre con il contenuto (no effetto immagine che si muove) */
@@ -193,45 +193,6 @@
         .btn-header-icon:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.18); }
         .btn-header-icon svg { display: block; }
 
-        .navbar {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            gap: 10px 12px;
-            margin-top: 4px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .navbar .nav-side {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .navbar .nav-center-cluster {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-            min-width: 0;
-        }
-
-        .navbar .nav-center-cluster .nav-sec-btn {
-            padding: 7px 14px;
-            border: 2px solid white;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.72rem;
-            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
-            color: var(--primary);
-            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease, background 0.2s ease;
-            min-width: 128px;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.26), 0 10px 18px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
-        }
-
         .btn-quiz {
             padding: 6px 12px;
             border: 2px solid rgba(255,255,255,0.55);
@@ -248,21 +209,6 @@
         }
         .btn-quiz:hover { filter: brightness(1.05); }
         .btn-quiz:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.15); }
-
-        .navbar .nav-center-cluster .nav-sec-btn:hover {
-            filter: brightness(1.07);
-            box-shadow: 0 6px 0 rgba(0,0,0,0.26), 0 14px 22px rgba(0,0,0,0.24), 0 0 16px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.7);
-        }
-        .navbar .nav-center-cluster .nav-sec-btn:active {
-            transform: translateY(4px) scale(0.99);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.26), 0 5px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
-        }
-
-        .navbar .nav-center-cluster .nav-sec-btn.active {
-            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
-            color: white;
-            box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
-        }
 
         .quiz-panel {
             display: none;
@@ -2611,44 +2557,44 @@
         .quiz-producer-num { font-variant-numeric: tabular-nums; font-weight: 700; color: #0d47a1; width: 2rem; }
         @media (max-width: 820px) {
             body {
-                padding-top: 178px;
+                padding-top: 204px;
                 padding-bottom: 88px;
             }
             .fixed-header {
                 padding: 10px 10px 12px;
             }
-            .header-title-row {
-                margin-bottom: 6px;
+            .header-title-bar {
+                gap: 6px 8px;
             }
-            .header-main-title {
-                font-size: 0.9rem;
-                letter-spacing: 0.6px;
-                line-height: 1.25;
+            .header-title-bar .header-main-title {
+                font-size: 0.88rem;
+                letter-spacing: 0.04em;
+                line-height: 1.2;
             }
             .btn-side {
                 min-width: 68px;
                 padding: 7px 10px;
                 font-size: 0.72rem;
             }
-            .navbar {
-                grid-template-columns: auto minmax(0, 1fr) auto;
+            .header-sec-row {
                 gap: 8px;
                 margin-top: 8px;
             }
-            .navbar .nav-center-cluster {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 6px;
+            .header-sec-row .nav-sec-btn {
+                font-size: 0.7rem;
+                padding: 9px 8px;
+                line-height: 1.18;
             }
-            .navbar .nav-center-cluster .nav-sec-btn {
-                min-width: 0;
-                flex: 1 1 118px;
-                font-size: 0.68rem;
-                padding: 8px 8px;
+            .btn-header-icon--sm {
+                width: 32px;
+                height: 32px;
             }
-            .btn-header-icon {
-                width: 40px;
-                height: 40px;
+            .btn-header-icon--sm svg {
+                width: 17px;
+                height: 17px;
+            }
+            .header-quiz-row {
+                margin-top: 8px;
             }
             .btn-quiz {
                 font-size: 0.72rem;
@@ -2765,18 +2711,20 @@
         }
         @media (max-width: 430px) {
             body {
-                padding-top: 190px;
+                padding-top: 212px;
             }
-            .header-main-title {
-                font-size: 0.82rem;
+            .header-title-bar .header-main-title {
+                font-size: 0.78rem;
+                letter-spacing: 0.02em;
             }
             .btn-side {
                 min-width: 62px;
                 padding: 7px 8px;
                 font-size: 0.68rem;
             }
-            .navbar .nav-center-cluster .nav-sec-btn {
-                font-size: 0.64rem;
+            .header-sec-row .nav-sec-btn {
+                font-size: 0.68rem;
+                padding: 8px 6px;
             }
             .btn-quiz {
                 font-size: 0.66rem;
@@ -3984,25 +3932,21 @@ function dismissAppSplash() {
 </script>
 
 <div class="fixed-header">
-    <div class="header-title-row">
+    <div class="header-title-bar">
+        <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
+        <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
     </div>
-    <div class="navbar">
-        <div class="nav-side nav-side-left">
-            <button type="button" class="btn-header-icon" onclick="goToProgramHome()" title="Torna all'inizio" aria-label="Home">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-        </div>
-        <div class="nav-center-cluster">
-            <button type="button" id="btn-sec-cf" class="nav-sec-btn active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
-            <button type="button" id="btn-sec-mbr" class="nav-sec-btn" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
-            <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
-        </div>
-        <div class="nav-side nav-side-right">
-            <button type="button" class="btn-header-icon" onclick="showQuizSettingsModal()" title="Impostazioni quiz" aria-label="Impostazioni">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </button>
-        </div>
+    <div class="header-sec-row">
+        <button type="button" id="btn-sec-cf" class="nav-sec-btn active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
+        <button type="button" id="btn-sec-mbr" class="nav-sec-btn" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
+    </div>
+    <div class="header-quiz-row">
+        <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
     </div>
 </div>
 
@@ -4760,7 +4704,7 @@ function quizProducerRemoveAt(index) {
 function setupQuizTitleToggle() {
     function isTitleTarget(el) {
         if (!el) return false;
-        return !!el.closest('#main-title, .header-main-title, .header-title-row h1');
+        return !!el.closest('#main-title, .header-main-title, .header-title-bar h1');
     }
     function registerDoubleClickIntent() {
         titleClickCount += 1;
@@ -7570,9 +7514,27 @@ function goToProgramHome() {
     try {
         if (typeof hideQuizSettingsModal === 'function') hideQuizSettingsModal();
     } catch (e2) {}
-    isManualScrolling = true;
-    updateNav('cf');
-    smoothScrollToY(0, 700);
+    try {
+        var KEY = 'io-splash-dismissed-session';
+        sessionStorage.removeItem(KEY);
+    } catch (e3) {}
+    var sp = document.getElementById('app-splash');
+    if (sp) {
+        sp.classList.remove('app-splash--bursting');
+        sp.classList.add('app-splash--visible');
+        sp.setAttribute('aria-hidden', 'false');
+    }
+    document.body.classList.add('splash-active');
+    try {
+        dismissAppSplash._busy = false;
+    } catch (e4) {}
+    var btn = document.getElementById('app-splash-enter-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+    }
+    window.scrollTo(0, 0);
+    isManualScrolling = false;
 }
 
 function scrollToSec(s) {
@@ -7737,7 +7699,7 @@ function scrollToReport() {
 }
 
 function updateNav(s) {
-    document.querySelectorAll('.navbar .nav-sec-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.header-sec-row .nav-sec-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`btn-sec-${s}`);
     if(btn) btn.classList.add('active');
 }
