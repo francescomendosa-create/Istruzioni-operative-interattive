@@ -5863,8 +5863,10 @@ function quizScheduleQuestionTimerTicks() {
         return;
     }
     function tick() {
+        /* Mai cancellare il countdown solo perché siamo in transizione: durante quizAdvanceCorrect
+         * quizAnswerLocked è ancora true mentre viene montata la nuova domanda: prima si svuotava
+         * la deadline qui e il timer restava fermo a 25 s finché un altro flusso (es. errore) non rifaceva il render. */
         if (quizAnswerLocked) {
-            quizClearQuestionTimer();
             return;
         }
         if (!quizTimerDeadline) return;
@@ -6430,9 +6432,13 @@ function quizAdvanceCorrect() {
     const wrap = document.getElementById('quiz-play-body');
     if (!wrap) {
         quizState.index += 1;
-        if (quizState.index >= quizState.queue.length) quizFinish(true);
-        else quizRenderQuestion({ instant: true });
-        quizAnswerLocked = false;
+        if (quizState.index >= quizState.queue.length) {
+            quizAnswerLocked = false;
+            quizFinish(true);
+        } else {
+            quizAnswerLocked = false;
+            quizRenderQuestion({ instant: true });
+        }
         return;
     }
     wrap.classList.add('quiz-fade-out');
@@ -6444,13 +6450,13 @@ function quizAdvanceCorrect() {
             quizFinish(true);
             return;
         }
+        quizAnswerLocked = false;
         quizRenderQuestion({ instant: true });
         wrap.classList.remove('quiz-fade-out');
         void wrap.offsetWidth;
         wrap.classList.add('quiz-fade-in');
         setTimeout(() => {
             wrap.classList.remove('quiz-fade-in');
-            quizAnswerLocked = false;
         }, 420);
     }, 280);
 }
@@ -6468,11 +6474,12 @@ function quizAdvanceAfterWrongContinue() {
     const step = () => {
         quizState.index += 1;
         if (quizState.index >= quizState.queue.length) {
+            quizAnswerLocked = false;
             quizFinish(false, { seenAllQuestions: true });
             return;
         }
-        quizRenderQuestion({ instant: true });
         quizAnswerLocked = false;
+        quizRenderQuestion({ instant: true });
     };
     if (wrap) {
         wrap.classList.add('quiz-fade-out');
