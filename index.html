@@ -4481,6 +4481,22 @@ let quizFirebaseInitPromise = null;
 let quizFsSyncTimer = null;
 /** unsubscribe Firestore classifica tempo reale */
 let quizLeaderboardUnsub = null;
+/** Dopo il primo contatto con Firestore la cache locale è solo specchio del cloud (no classifica «locale» in UI). */
+let quizLeaderboardHydrated = false;
+/** Connessione Realtime fallita: mostra avviso (cache eventualmente obsoleta). */
+let quizLeaderboardCloudError = false;
+
+function quizInitLeaderboardSourceState() {
+    quizLeaderboardHydrated = !quizFirestoreConfigured();
+    quizLeaderboardCloudError = false;
+}
+
+/** Righe usate per podio / posizione: mai una classifica solo-device fingendosi globale. */
+function quizGetRowsForRankMath() {
+    if (!quizFirestoreConfigured()) return [];
+    if (!quizLeaderboardHydrated) return [];
+    return quizLoadLeaderboard();
+}
 
 function quizFirestoreConfigured() {
     try {
@@ -4492,24 +4508,48 @@ function quizFirestoreConfigured() {
     }
 }
 
-/** Messaggio sotto «Classifica»: spiega se i record sono condivisi o solo locali (tablet nuovo senza config = solo locale). */
+/** Messaggio sotto «Classifica»: un’unica classifica = Firestore (nessuna «categoria» locale). */
 function quizUpdateFirebaseSyncUi() {
     const el = document.getElementById('quiz-rank-sync-status');
     if (!el) return;
-    if (quizFirestoreConfigured()) {
+    if (!quizFirestoreConfigured()) {
         el.textContent =
-            'Cloud attivo · classifica condivisa in tempo reale tra tutti i dispositivi con la stessa configurazione Firebase';
-        el.classList.remove('quiz-rank-heading-sub--localonly');
-        el.removeAttribute('title');
-    } else {
-        el.textContent =
-            'Record solo su questo dispositivo (nessun Firebase). Incolla __FIREBASE_QUIZ_CONFIG__ in index.html su ogni installazione per la classifica condivisa.';
+            'Classifica disattivata: senza Firebase non esiste classifica (solo Firestore, stesso config su PC e tablet).';
         el.classList.add('quiz-rank-heading-sub--localonly');
         el.setAttribute(
             'title',
-            'Senza oggetto Firebase valido l’app non può leggere/scrivere Firestore: ogni tablet ha una classifica separata.'
+            'Incolla window.__FIREBASE_QUIZ_CONFIG__ in index.html su ogni dispositivo per una sola classifica online.'
         );
+        return;
     }
+    if (quizLeaderboardCloudError) {
+        el.textContent =
+            '⚠ Connessione a Firestore non riuscita. Controlla rete e regole; la lista può non essere aggiornata.';
+        el.classList.add('quiz-rank-heading-sub--localonly');
+        el.setAttribute('title', 'Verifica autenticazione anonima e regole Firestore per quiz_leaderboard/global.');
+        return;
+    }
+    if (!quizLeaderboardHydrated) {
+        el.textContent = 'Sincronizzazione con Firestore…';
+        el.classList.remove('quiz-rank-heading-sub--localonly');
+        el.removeAttribute('title');
+        return;
+    }
+    el.textContent =
+        'Unica classifica online (Firestore) · sincronizzata in tempo reale su tutti i dispositivi con lo stesso progetto';
+    el.classList.remove('quiz-rank-heading-sub--localonly');
+    el.removeAttribute('title');
+}
+
+function quizMarkLeaderboardHydratedFromCloud(isError) {
+    quizLeaderboardHydrated = true;
+    quizLeaderboardCloudError = !!isError;
+    try {
+        quizRenderLeaderboard();
+    } catch (e) {}
+    try {
+        quizUpdateFirebaseSyncUi();
+    } catch (e) {}
 }
 
 function quizEnsureFirebase() {
@@ -4696,8 +4736,9 @@ function quizBuildPodiumWormHtml(wormIndex) {
     );
 }
 
-/** Aggiunge un risultato: aggiorna subito il locale; su Firestore usa transazione (merge multi-utente). */
+/** Aggiunge un risultato: cache locale + Firestore (nessuna classifica «solo dispositivo»). */
 function quizAppendLeaderboardRow(newRow) {
+    if (!quizFirestoreConfigured()) return;
     var rows = quizLoadLeaderboard();
     rows.push(newRow);
     rows.sort(function (a, b) {
@@ -4744,7 +4785,7 @@ function quizAppendLeaderboardRowFirestore(newRow) {
         });
 }
 
-/** Scarica la classifica globale (priorità su localStorage) e opzionalmente carica il locale su FS se vuoto. */
+/** Scarica la classifica globale da Firestore (unica fonte); cache locale = solo copia. */
 function quizPullLeaderboardFromFirestore() {
     if (!quizFirestoreConfigured()) {
         return Promise.resolve();
@@ -4762,8 +4803,13 @@ function quizPullLeaderboardFromFirestore() {
                     return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
                         rows: sortedUp,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(function () {
+                        quizSaveLeaderboardLocalOnly(sortedUp);
+                        quizMarkLeaderboardHydratedFromCloud(false);
                     });
                 }
+                quizSaveLeaderboardLocalOnly([]);
+                quizMarkLeaderboardHydratedFromCloud(false);
                 return;
             }
             var d = snap.data() || {};
@@ -4771,6 +4817,7 @@ function quizPullLeaderboardFromFirestore() {
             var sortedPull = quizSortLeaderboardRows(pulled);
             quizNormalizePodiumWorms(sortedPull);
             quizSaveLeaderboardLocalOnly(sortedPull);
+            quizMarkLeaderboardHydratedFromCloud(false);
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard pull]', e);
@@ -4800,9 +4847,8 @@ function quizAttachLeaderboardRealtime() {
             quizLeaderboardUnsub = ref.onSnapshot(
                 function (snap) {
                     if (!snap.exists) {
-                        try {
-                            quizRenderLeaderboard();
-                        } catch (e0) { /* ignore */ }
+                        quizSaveLeaderboardLocalOnly([]);
+                        quizMarkLeaderboardHydratedFromCloud(false);
                         try {
                             if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
                         } catch (e1) { /* ignore */ }
@@ -4812,20 +4858,20 @@ function quizAttachLeaderboardRealtime() {
                     var rows = Array.isArray(d.rows) ? d.rows.slice(0, QUIZ_LEADERBOARD_TOP_N) : [];
                     quizNormalizePodiumWorms(rows);
                     quizSaveLeaderboardLocalOnly(rows);
-                    try {
-                        quizRenderLeaderboard();
-                    } catch (e2) { /* ignore */ }
+                    quizMarkLeaderboardHydratedFromCloud(false);
                     try {
                         if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
                     } catch (e3) { /* ignore */ }
                 },
                 function (err) {
                     console.warn('[quiz leaderboard realtime]', err);
+                    quizMarkLeaderboardHydratedFromCloud(true);
                 }
             );
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard realtime attach]', e);
+            quizMarkLeaderboardHydratedFromCloud(true);
         });
 }
 
@@ -4841,6 +4887,7 @@ function quizSortLeaderboardRows(rows) {
 }
 
 function quizSaveLeaderboardFullSync(rows) {
+    if (!quizFirestoreConfigured()) return;
     const sorted = quizSortLeaderboardRows(rows);
     quizNormalizePodiumWorms(sorted);
     quizSaveLeaderboardLocalOnly(sorted);
@@ -5008,7 +5055,11 @@ function hideQuizInfoDetailModal() {
 }
 
 function quizProducerResetLeaderboard() {
-    if (!window.confirm('Cancellare tutti i record della classifica (dispositivo e Firebase se attivo)?')) return;
+    if (!quizFirestoreConfigured()) {
+        window.alert('Classifica solo su Firestore: configura prima __FIREBASE_QUIZ_CONFIG__ in index.html.');
+        return;
+    }
+    if (!window.confirm('Cancellare tutti i record della classifica su Firestore (e cache locale)?')) return;
     quizSaveLeaderboardFullSync([]);
     quizProducerRefreshTable();
     try {
@@ -5042,6 +5093,11 @@ function hideQuizProducerModal() {
 function quizProducerRefreshTable() {
     const host = document.getElementById('quiz-producer-table-host');
     if (!host) return;
+    if (!quizFirestoreConfigured()) {
+        host.innerHTML =
+            '<p style="margin:0;padding:12px;color:#c62828;text-align:center;font-size:0.88rem;">Classifica solo su Firestore: configura <strong>__FIREBASE_QUIZ_CONFIG__</strong> in index.html.</p>';
+        return;
+    }
     const rows = quizSortLeaderboardRows(quizLoadLeaderboard());
     if (!rows.length) {
         host.innerHTML = '<p style="margin:0;padding:12px;color:#78909c;text-align:center;font-size:0.88rem;">Nessuna riga. Aggiungi nome e punteggio.</p>';
@@ -5057,6 +5113,14 @@ function quizProducerRefreshTable() {
 }
 
 function quizProducerAddEntry() {
+    if (!quizFirestoreConfigured()) {
+        window.alert('Classifica solo online: configura Firebase in index.html.');
+        return;
+    }
+    if (!quizLeaderboardHydrated) {
+        window.alert('Attendi il completamento della sincronizzazione con Firestore.');
+        return;
+    }
     const nEl = document.getElementById('quiz-producer-name');
     const sEl = document.getElementById('quiz-producer-score');
     const name = (nEl && nEl.value.trim()) ? nEl.value.trim() : 'Operatore';
@@ -5080,6 +5144,7 @@ function quizProducerAddEntry() {
 }
 
 function quizProducerRemoveAt(index) {
+    if (!quizFirestoreConfigured()) return;
     const rows = quizSortLeaderboardRows(quizLoadLeaderboard());
     if (index < 0 || index >= rows.length) return;
     rows.splice(index, 1);
@@ -6205,9 +6270,9 @@ function quizLoadLeaderboard() {
     }
 }
 
-/** Posizione «live»: punteggio attuale confrontato con la classifica salvata (stessa logica di ordinamento). */
+/** Posizione «live»: punteggio attuale confrontato con la classifica cloud (dopo sync). */
 function quizComputeLiveRank(currentScore) {
-    const base = quizLoadLeaderboard().map((r) => ({
+    const base = quizGetRowsForRankMath().map((r) => ({
         name: r.name,
         score: Number(r.score) || 0,
         at: r.at || new Date(0).toISOString()
@@ -6231,6 +6296,19 @@ function quizComputeLiveRank(currentScore) {
 function quizRenderLeaderboard() {
     const body = document.getElementById('quiz-rank-body');
     if (!body) return;
+    if (!quizFirestoreConfigured()) {
+        body.innerHTML =
+            '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Nessuna classifica su questo dispositivo: la classifica ufficiale è <strong>solo</strong> su Firestore. Incolla lo stesso <code>__FIREBASE_QUIZ_CONFIG__</code> in <code>index.html</code> su PC, tablet e PWA.</p></div>';
+        try {
+            quizUpdateFirebaseSyncUi();
+        } catch (e) {}
+        return;
+    }
+    if (!quizLeaderboardHydrated) {
+        body.innerHTML =
+            '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Connessione a Firestore in corso…</p></div>';
+        return;
+    }
     let rows = quizLoadLeaderboard();
     rows.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
@@ -6658,7 +6736,7 @@ function quizAnswer(idx) {
 
 /** Posizione (1-based) che avrebbe il punteggio se inserito ora in classifica. */
 function quizSimulatedInsertRank(finalScore) {
-    const rows = quizLoadLeaderboard();
+    const rows = quizGetRowsForRankMath();
     const at = new Date().toISOString();
     const pending = { score: Number(finalScore) || 0, at: at, __p: 1 };
     const merged = rows.map(function (r) {
@@ -6762,7 +6840,9 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
                 ? 'Hai risposto a tutte le domande della sessione. Raccogli i bonus vermi nella vasca.'
                 : 'Hai risposto a tutte le domande della sessione. Il totale include il bonus per i vermi ancora in vasca.';
         } else if (opts.aborted) {
-            msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
+            msg.textContent = quizFirestoreConfigured()
+                ? 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.'
+                : 'Quiz interrotto: senza Firebase configurato il punteggio non entra in classifica online.';
         } else if (opts.timedOut) {
             msg.textContent = useArcade
                 ? 'Tempo scaduto: partita conclusa. Raccogli i bonus vermi nella vasca.'
@@ -6771,6 +6851,10 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
             msg.textContent = useArcade
                 ? 'Partita terminata. Raccogli i bonus vermi nella vasca.'
                 : 'Partita terminata: limite di errori raggiunto, oppure errore con vasca senza vermi. Qui sotto il riepilogo con bonus vermi.';
+        }
+        if (!quizFirestoreConfigured() && !opts.aborted) {
+            msg.textContent +=
+                ' La classifica è solo online (Firestore): senza la stessa configurazione Firebase su questo dispositivo il punteggio non viene registrato in classifica.';
         }
     }
 
@@ -8469,6 +8553,7 @@ function resetAll() {
 }
 
 window.addEventListener('load', function initQuizProtection() {
+    quizInitLeaderboardSourceState();
     quizLoadStoredPreference();
     setupQuizTitleToggle();
     function finishQuizInit() {
