@@ -4758,7 +4758,6 @@ function quizBuildPodiumWormHtml(wormIndex) {
 
 /** Aggiunge un risultato: cache locale + Firestore (nessuna classifica «solo dispositivo»). */
 function quizAppendLeaderboardRow(newRow) {
-    if (!quizFirestoreConfigured()) return;
     var rows = quizLoadLeaderboard();
     rows.push(newRow);
     rows.sort(function (a, b) {
@@ -6305,14 +6304,6 @@ function quizComputeLiveRank(currentScore) {
 function quizRenderLeaderboard() {
     const body = document.getElementById('quiz-rank-body');
     if (!body) return;
-    if (!quizFirestoreConfigured()) {
-        body.innerHTML =
-            '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Classifica non disponibile.</p></div>';
-        try {
-            quizUpdateFirebaseSyncUi();
-        } catch (e) {}
-        return;
-    }
     if (!quizLeaderboardHydrated) {
         body.innerHTML =
             '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Caricamento…</p></div>';
@@ -8559,15 +8550,7 @@ function resetAll() {
 }
 
 window.addEventListener('load', function initQuizProtection() {
-    /** Senza Firebase attivo, svuota vecchie classifiche salvate sul singolo browser (evita 3 liste diverse dai giorni “solo locale”). */
-    function quizClearLocalLeaderboardWhenNoCloud() {
-        try {
-            if (quizFirestoreConfigured()) return;
-            localStorage.removeItem(QUIZ_LS_KEY);
-        } catch (eClr) { /* ignore */ }
-    }
     function runQuizBootstrap() {
-        quizClearLocalLeaderboardWhenNoCloud();
         quizInitLeaderboardSourceState();
         quizLoadStoredPreference();
         setupQuizTitleToggle();
