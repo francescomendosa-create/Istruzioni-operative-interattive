@@ -56,26 +56,27 @@
             top: 0; left: 0; right: 0;
             background: var(--primary);
             color: white;
-            padding: 15px;
+            padding: 12px 14px 14px;
             z-index: 999;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .header-title-row {
             max-width: 900px;
-            margin: 0 auto;
+            margin: 0 auto 8px;
+            padding: 0 4px;
+            text-align: center;
         }
 
-        .header-top h2 {
+        .header-main-title {
             margin: 0;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex-grow: 1;
-            text-align: center;
+            font-size: clamp(0.88rem, 2.8vw, 1.28rem);
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            line-height: 1.28;
+            text-transform: none;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+            color: #fff;
         }
 
         .btn-side {
@@ -100,31 +101,51 @@
         .btn-side:hover { filter: brightness(1.06); box-shadow: 0 7px 0 rgba(0,0,0,0.28), 0 18px 26px rgba(0,0,0,0.28), 0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.4); }
         .btn-side:active { transform: translateY(4px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.28), 0 5px 12px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.25); }
 
+        .btn-header-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 12px;
+            cursor: pointer;
+            color: #fff;
+            background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.22), 0 8px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.35);
+            transition: transform 0.08s ease, filter 0.12s ease, box-shadow 0.12s ease;
+        }
+        .btn-header-icon:hover { filter: brightness(1.1); }
+        .btn-header-icon:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.18); }
+        .btn-header-icon svg { display: block; }
+
         .navbar {
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 10px 12px;
+            margin-top: 4px;
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .navbar .nav-spacer { min-width: 0; }
-        .navbar .nav-center {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .navbar .nav-quiz {
-            justify-self: end;
+        .navbar .nav-side {
             display: flex;
             align-items: center;
+            justify-content: center;
+        }
+        .navbar .nav-center-cluster {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
         }
 
-        .navbar .nav-center button {
+        .navbar .nav-center-cluster .nav-sec-btn {
             padding: 7px 14px;
             border: 2px solid white;
             border-radius: 30px;
@@ -155,16 +176,16 @@
         .btn-quiz:hover { filter: brightness(1.05); }
         .btn-quiz:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.15); }
 
-        .navbar .nav-center button:hover {
+        .navbar .nav-center-cluster .nav-sec-btn:hover {
             filter: brightness(1.07);
             box-shadow: 0 6px 0 rgba(0,0,0,0.26), 0 14px 22px rgba(0,0,0,0.24), 0 0 16px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.7);
         }
-        .navbar .nav-center button:active {
+        .navbar .nav-center-cluster .nav-sec-btn:active {
             transform: translateY(4px) scale(0.99);
             box-shadow: 0 2px 0 rgba(0,0,0,0.26), 0 5px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
         }
 
-        .navbar .nav-center button.active {
+        .navbar .nav-center-cluster .nav-sec-btn.active {
             background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
             color: white;
             box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
@@ -2523,14 +2544,13 @@
             .fixed-header {
                 padding: 10px 10px 12px;
             }
-            .header-top {
-                gap: 8px;
+            .header-title-row {
+                margin-bottom: 6px;
             }
-            .header-top h2 {
+            .header-main-title {
                 font-size: 0.9rem;
                 letter-spacing: 0.6px;
                 line-height: 1.25;
-                text-transform: none;
             }
             .btn-side {
                 min-width: 68px;
@@ -2538,27 +2558,24 @@
                 font-size: 0.72rem;
             }
             .navbar {
-                grid-template-columns: 1fr;
+                grid-template-columns: auto minmax(0, 1fr) auto;
                 gap: 8px;
-                margin-top: 10px;
+                margin-top: 8px;
             }
-            .navbar .nav-spacer {
-                display: none;
+            .navbar .nav-center-cluster {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
             }
-            .navbar .nav-center {
-                width: 100%;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .navbar .nav-center button {
+            .navbar .nav-center-cluster .nav-sec-btn {
                 min-width: 0;
-                width: 100%;
+                flex: 1 1 118px;
                 font-size: 0.68rem;
                 padding: 8px 8px;
             }
-            .navbar .nav-quiz {
-                justify-self: center;
+            .btn-header-icon {
+                width: 40px;
+                height: 40px;
             }
             .btn-quiz {
                 font-size: 0.72rem;
@@ -2677,7 +2694,7 @@
             body {
                 padding-top: 190px;
             }
-            .header-top h2 {
+            .header-main-title {
                 font-size: 0.82rem;
             }
             .btn-side {
@@ -2685,7 +2702,7 @@
                 padding: 7px 8px;
                 font-size: 0.68rem;
             }
-            .navbar .nav-center button {
+            .navbar .nav-center-cluster .nav-sec-btn {
                 font-size: 0.64rem;
             }
             .btn-quiz {
@@ -3894,19 +3911,24 @@ function dismissAppSplash() {
 </script>
 
 <div class="fixed-header">
-    <div class="header-top">
-        <button class="btn-side btn-reset" onclick="resetAll()">RESET</button>
-        <h2 id="main-title">Istruzioni operative interattive</h2>
-        <button class="btn-side btn-report" onclick="scrollToReport()">DIAGNOSI</button>
+    <div class="header-title-row">
+        <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
     </div>
     <div class="navbar">
-        <div class="nav-spacer" aria-hidden="true"></div>
-        <div class="nav-center">
-            <button id="btn-sec-cf" class="active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
-            <button id="btn-sec-mbr" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
+        <div class="nav-side nav-side-left">
+            <button type="button" class="btn-header-icon" onclick="goToProgramHome()" title="Torna all'inizio" aria-label="Home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
         </div>
-        <div class="nav-quiz">
+        <div class="nav-center-cluster">
+            <button type="button" id="btn-sec-cf" class="nav-sec-btn active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
+            <button type="button" id="btn-sec-mbr" class="nav-sec-btn" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
             <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
+        </div>
+        <div class="nav-side nav-side-right">
+            <button type="button" class="btn-header-icon" onclick="showQuizSettingsModal()" title="Impostazioni quiz" aria-label="Impostazioni">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
         </div>
     </div>
 </div>
@@ -4461,7 +4483,7 @@ function quizShouldRestorePanelOpen() {
 }
 
 function applyQuizVisibility() {
-    const quizNav = document.querySelector('.nav-quiz');
+    const quizNav = document.querySelector('.fixed-header .btn-quiz');
     const quizPanel = document.getElementById('quiz-panel');
     if (quizNav) quizNav.style.display = quizFeatureEnabled ? '' : 'none';
     if (quizPanel && !quizFeatureEnabled) {
@@ -4665,7 +4687,7 @@ function quizProducerRemoveAt(index) {
 function setupQuizTitleToggle() {
     function isTitleTarget(el) {
         if (!el) return false;
-        return !!el.closest('#main-title, .fixed-header .header-top h2');
+        return !!el.closest('#main-title, .header-main-title, .header-title-row h1');
     }
     function registerDoubleClickIntent() {
         titleClickCount += 1;
@@ -4684,7 +4706,7 @@ function setupQuizTitleToggle() {
         }
     }
 
-    const title = document.getElementById('main-title') || document.querySelector('.fixed-header .header-top h2');
+    const title = document.getElementById('main-title') || document.querySelector('.header-main-title');
     if (title) {
         title.style.cursor = 'pointer';
         title.title = 'Doppio click per Impostazioni';
@@ -6554,7 +6576,7 @@ function render() {
                 <h2>${sectionTitle}</h2>
             </div>`;
         if (s === 'cf') {
-            cont.innerHTML += '<p class="header-settings-hint" role="note">Doppio clic sul titolo in alto per le impostazioni.</p>';
+            cont.innerHTML += '<p class="header-settings-hint" role="note">Icona ingranaggio in alto a destra (o doppio clic sul titolo) per le impostazioni.</p>';
         }
 
         db[s].forEach(item => {
@@ -7468,12 +7490,24 @@ function executeReturn() {
     }
 }
 
+function goToProgramHome() {
+    try {
+        if (typeof closeQuiz === 'function') closeQuiz();
+    } catch (e) {}
+    try {
+        if (typeof hideQuizSettingsModal === 'function') hideQuizSettingsModal();
+    } catch (e2) {}
+    isManualScrolling = true;
+    updateNav('cf');
+    smoothScrollToY(0, 700);
+}
+
 function scrollToSec(s) {
     isManualScrolling = true;
     updateNav(s);
     const target = document.getElementById(`${s}-content`);
     if (!target) return;
-    const offset = 160;
+    const offset = typeof getScrollOffset === 'function' ? getScrollOffset() : 160;
     const targetY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
     smoothScrollToY(targetY, 900);
 }
@@ -7630,7 +7664,7 @@ function scrollToReport() {
 }
 
 function updateNav(s) {
-    document.querySelectorAll('.navbar button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.navbar .nav-sec-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`btn-sec-${s}`);
     if(btn) btn.classList.add('active');
 }
