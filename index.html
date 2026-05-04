@@ -4801,6 +4801,23 @@ function quizAppendLeaderboardRowFirestore(newRow) {
         })
         .catch(function (e) {
             console.warn('[quiz leaderboard Firestore]', e);
+            /* Se la scrittura cloud fallisce, rimuovi la riga appena aggiunta localmente:
+               evita che un dispositivo mostri record "fantasma" non presenti sugli altri. */
+            try {
+                var rows = quizLoadLeaderboard();
+                rows = rows.filter(function (r) {
+                    return !(
+                        String(r.at || '') === String(newRow.at || '') &&
+                        String(r.name || '') === String(newRow.name || '') &&
+                        Number(r.score || 0) === Number(newRow.score || 0)
+                    );
+                });
+                quizSaveLeaderboardLocalOnly(rows);
+                quizRenderLeaderboard();
+            } catch (eLocal) { /* ignore */ }
+            try {
+                quizMarkLeaderboardHydratedFromCloud(true, e);
+            } catch (eState) { /* ignore */ }
         });
 }
 
