@@ -1013,6 +1013,16 @@
         .quiz-badge.l2 { background: #fff8e1; color: #f57f17; border-color: #ffe082; }
         .quiz-badge.l3 { background: #fce4ec; color: #c2185b; border-color: #f48fb1; }
         .quiz-q { font-size: 1.05rem; font-weight: bold; color: var(--primary); margin: 14px 0; line-height: 1.45; }
+        /* Barra punteggio + timer sopra le domande (resta leggibile sopra la vasca su mobile). */
+        #quiz-screen-play .quiz-progress-wrap {
+            position: relative;
+            z-index: 8;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: min(100%, 720px);
+            margin-left: auto;
+            margin-right: auto;
+        }
         #quiz-screen-play .quiz-play-scoreboard {
             text-align: center;
             padding: 6px 8px 7px;
@@ -5333,8 +5343,10 @@ const QUIZ_WORMS_LOST_PER_ERROR = 2;
 const QUIZ_START_WORM_COUNT = 0;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
-/** Prima domanda con countdown: indice 0-based 3 = dopo la 3ª domanda, dalla 4ª in poi il timer parte sempre (25 s). */
+/** Prima domanda con countdown: indice 0-based 3 = dopo le prime 3 domande, dalla 4ª (25 s). Allineato al testo «dopo la terza domanda». */
 const QUIZ_TIMER_FIRST_INDEX = 3;
+/** Tick UI countdown (ms): setInterval più affidabile di requestAnimationFrame su molti mobile browser. */
+const QUIZ_TIMER_TICK_MS = 80;
 /** Durata massima domanda a tempo; i secondi ancora sul conteggio alla risposta esatta valgono altrettanti punti bonus «timer». */
 const QUIZ_TIMER_SECONDS = 25;
 /** Sotto questa soglia (secondi) la barra passa a stile “energia bassa”. */
@@ -5342,6 +5354,8 @@ const QUIZ_TIMER_URGENT_SEC = 5;
 /** Con tempo residuo ≤ questi secondi un verme diventa nero/minaccioso. */
 const QUIZ_TIMER_MENACE_SEC = 10;
 let quizQuestionTimerId = null;
+/** Aggiornamento periodico barra/secondi (affidabile anche se rAF è limitato). */
+let quizQuestionTimerIntervalId = null;
 let quizTimerDeadline = null;
 let quizTimerVisualActive = false;
 /** Vermi aggiunti a ogni risposta corretta (vasca biologica). */
@@ -5579,6 +5593,12 @@ function quizClearQuestionTimer() {
         cancelAnimationFrame(quizQuestionTimerId);
         quizQuestionTimerId = null;
     }
+    if (quizQuestionTimerIntervalId != null) {
+        try {
+            clearInterval(quizQuestionTimerIntervalId);
+        } catch (eIg) { /* ignore */ }
+        quizQuestionTimerIntervalId = null;
+    }
     quizTimerDeadline = null;
     quizTimerVisualActive = false;
     quizBioVatSetTimerUrgent(false);
@@ -5792,19 +5812,20 @@ function quizBioVatSink() {
     wrap.classList.add('quiz-bio-vat-wrap--sink');
 }
 
-function quizStartQuestionTimer() {
-    quizClearQuestionTimer();
-    if (quizState.index < QUIZ_TIMER_FIRST_INDEX) {
+/**
+ * Avvia il countdown solo dopo che il markup del timer è nel DOM (quizUpdatePlayProgress).
+ * quizClearQuestionTimer() è già stato chiamato da quizRenderQuestion.
+ */
+function quizScheduleQuestionTimerTicks() {
+    if (quizState.index < QUIZ_TIMER_FIRST_INDEX || !quizTimerDeadline) {
         return;
     }
-    quizTimerVisualActive = true;
-    quizTimerDeadline = Date.now() + QUIZ_TIMER_SECONDS * 1000;
-
-    function frame() {
+    function tick() {
         if (quizAnswerLocked) {
             quizClearQuestionTimer();
             return;
         }
+        if (!quizTimerDeadline) return;
         const leftMs = Math.max(0, quizTimerDeadline - Date.now());
         const leftSec = leftMs / 1000;
         const frac = QUIZ_TIMER_SECONDS > 0 ? leftSec / QUIZ_TIMER_SECONDS : 0;
@@ -5812,15 +5833,13 @@ function quizStartQuestionTimer() {
         const urgent = leftSec > 0 && leftSec <= QUIZ_TIMER_URGENT_SEC;
         quizTimerPaint(frac, displaySec, urgent);
         quizBioVatUpdateMenace(leftSec);
-
         if (leftMs <= 0) {
             quizClearQuestionTimer();
             if (!quizAnswerLocked) quizTimeUp();
-            return;
         }
-        quizQuestionTimerId = requestAnimationFrame(frame);
     }
-    quizQuestionTimerId = requestAnimationFrame(frame);
+    tick();
+    quizQuestionTimerIntervalId = setInterval(tick, QUIZ_TIMER_TICK_MS);
 }
 
 function quizTimeUp() {
@@ -6211,7 +6230,8 @@ function quizUpdatePlayProgress(extra) {
     const crown = isFirst ? '<span class="quiz-play-trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</span>' : '';
     const tickCls = extra.scoreAnimTick ? ' quiz-play-oneline-val--tick' : '';
     const boardCls = 'quiz-play-scoreboard' + (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '');
-    const showTime = quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerVisualActive;
+    /* Dipende dalla deadline, non da quizTimerVisualActive (evita barra assente se i flag si desincronizzano). */
+    const showTime = quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline != null;
     let leftMsForInit = 0;
     let initFrac = 1;
     let initSec = QUIZ_TIMER_SECONDS;
@@ -6326,17 +6346,15 @@ function quizRenderQuestion(opts) {
         ch.appendChild(b);
     });
 
-    quizStartQuestionTimer();
-    quizUpdatePlayProgress();
-    /* Primo aggiornamento subito (senza attendere il frame): così barra e secondi compaiono sempre dalla 4ª domanda. */
-    if (quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline && quizTimerVisualActive) {
-        const leftMs0 = Math.max(0, quizTimerDeadline - Date.now());
-        const ls0 = leftMs0 / 1000;
-        const frac0 = QUIZ_TIMER_SECONDS > 0 ? ls0 / QUIZ_TIMER_SECONDS : 0;
-        const displaySec0 = leftMs0 <= 0 ? 0 : Math.ceil(ls0 - 1e-6);
-        const urgent0 = ls0 > 0 && ls0 <= QUIZ_TIMER_URGENT_SEC;
-        quizTimerPaint(frac0, displaySec0, urgent0);
+    if (quizState.index >= QUIZ_TIMER_FIRST_INDEX) {
+        quizTimerVisualActive = true;
+        quizTimerDeadline = Date.now() + QUIZ_TIMER_SECONDS * 1000;
+    } else {
+        quizTimerVisualActive = false;
+        quizTimerDeadline = null;
     }
+    quizUpdatePlayProgress();
+    quizScheduleQuestionTimerTicks();
 
     if (!opts.instant && body) {
         body.classList.add('quiz-fade-in');
