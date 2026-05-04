@@ -1683,7 +1683,7 @@
             display: flex;
             justify-content: flex-end;
         }
-        /* Timeline “energia” sotto Posizione / Punti (dopo 3 domande = dalla 4ª, 25 s) */
+        /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda in poi, 25 s) */
         .quiz-play-time {
             margin-top: 5px;
             padding-top: 5px;
@@ -1718,7 +1718,7 @@
             margin-left: 2px;
         }
         .quiz-play-time-track {
-            height: 5px;
+            height: 8px;
             border-radius: 999px;
             background: rgba(15, 23, 42, 0.12);
             overflow: hidden;
@@ -5343,8 +5343,11 @@ const QUIZ_WORMS_LOST_PER_ERROR = 2;
 const QUIZ_START_WORM_COUNT = 0;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
-/** Prima domanda con countdown: indice 0-based 3 = dopo le prime 3 domande, dalla 4ª (25 s). Allineato al testo «dopo la terza domanda». */
-const QUIZ_TIMER_FIRST_INDEX = 3;
+/**
+ * Indice 0-based della prima domanda con countdown.
+ * 2 = terza domanda (1ª→0, 2ª→1, 3ª→2). Prima era 3 (= quarta domanda): da qui il malinteso «non parte alla terza».
+ */
+const QUIZ_TIMER_FIRST_INDEX = 2;
 /** Tick UI countdown (ms): setInterval più affidabile di requestAnimationFrame su molti mobile browser. */
 const QUIZ_TIMER_TICK_MS = 80;
 /** Durata massima domanda a tempo; i secondi ancora sul conteggio alla risposta esatta valgono altrettanti punti bonus «timer». */
@@ -6638,7 +6641,7 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
         } else if (opts.timedOut) {
             msg.textContent = useArcade
                 ? 'Tempo scaduto: partita conclusa. Raccogli i bonus vermi nella vasca.'
-                : 'Tempo scaduto: partita conclusa (dopo le prime 3 domande hai 25 secondi per risposta, con barra energia).';
+                : 'Tempo scaduto: partita conclusa (dalla terza domanda hai 25 secondi per risposta, con barra energia).';
         } else {
             msg.textContent = useArcade
                 ? 'Partita terminata. Raccogli i bonus vermi nella vasca.'
