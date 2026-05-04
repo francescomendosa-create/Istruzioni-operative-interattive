@@ -8508,7 +8508,15 @@ function resetAll() {
 }
 
 window.addEventListener('load', function initQuizProtection() {
+    /** Senza Firebase attivo, svuota vecchie classifiche salvate sul singolo browser (evita 3 liste diverse dai giorni “solo locale”). */
+    function quizClearLocalLeaderboardWhenNoCloud() {
+        try {
+            if (quizFirestoreConfigured()) return;
+            localStorage.removeItem(QUIZ_LS_KEY);
+        } catch (eClr) { /* ignore */ }
+    }
     function runQuizBootstrap() {
+        quizClearLocalLeaderboardWhenNoCloud();
         quizInitLeaderboardSourceState();
         quizLoadStoredPreference();
         setupQuizTitleToggle();
@@ -8541,17 +8549,50 @@ window.addEventListener('load', function initQuizProtection() {
             finishQuizInit();
         }
     }
-    fetch('firebase-config.json', { cache: 'no-store' })
+    function quizApplyFetchedFirebaseConfig(j) {
+        if (!j || typeof j !== 'object') return;
+        var key = String(j.apiKey || '').trim();
+        if (!key.length) return;
+        if (/^TUA_CHIAVE$/i.test(key) || /^YOUR_/i.test(key)) {
+            console.warn('[classifica] firebase-config.json contiene ancora i segnaposto (apiKey): apri Console Firebase → Impostazioni → app Web e incolla i valori veri.');
+            return;
+        }
+        if (/^tuo-progetto$/i.test(String(j.projectId || '').trim())) {
+            console.warn('[classifica] firebase-config.json ha ancora projectId «tuo-progetto»: è un esempio; sostituiscilo col projectId reale.');
+            return;
+        }
+        window.__FIREBASE_QUIZ_CONFIG__ = j;
+    }
+    var firebaseConfigUrl = (function () {
+        try {
+            return new URL('firebase-config.json', window.location.href).href;
+        } catch (eU) {
+            return 'firebase-config.json';
+        }
+    })();
+    fetch(firebaseConfigUrl, { cache: 'no-store' })
         .then(function (r) {
-            if (!r.ok) return null;
-            return r.json();
+            if (!r.ok) {
+                if (r.status === 404) {
+                    console.warn(
+                        '[classifica] File non trovato: serve un file chiamato esattamente firebase-config.json nella STESSA cartella di index.html (su GitHub: accanto a index). Non usare .example né altri nomi.'
+                    );
+                }
+                return null;
+            }
+            return r.text();
         })
-        .then(function (j) {
-            if (j && typeof j === 'object' && String(j.apiKey || '').length > 0) {
-                window.__FIREBASE_QUIZ_CONFIG__ = j;
+        .then(function (text) {
+            if (text == null || text === '') return;
+            try {
+                quizApplyFetchedFirebaseConfig(JSON.parse(text));
+            } catch (eParse) {
+                console.warn('[classifica] firebase-config.json non è JSON valido. Controlla virgole e virgolette.', eParse);
             }
         })
-        .catch(function () { /* file assente */ })
+        .catch(function (e) {
+            console.warn('[classifica] Impossibile caricare firebase-config.json.', e);
+        })
         .then(runQuizBootstrap);
 });
 
