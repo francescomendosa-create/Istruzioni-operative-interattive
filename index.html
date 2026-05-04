@@ -61,22 +61,95 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        .header-title-row {
+        /* Riga 1: Home piccola | titolo centrato | Impostazioni */
+        .header-title-bar {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 8px 10px;
             max-width: 900px;
-            margin: 0 auto 8px;
-            padding: 0 4px;
-            text-align: center;
+            margin: 0 auto;
+            padding: 0 2px;
         }
 
-        .header-main-title {
+        .header-title-bar .header-main-title {
             margin: 0;
-            font-size: clamp(0.88rem, 2.8vw, 1.28rem);
+            text-align: center;
+            min-width: 0;
+            font-size: clamp(0.82rem, 2.5vw, 1.22rem);
             font-weight: 800;
-            letter-spacing: 0.04em;
-            line-height: 1.28;
+            letter-spacing: 0.03em;
+            line-height: 1.22;
             text-transform: none;
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
             color: #fff;
+        }
+
+        .btn-header-icon--sm {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+        }
+        .btn-header-icon--sm svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Riga 2: sezioni operative (due colonne uguali, testo a capo se serve) */
+        .header-sec-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 900px;
+            margin: 10px auto 0;
+            align-items: stretch;
+        }
+
+        .header-sec-row .nav-sec-btn {
+            padding: 9px 12px;
+            border: 2px solid white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.72rem;
+            line-height: 1.2;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+            color: var(--primary);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease, background 0.2s ease;
+            min-width: 0;
+            width: 100%;
+            min-height: 44px;
+            box-sizing: border-box;
+            text-align: center;
+            white-space: normal;
+            word-break: break-word;
+            hyphens: none;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.26), 0 10px 18px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .header-sec-row .nav-sec-btn:hover {
+            filter: brightness(1.07);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.26), 0 14px 22px rgba(0,0,0,0.24), 0 0 16px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .header-sec-row .nav-sec-btn:active {
+            transform: translateY(4px) scale(0.99);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.26), 0 5px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .header-sec-row .nav-sec-btn.active {
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            color: white;
+            box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+
+        /* Riga 3: Quiz centrato */
+        .header-quiz-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .btn-side {
