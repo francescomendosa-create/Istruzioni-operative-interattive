@@ -37,7 +37,7 @@
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             min-height: 100%;
-            padding-top: 188px;
+            padding-top: 224px;
             padding-bottom: 72px;
             scroll-behavior: smooth;
             /* Sfondo “fisso” allo schermo: non scorre con il contenuto (no effetto immagine che si muove) */
@@ -157,6 +157,37 @@
             align-items: center;
             justify-content: center;
             gap: 8px 10px;
+        }
+
+        /** Stato classifica Firestore: sempre visibile per evitare «tre classifiche» senza accorgersene */
+        .firebase-classifica-banner {
+            box-sizing: border-box;
+            max-width: 900px;
+            margin: 10px auto 0;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: clamp(0.62rem, 2.1vw, 0.8rem);
+            font-weight: 800;
+            line-height: 1.38;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        }
+        .firebase-classifica-banner--off {
+            background: rgba(183, 28, 28, 0.72);
+            color: #fff;
+        }
+        .firebase-classifica-banner--wait {
+            background: rgba(21, 101, 192, 0.62);
+            color: #fff;
+        }
+        .firebase-classifica-banner--ok {
+            background: rgba(46, 125, 50, 0.62);
+            color: #fff;
+        }
+        .firebase-classifica-banner--err {
+            background: rgba(230, 81, 0, 0.68);
+            color: #fff;
         }
 
         .btn-side {
@@ -2742,7 +2773,7 @@
         .quiz-producer-num { font-variant-numeric: tabular-nums; font-weight: 700; color: #0d47a1; width: 2rem; }
         @media (max-width: 820px) {
             body {
-                padding-top: 204px;
+                padding-top: 240px;
                 padding-bottom: 88px;
             }
             .fixed-header {
@@ -2901,7 +2932,7 @@
         }
         @media (max-width: 430px) {
             body {
-                padding-top: 212px;
+                padding-top: 248px;
             }
             .header-title-bar .header-main-title {
                 font-size: 0.78rem;
@@ -4207,6 +4238,7 @@ function dismissAppSplash() {
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
+    <div id="firebase-classifica-banner" class="firebase-classifica-banner firebase-classifica-banner--wait" role="status" aria-live="polite">Classifica: verifica connessione Firestore…</div>
 </div>
 
 <div class="container">
@@ -4511,34 +4543,37 @@ function quizFirestoreConfigured() {
 /** Messaggio sotto «Classifica»: un’unica classifica = Firestore (nessuna «categoria» locale). */
 function quizUpdateFirebaseSyncUi() {
     const el = document.getElementById('quiz-rank-sync-status');
-    if (!el) return;
-    if (!quizFirestoreConfigured()) {
-        el.textContent =
-            'Classifica disattivata: senza Firebase non esiste classifica (solo Firestore, stesso config su PC e tablet).';
-        el.classList.add('quiz-rank-heading-sub--localonly');
-        el.setAttribute(
-            'title',
-            'Incolla window.__FIREBASE_QUIZ_CONFIG__ in index.html su ogni dispositivo per una sola classifica online.'
-        );
-        return;
+    try {
+        if (el) {
+            if (!quizFirestoreConfigured()) {
+                el.textContent =
+                    'Classifica disattivata: senza Firebase non esiste classifica (solo Firestore, stesso config su PC e tablet).';
+                el.classList.add('quiz-rank-heading-sub--localonly');
+                el.setAttribute(
+                    'title',
+                    'Incolla window.__FIREBASE_QUIZ_CONFIG__ in index.html su ogni dispositivo per una sola classifica online.'
+                );
+            } else if (quizLeaderboardCloudError) {
+                el.textContent =
+                    '⚠ Connessione a Firestore non riuscita. Controlla rete e regole; la lista può non essere aggiornata.';
+                el.classList.add('quiz-rank-heading-sub--localonly');
+                el.setAttribute('title', 'Verifica autenticazione anonima e regole Firestore per quiz_leaderboard/global.');
+            } else if (!quizLeaderboardHydrated) {
+                el.textContent = 'Sincronizzazione con Firestore…';
+                el.classList.remove('quiz-rank-heading-sub--localonly');
+                el.removeAttribute('title');
+            } else {
+                el.textContent =
+                    'Unica classifica online (Firestore) · sincronizzata in tempo reale su tutti i dispositivi con lo stesso progetto';
+                el.classList.remove('quiz-rank-heading-sub--localonly');
+                el.removeAttribute('title');
+            }
+        }
+    } finally {
+        try {
+            quizUpdateFirestoreHeaderBanner();
+        } catch (eBanner) { /* ignore */ }
     }
-    if (quizLeaderboardCloudError) {
-        el.textContent =
-            '⚠ Connessione a Firestore non riuscita. Controlla rete e regole; la lista può non essere aggiornata.';
-        el.classList.add('quiz-rank-heading-sub--localonly');
-        el.setAttribute('title', 'Verifica autenticazione anonima e regole Firestore per quiz_leaderboard/global.');
-        return;
-    }
-    if (!quizLeaderboardHydrated) {
-        el.textContent = 'Sincronizzazione con Firestore…';
-        el.classList.remove('quiz-rank-heading-sub--localonly');
-        el.removeAttribute('title');
-        return;
-    }
-    el.textContent =
-        'Unica classifica online (Firestore) · sincronizzata in tempo reale su tutti i dispositivi con lo stesso progetto';
-    el.classList.remove('quiz-rank-heading-sub--localonly');
-    el.removeAttribute('title');
 }
 
 function quizMarkLeaderboardHydratedFromCloud(isError) {
@@ -4550,6 +4585,32 @@ function quizMarkLeaderboardHydratedFromCloud(isError) {
     try {
         quizUpdateFirebaseSyncUi();
     } catch (e) {}
+}
+
+/** Barra fissa sotto Quiz/Diagnostica: stato reale (config assente = solo locale su ogni dispositivo). */
+function quizUpdateFirestoreHeaderBanner() {
+    const b = document.getElementById('firebase-classifica-banner');
+    if (!b) return;
+    if (!quizFirestoreConfigured()) {
+        b.className = 'firebase-classifica-banner firebase-classifica-banner--off';
+        b.textContent =
+            'Classifica: NON su Firestore — manca la configurazione Firebase in questa pagina. Ogni dispositivo ha una lista sua. Incolla __FIREBASE_QUIZ_CONFIG__ e ripubblica (GitHub Pages).';
+        return;
+    }
+    if (quizLeaderboardCloudError) {
+        b.className = 'firebase-classifica-banner firebase-classifica-banner--err';
+        b.textContent =
+            'Classifica: Firestore non raggiungibile (rete o regole). Controlla connessione e Console Firebase; la lista può non coincidere.';
+        return;
+    }
+    if (!quizLeaderboardHydrated) {
+        b.className = 'firebase-classifica-banner firebase-classifica-banner--wait';
+        b.textContent = 'Classifica: collegamento a Firestore in corso…';
+        return;
+    }
+    b.className = 'firebase-classifica-banner firebase-classifica-banner--ok';
+    b.textContent =
+        'Classifica: Firestore attiva — una sola classifica online per tutti i dispositivi con questa pagina.';
 }
 
 function quizEnsureFirebase() {
@@ -6307,6 +6368,9 @@ function quizRenderLeaderboard() {
     if (!quizLeaderboardHydrated) {
         body.innerHTML =
             '<div class="quiz-rank-canvas quiz-rank-canvas--empty"><p class="quiz-rank-empty-msg">Connessione a Firestore in corso…</p></div>';
+        try {
+            quizUpdateFirebaseSyncUi();
+        } catch (eU) { /* ignore */ }
         return;
     }
     let rows = quizLoadLeaderboard();
