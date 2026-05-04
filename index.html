@@ -1284,41 +1284,7 @@
             flex: 1 1 auto;
             text-align: left;
         }
-        .quiz-choice-maincol {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 2px;
-            min-width: 0;
-        }
-        .quiz-choices--microbe-phase .quiz-choice-btn {
-            align-items: center;
-            min-height: 4.05rem;
-            padding-top: 12px;
-            padding-bottom: 12px;
-        }
-        .quiz-choice-worm-thumb {
-            flex: 0 0 auto;
-            width: 76px;
-            height: 62px;
-            border-radius: 11px;
-            background: linear-gradient(145deg, #e8f4fc 0%, #dbeafe 55%, #cffafe 100%);
-            border: 1px solid rgba(21, 101, 192, 0.26);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .quiz-choice-worm-thumb .quiz-choice-worm-svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-            pointer-events: none;
-        }
-        #quiz-bio-worms .quiz-vat-worm-graphic,
-        .quiz-choice-worm-thumb .quiz-vat-worm-graphic {
+        #quiz-bio-worms .quiz-vat-worm-graphic {
             display: block !important;
         }
         #quiz-screen-play .quiz-feedback {
@@ -5021,39 +4987,6 @@ function quizBuildPodiumWormHtml(wormIndex) {
     );
 }
 
-function quizMicrobeSplashPhaseActive() {
-    try {
-        return quizState.index < QUIZ_MICROBE_SPLASH_PHASE_COUNT;
-    } catch (e) {
-        return false;
-    }
-}
-
-/** Miniatura SVG splash per pulsanti risposta: prime domande = solo Demolitori (worm 0). */
-function quizChoiceWormThumbHtml(optionIdx) {
-    var qi = quizState.index | 0;
-    var wormIdx = 0;
-    var src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + wormIdx + '"]');
-    if (!src) {
-        return '';
-    }
-    var clone = src.cloneNode(true);
-    clone.classList.remove('splash-worm-variant', 'splash-worm-variant--active');
-    clone.classList.add('quiz-vat-worm-graphic');
-    quizChoiceThumbSeq += 1;
-    var suf = 'qth' + qi + '_' + (optionIdx | 0) + '_' + quizChoiceThumbSeq;
-    try {
-        quizRemapSvgIds(clone, suf);
-    } catch (eRem) {
-        /* ignore */
-    }
-    return (
-        '<span class="quiz-choice-worm-thumb" aria-hidden="true"><svg class="quiz-choice-worm-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg">' +
-        clone.outerHTML +
-        '</svg></span>'
-    );
-}
-
 /** Aggiunge un risultato: cache locale + Firestore (nessuna classifica «solo dispositivo»). */
 function quizAppendLeaderboardRow(newRow) {
     var rows = quizLoadLeaderboard();
@@ -5817,7 +5750,7 @@ const QUIZ_RULE_MAX_ERRORS = 2;
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
 /** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
 const QUIZ_START_WORM_COUNT = 0;
-/** Prime domande: solo grafica Demolitori (splash worm 0) nelle risposte e in vasca; poi verme generico. */
+/** Prime domande: in vasca solo grafica Demolitori (splash 0); poi verme generico. Modale Preso! solo domanda 1. */
 const QUIZ_MICROBE_SPLASH_PHASE_COUNT = 5;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
@@ -6897,8 +6830,6 @@ function quizRenderQuestion(opts) {
 
     qEl.textContent = q.q;
     ch.innerHTML = '';
-    const microbePhase = quizMicrobeSplashPhaseActive();
-    ch.classList.toggle('quiz-choices--microbe-phase', microbePhase);
     q.options.forEach((opt, idx) => {
         const b = document.createElement('button');
         b.type = 'button';
@@ -6913,23 +6844,8 @@ function quizRenderQuestion(opts) {
         const txtEl = document.createElement('span');
         txtEl.className = 'quiz-choice-txt';
         txtEl.textContent = opt.text;
-        if (microbePhase) {
-            const thumbHtml = quizChoiceWormThumbHtml(idx);
-            if (thumbHtml) {
-                b.insertAdjacentHTML('afterbegin', thumbHtml);
-                const main = document.createElement('span');
-                main.className = 'quiz-choice-maincol';
-                main.appendChild(letterEl);
-                main.appendChild(txtEl);
-                b.appendChild(main);
-            } else {
-                b.appendChild(letterEl);
-                b.appendChild(txtEl);
-            }
-        } else {
-            b.appendChild(letterEl);
-            b.appendChild(txtEl);
-        }
+        b.appendChild(letterEl);
+        b.appendChild(txtEl);
         b.onclick = () => quizAnswer(idx);
         ch.appendChild(b);
     });
