@@ -141,7 +141,7 @@
             box-shadow: 0 5px 0 rgba(10, 25, 45, 0.45), 0 12px 22px rgba(0,0,0,0.28), 0 0 18px rgba(96,165,250,0.32), inset 0 1px 0 rgba(255,255,255,0.25);
         }
 
-        /* Riga 3: Quiz + Diagnostica (stessa riga, Diagnostica leggermente più piccola a destra del Quiz) */
+        /* Riga 3: Quiz + Diagnostica — stessa dimensione (padding, testo, larghezza minima) */
         .header-quiz-row {
             display: flex;
             justify-content: center;
@@ -201,12 +201,14 @@
         .btn-header-icon svg { display: block; }
 
         .btn-quiz {
-            padding: 6px 12px;
+            box-sizing: border-box;
+            min-width: 132px;
+            padding: 8px 16px;
             border: 2px solid rgba(255,255,255,0.55);
             border-radius: 999px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             letter-spacing: 0.5px;
             background: linear-gradient(180deg, #f6d365 0%, #fda085 100%);
             color: #1a1a1a;
@@ -218,12 +220,14 @@
         .btn-quiz:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.15); }
 
         .btn-diagnostica {
-            padding: 5px 11px;
+            box-sizing: border-box;
+            min-width: 132px;
+            padding: 8px 16px;
             border: 2px solid rgba(255,255,255,0.5);
             border-radius: 999px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.58rem;
+            font-size: 0.66rem;
             letter-spacing: 0.04em;
             background: linear-gradient(180deg, #5be39a 0%, #2fc777 55%, #1fae64 100%);
             color: #fff;
@@ -1122,18 +1126,6 @@
         .quiz-play-q-pts-num {
             font-variant-numeric: tabular-nums;
             font-weight: 900;
-        }
-        .quiz-play-q-hint {
-            margin: 3px 0 0;
-            padding: 0 2px;
-            font-size: clamp(0.58rem, 2vw, 0.68rem);
-            font-weight: 700;
-            color: #546e7a;
-            line-height: 1.3;
-            max-width: min(280px, 100%);
-        }
-        .quiz-play-q-hint--timer {
-            color: #0d47a1;
         }
         .quiz-feedback-turn-total {
             display: inline;
@@ -2792,13 +2784,11 @@
             .header-quiz-actions {
                 gap: 6px 8px;
             }
-            .btn-quiz {
-                font-size: 0.72rem;
-                padding: 8px 16px;
-            }
+            .btn-quiz,
             .btn-diagnostica {
-                font-size: 0.64rem;
-                padding: 6px 12px;
+                font-size: 0.74rem;
+                padding: 10px 18px;
+                min-width: 138px;
             }
             .container {
                 margin: 0 8px 24px;
@@ -2926,13 +2916,11 @@
                 font-size: 0.68rem;
                 padding: 8px 6px;
             }
-            .btn-quiz {
-                font-size: 0.66rem;
-                padding: 7px 12px;
-            }
+            .btn-quiz,
             .btn-diagnostica {
-                font-size: 0.58rem;
-                padding: 6px 10px;
+                font-size: 0.7rem;
+                padding: 9px 14px;
+                min-width: 124px;
             }
             .quiz-row label,
             .quiz-pts-hint,
@@ -6352,11 +6340,6 @@ function quizUpdatePlayProgress(extra) {
     const curQ = quizState.queue[quizState.index];
     const rawQPts = curQ && typeof curQ.points === 'number' ? curQ.points : null;
     const ptsEsc = rawQPts != null ? escapeQuizHtml(String(rawQPts)) : '\u2014';
-    const timerHint = quizQuestionHasTimer()
-        ? '<p class="quiz-play-q-hint quiz-play-q-hint--timer" role="note">Hai <strong>' +
-          QUIZ_TIMER_SECONDS +
-          '</strong> s · ogni secondo residuo a risposta esatta = <strong>+1 pt</strong> sommati al totale</p>'
-        : '<p class="quiz-play-q-hint" role="note">Senza countdown · solo punti domanda</p>';
     let leftMsForInit = 0;
     let initFrac = 1;
     let initSec = QUIZ_TIMER_SECONDS;
@@ -6414,7 +6397,6 @@ function quizUpdatePlayProgress(extra) {
         '</span><span class="quiz-play-q-pts-pill"> · Vale <span class="quiz-play-q-pts-num">' +
         ptsEsc +
         '</span> pt</span></p>' +
-        timerHint +
         '</div>' +
         '<div class="quiz-play-oneline-right">' +
         '<div class="quiz-play-right-stack">' +
