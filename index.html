@@ -6861,7 +6861,7 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
                 ? 'Hai risposto a tutte le domande della sessione. Raccogli i bonus vermi nella vasca.'
                 : 'Hai risposto a tutte le domande della sessione. Il totale include il bonus per i vermi ancora in vasca.';
         } else if (opts.aborted) {
-            msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
+            msg.textContent = 'Quiz interrotto: il punteggio non è stato salvato in classifica.';
         } else if (opts.timedOut) {
             msg.textContent = useArcade
                 ? 'Tempo scaduto: partita conclusa. Raccogli i bonus vermi nella vasca.'
@@ -7290,7 +7290,7 @@ function quizFinish(completedAll, opts) {
         aborted: !!opts.aborted
     };
 
-    function finishCommit(displayName) {
+    function finishCommit(displayName, goToPodiumAfterName) {
         let nm = displayName != null ? String(displayName).trim() : '';
         if (!nm) nm = 'Operatore';
         else if (nm.length > 40) nm = nm.slice(0, 40);
@@ -7298,15 +7298,23 @@ function quizFinish(completedAll, opts) {
         quizState.name = nm;
         const nameIn = document.getElementById('quiz-name');
         if (nameIn) nameIn.value = nm;
-        quizAppendLeaderboardRow(pendingRow);
-        quizFinishPopulateOverScreen(completedAll, opts, baseScore);
+        if (!opts.aborted) {
+            quizAppendLeaderboardRow(pendingRow);
+        }
+        const popOpts = Object.assign({}, opts);
+        if (goToPodiumAfterName) {
+            popOpts.goIntro = true;
+        }
+        quizFinishPopulateOverScreen(completedAll, popOpts, baseScore);
     }
 
     if (!opts.aborted && !opts.goIntro && quizSimulatedInsertRank(pendingRow.score) <= QUIZ_LEADERBOARD_TOP_N) {
-        quizOpenTop10NameModal(pendingRow, finishCommit);
+        quizOpenTop10NameModal(pendingRow, function (dn) {
+            finishCommit(dn, true);
+        });
         return;
     }
-    finishCommit(pendingRow.name);
+    finishCommit(pendingRow.name, false);
 }
 
 function quizStart() {
@@ -7359,6 +7367,28 @@ function quizRestart() {
     quizRenderLeaderboard();
 }
 
+/** True se l’utente ha già inviato almeno una risposta nel turno corrente (anche sulla prima domanda). */
+function quizPlayHasProgress() {
+    return (quizState.index > 0) || !!quizAnswerLocked;
+}
+
+/** Torna all’intro senza classifica e senza concludere la partita (nessuna risposta ancora). */
+function quizExitPlayToIntroSilent() {
+    quizAdelfoCancelIntro();
+    quizClearQuestionTimer();
+    quizWrongModalHide();
+    quizWrongModalFinishOpts = null;
+    quizCancelScoreAnim();
+    quizAnswerLocked = false;
+    quizShowScreen('intro');
+    quizRenderLeaderboard();
+    const scrollBox = document.querySelector('.quiz-fs-scroll');
+    if (scrollBox) scrollBox.scrollTop = 0;
+}
+
+const QUIZ_EXIT_CONFIRM_MSG =
+    'Uscire dal quiz?\n\nSe confermi, il punteggio di questa partita non verrà salvato in classifica.';
+
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
     const top10m = document.getElementById('quiz-top10-name-modal');
@@ -7369,6 +7399,9 @@ function quizTopExit() {
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
+        if (opts.continuePlay && !window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
+            return;
+        }
         quizWrongModalFinishOpts = null;
         quizWrongModalHide();
         if (opts.continuePlay) {
@@ -7383,6 +7416,13 @@ function quizTopExit() {
     const onPlay = play && play.style.display !== 'none';
     const onOver = over && over.style.display !== 'none';
     if (onPlay) {
+        if (!quizPlayHasProgress()) {
+            quizExitPlayToIntroSilent();
+            return;
+        }
+        if (!window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
+            return;
+        }
         quizWrongModalHide();
         quizWrongModalFinishOpts = null;
         quizCancelScoreAnim();
@@ -8483,10 +8523,14 @@ function closeQuiz() {
     const top10m = document.getElementById('quiz-top10-name-modal');
     if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
         quizTop10NameModalOk();
+        return;
     }
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
+        if (opts.continuePlay && !window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
+            return;
+        }
         quizWrongModalFinishOpts = null;
         quizWrongModalHide();
         if (opts.continuePlay) {
