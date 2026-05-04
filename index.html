@@ -3096,10 +3096,113 @@
                 width: 100%;
                 max-width: 100%;
             }
+            /* Smartphone: niente paragrafo sotto «Entra» (ripete il titolo); spazio per tab vermi più grandi e comodi al tap */
+            .app-splash-tagline {
+                display: none !important;
+            }
+            .app-splash-enter {
+                margin: 4px 0 10px;
+            }
             .app-splash-worm-tabs {
                 flex-wrap: wrap;
                 justify-content: center;
-                row-gap: 5px;
+                row-gap: 10px;
+                column-gap: 8px;
+                padding: 4px 2px 8px;
+            }
+            .app-splash-worm-tab {
+                flex: 1 1 calc(50% - 6px);
+                min-width: min(160px, 44vw);
+                min-height: 52px;
+                padding: 12px 14px;
+                font-size: clamp(0.74rem, 3.8vw, 0.92rem);
+                font-weight: 800;
+                letter-spacing: 0.04em;
+                line-height: 1.2;
+                border-width: 2px;
+                box-sizing: border-box;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+        /* Desktop allargato: verme centrato nella home, testo spiegazione in colonna verticale a destra */
+        @media (min-width: 960px) {
+            .app-splash-inner {
+                width: min(100%, 1080px);
+            }
+            .app-splash-intro-bio {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: nowrap;
+                width: 100%;
+                max-width: 100%;
+                min-height: min(380px, 50vh);
+                padding: 10px clamp(170px, 19vw, 220px) 14px 16px;
+                margin: 8px auto 20px;
+                box-sizing: border-box;
+            }
+            .app-splash-intro-viz-col {
+                width: min(360px, 34vw);
+                max-width: 100%;
+                margin: 0 auto;
+                flex: 0 0 auto;
+            }
+            .app-splash-mascot-wrap {
+                min-height: min(320px, 36vw);
+                margin: 12px 0 14px;
+            }
+            .app-splash-icon-live {
+                width: min(360px, 34vw);
+                height: min(360px, 34vw);
+                max-width: 100%;
+            }
+            .app-splash-intro-desc-col {
+                position: absolute;
+                top: 50%;
+                right: max(6px, env(safe-area-inset-right, 0px));
+                transform: translateY(-50%);
+                width: min(200px, 19vw);
+                height: min(74vh, 640px);
+                max-width: 100%;
+                min-width: 0;
+                margin: 0;
+                overflow: visible;
+                pointer-events: auto;
+            }
+            .app-splash-worm-desc {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: min(68vh, 560px);
+                max-width: min(85vw, 720px);
+                padding: 14px 18px;
+                margin: 0;
+                box-sizing: border-box;
+                font-size: clamp(0.74rem, 1.05vw, 0.86rem);
+                line-height: 1.55;
+                text-align: left;
+                transform: translate(-50%, -50%) rotate(-90deg);
+                transform-origin: center center;
+                max-height: min(80vw, 420px);
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .app-splash-worm-desc-panel h3 {
+                margin: 0 0 10px;
+                font-size: clamp(0.92rem, 1.15vw, 1.05rem);
+                letter-spacing: 0.06em;
+                line-height: 1.35;
+            }
+            .app-splash-worm-desc-panel p {
+                margin: 0 0 9px;
+            }
+            .app-splash-worm-desc-panel p:last-child {
+                margin-bottom: 0;
             }
         }
         .app-splash-icon-live {
@@ -3659,7 +3762,6 @@
                                 </g>
                             </g>
                             <g class="splash-worm-variant" data-worm="4">
-                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
                                 <defs>
                                     <linearGradient id="splashW4Top" x1="0%" y1="0%" x2="0%" y2="100%">
                                         <stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#e2e8f0"/>
@@ -3671,6 +3773,8 @@
                                         <stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#cbd5e1"/>
                                     </radialGradient>
                                 </defs>
+                                <g transform="translate(120, 106) scale(1.2) translate(-120,-106)">
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
                                 <g class="bruco-inchworm">
                                     <g class="bruco-tail">
                                         <ellipse cx="208" cy="96" rx="22" ry="15" fill="url(#splashW4Top)" transform="rotate(-18 208 96)" stroke="#94a3b8" stroke-width="0.55" stroke-opacity="0.65"/>
@@ -3697,12 +3801,14 @@
                                                 <path d="M34.2 111.5 L33.4 108.2"/><path d="M37.5 110.2 L37.2 106.8"/><path d="M40.8 110 L41.2 106.5"/><path d="M44 110.5 L45 107"/>
                                                 <path d="M52.2 109.8 L51.6 106.3"/><path d="M55.5 109.2 L55.8 105.8"/><path d="M58.8 109.5 L59.6 106"/><path d="M62 110.2 L63.2 107"/>
                                             </g>
-                                            <!-- Bocca aperta (verso il basso) + denti -->
-                                            <path d="M34 133 L62 133 Q48 148 34 133 Z" fill="#3f1218" stroke="#5c1a1a" stroke-width="0.42" stroke-linejoin="round"/>
-                                            <g fill="#f8fafc" stroke="#94a3b8" stroke-width="0.08">
-                                                <path d="M36 133.2 L37.2 129.4 L38.4 133.2 Z"/><path d="M39.4 133.2 L40.6 129.3 L41.8 133.2 Z"/><path d="M42.8 133.2 L44 129.2 L45.2 133.2 Z"/>
-                                                <path d="M46.2 133.2 L47.4 129.3 L48.6 133.2 Z"/><path d="M49.6 133.2 L50.8 129.4 L52 133.2 Z"/><path d="M53 133.2 L54.2 129.3 L55.4 133.2 Z"/>
-                                                <path d="M56.4 133.1 L57.6 129.5 L58.8 133.1 Z"/>
+                                            <!-- Bocca più grande + denti alti e contrastati -->
+                                            <path d="M28 132 L68 132 Q48 156 28 132 Z" fill="#1a0508" stroke="#b91c1c" stroke-width="0.65" stroke-linejoin="round"/>
+                                            <g fill="#ffffff" stroke="#475569" stroke-width="0.28" stroke-linejoin="round">
+                                                <path d="M33 132.5 L35.5 124 L38 132.5 Z"/><path d="M39.5 132.6 L42 123.8 L44.5 132.6 Z"/><path d="M46 132.5 L48.5 123.9 L51 132.5 Z"/>
+                                                <path d="M52.5 132.5 L55 124 L57.5 132.5 Z"/><path d="M59 132.5 L61.5 124.2 L64 132.5 Z"/>
+                                            </g>
+                                            <g fill="#f1f5f9" stroke="#64748b" stroke-width="0.22" stroke-linejoin="round" opacity="0.95">
+                                                <path d="M38 150 L40 154.5 L42 150 Z"/><path d="M44 149.5 L46 154 L48 149.5 Z"/><path d="M50 149.5 L52 154 L54 149.5 Z"/><path d="M56 150 L58 154.2 L60 150 Z"/>
                                             </g>
                                             <path d="M26 78 L18 52 L14 46 L24 54 L28 48 L30 68 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="0.5"/>
                                             <path d="M70 74 L82 48 L86 42 L76 52 L72 46 L68 70 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="0.5"/>
@@ -3722,6 +3828,7 @@
                                         <path d="M34 82 Q28 58 22 48"/><path d="M54 78 Q62 52 70 44"/>
                                         <circle cx="22" cy="48" r="3" fill="#e2e8f0" stroke="none"/><circle cx="70" cy="44" r="3" fill="#e2e8f0" stroke="none"/>
                                     </g>
+                                </g>
                                 </g>
                             </g>
                         </svg>
