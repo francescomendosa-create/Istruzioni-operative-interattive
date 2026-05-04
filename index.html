@@ -2170,6 +2170,11 @@
             color: rgba(227, 242, 253, 0.92);
             font-weight: 500;
         }
+        .quiz-rank-heading-sub.quiz-rank-heading-sub--localonly {
+            color: #ffecb3;
+            font-weight: 800;
+            text-shadow: 0 0 8px rgba(198, 40, 40, 0.45);
+        }
         .quiz-rank-section-pill {
             flex-shrink: 0;
             font-size: 0.68rem;
@@ -3651,7 +3656,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script>
-    /* Sostituisci null con l'oggetto config (Firebase Console → Impostazioni progetto → app web). */
+    /**
+     * Classifica condivisa: incolla qui l'oggetto da Firebase Console → Impostazioni progetto → tua app Web.
+     * Stesso valore su TUTTI i dispositivi (PC, tablet, PWA) o i record restano solo in locale.
+     * Opzionale: prima di questo blocco puoi aggiungere <script src="firebase-config.quiz.js"></script>
+     * con quel file nella stessa cartella di index.html (stesso contenuto dell'oggetto).
+     */
     window.__FIREBASE_QUIZ_CONFIG__ = null;
     </script>
     <!--
@@ -4330,7 +4340,7 @@ function dismissAppSplash() {
                 <span class="quiz-rank-section-icon" aria-hidden="true">🏆</span>
                 <div class="quiz-rank-section-titles">
                     <h4 class="quiz-rank-heading">Classifica aggiornata</h4>
-                    <p class="quiz-rank-heading-sub">In tempo reale · Firebase (se attivo) o dispositivo</p>
+                    <p class="quiz-rank-heading-sub" id="quiz-rank-sync-status">In tempo reale · Firebase (se attivo) o dispositivo</p>
                 </div>
                 <span class="quiz-rank-section-pill">Livello 1</span>
             </div>
@@ -4491,6 +4501,26 @@ function quizFirestoreConfigured() {
             String(window.__FIREBASE_QUIZ_CONFIG__.apiKey || '').length > 0;
     } catch (e) {
         return false;
+    }
+}
+
+/** Messaggio sotto «Classifica»: spiega se i record sono condivisi o solo locali (tablet nuovo senza config = solo locale). */
+function quizUpdateFirebaseSyncUi() {
+    const el = document.getElementById('quiz-rank-sync-status');
+    if (!el) return;
+    if (quizFirestoreConfigured()) {
+        el.textContent =
+            'Cloud attivo · classifica condivisa in tempo reale tra tutti i dispositivi con la stessa configurazione Firebase';
+        el.classList.remove('quiz-rank-heading-sub--localonly');
+        el.removeAttribute('title');
+    } else {
+        el.textContent =
+            'Record solo su questo dispositivo (nessun Firebase). Incolla __FIREBASE_QUIZ_CONFIG__ in index.html su ogni installazione per la classifica condivisa.';
+        el.classList.add('quiz-rank-heading-sub--localonly');
+        el.setAttribute(
+            'title',
+            'Senza oggetto Firebase valido l’app non può leggere/scrivere Firestore: ogni tablet ha una classifica separata.'
+        );
     }
 }
 
@@ -8473,12 +8503,17 @@ window.addEventListener('load', function initQuizProtection() {
             quizAdelfoWarmFrames();
         } catch (eAdW) { /* ignore */ }
         render();
+        try {
+            quizUpdateFirebaseSyncUi();
+        } catch (eFsUi) { /* ignore */ }
     }
     if (quizFirestoreConfigured()) {
         Promise.all([
             quizPullPrefsFromFirestoreAndApply(),
             quizPullLeaderboardFromFirestore()
-        ]).then(finishQuizInit).catch(finishQuizInit);
+        ])
+            .then(finishQuizInit)
+            .catch(finishQuizInit);
     } else {
         finishQuizInit();
     }
