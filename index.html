@@ -1284,6 +1284,43 @@
             flex: 1 1 auto;
             text-align: left;
         }
+        .quiz-choice-maincol {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            min-width: 0;
+        }
+        .quiz-choices--microbe-phase .quiz-choice-btn {
+            align-items: center;
+            min-height: 4.05rem;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+        .quiz-choice-worm-thumb {
+            flex: 0 0 auto;
+            width: 76px;
+            height: 62px;
+            border-radius: 11px;
+            background: linear-gradient(145deg, #e8f4fc 0%, #dbeafe 55%, #cffafe 100%);
+            border: 1px solid rgba(21, 101, 192, 0.26);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-choice-worm-thumb .quiz-choice-worm-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+        #quiz-bio-worms .quiz-vat-worm-graphic,
+        .quiz-choice-worm-thumb .quiz-vat-worm-graphic {
+            display: block !important;
+        }
         #quiz-screen-play .quiz-feedback {
             font-size: 0.95rem;
             padding: 8px 10px;
@@ -1655,6 +1692,83 @@
         }
         .quiz-wrong-modal__actions .btn-side {
             min-width: 100px;
+        }
+        /* Conferma uscita (sostituisce alert nativo del browser) */
+        .quiz-exit-confirm-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10070;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .quiz-exit-confirm-modal.quiz-exit-confirm-modal--open {
+            display: flex;
+        }
+        .quiz-exit-confirm-modal__box {
+            width: 100%;
+            max-width: 420px;
+            padding: 22px 20px 20px;
+            border-radius: 16px;
+            background: linear-gradient(155deg, #fffefb 0%, #fff8e1 38%, #e3f2fd 100%);
+            border: 1px solid rgba(245, 124, 0, 0.38);
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.55) inset,
+                0 20px 44px rgba(230, 81, 0, 0.14);
+            text-align: left;
+        }
+        .quiz-exit-confirm-modal__icon {
+            font-size: 1.75rem;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .quiz-exit-confirm-modal__box h3 {
+            margin: 0 0 10px;
+            font-size: 1.14rem;
+            color: #e65100;
+            letter-spacing: -0.02em;
+        }
+        .quiz-exit-confirm-modal__lead {
+            margin: 0 0 18px;
+            font-size: 0.92rem;
+            color: #37474f;
+            line-height: 1.5;
+        }
+        .quiz-exit-confirm-modal__lead strong {
+            color: #1565c0;
+            font-weight: 700;
+        }
+        .quiz-exit-confirm-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .quiz-exit-confirm-modal__actions .btn-side {
+            min-width: 112px;
+        }
+        .quiz-exit-confirm-modal__actions .btn-quiz-exit-confirm {
+            background: linear-gradient(180deg, #ff9800 0%, #f57c00 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 0 rgba(191, 54, 12, 0.35), 0 6px 14px rgba(230, 81, 0, 0.25);
+        }
+        .quiz-exit-confirm-modal__actions .btn-quiz-exit-confirm:hover {
+            filter: brightness(1.05);
+        }
+        .quiz-exit-confirm-modal__actions .btn-quiz-exit-cancel {
+            background: #fff;
+            color: #1565c0;
+            border: 2px solid rgba(21, 101, 192, 0.45);
+            box-shadow: 0 2px 0 rgba(21, 101, 192, 0.12);
+        }
+        .quiz-exit-confirm-modal__actions .btn-quiz-exit-cancel:hover {
+            background: #f5f9ff;
         }
         /* Modale nome per ingresso in classifica (primi 10) */
         .quiz-top10-name-modal {
@@ -3939,17 +4053,17 @@
             </div>
         </div>
                 <div class="app-splash-worm-tabs" role="tablist" aria-label="Scegli il gruppo microbico">
-                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" title="I demolidori (batteri eterotrofi)" onclick="splashSelectWorm(0)">Demolidori</button>
+                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" title="I demolitori (batteri eterotrofi)" onclick="splashSelectWorm(0)">Demolitori</button>
                     <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" title="I sottili (batteri nitrificanti)" onclick="splashSelectWorm(1)">Sottili</button>
                     <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" title="I filamentosi (la rete)" onclick="splashSelectWorm(2)">Filamentosi</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" title="I settici (solfo-batteri)" onclick="splashSelectWorm(3)">Settici</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" title="I settici (batteri anaerobi)" onclick="splashSelectWorm(3)">Settici</button>
                     <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" title="I predatori (protozoi e rotiferi)" onclick="splashSelectWorm(4)">Predatori</button>
                 </div>
             </div>
             <aside class="app-splash-intro-desc-col">
                 <div id="app-splash-worm-desc" class="app-splash-worm-desc" aria-live="polite">
                     <section id="splash-desc-0" class="app-splash-worm-desc-panel app-splash-worm-desc-panel--active" role="tabpanel" aria-labelledby="splash-tab-0">
-                        <h3>I demolidori (batteri eterotrofi)</h3>
+                        <h3>I demolitori (batteri eterotrofi)</h3>
                         <p><strong>Colore reale</strong> marrone fango / testa di moro.</p>
                         <p><strong>Forma</strong> ovale, tipo chicco di riso; rappresentano la massa solida del fango.</p>
                         <p><strong>Cosa fanno</strong> sono il “motore” dell’impianto: degradano la sostanza organica grezza (COD) trasformandola in fango e anidride carbonica (CO<sub>2</sub>).</p>
@@ -3960,7 +4074,7 @@
                         <h3>I sottili (batteri nitrificanti)</h3>
                         <p><strong>Colore reale</strong> grigio perla / quasi trasparente.</p>
                         <p><strong>Forma</strong> sferica (piccoli puntini) annidati nelle porosità protette dei carrier.</p>
-                        <p><strong>Cosa fanno</strong> trasformano l’ammoniaca tossica in nitrati; lavorano bene solo se l’acqua è già stata “ripulita” dai demolidori.</p>
+                        <p><strong>Cosa fanno</strong> trasformano l’ammoniaca tossica in nitrati; lavorano bene solo se l’acqua è già stata “ripulita” dai demolitori.</p>
                         <p><strong>Velocità</strong> molto bassa: crescono lentamente; se vengono lavati via o stressati, servono giorni per tornare.</p>
                         <p><strong>Segnale nel programma</strong> la loro presenza indica ossigenazione adeguata e carico organico sotto controllo.</p>
                     </section>
@@ -3973,10 +4087,10 @@
                         <p><strong>Segnale nel programma</strong> linee gialle visibili: attenzione alla sedimentazione in secondario.</p>
                     </section>
                     <section id="splash-desc-3" class="app-splash-worm-desc-panel" role="tabpanel" aria-labelledby="splash-tab-3" hidden>
-                        <h3>I settici (solfo-batteri)</h3>
+                        <h3>I settici (batteri anaerobi)</h3>
                         <p><strong>Colore reale</strong> nero pece.</p>
                         <p><strong>Forma</strong> macchia irregolare / contorni spigolosi.</p>
-                        <p><strong>Cosa fanno</strong> in assenza di ossigeno “marciscono”, producendo acido solfidrico (H<sub>2</sub>S) con odore di uova marce e rischio corrosione.</p>
+                        <p><strong>Cosa fanno</strong> sono batteri anaerobi (non solfobatteri): in assenza di ossigeno “marciscono”, producendo acido solfidrico (H<sub>2</sub>S) con odore di uova marce e rischio corrosione.</p>
                         <p><strong>Velocità</strong> molto rapida all’apparire appena c’è anossia sotto carico eccessivo.</p>
                         <p><strong>Segnale nel programma</strong> allarme critico: anossia e soffocamento della biologia aerobia.</p>
                     </section>
@@ -4345,6 +4459,19 @@ function dismissAppSplash() {
                 <p id="quiz-top10-name-modal-hint" class="quiz-top10-name-modal__hint">Lascia vuoto e premi OK per registrarti come «Operatore».</p>
                 <div class="quiz-top10-name-modal__actions">
                     <button type="button" class="btn-side btn-report" id="quiz-top10-name-ok" onclick="quizTop10NameModalOk()">OK</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-exit-confirm-modal" class="quiz-exit-confirm-modal" aria-hidden="true" aria-labelledby="quiz-exit-confirm-title" onclick="quizExitConfirmBackdrop(event)">
+            <div class="quiz-exit-confirm-modal__box" role="alertdialog" aria-modal="true" onclick="event.stopPropagation()">
+                <div class="quiz-exit-confirm-modal__icon" aria-hidden="true">⚠️</div>
+                <h3 id="quiz-exit-confirm-title">Uscire dal quiz?</h3>
+                <p class="quiz-exit-confirm-modal__lead">
+                    Se esci ora, <strong>il punteggio di questa partita non sarà salvato</strong> nella classifica online.
+                </p>
+                <div class="quiz-exit-confirm-modal__actions">
+                    <button type="button" class="btn-side btn-quiz-exit-cancel" id="quiz-exit-confirm-no" onclick="quizExitConfirmNo()">Continua il quiz</button>
+                    <button type="button" class="btn-side btn-quiz-exit-confirm" id="quiz-exit-confirm-yes" onclick="quizExitConfirmYes()">Esci senza salvare</button>
                 </div>
             </div>
         </div>
@@ -4731,7 +4858,7 @@ function quizRemapSvgIds(root, suffix) {
     }
 }
 
-var QUIZ_PODIUM_WORM_LABELS = ['Demolidori', 'Sottili', 'Filamentosi', 'Settici', 'Predatori'];
+var QUIZ_PODIUM_WORM_LABELS = ['Demolitori', 'Sottili', 'Filamentosi', 'Settici', 'Predatori'];
 
 function quizBuildPodiumWormHtml(wormIndex) {
     var wi = Number(wormIndex);
@@ -4753,6 +4880,39 @@ function quizBuildPodiumWormHtml(wormIndex) {
         '">' +
         clone.outerHTML +
         '</svg>'
+    );
+}
+
+function quizMicrobeSplashPhaseActive() {
+    try {
+        return quizState.index < QUIZ_MICROBE_SPLASH_PHASE_COUNT;
+    } catch (e) {
+        return false;
+    }
+}
+
+/** Miniatura SVG microbo splash per pulsanti risposta (prime domande). */
+function quizChoiceWormThumbHtml(optionIdx) {
+    var qi = quizState.index | 0;
+    var wormIdx = ((qi | 0) + (optionIdx | 0)) % 5;
+    var src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + wormIdx + '"]');
+    if (!src) {
+        return '';
+    }
+    var clone = src.cloneNode(true);
+    clone.classList.remove('splash-worm-variant', 'splash-worm-variant--active');
+    clone.classList.add('quiz-vat-worm-graphic');
+    quizChoiceThumbSeq += 1;
+    var suf = 'qth' + qi + '_' + (optionIdx | 0) + '_' + quizChoiceThumbSeq;
+    try {
+        quizRemapSvgIds(clone, suf);
+    } catch (eRem) {
+        /* ignore */
+    }
+    return (
+        '<span class="quiz-choice-worm-thumb" aria-hidden="true"><svg class="quiz-choice-worm-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg">' +
+        clone.outerHTML +
+        '</svg></span>'
     );
 }
 
@@ -5519,6 +5679,8 @@ const QUIZ_RULE_MAX_ERRORS = 2;
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
 /** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
 const QUIZ_START_WORM_COUNT = 0;
+/** Prime domande: stesse grafiche microbi della home (splash) nelle risposte e nella vasca. */
+const QUIZ_MICROBE_SPLASH_PHASE_COUNT = 5;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
 /**
@@ -5550,6 +5712,9 @@ let quizTimerDeadline = null;
 let quizTimerVisualActive = false;
 /** Vermi aggiunti a ogni risposta corretta (vasca biologica). */
 let quizBioWormCount = 0;
+/** Contatore id SVG per microbi splash clonati in vasca / anteprime risposte. */
+let quizBioVatGraphSeq = 0;
+let quizChoiceThumbSeq = 0;
 /** Gruppo SVG del verme “minaccioso” quando il timer è basso (≤ QUIZ_TIMER_MENACE_SEC). */
 let quizBioMenaceG = null;
 let quizScoreAnimTimer = null;
@@ -5911,6 +6076,8 @@ function quizBioVatApplyFillFromState() {
 
 function quizBioVatReset() {
     quizBioWormCount = 0;
+    quizBioVatGraphSeq = 0;
+    quizChoiceThumbSeq = 0;
     const wrap = document.getElementById('quiz-bio-vat-wrap');
     const worms = document.getElementById('quiz-bio-worms');
     if (worms) worms.innerHTML = '';
@@ -5921,20 +6088,7 @@ function quizBioVatReset() {
     quizBioVatApplyFillFromState();
 }
 
-function quizBioVatOnCorrectAnswer() {
-    quizBioWormCount += 1;
-    const gRoot = document.getElementById('quiz-bio-worms');
-    if (!gRoot) return;
-    const i = quizBioWormCount - 1;
-    const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
-    const xNorm = slots[i % slots.length];
-    const wx = 44 + xNorm * (400 - 88);
-    const wy = 54 + (i % 4) * 5;
-    const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    gPos.setAttribute('class', 'quiz-worm');
-    gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
-    const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    gBody.setAttribute('class', 'quiz-worm-body');
+function quizBioWormApplySwimAnimation(gBody) {
     if (!quizPrefersReducedMotion()) {
         const swimR = 'quizWormSwimRight';
         const swimL = 'quizWormSwimLeft';
@@ -5957,6 +6111,19 @@ function quizBioVatOnCorrectAnswer() {
         gBody.style.animationName = 'none';
         gBody.style.animationDelay = '0s';
     }
+}
+
+function quizBioAppendGenericWorm(gRoot, i) {
+    const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
+    const xNorm = slots[i % slots.length];
+    const wx = 44 + xNorm * (400 - 88);
+    const wy = 54 + (i % 4) * 5;
+    const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gPos.setAttribute('class', 'quiz-worm');
+    gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
+    const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gBody.setAttribute('class', 'quiz-worm-body');
+    quizBioWormApplySwimAnimation(gBody);
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', 'M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z');
     path.setAttribute('fill', '#7cb342');
@@ -5977,6 +6144,56 @@ function quizBioVatOnCorrectAnswer() {
     gBody.appendChild(e2);
     gPos.appendChild(gBody);
     gRoot.appendChild(gPos);
+}
+
+/** Verme dalla home (splash) nella vasca: prime risposte corrette = Demolitori → … → Predatori. */
+function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
+    const vi = Math.max(0, Math.min(4, variantIndex | 0));
+    const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + vi + '"]');
+    if (!src) {
+        quizBioAppendGenericWorm(gRoot, i);
+        return;
+    }
+    const clone = src.cloneNode(true);
+    clone.classList.remove('splash-worm-variant', 'splash-worm-variant--active');
+    clone.classList.add('quiz-vat-worm-graphic');
+    quizBioVatGraphSeq += 1;
+    try {
+        quizRemapSvgIds(clone, 'vatg' + quizBioVatGraphSeq);
+    } catch (eRem) {
+        /* ignore */
+    }
+    const slots = [0.1, 0.22, 0.36, 0.5, 0.62, 0.74, 0.86, 0.18, 0.44, 0.68, 0.92, 0.3];
+    const xNorm = slots[i % slots.length];
+    const wx = 44 + xNorm * (400 - 88);
+    const wy = 54 + (i % 4) * 5;
+    const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gPos.setAttribute('class', 'quiz-worm');
+    gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ')');
+    const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gBody.setAttribute('class', 'quiz-worm-body');
+    quizBioWormApplySwimAnimation(gBody);
+    const inner = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    inner.setAttribute('transform', 'translate(-20,-12) scale(0.168)');
+    inner.appendChild(clone);
+    gBody.appendChild(inner);
+    gPos.appendChild(gBody);
+    gRoot.appendChild(gPos);
+}
+
+/** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento). */
+function quizBioVatOnCorrectAnswer(completedQuestionIndex) {
+    quizBioWormCount += 1;
+    const gRoot = document.getElementById('quiz-bio-worms');
+    if (!gRoot) return;
+    const slotIdx = quizBioWormCount - 1;
+    const qIdx = typeof completedQuestionIndex === 'number' ? completedQuestionIndex : -1;
+    const useSplash = qIdx >= 0 && qIdx < QUIZ_MICROBE_SPLASH_PHASE_COUNT;
+    if (useSplash) {
+        quizBioAppendSplashWormVariant(gRoot, qIdx, slotIdx);
+    } else {
+        quizBioAppendGenericWorm(gRoot, slotIdx);
+    }
     quizBioVatApplyFillFromState();
 }
 
@@ -6542,6 +6759,8 @@ function quizRenderQuestion(opts) {
 
     qEl.textContent = q.q;
     ch.innerHTML = '';
+    const microbePhase = quizMicrobeSplashPhaseActive();
+    ch.classList.toggle('quiz-choices--microbe-phase', microbePhase);
     q.options.forEach((opt, idx) => {
         const b = document.createElement('button');
         b.type = 'button';
@@ -6556,8 +6775,23 @@ function quizRenderQuestion(opts) {
         const txtEl = document.createElement('span');
         txtEl.className = 'quiz-choice-txt';
         txtEl.textContent = opt.text;
-        b.appendChild(letterEl);
-        b.appendChild(txtEl);
+        if (microbePhase) {
+            const thumbHtml = quizChoiceWormThumbHtml(idx);
+            if (thumbHtml) {
+                b.insertAdjacentHTML('afterbegin', thumbHtml);
+                const main = document.createElement('span');
+                main.className = 'quiz-choice-maincol';
+                main.appendChild(letterEl);
+                main.appendChild(txtEl);
+                b.appendChild(main);
+            } else {
+                b.appendChild(letterEl);
+                b.appendChild(txtEl);
+            }
+        } else {
+            b.appendChild(letterEl);
+            b.appendChild(txtEl);
+        }
         b.onclick = () => quizAnswer(idx);
         ch.appendChild(b);
     });
@@ -6687,7 +6921,7 @@ function quizAnswer(idx) {
         }
         const finishCorrect = function () {
             quizUpdatePlayProgress();
-            quizBioVatOnCorrectAnswer();
+            quizBioVatOnCorrectAnswer(quizState.index);
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
@@ -7346,7 +7580,7 @@ function quizStart() {
 
     quizBioVatReset();
     for (let s = 0; s < QUIZ_START_WORM_COUNT; s++) {
-        quizBioVatOnCorrectAnswer();
+        quizBioVatOnCorrectAnswer(-1);
     }
     quizShowScreen('play');
     quizRenderQuestion({ instant: true });
@@ -7386,11 +7620,80 @@ function quizExitPlayToIntroSilent() {
     if (scrollBox) scrollBox.scrollTop = 0;
 }
 
-const QUIZ_EXIT_CONFIRM_MSG =
-    'Uscire dal quiz?\n\nSe confermi, il punteggio di questa partita non verrà salvato in classifica.';
+let quizExitConfirmContinuation = null;
+
+function quizExitConfirmBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-exit-confirm-modal') {
+        quizExitConfirmNo();
+    }
+}
+
+function quizExitConfirmHide() {
+    const modal = document.getElementById('quiz-exit-confirm-modal');
+    if (modal) {
+        modal.classList.remove('quiz-exit-confirm-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    document.removeEventListener('keydown', quizExitConfirmKeydown, true);
+    quizExitConfirmContinuation = null;
+}
+
+function quizExitConfirmKeydown(ev) {
+    if (ev.key === 'Escape') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+        quizExitConfirmNo();
+    }
+}
+
+function quizExitConfirmYes() {
+    const fn = quizExitConfirmContinuation;
+    quizExitConfirmHide();
+    if (typeof fn === 'function') {
+        fn();
+    }
+}
+
+function quizExitConfirmNo() {
+    quizExitConfirmHide();
+}
+
+/** Modale in-app (stile quiz) al posto di window.confirm per l’uscita con partita in corso. */
+function quizOpenExitConfirmModal(onConfirm) {
+    if (typeof onConfirm !== 'function') {
+        return;
+    }
+    const modal = document.getElementById('quiz-exit-confirm-modal');
+    if (!modal) {
+        if (window.confirm('Uscire dal quiz? Il punteggio di questa partita non sarà salvato in classifica.')) {
+            onConfirm();
+        }
+        return;
+    }
+    quizExitConfirmContinuation = onConfirm;
+    modal.classList.add('quiz-exit-confirm-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizExitConfirmKeydown, true);
+    setTimeout(function () {
+        const yesBtn = document.getElementById('quiz-exit-confirm-yes');
+        if (yesBtn) {
+            try {
+                yesBtn.focus();
+            } catch (e0) {
+                /* ignore */
+            }
+        }
+    }, 60);
+}
 
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
+    const exitOpen = document.getElementById('quiz-exit-confirm-modal');
+    if (exitOpen && exitOpen.classList.contains('quiz-exit-confirm-modal--open')) {
+        quizExitConfirmNo();
+        return;
+    }
     const top10m = document.getElementById('quiz-top10-name-modal');
     if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
         quizTop10NameModalOk();
@@ -7399,16 +7702,20 @@ function quizTopExit() {
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
-        if (opts.continuePlay && !window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
+        const proceedWrongExit = function () {
+            quizWrongModalFinishOpts = null;
+            quizWrongModalHide();
+            if (opts.continuePlay) {
+                quizFinish(false, { aborted: true, goIntro: true });
+            } else {
+                quizFinish(false, Object.assign({}, opts, { goIntro: true }));
+            }
+        };
+        if (opts.continuePlay) {
+            quizOpenExitConfirmModal(proceedWrongExit);
             return;
         }
-        quizWrongModalFinishOpts = null;
-        quizWrongModalHide();
-        if (opts.continuePlay) {
-            quizFinish(false, { aborted: true, goIntro: true });
-        } else {
-            quizFinish(false, Object.assign({}, opts, { goIntro: true }));
-        }
+        proceedWrongExit();
         return;
     }
     const play = document.getElementById('quiz-screen-play');
@@ -7420,13 +7727,12 @@ function quizTopExit() {
             quizExitPlayToIntroSilent();
             return;
         }
-        if (!window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
-            return;
-        }
-        quizWrongModalHide();
-        quizWrongModalFinishOpts = null;
-        quizCancelScoreAnim();
-        quizFinish(false, { aborted: true, goIntro: true });
+        quizOpenExitConfirmModal(function () {
+            quizWrongModalHide();
+            quizWrongModalFinishOpts = null;
+            quizCancelScoreAnim();
+            quizFinish(false, { aborted: true, goIntro: true });
+        });
         return;
     }
     if (onOver) {
@@ -8528,16 +8834,20 @@ function closeQuiz() {
     const wrongModal = document.getElementById('quiz-wrong-modal');
     if (wrongModal && wrongModal.classList.contains('quiz-wrong-modal--open')) {
         const opts = quizWrongModalFinishOpts || {};
-        if (opts.continuePlay && !window.confirm(QUIZ_EXIT_CONFIRM_MSG)) {
+        const proceedWrongClose = function () {
+            quizWrongModalFinishOpts = null;
+            quizWrongModalHide();
+            if (opts.continuePlay) {
+                quizFinish(false, { aborted: true, goIntro: true });
+            } else {
+                quizFinish(false, opts);
+            }
+        };
+        if (opts.continuePlay) {
+            quizOpenExitConfirmModal(proceedWrongClose);
             return;
         }
-        quizWrongModalFinishOpts = null;
-        quizWrongModalHide();
-        if (opts.continuePlay) {
-            quizFinish(false, { aborted: true, goIntro: true });
-        } else {
-            quizFinish(false, opts);
-        }
+        proceedWrongClose();
     } else {
         quizWrongModalHide();
         quizWrongModalFinishOpts = null;
@@ -8552,6 +8862,10 @@ function closeQuiz() {
 }
 
 document.addEventListener("keydown", function quizFullscreenEscape(ev) {
+    const exM = document.getElementById("quiz-exit-confirm-modal");
+    if (exM && exM.classList.contains("quiz-exit-confirm-modal--open")) {
+        return;
+    }
     if (ev.key === "Escape" && document.body.classList.contains("quiz-open")) {
         ev.preventDefault();
         quizTopExit();
