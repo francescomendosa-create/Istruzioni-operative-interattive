@@ -909,6 +909,81 @@
             color: #37474f;
             line-height: 1.35;
         }
+        .quiz-avatar-picker {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 2.5vw, 14px);
+            margin: 14px auto 6px;
+            max-width: min(100%, 400px);
+            padding: 0 8px;
+        }
+        .quiz-avatar-picker__nav {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid #90caf9;
+            background: linear-gradient(180deg, #fff 0%, #e3f2fd 50%, #bbdefb 100%);
+            color: #0d47a1;
+            font-size: 1.1rem;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 0 #64b5f6, inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .quiz-avatar-picker__nav:hover {
+            transform: scale(1.04);
+        }
+        .quiz-avatar-picker__nav:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 0 #64b5f6, inset 0 2px 4px rgba(13, 71, 161, 0.12);
+        }
+        .quiz-avatar-picker__nav:focus-visible {
+            outline: 2px solid #1565c0;
+            outline-offset: 2px;
+        }
+        .quiz-avatar-picker__chev {
+            display: block;
+            font-weight: 900;
+            user-select: none;
+        }
+        .quiz-avatar-picker__stage {
+            flex: 0 1 auto;
+            min-width: 0;
+            width: min(200px, 46vw);
+            max-width: 220px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: radial-gradient(ellipse at center, #f5f5f5 0%, #eceff1 100%);
+            border: 1px solid #cfd8dc;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 14px rgba(13, 71, 161, 0.08);
+            overflow: hidden;
+        }
+        .quiz-avatar-picker__img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+        .quiz-avatar-picker__counter {
+            width: 100%;
+            flex-basis: 100%;
+            text-align: center;
+            margin: 2px 0 0;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: #78909c;
+        }
         .quiz-level-single .quiz-level-title {
             display: block;
             font-weight: bold;
@@ -1101,11 +1176,11 @@
             min-width: 0;
             justify-self: start;
         }
-        /* Vite: ritratto + numero + etichetta — solo PC e tablet orizzontale (smartphone in seguito) */
+        /* Vite: stessa grafica di Posizione (lbl + valore) — PC e tablet orizzontale */
         .quiz-play-lives-inline-wrap {
             display: none;
             align-items: center;
-            margin-left: 6px;
+            gap: 6px;
         }
         @media (min-width: 1025px) {
             .quiz-play-lives-inline-wrap {
@@ -1116,48 +1191,6 @@
             .quiz-play-lives-inline-wrap {
                 display: inline-flex;
             }
-        }
-        .quiz-play-lives-inline {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 2px 0 0;
-        }
-        .quiz-play-lives-icon {
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0;
-            display: block;
-            object-fit: contain;
-            vertical-align: middle;
-            pointer-events: none;
-            border: 0;
-            background: transparent;
-            box-shadow: none;
-            outline: none;
-            image-rendering: auto;
-        }
-        .quiz-play-lives-text {
-            display: inline-flex;
-            align-items: baseline;
-            gap: 4px;
-            white-space: nowrap;
-        }
-        .quiz-play-lives-num {
-            font-size: clamp(1rem, 3vw, 1.15rem);
-            font-weight: 900;
-            font-variant-numeric: tabular-nums;
-            color: #0d47a1;
-            line-height: 1;
-            letter-spacing: 0.02em;
-        }
-        .quiz-play-lives-suffix {
-            font-size: 0.62rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: #546e7a;
-            line-height: 1;
         }
         .quiz-play-oneline-center {
             display: flex;
@@ -4821,6 +4854,18 @@ function dismissAppSplash() {
                 <div class="quiz-level-single quiz-level-single--plain">
                     <span class="quiz-level-title quiz-level-title--hero">Livello 1</span>
                     <p class="quiz-level-tagline">Mettiti alla prova, sfida te stesso e gli altri</p>
+                    <div class="quiz-avatar-picker" role="group" aria-label="Personaggio">
+                        <button type="button" class="quiz-avatar-picker__nav" id="quiz-avatar-prev" onclick="quizAvatarPickerPrev()" aria-label="Personaggio precedente">
+                            <span class="quiz-avatar-picker__chev" aria-hidden="true">&#9664;</span>
+                        </button>
+                        <div class="quiz-avatar-picker__stage">
+                            <img id="quiz-avatar-img" class="quiz-avatar-picker__img" src="assets/avatars/avatar-01.png" alt="" width="256" height="256" decoding="async" draggable="false">
+                        </div>
+                        <button type="button" class="quiz-avatar-picker__nav" id="quiz-avatar-next" onclick="quizAvatarPickerNext()" aria-label="Personaggio successivo">
+                            <span class="quiz-avatar-picker__chev" aria-hidden="true">&#9654;</span>
+                        </button>
+                        <p class="quiz-avatar-picker__counter" id="quiz-avatar-counter" aria-hidden="true">1 / 9</p>
+                    </div>
                 </div>
             </div>
             <div class="quiz-actions">
@@ -7368,6 +7413,55 @@ function escapeQuizHtml(s) {
         .replace(/"/g, '&quot;');
 }
 
+const QUIZ_AVATAR_COUNT = 9;
+let quizAvatarIndex = 0;
+
+function quizAvatarPath(i) {
+    const n = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, i));
+    return 'assets/avatars/avatar-' + String(n + 1).padStart(2, '0') + '.png';
+}
+
+function quizAvatarPickerLoadStored() {
+    try {
+        const v = sessionStorage.getItem('quizAvatarIndex');
+        if (v != null) {
+            const n = parseInt(v, 10);
+            if (!isNaN(n) && n >= 0 && n < QUIZ_AVATAR_COUNT) {
+                quizAvatarIndex = n;
+            }
+        }
+    } catch (e2) { /* ignore */ }
+}
+
+function quizAvatarPickerSync() {
+    const img = document.getElementById('quiz-avatar-img');
+    const counter = document.getElementById('quiz-avatar-counter');
+    if (img) {
+        img.src = quizAvatarPath(quizAvatarIndex);
+    }
+    if (counter) {
+        counter.textContent = quizAvatarIndex + 1 + ' / ' + QUIZ_AVATAR_COUNT;
+    }
+}
+
+function quizAvatarPickerPersist() {
+    try {
+        sessionStorage.setItem('quizAvatarIndex', String(quizAvatarIndex));
+    } catch (e2) { /* ignore */ }
+}
+
+function quizAvatarPickerPrev() {
+    quizAvatarIndex = (quizAvatarIndex - 1 + QUIZ_AVATAR_COUNT) % QUIZ_AVATAR_COUNT;
+    quizAvatarPickerPersist();
+    quizAvatarPickerSync();
+}
+
+function quizAvatarPickerNext() {
+    quizAvatarIndex = (quizAvatarIndex + 1) % QUIZ_AVATAR_COUNT;
+    quizAvatarPickerPersist();
+    quizAvatarPickerSync();
+}
+
 function quizShowScreen(which) {
     const intro = document.getElementById('quiz-screen-intro');
     const play = document.getElementById('quiz-screen-play');
@@ -7380,6 +7474,10 @@ function quizShowScreen(which) {
     const rankWrap = document.getElementById('quiz-rank-wrap');
     if (rankWrap) rankWrap.style.display = which === 'intro' ? 'block' : 'none';
     if (panel) panel.classList.toggle('quiz-panel--screen-play', which === 'play');
+    if (which === 'intro') {
+        quizAvatarPickerLoadStored();
+        quizAvatarPickerSync();
+    }
 }
 
 function quizUpdatePlayProgress(extra) {
@@ -7417,20 +7515,12 @@ function quizUpdatePlayProgress(extra) {
     const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
     const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
     const livesRemain = Math.max(0, QUIZ_RULE_MAX_ERRORS - (Number(quizState.wrongCount) || 0));
-    const livesWord = livesRemain === 1 ? 'vita' : 'vite';
     const livesRow =
         '<span class="quiz-play-lives-inline-wrap">' +
-        '<span class="quiz-play-lives-inline">' +
-        '<img class="quiz-play-lives-icon" src="assets/quiz-operator-life.png" width="160" height="160" alt="" decoding="sync" draggable="false">' +
-        '<span class="quiz-play-lives-text">' +
-        '<strong id="quiz-play-lives-val" class="quiz-play-lives-num">' +
+        '<span class="quiz-play-oneline-lbl">Vite</span>' +
+        '<strong id="quiz-play-lives-val" class="quiz-play-oneline-val">' +
         livesRemain +
         '</strong>' +
-        '<span class="quiz-play-lives-suffix">' +
-        livesWord +
-        '</span>' +
-        '</span>' +
-        '</span>' +
         '</span>';
     const timerSummaryRow =
         showTimerCumulUi
@@ -8323,6 +8413,7 @@ function quizFinish(completedAll, opts) {
 }
 
 function quizStart() {
+    quizAvatarPickerPersist();
     quizAnswerLocked = false;
     quizCancelScoreAnim();
     quizWrongModalHide();
@@ -10057,6 +10148,13 @@ document.addEventListener('toggle', function (ev) {
 
 window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
     quizDetachLeaderboardRealtime();
+});
+
+window.addEventListener('load', function quizAvatarPickerInitLoad() {
+    try {
+        quizAvatarPickerLoadStored();
+        quizAvatarPickerSync();
+    } catch (eAv) { /* ignore */ }
 });
 </script>
 <script>
