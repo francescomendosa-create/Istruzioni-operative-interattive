@@ -1119,14 +1119,6 @@
             letter-spacing: 0.02em;
             white-space: normal;
         }
-        .quiz-play-q-pts-pill {
-            font-weight: 800;
-            color: #1565c0;
-        }
-        .quiz-play-q-pts-num {
-            font-variant-numeric: tabular-nums;
-            font-weight: 900;
-        }
         .quiz-feedback-turn-total {
             display: inline;
             font-weight: 900;
@@ -1250,17 +1242,68 @@
             align-items: flex-start;
             gap: 12px;
             padding: 14px 16px 14px 18px; border-radius: 12px; border: 1px solid #b0bec5;
-            border-left: 4px solid #1565c0;
+            border-left: 4px solid #90a4ae;
             background: linear-gradient(125deg, #ffffff 0%, #f1f5f9 55%, #e8eef5 100%);
             cursor: pointer; font-weight: 600; color: #1a237e;
             line-height: 1.42; min-height: 3.1rem;
-            box-shadow: 0 3px 0 #90a4ae, 0 8px 20px rgba(21,101,192,0.1);
+            box-shadow: 0 3px 0 #90a4ae, 0 8px 20px rgba(55, 71, 79, 0.08);
             transition: transform 0.08s ease, box-shadow 0.15s ease, border-color 0.15s ease, filter 0.12s ease;
         }
-        .quiz-choice-btn:hover {
+        /* Cornici distinte per lettera (solo stato neutro; corretto/sbagliato restano verdi/rossi). */
+        .quiz-choice-btn--a {
+            border-left-color: #1565c0;
+            background: linear-gradient(125deg, #ffffff 0%, #eef6ff 52%, #e3f2fd 100%);
+            box-shadow: 0 3px 0 #90caf9, 0 8px 18px rgba(21, 101, 192, 0.1);
+        }
+        .quiz-choice-btn--a .quiz-choice-letter { color: #1565c0; }
+        .quiz-choice-btn--a:hover {
             filter: brightness(1.03);
             border-left-color: #0d47a1;
-            box-shadow: 0 3px 0 #78909c, 0 10px 24px rgba(13,71,161,0.14);
+            box-shadow: 0 3px 0 #64b5f6, 0 10px 22px rgba(13, 71, 161, 0.14);
+        }
+        .quiz-choice-btn--b {
+            border-left-color: #ef6c00;
+            background: linear-gradient(125deg, #ffffff 0%, #fff8e1 50%, #ffe0b2 100%);
+            box-shadow: 0 3px 0 #ffcc80, 0 8px 18px rgba(239, 108, 0, 0.12);
+        }
+        .quiz-choice-btn--b .quiz-choice-letter { color: #e65100; }
+        .quiz-choice-btn--b:hover {
+            filter: brightness(1.03);
+            border-left-color: #e65100;
+            box-shadow: 0 3px 0 #ffb74d, 0 10px 22px rgba(230, 81, 0, 0.14);
+        }
+        .quiz-choice-btn--c {
+            border-left-color: #00897b;
+            background: linear-gradient(125deg, #ffffff 0%, #e0f7f4 50%, #b2dfdb 100%);
+            box-shadow: 0 3px 0 #80cbc4, 0 8px 18px rgba(0, 105, 92, 0.1);
+        }
+        .quiz-choice-btn--c .quiz-choice-letter { color: #00695c; }
+        .quiz-choice-btn--c:hover {
+            filter: brightness(1.03);
+            border-left-color: #004d40;
+            box-shadow: 0 3px 0 #4db6ac, 0 10px 22px rgba(0, 77, 64, 0.12);
+        }
+        .quiz-choice-btn--d {
+            border-left-color: #6a1b9a;
+            background: linear-gradient(125deg, #ffffff 0%, #f3e5f5 50%, #e1bee7 100%);
+            box-shadow: 0 3px 0 #ce93d8, 0 8px 18px rgba(106, 27, 154, 0.1);
+        }
+        .quiz-choice-btn--d .quiz-choice-letter { color: #6a1b9a; }
+        .quiz-choice-btn--d:hover {
+            filter: brightness(1.03);
+            border-left-color: #4a148c;
+            box-shadow: 0 3px 0 #ba68c8, 0 10px 22px rgba(74, 20, 140, 0.14);
+        }
+        .quiz-choice-btn--e {
+            border-left-color: #c62828;
+            background: linear-gradient(125deg, #ffffff 0%, #ffebee 50%, #ffcdd2 100%);
+            box-shadow: 0 3px 0 #ef9a9a, 0 8px 18px rgba(198, 40, 40, 0.08);
+        }
+        .quiz-choice-btn--e .quiz-choice-letter { color: #c62828; }
+        .quiz-choice-btn--e:hover {
+            filter: brightness(1.03);
+            border-left-color: #b71c1c;
+            box-shadow: 0 3px 0 #e57373, 0 10px 22px rgba(183, 28, 28, 0.12);
         }
         .quiz-choice-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5d0d6, 0 3px 6px rgba(0,0,0,0.08); }
         #quiz-screen-play .quiz-choice-btn {
@@ -1736,8 +1779,8 @@
         .quiz-exit-confirm-modal__actions .btn-quiz-exit-cancel:hover {
             background: #f5f9ff;
         }
-        /* Primo colpo: Demolitori in vasca (solo domanda 1) */
-        .quiz-first-demolitori-modal {
+        /* Milestone: Demolitori (domanda 1), Sottili (domanda 5); dopo ok il verme entra in vasca */
+        .quiz-microbe-unlock-modal {
             display: none;
             position: fixed;
             inset: 0;
@@ -1750,10 +1793,10 @@
             backdrop-filter: blur(7px);
             -webkit-backdrop-filter: blur(7px);
         }
-        .quiz-first-demolitori-modal.quiz-first-demolitori-modal--open {
+        .quiz-microbe-unlock-modal.quiz-microbe-unlock-modal--open {
             display: flex;
         }
-        .quiz-first-demolitori-modal__box {
+        .quiz-microbe-unlock-modal__box {
             width: 100%;
             max-width: 440px;
             padding: 20px 20px 18px;
@@ -1765,7 +1808,7 @@
                 0 20px 44px rgba(49, 27, 146, 0.2);
             text-align: left;
         }
-        .quiz-first-demolitori-modal__kicker {
+        .quiz-microbe-unlock-modal__kicker {
             margin: 0 0 6px;
             font-size: 0.78rem;
             font-weight: 900;
@@ -1773,13 +1816,13 @@
             text-transform: uppercase;
             color: #6a1b9a;
         }
-        .quiz-first-demolitori-modal__box h3 {
+        .quiz-microbe-unlock-modal__box h3 {
             margin: 0 0 8px;
             font-size: 1.1rem;
             line-height: 1.3;
             color: #4a148c;
         }
-        .quiz-first-demolitori-modal__subtitle {
+        .quiz-microbe-unlock-modal__subtitle {
             margin: 0 0 12px;
             font-size: 0.72rem;
             font-weight: 800;
@@ -1787,7 +1830,7 @@
             letter-spacing: 0.1em;
             color: #7b1fa2;
         }
-        .quiz-first-demolitori-modal__viz {
+        .quiz-microbe-unlock-modal__viz {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1798,46 +1841,46 @@
             border: 1px solid rgba(21, 101, 192, 0.2);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
         }
-        .quiz-first-demolitori-modal__svg {
+        .quiz-microbe-unlock-modal__svg {
             width: min(100%, 220px);
             height: auto;
             max-height: 128px;
             display: block;
             filter: drop-shadow(0 4px 10px rgba(15, 39, 68, 0.25));
         }
-        .quiz-first-demolitori-modal__lead {
+        .quiz-microbe-unlock-modal__lead {
             margin: 0 0 12px;
             font-size: 0.9rem;
             line-height: 1.5;
             color: #37474f;
         }
-        .quiz-first-demolitori-modal__more {
+        .quiz-microbe-unlock-modal__more {
             margin: 0 0 16px;
             font-size: 0.84rem;
             color: #455a64;
             line-height: 1.45;
         }
-        .quiz-first-demolitori-modal__more summary {
+        .quiz-microbe-unlock-modal__more summary {
             cursor: pointer;
             font-weight: 700;
             color: #1565c0;
             margin-bottom: 6px;
         }
-        .quiz-first-demolitori-modal__more ul {
+        .quiz-microbe-unlock-modal__more ul {
             margin: 8px 0 0;
             padding-left: 1.15em;
         }
-        .quiz-first-demolitori-modal__more li {
+        .quiz-microbe-unlock-modal__more li {
             margin: 4px 0;
         }
-        .quiz-first-demolitori-modal__actions {
+        .quiz-microbe-unlock-modal__actions {
             display: flex;
             justify-content: flex-end;
         }
-        .quiz-first-demolitori-modal__actions .btn-side {
+        .quiz-microbe-unlock-modal__actions .btn-side {
             min-width: 120px;
         }
-        #quiz-first-demolitori-modal .quiz-vat-worm-graphic {
+        #quiz-microbe-unlock-modal .quiz-vat-worm-graphic {
             display: block !important;
         }
         /* Modale nome per ingresso in classifica (primi 10) */
@@ -4470,7 +4513,7 @@ function dismissAppSplash() {
                 <p id="quiz-over-msg" class="quiz-over-msg"></p>
                 <div id="quiz-over-breakdown" class="quiz-over-breakdown" aria-live="polite"></div>
                 <div id="quiz-over-worm-bonus" class="quiz-over-worm-bonus" hidden>
-                    <p class="quiz-over-worm-bonus-label">Vasca · ogni verme in bonus</p>
+                    <p class="quiz-over-worm-bonus-label">Vasca · bonus per tipo di verme</p>
                     <svg id="quiz-over-worm-svg" class="quiz-over-worm-svg" viewBox="0 0 400 102" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <defs>
                             <linearGradient id="quizOverVatWater" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -4545,35 +4588,19 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
-        <div id="quiz-first-demolitori-modal" class="quiz-first-demolitori-modal" aria-hidden="true" aria-labelledby="quiz-first-demolitori-title" onclick="quizFirstDemolitoriModalBackdrop(event)">
-            <div class="quiz-first-demolitori-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <p class="quiz-first-demolitori-modal__kicker">Preso!</p>
-                <h3 id="quiz-first-demolitori-title">I demolitori (batteri eterotrofi)</h3>
-                <p class="quiz-first-demolitori-modal__subtitle">Come nella schermata iniziale</p>
-                <div id="quiz-first-demolitori-modal__viz" class="quiz-first-demolitori-modal__viz" aria-hidden="true"></div>
-                <p class="quiz-first-demolitori-modal__lead">
-                    <strong>Complimenti!</strong> Hai appena introdotto in vasca la prima popolazione di
-                    <strong>Demolitori</strong> (batteri eterotrofi): degradano il carico organico (COD) e costituiscono
-                    la massa biologica attiva alla base del processo.
-                </p>
-                <details class="quiz-first-demolitori-modal__more">
-                    <summary>Caratteristiche (riferimento home)</summary>
-                    <ul>
-                        <li><strong>Colore reale</strong> — marrone fango / testa di moro.</li>
-                        <li><strong>Forma</strong> — ovale, come chicco di riso; massa solida del fango.</li>
-                        <li>
-                            <strong>Cosa fanno</strong> — sono il «motore» dell’impianto: degradano la sostanza organica
-                            grezza (COD) in fango e CO<sub>2</sub>.
-                        </li>
-                        <li><strong>Velocità</strong> — alta: si moltiplicano in poche ore con substrato a sufficienza.</li>
-                        <li>
-                            <strong>Segnale</strong> — se sono numerosi e marroni, l’impianto sta digerendo bene il carico
-                            in ingresso.
-                        </li>
-                    </ul>
+        <div id="quiz-microbe-unlock-modal" class="quiz-microbe-unlock-modal" aria-hidden="true" aria-labelledby="quiz-microbe-unlock-title" onclick="quizMicrobeUnlockModalBackdrop(event)">
+            <div class="quiz-microbe-unlock-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <p id="quiz-microbe-unlock-kicker" class="quiz-microbe-unlock-modal__kicker"></p>
+                <h3 id="quiz-microbe-unlock-title"></h3>
+                <p id="quiz-microbe-unlock-subtitle" class="quiz-microbe-unlock-modal__subtitle"></p>
+                <div id="quiz-microbe-unlock-viz" class="quiz-microbe-unlock-modal__viz" aria-hidden="true"></div>
+                <div id="quiz-microbe-unlock-lead" class="quiz-microbe-unlock-modal__lead"></div>
+                <details class="quiz-microbe-unlock-modal__more" id="quiz-microbe-unlock-details-wrap">
+                    <summary id="quiz-microbe-unlock-details-summary">Caratteristiche (riferimento home)</summary>
+                    <ul id="quiz-microbe-unlock-details-list"></ul>
                 </details>
-                <div class="quiz-first-demolitori-modal__actions">
-                    <button type="button" class="btn-side btn-report" id="quiz-first-demolitori-ok" onclick="quizFirstDemolitoriModalOk()">
+                <div class="quiz-microbe-unlock-modal__actions">
+                    <button type="button" class="btn-side btn-report" id="quiz-microbe-unlock-ok" onclick="quizMicrobeUnlockModalOk()">
                         OK — il verme entra in vasca
                     </button>
                 </div>
@@ -5750,10 +5777,16 @@ const QUIZ_RULE_MAX_ERRORS = 2;
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
 /** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
 const QUIZ_START_WORM_COUNT = 0;
-/** Prime domande: in vasca solo grafica Demolitori (splash 0); poi verme generico. Modale Preso! solo domanda 1. */
-const QUIZ_MICROBE_SPLASH_PHASE_COUNT = 5;
-/** Punti bonus per ogni verme ancora in vasca a fine partita. */
-const QUIZ_BONUS_POINTS_PER_WORM = 5;
+/** Vasca: milestone Q1 Demolitori, Q5 Sottili, Q15 Filamentosi, Q20 Settici, Q25 Predatori; fasi casuali tra gli unlock. Bootstrap (-1) = verme generico. */
+/** Punti bonus fine partita per verme splash (indice gruppo = splash data-worm). Generico = come Demolitori. */
+const QUIZ_WORM_BONUS_BY_VARIANT = {
+    0: 2,
+    1: 5,
+    2: 10,
+    3: 15,
+    4: 20
+};
+const QUIZ_WORM_BONUS_GENERIC = 2;
 /**
  * Da quale numero di domanda (1-based, come in UI: Domanda 1, 2, 3…) partono countdown e punti-tempo.
  * 3 = sempre dalla terza domanda in poi, qualunque sia successo nelle precedenti.
@@ -5796,6 +5829,35 @@ let quizTop10NameModalCtx = null;
 /** Timeout bonus arcade fine partita (puliti su nuovo quiz). */
 let quizOverArcadeTimers = [];
 
+function quizWormBonusPointsForAttr(attr) {
+    if (attr === 'generic' || attr === null || attr === '') {
+        return QUIZ_WORM_BONUS_GENERIC;
+    }
+    const n = parseInt(attr, 10);
+    if (!isNaN(n) && n >= 0 && n <= 4) {
+        const v = QUIZ_WORM_BONUS_BY_VARIANT[n];
+        return v != null ? v : QUIZ_WORM_BONUS_GENERIC;
+    }
+    return QUIZ_WORM_BONUS_GENERIC;
+}
+
+/** Somma bonus vermi dalla vasca attuale (ordine DOM = ordine arcade). */
+function quizBioComputeWormBonusFromVat() {
+    const root = document.getElementById('quiz-bio-worms');
+    if (!root) {
+        return { total: 0, points: [], count: 0 };
+    }
+    const worms = [].slice.call(root.querySelectorAll('.quiz-worm'));
+    const points = worms.map(function (g) {
+        return quizWormBonusPointsForAttr(g.getAttribute('data-quiz-worm-bonus'));
+    });
+    let total = 0;
+    for (let i = 0; i < points.length; i++) {
+        total += points[i];
+    }
+    return { total: total, points: points, count: worms.length };
+}
+
 function quizOverArcadeClearTimers() {
     quizOverArcadeTimers.forEach(function (id) {
         try {
@@ -5816,15 +5878,20 @@ function quizOverWormBonusReset() {
 }
 
 /**
- * Effetto arcade: i vermi clonati dalla vasca spariscono uno a uno e il totale sale dei punti bonus.
+ * Effetto arcade: i vermi clonati dalla vasca spariscono uno a uno e il totale sale dei punti bonus (somma per tipo).
  */
-function quizRunOverWormBonusArcade(baseScore, count, perWorm) {
+function quizRunOverWormBonusArcade(baseScore, pointsArr) {
     const sc = document.getElementById('quiz-final-score');
     const live = document.getElementById('quiz-over-bonus-live');
     const root = document.getElementById('quiz-over-worm-root');
     const bd = document.getElementById('quiz-over-breakdown');
     quizOverArcadeClearTimers();
-    if (!root || count <= 0) {
+    const count = pointsArr.length;
+    let totalBonus = 0;
+    for (let bi = 0; bi < pointsArr.length; bi++) {
+        totalBonus += pointsArr[bi];
+    }
+    if (!root || count <= 0 || totalBonus <= 0) {
         if (sc) sc.textContent = String(quizState.score);
         return;
     }
@@ -5833,15 +5900,28 @@ function quizRunOverWormBonusArcade(baseScore, count, perWorm) {
     const stepMs = 460;
     const popMs = 400;
     let idx = 0;
+    let acc = 0;
+    const ptsSoloDomande = Math.max(0, baseScore - (Number(quizSessionTimerBonusTotal) || 0));
+    const ptsDomandeHtml = escapeQuizHtml(String(ptsSoloDomande));
+    const tb = Number(quizSessionTimerBonusTotal) || 0;
+    const timerBonusLine =
+        tb > 0
+            ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus tempo (secondi residui)</span><span>+' +
+              escapeQuizHtml(String(tb)) +
+              ' pt</span></div>'
+            : '';
     function finishStaticBreakdown() {
         if (!bd) return;
-        const bonusPts = count * perWorm;
-        const baseHtml = escapeQuizHtml(String(baseScore));
-        const bonusHtml = escapeQuizHtml(String(bonusPts));
+        const bonusHtml = escapeQuizHtml(String(totalBonus));
         const wormN = escapeQuizHtml(String(count));
         bd.innerHTML =
-            '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
-            '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' + wormN + ' × ' + perWorm + ' pt)</span><span>+' + bonusHtml + '</span></div>';
+            '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + ptsDomandeHtml + '</span></div>' +
+            timerBonusLine +
+            '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi in vasca (' +
+                wormN +
+                ', punti per tipo)</span><span>+' +
+                bonusHtml +
+                '</span></div>';
     }
     function step() {
         if (idx >= n) {
@@ -5850,8 +5930,8 @@ function quizRunOverWormBonusArcade(baseScore, count, perWorm) {
             return;
         }
         const g = worms[idx];
+        acc += pointsArr[idx];
         idx += 1;
-        const acc = idx * perWorm;
         if (g && g.parentNode) {
             g.classList.add('quiz-over-worm--arcade-out');
             var remId = setTimeout(function () {
@@ -6191,6 +6271,7 @@ function quizBioAppendGenericWorm(gRoot, i) {
     const wy = 54 + (i % 4) * 5;
     const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gPos.setAttribute('class', 'quiz-worm');
+    gPos.setAttribute('data-quiz-worm-bonus', 'generic');
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ') scale(0.95)');
     const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gBody.setAttribute('class', 'quiz-worm-body');
@@ -6217,7 +6298,7 @@ function quizBioAppendGenericWorm(gRoot, i) {
     gRoot.appendChild(gPos);
 }
 
-/** Verme dalla home (splash) nella vasca. Fase iniziale: solo variant 0 = Demolitori. */
+/** Verme dalla home (splash) nella vasca; variantIndex 0–4 come data-worm splash. */
 function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
     const vi = Math.max(0, Math.min(4, variantIndex | 0));
     const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + vi + '"]');
@@ -6240,6 +6321,7 @@ function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
     const wy = 54 + (i % 4) * 5;
     const gPos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gPos.setAttribute('class', 'quiz-worm');
+    gPos.setAttribute('data-quiz-worm-bonus', String(vi));
     gPos.setAttribute('transform', 'translate(' + wx + ',' + wy + ')');
     const gBody = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gBody.setAttribute('class', 'quiz-worm-body');
@@ -6252,16 +6334,44 @@ function quizBioAppendSplashWormVariant(gRoot, variantIndex, i) {
     gRoot.appendChild(gPos);
 }
 
-/** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento). */
+/** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento).
+ * Q1–4 → Demolitori; Q5 → Sottili; Q6–14 → casuale Demolitori/Sottili; Q15 → Filamentosi; Q16–19 → D/S/Fil a caso;
+ * Q20 → Settici; Q21–24 → D/S/Fil/Set a caso; Q25 → Predatori; da Q26 tutti e 5 a caso. -1 = bootstrap (verme generico). */
+function quizBioRandomSplashFrom(choices) {
+    const c = choices;
+    return c[Math.floor(Math.random() * c.length)];
+}
+
 function quizBioVatOnCorrectAnswer(completedQuestionIndex) {
     quizBioWormCount += 1;
     const gRoot = document.getElementById('quiz-bio-worms');
     if (!gRoot) return;
     const slotIdx = quizBioWormCount - 1;
     const qIdx = typeof completedQuestionIndex === 'number' ? completedQuestionIndex : -1;
-    const useSplash = qIdx >= 0 && qIdx < QUIZ_MICROBE_SPLASH_PHASE_COUNT;
-    if (useSplash) {
-        quizBioAppendSplashWormVariant(gRoot, 0, slotIdx);
+    let splashVariant = null;
+    if (qIdx < 0) {
+        splashVariant = null;
+    } else if (qIdx <= 3) {
+        splashVariant = 0;
+    } else if (qIdx === 4) {
+        splashVariant = 1;
+    } else if (qIdx >= 5 && qIdx <= 13) {
+        splashVariant = quizBioRandomSplashFrom([0, 1]);
+    } else if (qIdx === 14) {
+        splashVariant = 2;
+    } else if (qIdx >= 15 && qIdx <= 18) {
+        splashVariant = quizBioRandomSplashFrom([0, 1, 2]);
+    } else if (qIdx === 19) {
+        splashVariant = 3;
+    } else if (qIdx >= 20 && qIdx <= 23) {
+        splashVariant = quizBioRandomSplashFrom([0, 1, 2, 3]);
+    } else if (qIdx === 24) {
+        splashVariant = 4;
+    } else {
+        splashVariant = quizBioRandomSplashFrom([0, 1, 2, 3, 4]);
+    }
+    if (splashVariant !== null) {
+        quizBioAppendSplashWormVariant(gRoot, splashVariant, slotIdx);
     } else {
         quizBioAppendGenericWorm(gRoot, slotIdx);
     }
@@ -6724,9 +6834,6 @@ function quizUpdatePlayProgress(extra) {
         'quiz-play-scoreboard' +
         (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '') +
         (showTime ? ' quiz-play-scoreboard--timer-on' : '');
-    const curQ = quizState.queue[quizState.index];
-    const rawQPts = curQ && typeof curQ.points === 'number' ? curQ.points : null;
-    const ptsEsc = rawQPts != null ? escapeQuizHtml(String(rawQPts)) : '\u2014';
     let leftMsForInit = 0;
     let initFrac = 1;
     let initSec = QUIZ_TIMER_SECONDS;
@@ -6766,7 +6873,7 @@ function quizUpdatePlayProgress(extra) {
           '</div></div>'
         : '';
     prog.innerHTML =
-        '<div class="' + boardCls + '" aria-label="Domanda ' + i + ' di ' + tot + ' · posizione e punti">' +
+        '<div class="' + boardCls + '" aria-label="Domanda ' + i + ' di ' + tot + ' · posizione e punti totali">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
         '<div class="quiz-play-oneline-left">' +
         crown +
@@ -6778,12 +6885,9 @@ function quizUpdatePlayProgress(extra) {
         i +
         ' di ' +
         tot +
-        (rawQPts != null ? ', valore ' + rawQPts + ' punti' : '') +
         '">Domanda <span id="quiz-play-q-num">' +
         i +
-        '</span><span class="quiz-play-q-pts-pill"> · Vale <span class="quiz-play-q-pts-num">' +
-        ptsEsc +
-        '</span> pt</span></p>' +
+        '</span></p>' +
         '</div>' +
         '<div class="quiz-play-oneline-right">' +
         '<div class="quiz-play-right-stack">' +
@@ -6830,10 +6934,12 @@ function quizRenderQuestion(opts) {
 
     qEl.textContent = q.q;
     ch.innerHTML = '';
+    const optVariant = ['a', 'b', 'c', 'd', 'e', 'f'];
     q.options.forEach((opt, idx) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'quiz-choice-btn';
+        const v = optVariant[idx] || 'a';
+        b.className = 'quiz-choice-btn quiz-choice-btn--' + v;
         const letter = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
         const lab = letter + ', ' + String(opt.text || '');
         b.setAttribute('aria-label', lab);
@@ -7000,8 +7106,25 @@ function quizAnswer(idx) {
 
         const finishCorrect = function () {
             quizUpdatePlayProgress();
-            if (quizState.index === 0) {
-                quizOpenFirstDemolitoriModal(continueAfterCorrectUi);
+            const idx = quizState.index;
+            if (idx === 0) {
+                quizOpenMicrobeUnlockModal(0, continueAfterCorrectUi);
+                return;
+            }
+            if (idx === 4) {
+                quizOpenMicrobeUnlockModal(1, continueAfterCorrectUi);
+                return;
+            }
+            if (idx === 14) {
+                quizOpenMicrobeUnlockModal(2, continueAfterCorrectUi);
+                return;
+            }
+            if (idx === 19) {
+                quizOpenMicrobeUnlockModal(3, continueAfterCorrectUi);
+                return;
+            }
+            if (idx === 24) {
+                quizOpenMicrobeUnlockModal(4, continueAfterCorrectUi);
                 return;
             }
             continueAfterCorrectUi();
@@ -7139,8 +7262,10 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     quizOverArcadeClearTimers();
     quizOverWormBonusReset();
 
-    const wormsLeft = Number(quizBioWormCount) || 0;
-    const bonusPts = wormsLeft * QUIZ_BONUS_POINTS_PER_WORM;
+    const wb = quizBioComputeWormBonusFromVat();
+    const wormsLeft = wb.count;
+    const bonusPts = wb.total;
+    const wormPointSteps = wb.points;
     let useArcade =
         !opts.aborted &&
         bonusPts > 0 &&
@@ -7202,21 +7327,17 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
                 bd.innerHTML =
                     '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + ptsDomandeHtml + '</span></div>' +
                     timerBonusLine +
-                    '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' +
+                    '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi in vasca (' +
                     escapeQuizHtml(String(wormsLeft)) +
-                    ' × ' +
-                    QUIZ_BONUS_POINTS_PER_WORM +
-                    ' pt)</span><span id="quiz-over-bonus-live">+0</span></div>';
+                    ', punti per tipo)</span><span id="quiz-over-bonus-live">+0</span></div>';
             } else if (!useArcade) {
                 const bonusHtml = escapeQuizHtml(String(bonusPts));
                 const wormN = escapeQuizHtml(String(wormsLeft));
                 const lineBonus =
                     bonusPts > 0
-                        ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' +
+                        ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi in vasca (' +
                           wormN +
-                          ' × ' +
-                          QUIZ_BONUS_POINTS_PER_WORM +
-                          ' pt)</span><span>+' +
+                          ', punti per tipo)</span><span>+' +
                           bonusHtml +
                           '</span></div>'
                         : '<div class="quiz-over-line"><span>Bonus vermi (nessun verme in vasca)</span><span>+0</span></div>';
@@ -7251,7 +7372,7 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
         if (useArcade && wormRoot && wormRoot.querySelectorAll('.quiz-worm').length > 0) {
             requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
-                    quizRunOverWormBonusArcade(baseScore, wormsLeft, QUIZ_BONUS_POINTS_PER_WORM);
+                    quizRunOverWormBonusArcade(baseScore, wormPointSteps);
                 });
             });
         }
@@ -7573,7 +7694,7 @@ function quizFinish(completedAll, opts) {
     const baseScore = Number(quizState.score) || 0;
     let wormBonus = 0;
     if (!opts.aborted) {
-        wormBonus = (Number(quizBioWormCount) || 0) * QUIZ_BONUS_POINTS_PER_WORM;
+        wormBonus = quizBioComputeWormBonusFromVat().total;
         quizState.score = baseScore + wormBonus;
     }
 
@@ -7619,7 +7740,7 @@ function quizStart() {
     quizWrongModalHide();
     quizWrongModalFinishOpts = null;
     quizTop10NameModalHide();
-    quizFirstDemolitoriModalForceClose();
+    quizMicrobeUnlockModalForceClose();
     quizClearQuestionTimer();
     quizOverArcadeClearTimers();
     quizOverWormBonusReset();
@@ -7750,88 +7871,207 @@ function quizOpenExitConfirmModal(onConfirm) {
     }, 60);
 }
 
-let quizFirstDemolitoriModalContinuation = null;
+const QUIZ_MICROBE_UNLOCK_COPY = {
+    0: {
+        kicker: 'Preso!',
+        title: 'I demolitori (batteri eterotrofi)',
+        subtitle: 'Come nella schermata iniziale',
+        lead:
+            '<strong>Complimenti!</strong> Hai appena introdotto in vasca la prima popolazione di ' +
+            '<strong>Demolitori</strong> (batteri eterotrofi): degradano il carico organico (COD) e costituiscono ' +
+            'la massa biologica attiva alla base del processo.',
+        okLabel: 'OK — il verme entra in vasca',
+        detailsSummary: 'Caratteristiche (riferimento home)',
+        detailsItemsHtml: [
+            '<li><strong>Colore reale</strong> — marrone fango / testa di moro.</li>',
+            '<li><strong>Forma</strong> — ovale, come chicco di riso; massa solida del fango.</li>',
+            '<li><strong>Cosa fanno</strong> — sono il «motore» dell’impianto: degradano la sostanza organica grezza (COD) in fango e CO<sub>2</sub>.</li>',
+            '<li><strong>Velocità</strong> — alta: si moltiplicano in poche ore con substrato a sufficienza.</li>',
+            '<li><strong>Segnale</strong> — se sono numerosi e marroni, l’impianto sta digerendo bene il carico in ingresso.</li>'
+        ]
+    },
+    1: {
+        kicker: 'Preso!',
+        title: 'I sottili (batteri nitrificanti)',
+        subtitle: 'Come nella schermata iniziale',
+        lead:
+            '<strong>Complimenti!</strong> Hai introdotto in vasca i <strong>Sottili</strong> (batteri nitrificanti): ' +
+            'trasformano l’ammoniaca tossica in nitrati; lavorano bene quando il substrato organico è già stato attaccato dai Demolitori e l’ossigenazione è adeguata.',
+        okLabel: 'OK — il verme entra in vasca',
+        detailsSummary: 'Caratteristiche (riferimento home)',
+        detailsItemsHtml: [
+            '<li><strong>Colore reale</strong> — grigio perla / quasi trasparente.</li>',
+            '<li><strong>Forma</strong> — sferica (piccoli puntini) annidati nelle porosità protette dei carrier.</li>',
+            '<li><strong>Cosa fanno</strong> — trasformano l’ammoniaca tossica in nitrati; lavorano bene solo se l’acqua è già stata «ripulita» dai demolitori.</li>',
+            '<li><strong>Velocità</strong> — molto bassa: crescono lentamente; se vengono lavati via o stressati, servono giorni per tornare.</li>',
+            '<li><strong>Segnale nel programma</strong> — la loro presenza indica ossigenazione adeguata e carico organico sotto controllo.</li>'
+        ]
+    },
+    2: {
+        kicker: 'Preso!',
+        title: 'I filamentosi (la rete)',
+        subtitle: 'Come nella schermata iniziale',
+        lead:
+            '<strong>Complimenti!</strong> Hai introdotto in vasca i <strong>Filamentosi</strong>: in piccola quantità aiutano il fango a restare compatto; ' +
+            'in eccesso intrappolano aria e favoriscono il bulking.',
+        okLabel: 'OK — il verme entra in vasca',
+        detailsSummary: 'Caratteristiche (riferimento home)',
+        detailsItemsHtml: [
+            '<li><strong>Colore reale</strong> — giallo paglierino / bianco sporco.</li>',
+            '<li><strong>Forma</strong> — lineare (fili lunghi) che si intrecciano tra i carrier.</li>',
+            '<li><strong>Cosa fanno</strong> — in piccola quantità aiutano il fango a restare compatto; in eccesso intrappolano aria e favoriscono il bulking.</li>',
+            '<li><strong>Velocità</strong> — media; tendono ad aumentare con ossigeno basso o carenza di nutrienti (es. urea).</li>',
+            '<li><strong>Segnale nel programma</strong> — linee gialle visibili: attenzione alla sedimentazione in secondario.</li>'
+        ]
+    },
+    3: {
+        kicker: 'Preso!',
+        title: 'I settici (batteri anaerobi)',
+        subtitle: 'Come nella schermata iniziale',
+        lead:
+            '<strong>Complimenti!</strong> Hai introdotto in vasca i <strong>Settici</strong> (batteri anaerobi): in assenza di ossigeno «marciscono», ' +
+            'producendo acido solfidrico (H<sub>2</sub>S) con odore di uova marce e rischio corrosione — segnale critico di anossia.',
+        okLabel: 'OK — il verme entra in vasca',
+        detailsSummary: 'Caratteristiche (riferimento home)',
+        detailsItemsHtml: [
+            '<li><strong>Colore reale</strong> — nero pece.</li>',
+            '<li><strong>Forma</strong> — macchia irregolare / contorni spigolosi.</li>',
+            '<li><strong>Cosa fanno</strong> — batteri anaerobi (non solfobatteri): in assenza di ossigeno producono H<sub>2</sub>S con odore di uova marce e rischio corrosione.</li>',
+            '<li><strong>Velocità</strong> — molto rapida all’apparire appena c’è anossia sotto carico eccessivo.</li>',
+            '<li><strong>Segnale nel programma</strong> — allarme critico: anossia e soffocamento della biologia aerobia.</li>'
+        ]
+    },
+    4: {
+        kicker: 'Preso!',
+        title: 'I predatori (protozoi e rotiferi)',
+        subtitle: 'Come nella schermata iniziale',
+        lead:
+            '<strong>Complimenti!</strong> Hai introdotto in vasca i <strong>Predatori</strong> (protozoi e rotiferi): consumano batteri liberi e cellule vecchie, ' +
+            'mantenendo la popolazione giovane e l’effluente limpido — segno di ecosistema stabile.',
+        okLabel: 'OK — il verme entra in vasca',
+        detailsSummary: 'Caratteristiche (riferimento home)',
+        detailsItemsHtml: [
+            '<li><strong>Colore reale</strong> — cristallino / bianco latte.</li>',
+            '<li><strong>Forma</strong> — a campana o piccoli «mostriciattoli» con ciglia.</li>',
+            '<li><strong>Cosa fanno</strong> — consumano batteri liberi e cellule vecchie, mantenendo la popolazione giovane e l’effluente limpido.</li>',
+            '<li><strong>Velocità</strong> — bassa: compaiono quando l’ecosistema è stabile da tempo.</li>',
+            '<li><strong>Segnale nel programma</strong> — se li vedi, l’impianto è vicino al massimo dell’efficienza biologica.</li>'
+        ]
+    }
+};
 
-function quizFirstDemolitoriModalBackdrop(ev) {
-    if (ev && ev.target && ev.target.id === 'quiz-first-demolitori-modal') {
-        quizFirstDemolitoriModalOk();
+let quizMicrobeUnlockModalContinuation = null;
+
+function quizMicrobeUnlockModalNormalizeWormIdx(wormIdx) {
+    const n = Number(wormIdx);
+    if (n >= 0 && n <= 4 && QUIZ_MICROBE_UNLOCK_COPY[n]) {
+        return n;
+    }
+    return 0;
+}
+
+function quizMicrobeUnlockModalFill(wormIdx) {
+    const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
+    const copy = QUIZ_MICROBE_UNLOCK_COPY[w];
+    const kicker = document.getElementById('quiz-microbe-unlock-kicker');
+    const title = document.getElementById('quiz-microbe-unlock-title');
+    const subtitle = document.getElementById('quiz-microbe-unlock-subtitle');
+    const lead = document.getElementById('quiz-microbe-unlock-lead');
+    const sum = document.getElementById('quiz-microbe-unlock-details-summary');
+    const ul = document.getElementById('quiz-microbe-unlock-details-list');
+    const okBtn = document.getElementById('quiz-microbe-unlock-ok');
+    if (kicker) kicker.textContent = copy.kicker;
+    if (title) title.textContent = copy.title;
+    if (subtitle) subtitle.textContent = copy.subtitle;
+    if (lead) lead.innerHTML = copy.lead;
+    if (sum) sum.textContent = copy.detailsSummary;
+    if (ul) ul.innerHTML = copy.detailsItemsHtml.join('');
+    if (okBtn) okBtn.textContent = copy.okLabel;
+}
+
+function quizMicrobeUnlockModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-microbe-unlock-modal') {
+        quizMicrobeUnlockModalOk();
     }
 }
 
-function quizFirstDemolitoriModalFillViz() {
-    const viz = document.getElementById('quiz-first-demolitori-modal__viz');
+function quizMicrobeUnlockModalFillViz(wormIdx) {
+    const viz = document.getElementById('quiz-microbe-unlock-viz');
     if (!viz) return;
     viz.innerHTML = '';
-    const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="0"]');
+    const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
+    const src = document.querySelector('#app-splash .splash-worm-variant[data-worm="' + w + '"]');
     if (!src) return;
     const clone = src.cloneNode(true);
     clone.classList.remove('splash-worm-variant', 'splash-worm-variant--active');
     clone.classList.add('quiz-vat-worm-graphic');
     quizChoiceThumbSeq += 1;
-    const suf = 'fd1_' + quizChoiceThumbSeq;
+    const suf = 'mub_' + w + '_' + quizChoiceThumbSeq;
     try {
         quizRemapSvgIds(clone, suf);
     } catch (eR) {
         /* ignore */
     }
     viz.innerHTML =
-        '<svg class="quiz-first-demolitori-modal__svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<svg class="quiz-microbe-unlock-modal__svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
         clone.outerHTML +
         '</svg>';
 }
 
-function quizFirstDemolitoriModalKeydown(ev) {
+function quizMicrobeUnlockModalKeydown(ev) {
     if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
-        quizFirstDemolitoriModalOk();
+        quizMicrobeUnlockModalOk();
     }
 }
 
-function quizFirstDemolitoriModalHide() {
-    const modal = document.getElementById('quiz-first-demolitori-modal');
+function quizMicrobeUnlockModalHide() {
+    const modal = document.getElementById('quiz-microbe-unlock-modal');
     if (modal) {
-        modal.classList.remove('quiz-first-demolitori-modal--open');
+        modal.classList.remove('quiz-microbe-unlock-modal--open');
         modal.setAttribute('aria-hidden', 'true');
     }
-    document.removeEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
-    quizFirstDemolitoriModalContinuation = null;
+    document.removeEventListener('keydown', quizMicrobeUnlockModalKeydown, true);
+    quizMicrobeUnlockModalContinuation = null;
 }
 
-function quizFirstDemolitoriModalForceClose() {
-    const modal = document.getElementById('quiz-first-demolitori-modal');
+function quizMicrobeUnlockModalForceClose() {
+    const modal = document.getElementById('quiz-microbe-unlock-modal');
     if (modal) {
-        modal.classList.remove('quiz-first-demolitori-modal--open');
+        modal.classList.remove('quiz-microbe-unlock-modal--open');
         modal.setAttribute('aria-hidden', 'true');
     }
-    document.removeEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
-    quizFirstDemolitoriModalContinuation = null;
+    document.removeEventListener('keydown', quizMicrobeUnlockModalKeydown, true);
+    quizMicrobeUnlockModalContinuation = null;
 }
 
-function quizFirstDemolitoriModalOk() {
-    const fn = quizFirstDemolitoriModalContinuation;
-    quizFirstDemolitoriModalHide();
+function quizMicrobeUnlockModalOk() {
+    const fn = quizMicrobeUnlockModalContinuation;
+    quizMicrobeUnlockModalHide();
     if (typeof fn === 'function') {
         fn();
     }
 }
 
-/** Solo dopo OK: verme in vasca + feedback + avanzamento. */
-function quizOpenFirstDemolitoriModal(onContinue) {
+/** Solo dopo OK: verme in vasca + feedback + avanzamento. wormIdx 0–4 = splash home. */
+function quizOpenMicrobeUnlockModal(wormIdx, onContinue) {
     if (typeof onContinue !== 'function') {
         return;
     }
-    const modal = document.getElementById('quiz-first-demolitori-modal');
+    const modal = document.getElementById('quiz-microbe-unlock-modal');
     if (!modal) {
         onContinue();
         return;
     }
-    quizFirstDemolitoriModalFillViz();
-    quizFirstDemolitoriModalContinuation = onContinue;
-    modal.classList.add('quiz-first-demolitori-modal--open');
+    const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
+    quizMicrobeUnlockModalFill(w);
+    quizMicrobeUnlockModalFillViz(w);
+    quizMicrobeUnlockModalContinuation = onContinue;
+    modal.classList.add('quiz-microbe-unlock-modal--open');
     modal.setAttribute('aria-hidden', 'false');
-    document.addEventListener('keydown', quizFirstDemolitoriModalKeydown, true);
+    document.addEventListener('keydown', quizMicrobeUnlockModalKeydown, true);
     setTimeout(function () {
-        const b = document.getElementById('quiz-first-demolitori-ok');
+        const b = document.getElementById('quiz-microbe-unlock-ok');
         if (b) {
             try {
                 b.focus();
@@ -7844,9 +8084,9 @@ function quizOpenFirstDemolitoriModal(onContinue) {
 
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
-    const fdem = document.getElementById('quiz-first-demolitori-modal');
-    if (fdem && fdem.classList.contains('quiz-first-demolitori-modal--open')) {
-        quizFirstDemolitoriModalOk();
+    const mud = document.getElementById('quiz-microbe-unlock-modal');
+    if (mud && mud.classList.contains('quiz-microbe-unlock-modal--open')) {
+        quizMicrobeUnlockModalOk();
         return;
     }
     const exitOpen = document.getElementById('quiz-exit-confirm-modal');
@@ -8991,9 +9231,9 @@ function closeQuiz() {
         quizTop10NameModalOk();
         return;
     }
-    const fd1m = document.getElementById('quiz-first-demolitori-modal');
-    if (fd1m && fd1m.classList.contains('quiz-first-demolitori-modal--open')) {
-        quizFirstDemolitoriModalOk();
+    const mum = document.getElementById('quiz-microbe-unlock-modal');
+    if (mum && mum.classList.contains('quiz-microbe-unlock-modal--open')) {
+        quizMicrobeUnlockModalOk();
         return;
     }
     const wrongModal = document.getElementById('quiz-wrong-modal');
@@ -9031,11 +9271,11 @@ document.addEventListener("keydown", function quizFullscreenEscape(ev) {
     if (exM && exM.classList.contains("quiz-exit-confirm-modal--open")) {
         return;
     }
-    const fd1 = document.getElementById("quiz-first-demolitori-modal");
-    if (fd1 && fd1.classList.contains("quiz-first-demolitori-modal--open")) {
+    const mum = document.getElementById("quiz-microbe-unlock-modal");
+    if (mum && mum.classList.contains("quiz-microbe-unlock-modal--open")) {
         if (ev.key === "Escape") {
             ev.preventDefault();
-            quizFirstDemolitoriModalOk();
+            quizMicrobeUnlockModalOk();
         }
         return;
     }
