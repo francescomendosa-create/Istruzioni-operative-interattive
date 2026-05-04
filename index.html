@@ -1099,17 +1099,24 @@
             min-width: 0;
             justify-self: end;
         }
-        .quiz-play-oneline-crown {
-            font-size: clamp(1rem, 3.5vw, 1.2rem);
+        .quiz-play-trophy-tilt {
+            display: inline-block;
+            font-size: clamp(1.05rem, 3.5vw, 1.26rem);
             line-height: 1;
             flex-shrink: 0;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
-            animation: quizCrownNod 1.8s ease-in-out infinite;
+            transform: rotate(-14deg);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            animation: quizTrophyShine 2.4s ease-in-out infinite;
         }
-        @keyframes quizCrownNod {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-5deg); }
-            75% { transform: rotate(5deg); }
+        @keyframes quizTrophyShine {
+            0%, 100% {
+                transform: rotate(-15deg) scale(1);
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            }
+            50% {
+                transform: rotate(-12deg) scale(1.05);
+                filter: drop-shadow(0 3px 8px rgba(255, 193, 7, 0.5));
+            }
         }
         .quiz-play-oneline-lbl {
             font-size: 0.62rem;
@@ -1134,6 +1141,33 @@
         }
         .quiz-play-oneline--first .quiz-play-oneline-val {
             color: #bf360c;
+        }
+        .quiz-play-right-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            text-align: right;
+        }
+        .quiz-play-stat-pair {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quiz-play-stat-pair--timer .quiz-play-oneline-lbl {
+            font-size: 0.58rem;
+            color: #1565c0;
+            letter-spacing: 0.06em;
+        }
+        .quiz-play-oneline-val--timer-sum {
+            font-size: clamp(0.86rem, 2.75vw, 1.02rem);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #0d47a1;
+            line-height: 1;
+        }
+        .quiz-play-oneline--first .quiz-play-oneline-val--timer-sum {
+            color: #1565c0;
         }
         #quiz-screen-play .quiz-q {
             font-size: clamp(1.12rem, 3.5vw, 1.42rem);
@@ -2181,6 +2215,14 @@
             line-height: 1;
             margin-bottom: 4px;
             filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+        }
+        .quiz-podium-emoji--trophy-tilt {
+            display: inline-block;
+            font-size: 1.9rem;
+            line-height: 1;
+            margin-bottom: 4px;
+            transform: rotate(-16deg);
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.22));
         }
         .quiz-podium-worm-host {
             width: 100%;
@@ -5280,6 +5322,8 @@ const QUIZ_BANK_BUILD_ID = 9;
 const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
 let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0 };
+/** Somma dei punti guadagnati con il tempo residuo (solo domande con countdown attivo). */
+let quizSessionTimerBonusTotal = 0;
 let quizAnswerLocked = false;
 /** Errori consecutivi nella partita per chiudere il quiz (dopo modale + Continua). */
 const QUIZ_RULE_MAX_ERRORS = 2;
@@ -5289,7 +5333,7 @@ const QUIZ_WORMS_LOST_PER_ERROR = 2;
 const QUIZ_START_WORM_COUNT = 0;
 /** Punti bonus per ogni verme ancora in vasca a fine partita. */
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
-/** Prima domanda con limite di tempo: indice 0-based 3 = dopo 3 domande (4ª domanda). */
+/** Prima domanda con countdown: indice 0-based 3 = dopo la 3ª domanda, dalla 4ª in poi il timer parte sempre (25 s). */
 const QUIZ_TIMER_FIRST_INDEX = 3;
 /** Durata massima domanda a tempo; i secondi ancora sul conteggio alla risposta esatta valgono altrettanti punti bonus «timer». */
 const QUIZ_TIMER_SECONDS = 25;
@@ -6103,7 +6147,9 @@ function quizRenderLeaderboard() {
         const wh = quizBuildPodiumWormHtml(r.worm);
         const wormBlock = wh
             ? '<div class="quiz-podium-worm-host">' + wh + '</div>'
-            : '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
+            : cls === 'gold'
+                ? '<div class="quiz-podium-emoji quiz-podium-emoji--trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</div>'
+                : '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
         podium += `<div class="quiz-podium-slot ${cls}">${wormBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
     });
     podium += '</div>';
@@ -6162,7 +6208,7 @@ function quizUpdatePlayProgress(extra) {
     const ord = rank + '\u00B0';
     const isFirst = rank === 1;
     const rowClass = 'quiz-play-oneline' + (isFirst ? ' quiz-play-oneline--first' : '');
-    const crown = isFirst ? '<span class="quiz-play-oneline-crown" aria-hidden="true">\u{1F451}</span>' : '';
+    const crown = isFirst ? '<span class="quiz-play-trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</span>' : '';
     const tickCls = extra.scoreAnimTick ? ' quiz-play-oneline-val--tick' : '';
     const boardCls = 'quiz-play-scoreboard' + (extra.scoreboardScoring ? ' quiz-play-scoreboard--scoring' : '');
     const showTime = quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerVisualActive;
@@ -6177,6 +6223,21 @@ function quizUpdatePlayProgress(extra) {
         initSec = leftMsForInit <= 0 ? 0 : Math.ceil(ls - 1e-6);
         initUrgent = ls > 0 && ls <= QUIZ_TIMER_URGENT_SEC;
     }
+    const showTimerCumulUi = quizState.index >= QUIZ_TIMER_FIRST_INDEX;
+    const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
+    const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
+    const timerSummaryRow =
+        showTimerCumulUi
+            ? '<div class="quiz-play-stat-pair quiz-play-stat-pair--timer">' +
+              '<span class="quiz-play-oneline-lbl">Punti tempo</span>' +
+              '<strong id="quiz-play-timer-bonus-cumul" class="quiz-play-oneline-val--timer-sum' +
+              timerCumulTickCls +
+              '" title="Somma dei punti guadagnati con il tempo residuo sulle domande a tempo">' +
+              timerCumulPts +
+              '</strong>' +
+              '</div>'
+            : '';
+
     const timeHostCls = 'quiz-play-time' + (initUrgent ? ' quiz-play-time--urgent' : '');
     const timeTrackCls = 'quiz-play-time-track' + (initUrgent ? ' quiz-play-time-track--urgent' : '');
     const timeBlock = showTime
@@ -6201,8 +6262,13 @@ function quizUpdatePlayProgress(extra) {
         '<p class="quiz-play-qcount-full" id="quiz-play-qcount-line" aria-label="Domanda ' + i + ' di ' + tot + '">Domanda <span id="quiz-play-q-num">' + i + '</span></p>' +
         '</div>' +
         '<div class="quiz-play-oneline-right">' +
+        '<div class="quiz-play-right-stack">' +
+        '<div class="quiz-play-stat-pair">' +
         '<span class="quiz-play-oneline-lbl">Punti</span>' +
         '<strong id="quiz-play-points-val" class="quiz-play-oneline-val' + tickCls + '">' + sc + '</strong>' +
+        '</div>' +
+        timerSummaryRow +
+        '</div>' +
         '</div>' +
         '</div>' +
         timeBlock +
@@ -6262,6 +6328,15 @@ function quizRenderQuestion(opts) {
 
     quizStartQuestionTimer();
     quizUpdatePlayProgress();
+    /* Primo aggiornamento subito (senza attendere il frame): così barra e secondi compaiono sempre dalla 4ª domanda. */
+    if (quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline && quizTimerVisualActive) {
+        const leftMs0 = Math.max(0, quizTimerDeadline - Date.now());
+        const ls0 = leftMs0 / 1000;
+        const frac0 = QUIZ_TIMER_SECONDS > 0 ? ls0 / QUIZ_TIMER_SECONDS : 0;
+        const displaySec0 = leftMs0 <= 0 ? 0 : Math.ceil(ls0 - 1e-6);
+        const urgent0 = ls0 > 0 && ls0 <= QUIZ_TIMER_URGENT_SEC;
+        quizTimerPaint(frac0, displaySec0, urgent0);
+    }
 
     if (!opts.instant && body) {
         body.classList.add('quiz-fade-in');
@@ -6363,6 +6438,9 @@ function quizAnswer(idx) {
     if (idx === q.correctIndex) {
         const prevScore = quizState.score;
         quizState.score += q.points + timerBonusPts;
+        if (timerBonusPts > 0) {
+            quizSessionTimerBonusTotal += timerBonusPts;
+        }
         if (fb) {
             fb.style.display = 'none';
             fb.innerHTML = '';
@@ -6374,12 +6452,12 @@ function quizAnswer(idx) {
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
-                let txt = 'Esatto — +' + q.points + ' punti';
+                let txt = 'Esatto — +' + q.points + ' pt dalla domanda';
                 if (timerBonusPts > 0) {
                     txt +=
                         ' · <span class="quiz-feedback-timer-bonus">+' +
                         timerBonusPts +
-                        ' punti timer</span>';
+                        ' pt bonus tempo</span>';
                 }
                 fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>' + txt + '</span>';
             }
@@ -6388,7 +6466,11 @@ function quizAnswer(idx) {
             }, 1050);
         };
         if (timerBonusPts > 0) {
-            quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true });
+            quizUpdatePlayProgress({
+                scoreOverride: quizState.score,
+                scoreAnimTick: true,
+                timerCumulTick: true
+            });
             finishCorrect();
         } else {
             quizAnimateScorePoints(prevScore, quizState.score, finishCorrect);
@@ -6552,7 +6634,15 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
             bd.innerHTML = '';
         } else {
             bd.style.display = 'block';
-            const baseHtml = escapeQuizHtml(String(baseScore));
+            const tb = Number(quizSessionTimerBonusTotal) || 0;
+            const ptsSoloDomande = Math.max(0, baseScore - tb);
+            const ptsDomandeHtml = escapeQuizHtml(String(ptsSoloDomande));
+            const timerBonusLine =
+                tb > 0
+                    ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus tempo (secondi residui)</span><span>+' +
+                      escapeQuizHtml(String(tb)) +
+                      ' pt</span></div>'
+                    : '';
             if (useArcade && wormRoot) {
                 const src = document.getElementById('quiz-bio-worms');
                 if (src) {
@@ -6569,7 +6659,8 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
             }
             if (useArcade && wormRoot) {
                 bd.innerHTML =
-                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + ptsDomandeHtml + '</span></div>' +
+                    timerBonusLine +
                     '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' +
                     escapeQuizHtml(String(wormsLeft)) +
                     ' × ' +
@@ -6589,7 +6680,8 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
                           '</span></div>'
                         : '<div class="quiz-over-line"><span>Bonus vermi (nessun verme in vasca)</span><span>+0</span></div>';
                 bd.innerHTML =
-                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + ptsDomandeHtml + '</span></div>' +
+                    timerBonusLine +
                     lineBonus;
             }
         }
@@ -6992,6 +7084,7 @@ function quizStart() {
     quizState.index = 0;
     quizState.score = 0;
     quizState.wrongCount = 0;
+    quizSessionTimerBonusTotal = 0;
 
     if (!quizState.queue.length) {
         alert('Banca domande non disponibile. Ricarica la pagina.');
