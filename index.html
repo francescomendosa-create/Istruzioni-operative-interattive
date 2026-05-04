@@ -909,6 +909,32 @@
             color: #37474f;
             line-height: 1.35;
         }
+        .quiz-life-icon-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0 0;
+            text-align: center;
+        }
+        .quiz-life-icon-preview__cap {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #546e7a;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            max-width: 20rem;
+            line-height: 1.35;
+        }
+        .quiz-life-icon-svg {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
+        }
+        .quiz-life-icon-svg use {
+            pointer-events: none;
+        }
         .quiz-level-single .quiz-level-title {
             display: block;
             font-weight: bold;
@@ -1096,9 +1122,50 @@
         .quiz-play-oneline-left {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 6px;
             min-width: 0;
             justify-self: start;
+        }
+        /* Vite: icona tazza olio + numero — solo PC e tablet orizzontale (smartphone in seguito) */
+        .quiz-play-lives-inline-wrap {
+            display: none;
+            align-items: center;
+            margin-left: 6px;
+        }
+        @media (min-width: 1025px) {
+            .quiz-play-lives-inline-wrap {
+                display: inline-flex;
+            }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            .quiz-play-lives-inline-wrap {
+                display: inline-flex;
+            }
+        }
+        .quiz-play-lives-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 0 0;
+        }
+        .quiz-play-lives-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            display: block;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12));
+        }
+        .quiz-play-lives-icon use {
+            pointer-events: none;
+        }
+        .quiz-play-lives-num {
+            font-size: 8px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #37474f;
+            line-height: 1;
+            letter-spacing: 0.02em;
         }
         .quiz-play-oneline-center {
             display: flex;
@@ -2135,6 +2202,61 @@
                 transition: none;
             }
         }
+        /* Spostamento reale nel volume d’acqua: il verme “viaggia” (non solo oscillazione locale) */
+        .quiz-bio-vat-wrap .quiz-worm-tank-drift {
+            transform-box: fill-box;
+            transform-origin: 38% 42%;
+        }
+        .quiz-bio-vat-wrap .quiz-worm-tank-drift--live.quiz-worm-tank-drift--a {
+            animation: quizWormTankOrbitA 16s ease-in-out infinite;
+        }
+        .quiz-bio-vat-wrap .quiz-worm-tank-drift--live.quiz-worm-tank-drift--b {
+            animation: quizWormTankOrbitB 18s ease-in-out infinite;
+        }
+        .quiz-bio-vat-wrap .quiz-worm-tank-drift--live.quiz-worm-tank-drift--c {
+            animation: quizWormTankOrbitC 20s ease-in-out infinite;
+        }
+        .quiz-bio-vat-wrap .quiz-worm-tank-drift--live.quiz-worm-tank-drift--d {
+            animation: quizWormTankOrbitD 14s ease-in-out infinite;
+        }
+        @keyframes quizWormTankOrbitA {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(22px, -5px); }
+            40% { transform: translate(16px, -12px); }
+            60% { transform: translate(-10px, -8px); }
+            80% { transform: translate(-20px, 3px); }
+            100% { transform: translate(0, 0); }
+        }
+        @keyframes quizWormTankOrbitB {
+            0% { transform: translate(0, 0); }
+            16% { transform: translate(-18px, -4px); }
+            33% { transform: translate(-24px, -10px); }
+            50% { transform: translate(-8px, -14px); }
+            66% { transform: translate(18px, -6px); }
+            83% { transform: translate(20px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+        @keyframes quizWormTankOrbitC {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(8px, -16px); }
+            50% { transform: translate(26px, -4px); }
+            75% { transform: translate(4px, 6px); }
+            100% { transform: translate(0, 0); }
+        }
+        @keyframes quizWormTankOrbitD {
+            0% { transform: translate(0, 0); }
+            12% { transform: translate(12px, 2px); }
+            25% { transform: translate(24px, -6px); }
+            37% { transform: translate(10px, -12px); }
+            50% { transform: translate(-14px, -10px); }
+            62% { transform: translate(-22px, 2px); }
+            75% { transform: translate(-10px, 8px); }
+            87% { transform: translate(6px, 4px); }
+            100% { transform: translate(0, 0); }
+        }
+        .quiz-bio-vat-wrap--sink .quiz-worm-tank-drift--live {
+            animation: none !important;
+        }
         .quiz-bio-splash-burst {
             pointer-events: none;
         }
@@ -2392,6 +2514,9 @@
             .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-antennae,
             .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-tail,
             .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-blink {
+                animation: none !important;
+            }
+            .quiz-bio-vat-wrap .quiz-worm-tank-drift--live {
                 animation: none !important;
             }
             .quiz-bio-vat-wrap--timer-urgent {
@@ -4694,6 +4819,44 @@ function dismissAppSplash() {
 </div>
 
     <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
+        <svg class="quiz-sprite-sheet" aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute;overflow:hidden;clip:rect(0 0 0 0)">
+            <defs>
+                <linearGradient id="quiz-icon-operator-life-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffd54f"/>
+                    <stop offset="55%" stop-color="#ffb300"/>
+                    <stop offset="100%" stop-color="#ff8f00"/>
+                </linearGradient>
+                <symbol id="quiz-icon-operator-life" viewBox="0 0 64 64">
+                    <path d="M12 52 Q32 60 52 52" stroke="#455a64" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <path d="M18 52 Q32 56 46 52 V56 Q32 60 18 56 Z" fill="#eceff1"/>
+                    <ellipse cx="32" cy="38" rx="14" ry="16" fill="#ffccbc"/>
+                    <ellipse cx="18" cy="38" rx="3.5" ry="5.5" fill="#ffccbc"/>
+                    <ellipse cx="46" cy="38" rx="3.5" ry="5.5" fill="#ffccbc"/>
+                    <path d="M13 34 Q13 11 32 9 Q51 11 51 34 Q51 39 46 41 Q32 47 18 41 Q13 39 13 34 Z" fill="url(#quiz-icon-operator-life-grad)" stroke="#f57c00" stroke-width="1.3"/>
+                    <path d="M16 26 Q32 21 48 26" stroke="#fffde7" stroke-width="3" stroke-linecap="round" opacity="0.92"/>
+                    <path d="M17 33 Q32 39 47 33" fill="none" stroke="#e65100" stroke-width="1.2" opacity="0.28"/>
+                    <circle cx="26" cy="37" r="3" fill="#263238"/>
+                    <circle cx="38" cy="37" r="3" fill="#263238"/>
+                    <circle cx="26.9" cy="36.1" r="1" fill="#fff"/>
+                    <circle cx="38.9" cy="36.1" r="1" fill="#fff"/>
+                    <path d="M24 46 Q32 51 40 46" stroke="#5d4037" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+                </symbol>
+                <!-- Tazza olio (vite) — bianca, bordo leggero -->
+                <symbol id="quiz-icon-oil-cup-life" viewBox="0 0 64 64">
+                    <path
+                        d="M16 22 H44 Q48 22 48 26 V46 Q48 54 40 54 H24 Q16 54 16 46 V26 Q16 22 20 22 Z"
+                        fill="#fafafa"
+                        stroke="#b0bec5"
+                        stroke-width="2"
+                    />
+                    <path d="M48 30 L58 27 Q60 27 60 30 V40 Q60 43 58 43 L48 40 Z" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.6"/>
+                    <path d="M16 32 Q10 32 10 40 Q10 48 16 48" fill="none" stroke="#90a4ae" stroke-width="2.6" stroke-linecap="round"/>
+                    <ellipse cx="34" cy="40" rx="11" ry="9" fill="#ffffff" opacity="0.55"/>
+                    <path d="M22 26 H40" stroke="#eceff1" stroke-width="2.2" stroke-linecap="round"/>
+                    <circle cx="38" cy="28" r="2" fill="#e3f2fd" opacity="0.9"/>
+                </symbol>
+            </defs>
+        </svg>
         <div class="quiz-fs-topbar quiz-fs-topbar--solo-exit">
             <button type="button" class="quiz-fs-exit" onclick="quizTopExit()">Esci</button>
         </div>
@@ -4704,6 +4867,12 @@ function dismissAppSplash() {
                 <div class="quiz-level-single quiz-level-single--plain">
                     <span class="quiz-level-title quiz-level-title--hero">Livello 1</span>
                     <p class="quiz-level-tagline">Mettiti alla prova, sfida te stesso e gli altri</p>
+                    <div class="quiz-life-icon-preview" role="group" aria-label="Esempio icona vite: tazza olio (barra punteggio)">
+                        <svg class="quiz-life-icon-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                            <use href="#quiz-icon-oil-cup-life"/>
+                        </svg>
+                        <span class="quiz-life-icon-preview__cap">Icona «vite» — tazza olio (PC / tablet orizzontale)</span>
+                    </div>
                 </div>
             </div>
             <div class="quiz-actions">
@@ -6577,8 +6746,33 @@ function quizBioSpawnWaterSplash(wx, wy) {
     }, 980);
 }
 
+function quizBioTankDriftShell() {
+    const NS = 'http://www.w3.org/2000/svg';
+    const gDrift = document.createElementNS(NS, 'g');
+    const v = ['a', 'b', 'c', 'd'][Math.floor(Math.random() * 4)];
+    gDrift.setAttribute('class', 'quiz-worm-tank-drift quiz-worm-tank-drift--' + v);
+    return gDrift;
+}
+
+/** Avvia lo spostamento lento nel volume della vasca (percorso), dopo caduta o subito. */
+function quizBioTankDriftGoLive(gDrift) {
+    if (!gDrift || quizPrefersReducedMotion()) {
+        return;
+    }
+    window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+            try {
+                gDrift.classList.add('quiz-worm-tank-drift--live');
+                gDrift.style.animationDelay = (Math.random() * 4.5).toFixed(2) + 's';
+            } catch (eD) {
+                /* ignore */
+            }
+        });
+    });
+}
+
 /** Caduta dall’alto + nuoto dopo impatto (solo milestone modale OK). */
-function quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy) {
+function quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy, gDrift) {
     if (quizPrefersReducedMotion()) {
         quizBioWormApplySwimAnimation(gBody);
         return;
@@ -6596,6 +6790,7 @@ function quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy) {
         }
         quizBioWormApplySwimAnimation(gBody);
         quizBioSpawnWaterSplash(wx, wy);
+        quizBioTankDriftGoLive(gDrift);
     }
     try {
         gPos.classList.add('quiz-worm--entry-pending');
@@ -6699,8 +6894,11 @@ function quizBioAppendGenericWorm(gRoot, i, opts) {
     gBody.appendChild(path);
     gBody.appendChild(e1);
     gBody.appendChild(e2);
-    gPos.appendChild(gBody);
+    const gDrift = quizBioTankDriftShell();
+    gDrift.appendChild(gBody);
+    gPos.appendChild(gDrift);
     gRoot.appendChild(gPos);
+    quizBioTankDriftGoLive(gDrift);
 }
 
 /** Verme dalla home (splash) nella vasca; variantIndex 0–4 come data-worm splash. */
@@ -6737,18 +6935,22 @@ function quizBioAppendSplashWormVariant(gRoot, variantIndex, i, opts) {
     inner.setAttribute('transform', 'translate(-20,-12) scale(0.168)');
     inner.appendChild(clone);
     gBody.appendChild(inner);
+    const gDrift = quizBioTankDriftShell();
     if (!doDrop) {
         quizBioWormApplySwimAnimation(gBody);
-        gPos.appendChild(gBody);
+        gDrift.appendChild(gBody);
+        gPos.appendChild(gDrift);
         gRoot.appendChild(gPos);
+        quizBioTankDriftGoLive(gDrift);
         return;
     }
     const gShift = document.createElementNS(NS, 'g');
     gShift.setAttribute('class', 'quiz-worm-drop-shift');
     gShift.appendChild(gBody);
-    gPos.appendChild(gShift);
+    gDrift.appendChild(gShift);
+    gPos.appendChild(gDrift);
     gRoot.appendChild(gPos);
-    quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy);
+    quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy, gDrift);
 }
 
 /** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento).
@@ -7266,6 +7468,20 @@ function quizUpdatePlayProgress(extra) {
     const showTimerCumulUi = quizQuestionHasTimer();
     const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
     const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
+    const livesRemain = Math.max(0, QUIZ_RULE_MAX_ERRORS - (Number(quizState.wrongCount) || 0));
+    const livesRow =
+        '<span class="quiz-play-lives-inline-wrap">' +
+        '<span class="quiz-play-lives-inline" role="img" aria-label="Errori ancora tollerati: ' +
+        livesRemain +
+        '">' +
+        '<svg class="quiz-play-lives-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
+        '<use href="#quiz-icon-oil-cup-life"/>' +
+        '</svg>' +
+        '<span id="quiz-play-lives-val" class="quiz-play-lives-num">' +
+        livesRemain +
+        '</span>' +
+        '</span>' +
+        '</span>';
     const timerSummaryRow =
         showTimerCumulUi
             ? '<div class="quiz-play-stat-pair quiz-play-stat-pair--timer">' +
@@ -7297,6 +7513,7 @@ function quizUpdatePlayProgress(extra) {
         crown +
         '<span class="quiz-play-oneline-lbl">Posizione</span>' +
         '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
+        livesRow +
         '</div>' +
         '<div class="quiz-play-oneline-center">' +
         '<p class="quiz-play-qcount-full" id="quiz-play-qcount-line" aria-label="Domanda ' +
