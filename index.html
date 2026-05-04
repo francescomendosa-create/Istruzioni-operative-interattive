@@ -4866,7 +4866,8 @@ function quizAttachLeaderboardRealtime() {
             quizLeaderboardUnsub = ref.onSnapshot(
                 function (snap) {
                     if (!snap.exists) {
-                        quizSaveLeaderboardLocalOnly([]);
+                        /* Non cancellare la classifica locale: se il doc cloud non esiste ancora
+                           (prima scrittura, ritardo rete, regole), svuotare qui fa sparire record appena inseriti. */
                         quizMarkLeaderboardHydratedFromCloud(false);
                         try {
                             if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
