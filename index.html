@@ -2934,6 +2934,35 @@
             pointer-events: none;
             flex-shrink: 0;
         }
+        .quiz-podium-avatar-host {
+            width: 100%;
+            max-width: 72px;
+            height: 72px;
+            margin: 0 auto 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            flex-shrink: 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #eceff1 0%, #cfd8dc 100%);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.85),
+                0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+        .quiz-podium-slot.gold .quiz-podium-avatar-host {
+            max-width: 80px;
+            height: 80px;
+        }
+        .quiz-podium-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 15%;
+            display: block;
+        }
         .quiz-podium-slot.gold .quiz-podium-worm-host {
             max-width: 100px;
             height: 44px;
@@ -3584,6 +3613,14 @@
             .quiz-podium-worm-host {
                 max-width: 84px;
                 height: 36px;
+            }
+            .quiz-podium-avatar-host {
+                max-width: 64px;
+                height: 64px;
+            }
+            .quiz-podium-slot.gold .quiz-podium-avatar-host {
+                max-width: 70px;
+                height: 70px;
             }
             .quiz-podium-slot.gold .quiz-podium-worm-host {
                 max-width: 90px;
@@ -4861,7 +4898,7 @@ function dismissAppSplash() {
                             <span class="quiz-avatar-picker__chev" aria-hidden="true">&#9664;</span>
                         </button>
                         <div class="quiz-avatar-picker__stage">
-                            <img id="quiz-avatar-img" class="quiz-avatar-picker__img" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" decoding="async" draggable="false">
+                            <img id="quiz-avatar-img" class="quiz-avatar-picker__img" src="assets/avatars/avatar-01.png" alt="" decoding="async" draggable="false">
                         </div>
                         <button type="button" class="quiz-avatar-picker__nav" id="quiz-avatar-next" onclick="quizAvatarPickerNext()" aria-label="Personaggio successivo">
                             <span class="quiz-avatar-picker__chev" aria-hidden="true">&#9654;</span>
@@ -5443,6 +5480,17 @@ function quizBuildPodiumWormHtml(wormIndex) {
         clone.outerHTML +
         '</svg>'
     );
+}
+
+/** Ritratto operatore sul podio (stessi file della selezione intro). */
+function quizBuildPodiumAvatarHtml(avatarIndex) {
+    const ai = Number(avatarIndex);
+    if (!Number.isFinite(ai) || ai < 0 || ai >= QUIZ_AVATAR_COUNT) {
+        return '';
+    }
+    const url = quizAvatarUrl(ai);
+    const safe = escapeQuizHtml(url);
+    return '<img class="quiz-podium-avatar-img" src="' + safe + '" alt="" decoding="async" draggable="false">';
 }
 
 /** Aggiunge un risultato: cache locale + Firestore (nessuna classifica «solo dispositivo»). */
@@ -7376,13 +7424,22 @@ function quizRenderLeaderboard() {
             return;
         }
         const icon = podiumIcons[slot];
-        const wh = quizBuildPodiumWormHtml(r.worm);
-        const wormBlock = wh
-            ? '<div class="quiz-podium-worm-host">' + wh + '</div>'
-            : cls === 'gold'
-                ? '<div class="quiz-podium-emoji quiz-podium-emoji--trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</div>'
-                : '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
-        podium += `<div class="quiz-podium-slot ${cls}">${wormBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
+        const av = Number(r.avatar);
+        const useAvatar = Number.isFinite(av) && av >= 0 && av < QUIZ_AVATAR_COUNT;
+        const ah = useAvatar ? quizBuildPodiumAvatarHtml(av) : '';
+        const wh = useAvatar ? '' : quizBuildPodiumWormHtml(r.worm);
+        let graphicBlock;
+        if (useAvatar && ah) {
+            graphicBlock = '<div class="quiz-podium-avatar-host">' + ah + '</div>';
+        } else if (wh) {
+            graphicBlock = '<div class="quiz-podium-worm-host">' + wh + '</div>';
+        } else if (cls === 'gold') {
+            graphicBlock =
+                '<div class="quiz-podium-emoji quiz-podium-emoji--trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</div>';
+        } else {
+            graphicBlock = '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
+        }
+        podium += `<div class="quiz-podium-slot ${cls}">${graphicBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
     });
     podium += '</div>';
 
@@ -7418,42 +7475,19 @@ function escapeQuizHtml(s) {
 const QUIZ_AVATAR_COUNT = 9;
 let quizAvatarIndex = 0;
 
-/** Cartella della pagina corrente (risolve bene anche sotto-path tipo /repo/). */
-function quizDocumentDirUrl() {
-    const u = new URL(window.location.href);
-    let path = u.pathname || '/';
-    if (!path.endsWith('/')) {
-        const i = path.lastIndexOf('/');
-        const base = path.slice(i + 1);
-        if (base.indexOf('.') > 0) {
-            path = path.slice(0, i + 1);
-        } else {
-            path = path + '/';
-        }
-    }
-    u.pathname = path;
-    u.hash = '';
-    u.search = '';
-    return u.href;
-}
-
-/** Percorso risolto rispetto alla cartella di index.html (evita 404 / icona rotta). */
-function quizAssetUrl(relPath) {
-    const rel = String(relPath || '').replace(/^\.\//, '');
-    try {
-        return new URL(rel, quizDocumentDirUrl()).href;
-    } catch (eUrl) {
-        return relPath;
-    }
-}
-
 function quizAvatarRel(i) {
     const n = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, i));
     return 'assets/avatars/avatar-' + String(n + 1).padStart(2, '0') + '.png';
 }
 
+/** URL assoluto dell’avatar (usa il documento corrente come base: stabile con file://, http e sotto-cartelle). */
 function quizAvatarUrl(i) {
-    return quizAssetUrl(quizAvatarRel(i));
+    const rel = quizAvatarRel(i);
+    try {
+        return new URL(rel, window.location.href).href;
+    } catch (eUrl) {
+        return rel;
+    }
 }
 
 function quizAvatarPickerLoadStored() {
@@ -7472,7 +7506,16 @@ function quizAvatarPickerSync() {
     const img = document.getElementById('quiz-avatar-img');
     const counter = document.getElementById('quiz-avatar-counter');
     if (img) {
+        const rel = quizAvatarRel(quizAvatarIndex);
         img.src = quizAvatarUrl(quizAvatarIndex);
+        img.onerror = function quizAvatarImgFallback() {
+            img.onerror = null;
+            img.src = rel;
+            img.onerror = function quizAvatarImgFallback2() {
+                img.onerror = null;
+                img.src = './' + rel;
+            };
+        };
     }
     if (counter) {
         counter.textContent = quizAvatarIndex + 1 + ' / ' + QUIZ_AVATAR_COUNT;
@@ -7503,6 +7546,20 @@ function quizAvatarPickerNext() {
         quizAvatarPickerSync();
     } catch (eBoot) { /* ignore */ }
 })();
+
+window.addEventListener('load', function quizAvatarVerifyLoaded() {
+    try {
+        const img = document.getElementById('quiz-avatar-img');
+        if (!img || img.naturalWidth > 0 || !img.complete) {
+            return;
+        }
+        if (img.dataset.quizAvatarRetryLoad === '1') {
+            return;
+        }
+        img.dataset.quizAvatarRetryLoad = '1';
+        quizAvatarPickerSync();
+    } catch (eV) { /* ignore */ }
+});
 
 function quizShowScreen(which) {
     const intro = document.getElementById('quiz-screen-intro');
@@ -8418,13 +8475,31 @@ function quizFinish(completedAll, opts) {
         quizState.score = baseScore + wormBonus;
     }
 
+    let saveAvatar = 0;
+    try {
+        const s = sessionStorage.getItem('quizAvatarIndex');
+        if (s != null) {
+            const n = parseInt(s, 10);
+            if (!isNaN(n) && n >= 0 && n < QUIZ_AVATAR_COUNT) {
+                saveAvatar = n;
+            } else {
+                saveAvatar = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizAvatarIndex) || 0));
+            }
+        } else {
+            saveAvatar = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizAvatarIndex) || 0));
+        }
+    } catch (eAv) {
+        saveAvatar = 0;
+    }
+
     const pendingRow = {
         name: (quizState.name && String(quizState.name).trim()) ? String(quizState.name).trim().slice(0, 40) : 'Operatore',
         score: Number(quizState.score) || 0,
         startLevel: quizState.startLevel,
         at: new Date().toISOString(),
         completedAll: !!completedAll && !opts.seenAllQuestions,
-        aborted: !!opts.aborted
+        aborted: !!opts.aborted,
+        avatar: saveAvatar
     };
 
     function finishCommit(displayName, goToPodiumAfterName) {
