@@ -1101,7 +1101,7 @@
             min-width: 0;
             justify-self: start;
         }
-        /* Vite: ritratto operaio + numero — solo PC e tablet orizzontale (smartphone in seguito) */
+        /* Vite: ritratto + numero + etichetta — solo PC e tablet orizzontale (smartphone in seguito) */
         .quiz-play-lives-inline-wrap {
             display: none;
             align-items: center;
@@ -1124,23 +1124,40 @@
             padding: 2px 0 0;
         }
         .quiz-play-lives-icon {
-            width: 36px;
-            height: 36px;
+            width: 48px;
+            height: 48px;
             flex-shrink: 0;
             display: block;
             object-fit: contain;
             vertical-align: middle;
             pointer-events: none;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            outline: none;
             image-rendering: auto;
-            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.18));
+        }
+        .quiz-play-lives-text {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+            white-space: nowrap;
         }
         .quiz-play-lives-num {
-            font-size: 12px;
+            font-size: clamp(1rem, 3vw, 1.15rem);
             font-weight: 900;
             font-variant-numeric: tabular-nums;
-            color: #37474f;
+            color: #0d47a1;
             line-height: 1;
             letter-spacing: 0.02em;
+        }
+        .quiz-play-lives-suffix {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #546e7a;
+            line-height: 1;
         }
         .quiz-play-oneline-center {
             display: flex;
@@ -7400,12 +7417,18 @@ function quizUpdatePlayProgress(extra) {
     const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
     const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
     const livesRemain = Math.max(0, QUIZ_RULE_MAX_ERRORS - (Number(quizState.wrongCount) || 0));
+    const livesWord = livesRemain === 1 ? 'vita' : 'vite';
     const livesRow =
         '<span class="quiz-play-lives-inline-wrap">' +
         '<span class="quiz-play-lives-inline">' +
-        '<img class="quiz-play-lives-icon" src="assets/quiz-operator-life.png" width="128" height="128" alt="" decoding="async" draggable="false">' +
-        '<span id="quiz-play-lives-val" class="quiz-play-lives-num">' +
+        '<img class="quiz-play-lives-icon" src="assets/quiz-operator-life.png" width="160" height="160" alt="" decoding="sync" draggable="false">' +
+        '<span class="quiz-play-lives-text">' +
+        '<strong id="quiz-play-lives-val" class="quiz-play-lives-num">' +
         livesRemain +
+        '</strong>' +
+        '<span class="quiz-play-lives-suffix">' +
+        livesWord +
+        '</span>' +
         '</span>' +
         '</span>' +
         '</span>';
