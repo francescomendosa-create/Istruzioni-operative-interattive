@@ -1000,6 +1000,11 @@
             border: 1px solid #ef5350;
         }
         .quiz-feedback-icon { font-size: 1.35rem; line-height: 1; }
+        .quiz-feedback-timer-bonus {
+            color: #0d47a1;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+        }
         .quiz-badge {
             display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: bold;
             margin-bottom: 8px; background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9;
@@ -1380,6 +1385,57 @@
         .quiz-over-breakdown .quiz-over-line--bonus {
             color: #2e7d32;
             font-weight: 700;
+        }
+        .quiz-over-worm-bonus {
+            position: relative;
+            display: none;
+            margin: 0 0 12px;
+            padding: 10px 10px 8px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(179, 229, 252, 0.45) 0%, rgba(227, 242, 253, 0.9) 100%);
+            border: 1px solid rgba(3, 169, 244, 0.45);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+        .quiz-over-worm-bonus.quiz-over-worm-bonus--on {
+            display: block;
+        }
+        .quiz-over-worm-bonus-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #0277bd;
+            text-align: center;
+            margin: 0 0 6px;
+        }
+        .quiz-over-worm-svg {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            max-height: 120px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        .quiz-over-worm-svg .quiz-worm-body {
+            animation: none !important;
+        }
+        @keyframes quizOverWormArcadeOut {
+            0% {
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+            }
+            25% {
+                filter: brightness(1.35) drop-shadow(0 0 7px rgba(255, 224, 130, 0.95));
+            }
+            100% {
+                opacity: 0;
+                filter: brightness(1.6) drop-shadow(0 0 16px rgba(255, 235, 59, 0.4));
+            }
+        }
+        .quiz-over-worm-svg g.quiz-worm.quiz-over-worm--arcade-out {
+            pointer-events: none;
+            animation: quizOverWormArcadeOut 0.42s ease-in forwards;
         }
         .quiz-over-total-row {
             position: relative;
@@ -4054,11 +4110,6 @@ function dismissAppSplash() {
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
-            <p style="color:#555;margin:8px 0 12px;">Quiz tecnico sul trattamento delle acque reflue, in linea con le istruzioni operative interattive.</p>
-            <div class="quiz-row">
-                <label for="quiz-name">Nome (per classifica)</label>
-                <input type="text" id="quiz-name" maxlength="40" placeholder="Es. Mario Rossi" autocomplete="name">
-            </div>
             <input type="hidden" id="quiz-start-level" value="1">
             <div class="quiz-level-pick" aria-label="Quiz livello unico">
                 <div class="quiz-level-single quiz-level-single--plain">
@@ -4127,6 +4178,21 @@ function dismissAppSplash() {
                 <h3 class="quiz-over-heading">Risultato</h3>
                 <p id="quiz-over-msg" class="quiz-over-msg"></p>
                 <div id="quiz-over-breakdown" class="quiz-over-breakdown" aria-live="polite"></div>
+                <div id="quiz-over-worm-bonus" class="quiz-over-worm-bonus" hidden>
+                    <p class="quiz-over-worm-bonus-label">Vasca · ogni verme in bonus</p>
+                    <svg id="quiz-over-worm-svg" class="quiz-over-worm-svg" viewBox="0 0 400 102" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="quizOverVatWater" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#e1f5fe"/>
+                                <stop offset="100%" stop-color="#81d4fa"/>
+                            </linearGradient>
+                        </defs>
+                        <path fill="rgba(207, 216, 220, 0.5)" stroke="#78909c" stroke-width="1.2"
+                            d="M8 12 L26 82 Q32 94 46 96 L354 96 Q368 94 374 82 L392 12 Q390 6 378 6 L22 6 Q10 6 8 12Z"/>
+                        <rect x="30" y="36" width="340" height="54" rx="10" fill="url(#quizOverVatWater)" opacity="0.55"/>
+                        <g id="quiz-over-worm-root"></g>
+                    </svg>
+                </div>
                 <div class="quiz-over-total-row">
                     <span class="quiz-over-total-lbl">Totale</span>
                     <div class="quiz-score-big quiz-score-big--over" id="quiz-final-score">0</div>
@@ -5225,6 +5291,7 @@ const QUIZ_START_WORM_COUNT = 0;
 const QUIZ_BONUS_POINTS_PER_WORM = 5;
 /** Prima domanda con limite di tempo: indice 0-based 3 = dopo 3 domande (4ª domanda). */
 const QUIZ_TIMER_FIRST_INDEX = 3;
+/** Durata massima domanda a tempo; i secondi ancora sul conteggio alla risposta esatta valgono altrettanti punti bonus «timer». */
 const QUIZ_TIMER_SECONDS = 25;
 /** Sotto questa soglia (secondi) la barra passa a stile “energia bassa”. */
 const QUIZ_TIMER_URGENT_SEC = 5;
@@ -5242,6 +5309,82 @@ let quizScoreAnimTimer = null;
 let quizWrongModalFinishOpts = null;
 /** Contesto modale nome top 10: callback dopo conferma. */
 let quizTop10NameModalCtx = null;
+/** Timeout bonus arcade fine partita (puliti su nuovo quiz). */
+let quizOverArcadeTimers = [];
+
+function quizOverArcadeClearTimers() {
+    quizOverArcadeTimers.forEach(function (id) {
+        try {
+            clearTimeout(id);
+        } catch (e) { /* ignore */ }
+    });
+    quizOverArcadeTimers = [];
+}
+
+function quizOverWormBonusReset() {
+    const wormPanel = document.getElementById('quiz-over-worm-bonus');
+    const wormRoot = document.getElementById('quiz-over-worm-root');
+    if (wormRoot) wormRoot.innerHTML = '';
+    if (wormPanel) {
+        wormPanel.hidden = true;
+        wormPanel.classList.remove('quiz-over-worm-bonus--on');
+    }
+}
+
+/**
+ * Effetto arcade: i vermi clonati dalla vasca spariscono uno a uno e il totale sale dei punti bonus.
+ */
+function quizRunOverWormBonusArcade(baseScore, count, perWorm) {
+    const sc = document.getElementById('quiz-final-score');
+    const live = document.getElementById('quiz-over-bonus-live');
+    const root = document.getElementById('quiz-over-worm-root');
+    const bd = document.getElementById('quiz-over-breakdown');
+    quizOverArcadeClearTimers();
+    if (!root || count <= 0) {
+        if (sc) sc.textContent = String(quizState.score);
+        return;
+    }
+    const worms = [].slice.call(root.querySelectorAll('.quiz-worm'));
+    const n = Math.min(worms.length, count);
+    const stepMs = 460;
+    const popMs = 400;
+    let idx = 0;
+    function finishStaticBreakdown() {
+        if (!bd) return;
+        const bonusPts = count * perWorm;
+        const baseHtml = escapeQuizHtml(String(baseScore));
+        const bonusHtml = escapeQuizHtml(String(bonusPts));
+        const wormN = escapeQuizHtml(String(count));
+        bd.innerHTML =
+            '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+            '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' + wormN + ' × ' + perWorm + ' pt)</span><span>+' + bonusHtml + '</span></div>';
+    }
+    function step() {
+        if (idx >= n) {
+            if (sc) sc.textContent = String(quizState.score);
+            finishStaticBreakdown();
+            return;
+        }
+        const g = worms[idx];
+        idx += 1;
+        const acc = idx * perWorm;
+        if (g && g.parentNode) {
+            g.classList.add('quiz-over-worm--arcade-out');
+            var remId = setTimeout(function () {
+                try {
+                    if (g.parentNode) g.remove();
+                } catch (eRm) { /* ignore */ }
+            }, popMs);
+            quizOverArcadeTimers.push(remId);
+        }
+        if (sc) sc.textContent = String(baseScore + acc);
+        if (live) live.textContent = '+' + acc;
+        var nextId = setTimeout(step, stepMs);
+        quizOverArcadeTimers.push(nextId);
+    }
+    var kickId = setTimeout(step, 420);
+    quizOverArcadeTimers.push(kickId);
+}
 
 function quizPrefersReducedMotion() {
     try {
@@ -6192,6 +6335,16 @@ function quizAnswer(idx) {
     if (quizAnswerLocked) return;
     const q = quizState.queue[quizState.index];
     if (!q) return;
+
+    let timerBonusPts = 0;
+    if (idx === q.correctIndex && quizState.index >= QUIZ_TIMER_FIRST_INDEX && quizTimerDeadline) {
+        const leftMs = Math.max(0, quizTimerDeadline - Date.now());
+        if (leftMs > 0) {
+            const leftSec = leftMs / 1000;
+            timerBonusPts = Math.ceil(leftSec - 1e-6);
+        }
+    }
+
     quizClearQuestionTimer();
     quizAnswerLocked = true;
 
@@ -6209,22 +6362,37 @@ function quizAnswer(idx) {
 
     if (idx === q.correctIndex) {
         const prevScore = quizState.score;
-        quizState.score += q.points;
+        quizState.score += q.points + timerBonusPts;
         if (fb) {
             fb.style.display = 'none';
             fb.innerHTML = '';
             fb.className = 'quiz-feedback';
         }
-        quizAnimateScorePoints(prevScore, quizState.score, () => {
+        const finishCorrect = function () {
             quizUpdatePlayProgress();
             quizBioVatOnCorrectAnswer();
             if (fb) {
                 fb.style.display = 'flex';
                 fb.className = 'quiz-feedback quiz-feedback-ok';
-                fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>Esatto — +' + q.points + ' punti</span>';
+                let txt = 'Esatto — +' + q.points + ' punti';
+                if (timerBonusPts > 0) {
+                    txt +=
+                        ' · <span class="quiz-feedback-timer-bonus">+' +
+                        timerBonusPts +
+                        ' punti timer</span>';
+                }
+                fb.innerHTML = '<span class="quiz-feedback-icon" aria-hidden="true">✓</span><span>' + txt + '</span>';
             }
-            setTimeout(() => quizAdvanceCorrect(), 1050);
-        });
+            setTimeout(function () {
+                quizAdvanceCorrect();
+            }, 1050);
+        };
+        if (timerBonusPts > 0) {
+            quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true });
+            finishCorrect();
+        } else {
+            quizAnimateScorePoints(prevScore, quizState.score, finishCorrect);
+        }
     } else {
         let continuePlay = false;
         let fatalNoWorms = false;
@@ -6343,20 +6511,40 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     const msg = document.getElementById('quiz-over-msg');
     const sc = document.getElementById('quiz-final-score');
     const bd = document.getElementById('quiz-over-breakdown');
+    const wormPanel = document.getElementById('quiz-over-worm-bonus');
+    const wormRoot = document.getElementById('quiz-over-worm-root');
+    quizOverArcadeClearTimers();
+    quizOverWormBonusReset();
+
+    const wormsLeft = Number(quizBioWormCount) || 0;
+    const bonusPts = wormsLeft * QUIZ_BONUS_POINTS_PER_WORM;
+    let useArcade =
+        !opts.aborted &&
+        bonusPts > 0 &&
+        !quizPrefersReducedMotion() &&
+        !opts.goIntro;
+
     if (msg) {
         if (completedAll) {
-            msg.textContent = 'Hai completato tutte le domande del percorso. Ottimo lavoro! Il totale include il bonus per i vermi ancora in vasca.';
+            msg.textContent = useArcade
+                ? 'Hai completato tutte le domande del percorso. Ottimo lavoro! Raccogli i bonus vermi nella vasca.'
+                : 'Hai completato tutte le domande del percorso. Ottimo lavoro! Il totale include il bonus per i vermi ancora in vasca.';
         } else if (opts.seenAllQuestions) {
-            msg.textContent = 'Hai risposto a tutte le domande della sessione. Il totale include il bonus per i vermi ancora in vasca.';
+            msg.textContent = useArcade
+                ? 'Hai risposto a tutte le domande della sessione. Raccogli i bonus vermi nella vasca.'
+                : 'Hai risposto a tutte le domande della sessione. Il totale include il bonus per i vermi ancora in vasca.';
         } else if (opts.aborted) {
             msg.textContent = 'Quiz interrotto: viene registrato il punteggio raggiunto fino a questo punto.';
         } else if (opts.timedOut) {
-            msg.textContent = 'Tempo scaduto: partita conclusa (dopo le prime 3 domande hai 25 secondi per risposta, con barra energia).';
+            msg.textContent = useArcade
+                ? 'Tempo scaduto: partita conclusa. Raccogli i bonus vermi nella vasca.'
+                : 'Tempo scaduto: partita conclusa (dopo le prime 3 domande hai 25 secondi per risposta, con barra energia).';
         } else {
-            msg.textContent = 'Partita terminata: limite di errori raggiunto, oppure errore con vasca senza vermi. Qui sotto il riepilogo con bonus vermi.';
+            msg.textContent = useArcade
+                ? 'Partita terminata. Raccogli i bonus vermi nella vasca.'
+                : 'Partita terminata: limite di errori raggiunto, oppure errore con vasca senza vermi. Qui sotto il riepilogo con bonus vermi.';
         }
     }
-    if (sc) sc.textContent = String(quizState.score);
 
     if (bd) {
         if (opts.aborted) {
@@ -6364,18 +6552,59 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
             bd.innerHTML = '';
         } else {
             bd.style.display = 'block';
-            const wormsLeft = Number(quizBioWormCount) || 0;
-            const bonusPts = wormsLeft * QUIZ_BONUS_POINTS_PER_WORM;
             const baseHtml = escapeQuizHtml(String(baseScore));
-            const bonusHtml = escapeQuizHtml(String(bonusPts));
-            const wormN = escapeQuizHtml(String(wormsLeft));
-            const lineBonus = bonusPts > 0
-                ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' + wormN + ' × ' + QUIZ_BONUS_POINTS_PER_WORM + ' pt)</span><span>+' + bonusHtml + '</span></div>'
-                : '<div class="quiz-over-line"><span>Bonus vermi (nessun verme in vasca)</span><span>+0</span></div>';
-            bd.innerHTML =
-                '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
-                lineBonus;
+            if (useArcade && wormRoot) {
+                const src = document.getElementById('quiz-bio-worms');
+                if (src) {
+                    src.querySelectorAll('.quiz-worm').forEach(function (node) {
+                        wormRoot.appendChild(node.cloneNode(true));
+                    });
+                    wormRoot.querySelectorAll('.quiz-worm--menace').forEach(function (g) {
+                        g.classList.remove('quiz-worm--menace');
+                    });
+                }
+                if (wormRoot.querySelectorAll('.quiz-worm').length === 0) {
+                    useArcade = false;
+                }
+            }
+            if (useArcade && wormRoot) {
+                bd.innerHTML =
+                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+                    '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' +
+                    escapeQuizHtml(String(wormsLeft)) +
+                    ' × ' +
+                    QUIZ_BONUS_POINTS_PER_WORM +
+                    ' pt)</span><span id="quiz-over-bonus-live">+0</span></div>';
+            } else if (!useArcade) {
+                const bonusHtml = escapeQuizHtml(String(bonusPts));
+                const wormN = escapeQuizHtml(String(wormsLeft));
+                const lineBonus =
+                    bonusPts > 0
+                        ? '<div class="quiz-over-line quiz-over-line--bonus"><span>Bonus vermi (' +
+                          wormN +
+                          ' × ' +
+                          QUIZ_BONUS_POINTS_PER_WORM +
+                          ' pt)</span><span>+' +
+                          bonusHtml +
+                          '</span></div>'
+                        : '<div class="quiz-over-line"><span>Bonus vermi (nessun verme in vasca)</span><span>+0</span></div>';
+                bd.innerHTML =
+                    '<div class="quiz-over-line"><span>Punti dalle risposte esatte</span><span>' + baseHtml + '</span></div>' +
+                    lineBonus;
+            }
         }
+    }
+
+    if (useArcade && wormPanel && wormRoot && wormRoot.querySelectorAll('.quiz-worm').length > 0) {
+        wormPanel.hidden = false;
+        wormPanel.classList.add('quiz-over-worm-bonus--on');
+        if (sc) sc.textContent = String(baseScore);
+    } else {
+        if (wormPanel) {
+            wormPanel.hidden = true;
+            wormPanel.classList.remove('quiz-over-worm-bonus--on');
+        }
+        if (sc) sc.textContent = String(quizState.score);
     }
 
     if (opts.goIntro) {
@@ -6386,6 +6615,13 @@ function quizFinishPopulateOverScreen(completedAll, opts, baseScore) {
     } else {
         quizShowScreen('over');
         quizRenderLeaderboard();
+        if (useArcade && wormRoot && wormRoot.querySelectorAll('.quiz-worm').length > 0) {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    quizRunOverWormBonusArcade(baseScore, wormsLeft, QUIZ_BONUS_POINTS_PER_WORM);
+                });
+            });
+        }
     }
 }
 
@@ -6743,6 +6979,8 @@ function quizStart() {
     quizWrongModalFinishOpts = null;
     quizTop10NameModalHide();
     quizClearQuestionTimer();
+    quizOverArcadeClearTimers();
+    quizOverWormBonusReset();
     const nameIn = document.getElementById('quiz-name');
     const lvlIn = document.getElementById('quiz-start-level');
     quizState.name = (nameIn && nameIn.value) ? nameIn.value.trim() : '';
@@ -6777,6 +7015,8 @@ function quizStart() {
 }
 
 function quizRestart() {
+    quizOverArcadeClearTimers();
+    quizOverWormBonusReset();
     quizShowScreen('intro');
     quizRenderLeaderboard();
 }
