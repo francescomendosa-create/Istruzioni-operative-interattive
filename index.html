@@ -1841,12 +1841,86 @@
             border: 1px solid rgba(21, 101, 192, 0.2);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
         }
-        .quiz-microbe-unlock-modal__svg {
+        .quiz-microbe-unlock-modal__worm-live {
+            width: 100%;
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-microbe-unlock-modal__worm-swing {
+            width: min(100%, 220px);
+            max-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: splashTailWag 2.4s ease-in-out infinite;
+            transform-origin: 56% 82%;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__svg.quiz-microbe-unlock-modal__bruco-anim {
             width: min(100%, 220px);
             height: auto;
             max-height: 128px;
             display: block;
-            filter: drop-shadow(0 4px 10px rgba(15, 39, 68, 0.25));
+            filter: drop-shadow(0 6px 14px rgba(15, 39, 68, 0.38)) drop-shadow(0 2px 0 rgba(255, 255, 255, 0.25));
+            animation: quizModalBrucoBob 3.2s ease-in-out infinite;
+            transform-origin: 120px 96px;
+        }
+        @keyframes quizModalBrucoBob {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-inchworm {
+            animation: splashBrucoSway 2.6s ease-in-out infinite;
+            transform-origin: 120px 100px;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-seg {
+            animation: splashBrucoSeg 2s ease-in-out infinite;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(1) {
+            animation-delay: 0s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(3) {
+            animation-delay: 0.24s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(4) {
+            animation-delay: 0.36s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(5) {
+            animation-delay: 0.48s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-segments .bruco-seg:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-antennae {
+            animation: splashBrucoAntenna 2.4s ease-in-out infinite;
+            transform-origin: 52px 78px;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-tail {
+            animation: splashBrucoTail 1.8s ease-in-out infinite;
+            transform-origin: 208px 96px;
+        }
+        #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-blink {
+            animation: splashBrucoBlink 4.5s ease-in-out infinite;
+            transform-origin: 52px 102px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-microbe-unlock-modal__worm-swing,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__svg.quiz-microbe-unlock-modal__bruco-anim,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-inchworm,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-seg,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-antennae,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-tail,
+            #quiz-microbe-unlock-modal .quiz-microbe-unlock-modal__bruco-anim .bruco-blink {
+                animation: none !important;
+            }
         }
         .quiz-microbe-unlock-modal__lead {
             margin: 0 0 12px;
@@ -2015,9 +2089,9 @@
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.12); }
         }
-        /* Vasca: sotto domande/risposte */
+        /* Vasca: sotto domande/risposte — nuoto più rapido e ampio rispetto alla home */
         .quiz-bio-vat-wrap {
-            --worm-dur: 2.85s;
+            --worm-dur: 2.35s;
             margin: 18px 0 6px;
             padding: 0;
             background: none;
@@ -2037,10 +2111,10 @@
         .quiz-bio-vat-wrap .quiz-worm-body {
             transform-origin: 2px 3px;
             transform-box: fill-box;
-            animation-duration: var(--worm-dur, 2.85s);
+            animation-duration: var(--worm-dur, 2.35s);
             animation-timing-function: ease-in-out;
             animation-iteration-count: infinite;
-            animation-name: quizWormWiggle;
+            animation-name: quizVatWiggle;
         }
         /* Caduta nel tank dopo OK modale milestone (+ spruzzi acqua) */
         .quiz-worm--entry-pending .quiz-worm-body {
@@ -2174,6 +2248,119 @@
             75% { transform: translate(-18px, 0) rotate(-2deg); }
             87.5% { transform: translate(-10px, -2px) rotate(6deg); }
         }
+        /* Nuoto in vasca: ampiezza maggiore, anche verso l’alto (acqua = più “animale”) */
+        @keyframes quizVatSwimRight {
+            0%, 100% { transform: translate(-18px, 5px) rotate(-12deg) scaleY(1.03); }
+            38% { transform: translate(24px, -14px) rotate(11deg) scaleY(1.12); }
+            68% { transform: translate(10px, -9px) rotate(4deg) scaleY(1.02); }
+        }
+        @keyframes quizVatSwimLeft {
+            0%, 100% { transform: translate(18px, 5px) rotate(12deg) scaleY(1.03); }
+            38% { transform: translate(-24px, -14px) rotate(-11deg) scaleY(1.12); }
+            68% { transform: translate(-10px, -9px) rotate(-4deg) scaleY(1.02); }
+        }
+        @keyframes quizVatWiggle {
+            0%, 100% { transform: translate(-10px, 3px) rotate(-8deg) scaleY(1); }
+            50% { transform: translate(18px, -12px) rotate(12deg) scaleY(1.12); }
+        }
+        @keyframes quizVatWiggleRev {
+            0%, 100% { transform: translate(10px, 3px) rotate(8deg) scaleY(1); }
+            50% { transform: translate(-18px, -12px) rotate(-12deg) scaleY(1.12); }
+        }
+        @keyframes quizVatBob {
+            0%, 100% { transform: translate(-10px, 4px) rotate(-7deg) scaleY(1); }
+            33% { transform: translate(14px, -16px) rotate(10deg) scaleY(1.14); }
+            66% { transform: translate(-14px, -6px) rotate(-11deg) scaleY(0.94); }
+        }
+        @keyframes quizVatDrift {
+            0%, 100% { transform: translate(-12px, 2px) rotate(-6deg) scaleY(1); }
+            28% { transform: translate(20px, -13px) rotate(11deg) scaleY(1.08); }
+            52% { transform: translate(-6px, -18px) rotate(-10deg) scaleY(1.1); }
+            78% { transform: translate(14px, 3px) rotate(7deg) scaleY(1); }
+        }
+        @keyframes quizVatSway {
+            0%, 100% { transform: translate(12px, 2px) rotate(5deg); }
+            22% { transform: translate(-20px, -11px) rotate(-14deg) scaleY(1.1); }
+            52% { transform: translate(20px, -16px) rotate(14deg) scaleY(1.08); }
+            78% { transform: translate(-10px, 2px) rotate(-7deg); }
+        }
+        @keyframes quizVatCrawl {
+            0%, 100% { transform: translate(-14px, 4px) rotate(-7deg); }
+            28% { transform: translate(22px, -12px) rotate(10deg); }
+            56% { transform: translate(6px, -17px) rotate(5deg); }
+            82% { transform: translate(-18px, 5px) rotate(-11deg); }
+        }
+        @keyframes quizVatDance {
+            0%, 100% { transform: translate(-12px, 2px) scaleY(1) rotate(-8deg); }
+            35% { transform: translate(16px, -18px) scaleY(1.16) rotate(14deg); }
+            70% { transform: translate(-16px, -8px) scaleY(0.9) rotate(-14deg); }
+        }
+        @keyframes quizVatFigure8 {
+            0%, 100% { transform: translate(0, 4px) rotate(0deg); }
+            12.5% { transform: translate(14px, -12px) rotate(8deg); }
+            25% { transform: translate(22px, -6px) rotate(3deg); }
+            37.5% { transform: translate(12px, 4px) rotate(-8deg); }
+            50% { transform: translate(0, 8px) rotate(0deg); }
+            62.5% { transform: translate(-12px, 4px) rotate(-8deg); }
+            75% { transform: translate(-22px, -6px) rotate(-3deg); }
+            87.5% { transform: translate(-14px, -12px) rotate(8deg); }
+        }
+        /* Parti interne del clone splash: più vive che nella home (dentro la vasca) */
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-inchworm {
+            animation: quizVatInchSway 2.05s ease-in-out infinite;
+            transform-origin: 120px 100px;
+        }
+        @keyframes quizVatInchSway {
+            0%, 100% { transform: rotate(-5deg) translateY(2px); }
+            25% { transform: rotate(9deg) translateY(-9px); }
+            50% { transform: rotate(-6deg) translateY(-16px); }
+            75% { transform: rotate(11deg) translateY(-7px); }
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-seg {
+            animation: quizVatSegPulse 1.75s ease-in-out infinite;
+        }
+        @keyframes quizVatSegPulse {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-4px, -7px); }
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-segments .bruco-seg:nth-child(6) {
+            animation-delay: 0.5s;
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-antennae {
+            animation: quizVatAntenna 1.9s ease-in-out infinite;
+            transform-origin: 52px 78px;
+        }
+        @keyframes quizVatAntenna {
+            0%, 100% { transform: rotate(-11deg); }
+            50% { transform: rotate(13deg); }
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-tail {
+            animation: quizVatTail 1.65s ease-in-out infinite;
+            transform-origin: 208px 96px;
+        }
+        @keyframes quizVatTail {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(16deg); }
+        }
+        .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-blink {
+            animation: splashBrucoBlink 3.8s ease-in-out infinite;
+            transform-origin: 52px 102px;
+        }
         .quiz-bio-vat-wrap--sink .quiz-worm-body {
             animation: quizWormSink 1.2s ease-in forwards !important;
         }
@@ -2200,8 +2387,15 @@
             .quiz-bio-wave-layer {
                 animation: none !important;
             }
+            .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-inchworm,
+            .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-seg,
+            .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-antennae,
+            .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-tail,
+            .quiz-bio-vat-wrap .quiz-vat-worm-graphic .bruco-blink {
+                animation: none !important;
+            }
             .quiz-bio-vat-wrap--timer-urgent {
-                --worm-dur: 2.85s;
+                --worm-dur: 2.35s;
             }
         }
         /* Quiz smartphone: area domande + vasca a tutta larghezza, vasca in basso (PC ≥769px invariato) */
@@ -6442,11 +6636,17 @@ function quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy) {
 
 function quizBioWormApplySwimAnimation(gBody) {
     if (!quizPrefersReducedMotion()) {
-        const swimR = 'quizWormSwimRight';
-        const swimL = 'quizWormSwimLeft';
+        const swimR = 'quizVatSwimRight';
+        const swimL = 'quizVatSwimLeft';
         const other = [
-            'quizWormWiggle', 'quizWormWiggleRev', 'quizWormBob', 'quizWormDrift', 'quizWormSway',
-            'quizWormCrawl', 'quizWormDance', 'quizWormFigure8'
+            'quizVatWiggle',
+            'quizVatWiggleRev',
+            'quizVatBob',
+            'quizVatDrift',
+            'quizVatSway',
+            'quizVatCrawl',
+            'quizVatDance',
+            'quizVatFigure8'
         ];
         const r = Math.random();
         let motionName;
@@ -8231,9 +8431,11 @@ function quizMicrobeUnlockModalFillViz(wormIdx) {
         /* ignore */
     }
     viz.innerHTML =
-        '<svg class="quiz-microbe-unlock-modal__svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<div class="quiz-microbe-unlock-modal__worm-live">' +
+        '<div class="quiz-microbe-unlock-modal__worm-swing">' +
+        '<svg class="quiz-microbe-unlock-modal__svg quiz-microbe-unlock-modal__bruco-anim" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
         clone.outerHTML +
-        '</svg>';
+        '</svg></div></div>';
 }
 
 function quizMicrobeUnlockModalKeydown(ev) {
