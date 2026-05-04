@@ -2943,9 +2943,115 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 10px 0 22px;
+            margin: 0 0 10px;
             min-height: min(200px, 52vw);
             filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.42));
+        }
+        .app-splash-intro-bio {
+            display: grid;
+            grid-template-columns: min(280px, 88vw) minmax(0, 1fr);
+            gap: clamp(14px, 3.5vw, 28px);
+            width: 100%;
+            max-width: min(960px, 100%);
+            margin: 8px auto 18px;
+            align-items: start;
+            justify-content: center;
+        }
+        .app-splash-intro-viz-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .app-splash-intro-desc-col {
+            min-width: 0;
+            text-align: left;
+        }
+        .app-splash-worm-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            justify-content: center;
+            width: 100%;
+            max-width: min(280px, 92vw);
+            overflow-x: auto;
+            padding: 4px 2px 2px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .app-splash-worm-tab {
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 6px 10px;
+            font-size: clamp(0.62rem, 2.4vw, 0.72rem);
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            background: rgba(15, 39, 68, 0.35);
+            color: rgba(232, 244, 252, 0.95);
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+        }
+        .app-splash-worm-tab:hover {
+            background: rgba(15, 39, 68, 0.5);
+            border-color: rgba(165, 243, 252, 0.55);
+        }
+        .app-splash-worm-tab--on {
+            background: linear-gradient(180deg, rgba(134, 239, 172, 0.35) 0%, rgba(34, 197, 94, 0.45) 100%);
+            border-color: rgba(187, 247, 208, 0.85);
+            color: #fff;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+        .app-splash-worm-desc {
+            background: rgba(15, 39, 68, 0.42);
+            border: 1px solid rgba(165, 243, 252, 0.28);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: clamp(0.75rem, 2.4vw, 0.88rem);
+            line-height: 1.55;
+            color: rgba(226, 242, 252, 0.95);
+            max-height: min(52vh, 420px);
+            overflow-y: auto;
+        }
+        .app-splash-worm-desc-panel {
+            display: none;
+        }
+        .app-splash-worm-desc-panel.app-splash-worm-desc-panel--active {
+            display: block;
+        }
+        .app-splash-worm-desc-panel h3 {
+            margin: 0 0 8px;
+            font-size: clamp(0.95rem, 3vw, 1.08rem);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.04em;
+        }
+        .app-splash-worm-desc-panel p {
+            margin: 0 0 10px;
+        }
+        .app-splash-worm-desc-panel strong {
+            color: #bbf7d0;
+            font-weight: 700;
+        }
+        .splash-worm-variant {
+            display: none;
+        }
+        .splash-worm-variant.splash-worm-variant--active {
+            display: block;
+        }
+        @media (max-width: 720px) {
+            .app-splash-intro-bio {
+                grid-template-columns: 1fr;
+            }
+            .app-splash-intro-desc-col {
+                order: 3;
+            }
+            .app-splash-worm-desc {
+                max-height: none;
+            }
         }
         .app-splash-icon-live {
             width: min(220px, 58vw);
@@ -3307,65 +3413,111 @@
     <div class="app-splash-inner">
         <p class="app-splash-brand">Istruzioni operative interattive</p>
         <p class="app-splash-subbrand">Sistema biologico</p>
-        <div class="app-splash-mascot-wrap" aria-hidden="true">
+        <div class="app-splash-intro-bio" role="region" aria-label="Microorganismi MBBR">
+            <div class="app-splash-intro-viz-col">
+        <div class="app-splash-mascot-wrap">
             <div class="app-splash-icon-live">
                 <div class="app-splash-icon-live-inner" id="app-splash-icon-live-inner">
                     <div class="app-splash-worm-swing">
                         <img class="app-splash-raster" id="app-splash-raster-img" src="assets/splash-worm-icon.png" width="512" height="512" alt=""
                             decoding="async">
                         <svg class="app-splash-bruco-svg" viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <defs>
-                                <linearGradient id="splashBrucoTop" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stop-color="#fce7f3"/>
-                                    <stop offset="45%" stop-color="#f9a8d4"/>
-                                    <stop offset="100%" stop-color="#ec4899"/>
-                                </linearGradient>
-                                <linearGradient id="splashBrucoBelly" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stop-color="#fdf4ff"/>
-                                    <stop offset="100%" stop-color="#fbcfe8"/>
-                                </linearGradient>
-                                <radialGradient id="splashBrucoHead" cx="35%" cy="30%" r="70%">
-                                    <stop offset="0%" stop-color="#fff1f8"/>
-                                    <stop offset="55%" stop-color="#f9a8d4"/>
-                                    <stop offset="100%" stop-color="#db2777"/>
-                                </radialGradient>
-                            </defs>
-                            <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
-                            <g class="bruco-inchworm">
-                                <g class="bruco-tail">
-                                    <ellipse cx="208" cy="96" rx="22" ry="15" fill="url(#splashBrucoTop)" transform="rotate(-18 208 96)" stroke="#f472b6" stroke-width="0.6" stroke-opacity="0.5"/>
-                                </g>
-                                <g class="bruco-segments">
-                                    <g class="bruco-seg"><ellipse cx="178" cy="90" rx="24" ry="17" fill="url(#splashBrucoTop)" transform="rotate(-8 178 90)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
-                                    <g class="bruco-seg"><ellipse cx="148" cy="84" rx="26" ry="18" fill="url(#splashBrucoTop)" transform="rotate(2 148 84)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
-                                    <g class="bruco-seg"><ellipse cx="118" cy="88" rx="27" ry="19" fill="url(#splashBrucoTop)" transform="rotate(6 118 88)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
-                                    <g class="bruco-seg"><ellipse cx="88" cy="98" rx="28" ry="19" fill="url(#splashBrucoTop)" transform="rotate(14 88 98)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
-                                    <g class="bruco-seg"><ellipse cx="62" cy="112" rx="28" ry="20" fill="url(#splashBrucoTop)" transform="rotate(22 62 112)" stroke="#f472b6" stroke-width="0.5" stroke-opacity="0.45"/></g>
-                                    <g class="bruco-seg">
-                                        <circle cx="48" cy="128" r="30" fill="url(#splashBrucoHead)" stroke="#db2777" stroke-width="0.75" stroke-opacity="0.35"/>
-                                        <ellipse cx="48" cy="138" rx="18" ry="10" fill="url(#splashBrucoBelly)" opacity="0.9"/>
-                                        <g class="bruco-blink">
-                                            <ellipse cx="40" cy="118" rx="7" ry="8" fill="#fff"/>
-                                            <ellipse cx="58" cy="116" rx="6.5" ry="7.5" fill="#fff"/>
-                                            <circle cx="41" cy="119" r="3.2" fill="#1e3a5f"/>
-                                            <circle cx="57" cy="117" r="2.8" fill="#1e3a5f"/>
-                                            <circle cx="42.2" cy="117.3" r="1" fill="#fff" opacity="0.9"/>
-                                            <circle cx="58" cy="115.5" r="0.9" fill="#fff" opacity="0.9"/>
+                            <g class="splash-worm-variant splash-worm-variant--active" data-worm="0">
+                                <defs>
+                                    <linearGradient id="splashW0Top" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#e8d5c4"/><stop offset="50%" stop-color="#9d6f4a"/><stop offset="100%" stop-color="#5c3d2e"/>
+                                    </linearGradient>
+                                    <linearGradient id="splashW0Belly" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#f5ebe0"/><stop offset="100%" stop-color="#8d6e63"/>
+                                    </linearGradient>
+                                    <radialGradient id="splashW0Head" cx="35%" cy="30%" r="70%">
+                                        <stop offset="0%" stop-color="#efe6dc"/><stop offset="55%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#3e2723"/>
+                                    </radialGradient>
+                                </defs>
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                                <g class="bruco-inchworm">
+                                    <g class="bruco-tail">
+                                        <ellipse cx="208" cy="96" rx="22" ry="15" fill="url(#splashW0Top)" transform="rotate(-18 208 96)" stroke="#5d4037" stroke-width="0.6" stroke-opacity="0.55"/>
+                                    </g>
+                                    <g class="bruco-segments">
+                                        <g class="bruco-seg"><ellipse cx="178" cy="90" rx="24" ry="17" fill="url(#splashW0Top)" transform="rotate(-8 178 90)" stroke="#5d4037" stroke-width="0.5" stroke-opacity="0.5"/></g>
+                                        <g class="bruco-seg"><ellipse cx="148" cy="84" rx="26" ry="18" fill="url(#splashW0Top)" transform="rotate(2 148 84)" stroke="#5d4037" stroke-width="0.5" stroke-opacity="0.5"/></g>
+                                        <g class="bruco-seg"><ellipse cx="118" cy="88" rx="27" ry="19" fill="url(#splashW0Top)" transform="rotate(6 118 88)" stroke="#5d4037" stroke-width="0.5" stroke-opacity="0.5"/></g>
+                                        <g class="bruco-seg"><ellipse cx="88" cy="98" rx="28" ry="19" fill="url(#splashW0Top)" transform="rotate(14 88 98)" stroke="#5d4037" stroke-width="0.5" stroke-opacity="0.5"/></g>
+                                        <g class="bruco-seg"><ellipse cx="62" cy="112" rx="28" ry="20" fill="url(#splashW0Top)" transform="rotate(22 62 112)" stroke="#5d4037" stroke-width="0.5" stroke-opacity="0.5"/></g>
+                                        <g class="bruco-seg">
+                                            <circle cx="48" cy="128" r="30" fill="url(#splashW0Head)" stroke="#4e342e" stroke-width="0.75" stroke-opacity="0.45"/>
+                                            <ellipse cx="48" cy="138" rx="18" ry="10" fill="url(#splashW0Belly)" opacity="0.92"/>
+                                            <g class="bruco-blink">
+                                                <ellipse cx="40" cy="118" rx="7" ry="8" fill="#fff8f0"/><ellipse cx="58" cy="116" rx="6.5" ry="7.5" fill="#fff8f0"/>
+                                                <circle cx="41" cy="119" r="3.2" fill="#1e3a5f"/><circle cx="57" cy="117" r="2.8" fill="#1e3a5f"/>
+                                                <circle cx="42.2" cy="117.3" r="1" fill="#fff" opacity="0.85"/><circle cx="58" cy="115.5" r="0.9" fill="#fff" opacity="0.85"/>
+                                            </g>
+                                            <path d="M38 134 Q48 142 58 132" fill="none" stroke="#4e342e" stroke-width="1.6" stroke-linecap="round" opacity="0.88"/>
                                         </g>
-                                        <path d="M38 134 Q48 142 58 132" fill="none" stroke="#be185d" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+                                    </g>
+                                    <g fill="#6d4c41" opacity="0.75">
+                                        <ellipse cx="100" cy="118" rx="4" ry="3" transform="rotate(-20 100 118)"/><ellipse cx="128" cy="104" rx="4" ry="3" transform="rotate(8 128 104)"/>
+                                        <ellipse cx="158" cy="98" rx="4" ry="3.5" transform="rotate(12 158 98)"/><ellipse cx="188" cy="102" rx="3.5" ry="3" transform="rotate(-10 188 102)"/>
+                                    </g>
+                                    <g class="bruco-antennae" fill="none" stroke="#3e2723" stroke-width="1.8" stroke-linecap="round">
+                                        <path d="M34 82 Q28 58 22 48"/><path d="M54 78 Q62 52 70 44"/>
+                                        <circle cx="22" cy="48" r="3" fill="#6d4c41" stroke="none"/><circle cx="70" cy="44" r="3" fill="#6d4c41" stroke="none"/>
                                     </g>
                                 </g>
-                                <g fill="#86efac" opacity="0.85">
-                                    <ellipse cx="100" cy="118" rx="4" ry="3" transform="rotate(-20 100 118)"/>
-                                    <ellipse cx="128" cy="104" rx="4" ry="3" transform="rotate(8 128 104)"/>
-                                    <ellipse cx="158" cy="98" rx="4" ry="3.5" transform="rotate(12 158 98)"/>
-                                    <ellipse cx="188" cy="102" rx="3.5" ry="3" transform="rotate(-10 188 102)"/>
+                            </g>
+                            <g class="splash-worm-variant" data-worm="1">
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                                <g class="bruco-inchworm">
+                                    <g class="bruco-segments">
+                                        <g class="bruco-seg"><circle cx="40" cy="100" r="5.2" fill="#eceff1" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="54" cy="96" r="5" fill="#e8eaed" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="68" cy="93" r="4.9" fill="#eceff1" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="82" cy="91" r="4.8" fill="#eef1f4" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="96" cy="90" r="4.7" fill="#e8eaed" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="110" cy="90" r="4.6" fill="#eceff1" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="124" cy="91" r="4.6" fill="#eef1f4" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="138" cy="93" r="4.7" fill="#e8eaed" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="152" cy="96" r="4.9" fill="#eceff1" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                        <g class="bruco-seg"><circle cx="166" cy="100" r="5" fill="#f5f7fa" stroke="#cfd8dc" stroke-width="0.5"/></g>
+                                        <g class="bruco-seg"><circle cx="182" cy="106" r="5.2" fill="#fafbfc" stroke="#cfd8dc" stroke-width="0.5"/></g>
+                                        <g class="bruco-seg"><circle cx="198" cy="114" r="5" fill="#eceff1" stroke="#b0bec5" stroke-width="0.45"/></g>
+                                    </g>
                                 </g>
-                                <g class="bruco-antennae" fill="none" stroke="#db2777" stroke-width="1.8" stroke-linecap="round">
-                                    <path d="M34 82 Q28 58 22 48"/>
-                                    <path d="M54 78 Q62 52 70 44"/>
-                                    <circle cx="22" cy="48" r="3" fill="#f472b6" stroke="none"/>
-                                    <circle cx="70" cy="44" r="3" fill="#f472b6" stroke="none"/>
+                            </g>
+                            <g class="splash-worm-variant" data-worm="2">
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                                <g class="bruco-inchworm">
+                                    <g class="bruco-segments">
+                                        <g class="bruco-seg"><path d="M38 118 Q90 72 142 108 Q178 128 210 96" fill="none" stroke="#d4a84b" stroke-width="3.2" stroke-linecap="round" opacity="0.92"/></g>
+                                        <g class="bruco-seg"><path d="M48 132 Q118 88 188 118" fill="none" stroke="#e8d4a0" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/></g>
+                                        <g class="bruco-seg"><path d="M52 108 Q120 150 196 90" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" opacity="0.78"/></g>
+                                    </g>
+                                </g>
+                            </g>
+                            <g class="splash-worm-variant" data-worm="3">
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                                <g class="bruco-inchworm">
+                                    <g class="bruco-segments">
+                                        <g class="bruco-seg"><path d="M88 124 L72 96 L96 84 L124 88 L148 76 L168 92 L176 118 L154 138 L118 142 Z" fill="#121212" stroke="#2a2a2a" stroke-width="1.2" opacity="0.96"/></g>
+                                        <g class="bruco-seg"><path d="M102 108 L118 98 L134 104 L128 122 L110 120 Z" fill="#1a1a1a" stroke="#333" stroke-width="0.6" opacity="0.88"/></g>
+                                    </g>
+                                </g>
+                            </g>
+                            <g class="splash-worm-variant" data-worm="4">
+                                <ellipse cx="118" cy="168" rx="72" ry="14" fill="rgba(15,39,68,0.12)"/>
+                                <g class="bruco-inchworm">
+                                    <g class="bruco-segments">
+                                        <g class="bruco-seg">
+                                            <path d="M118 148 Q118 88 118 72 Q100 64 92 80 Q88 100 100 118 Q108 132 118 148" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" opacity="0.95"/>
+                                            <line x1="108" y1="92" x2="104" y2="76" stroke="#94a3b8" stroke-width="1.2"/><line x1="118" y1="88" x2="118" y2="70" stroke="#94a3b8" stroke-width="1.2"/><line x1="128" y1="92" x2="132" y2="76" stroke="#94a3b8" stroke-width="1.2"/>
+                                        </g>
+                                        <g class="bruco-seg">
+                                            <path d="M168 142 Q168 102 168 92 Q152 84 144 96 Q138 112 148 126 Q158 138 168 142" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.1" opacity="0.92"/>
+                                            <line x1="158" y1="104" x2="152" y2="90" stroke="#94a3b8" stroke-width="1"/><line x1="168" y1="100" x2="168" y2="86" stroke="#94a3b8" stroke-width="1"/><line x1="178" y1="104" x2="184" y2="90" stroke="#94a3b8" stroke-width="1"/>
+                                        </g>
+                                        <g class="bruco-seg"><ellipse cx="72" cy="118" rx="14" ry="10" fill="#f8fafc" stroke="#cbd5e1" opacity="0.88" transform="rotate(-12 72 118)"/></g>
+                                    </g>
                                 </g>
                             </g>
                         </svg>
@@ -3381,6 +3533,59 @@
                     <span class="app-splash-pop-burst"></span>
                 </div>
             </div>
+        </div>
+                <div class="app-splash-worm-tabs" role="tablist" aria-label="Scegli il gruppo microbico">
+                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" onclick="splashSelectWorm(0)">I demolidori</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" onclick="splashSelectWorm(1)">I sottili</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" onclick="splashSelectWorm(2)">I filamentosi</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" onclick="splashSelectWorm(3)">I settici</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" onclick="splashSelectWorm(4)">I predatori</button>
+                </div>
+            </div>
+            <aside class="app-splash-intro-desc-col">
+                <div id="app-splash-worm-desc" class="app-splash-worm-desc" aria-live="polite">
+                    <section id="splash-desc-0" class="app-splash-worm-desc-panel app-splash-worm-desc-panel--active" role="tabpanel" aria-labelledby="splash-tab-0">
+                        <h3>I demolidori (batteri eterotrofi)</h3>
+                        <p><strong>Colore reale</strong> marrone fango / testa di moro.</p>
+                        <p><strong>Forma</strong> ovale, tipo chicco di riso; rappresentano la massa solida del fango.</p>
+                        <p><strong>Cosa fanno</strong> sono il “motore” dell’impianto: degradano la sostanza organica grezza (COD) trasformandola in fango e anidride carbonica (CO<sub>2</sub>).</p>
+                        <p><strong>Velocità</strong> alta: si moltiplicano in poche ore se c’è substrato a sufficienza.</p>
+                        <p><strong>Segnale nel programma</strong> se sono numerosi e marroni, l’impianto sta digerendo bene il carico in ingresso.</p>
+                    </section>
+                    <section id="splash-desc-1" class="app-splash-worm-desc-panel" role="tabpanel" aria-labelledby="splash-tab-1" hidden>
+                        <h3>I sottili (batteri nitrificanti)</h3>
+                        <p><strong>Colore reale</strong> grigio perla / quasi trasparente.</p>
+                        <p><strong>Forma</strong> sferica (piccoli puntini) annidati nelle porosità protette dei carrier.</p>
+                        <p><strong>Cosa fanno</strong> trasformano l’ammoniaca tossica in nitrati; lavorano bene solo se l’acqua è già stata “ripulita” dai demolidori.</p>
+                        <p><strong>Velocità</strong> molto bassa: crescono lentamente; se vengono lavati via o stressati, servono giorni per tornare.</p>
+                        <p><strong>Segnale nel programma</strong> la loro presenza indica ossigenazione adeguata e carico organico sotto controllo.</p>
+                    </section>
+                    <section id="splash-desc-2" class="app-splash-worm-desc-panel" role="tabpanel" aria-labelledby="splash-tab-2" hidden>
+                        <h3>I filamentosi (la rete)</h3>
+                        <p><strong>Colore reale</strong> giallo paglierino / bianco sporco.</p>
+                        <p><strong>Forma</strong> lineare (fili lunghi) che si intrecciano tra i carrier.</p>
+                        <p><strong>Cosa fanno</strong> in piccola quantità aiutano il fango a restare compatto; in eccesso intrappolano aria e favoriscono il bulking.</p>
+                        <p><strong>Velocità</strong> media; tendono ad aumentare con ossigeno basso o carenza di nutrienti (es. urea).</p>
+                        <p><strong>Segnale nel programma</strong> linee gialle visibili: attenzione alla sedimentazione in secondario.</p>
+                    </section>
+                    <section id="splash-desc-3" class="app-splash-worm-desc-panel" role="tabpanel" aria-labelledby="splash-tab-3" hidden>
+                        <h3>I settici (solfo-batteri)</h3>
+                        <p><strong>Colore reale</strong> nero pece.</p>
+                        <p><strong>Forma</strong> macchia irregolare / contorni spigolosi.</p>
+                        <p><strong>Cosa fanno</strong> in assenza di ossigeno “marciscono”, producendo acido solfidrico (H<sub>2</sub>S) con odore di uova marce e rischio corrosione.</p>
+                        <p><strong>Velocità</strong> molto rapida all’apparire appena c’è anossia sotto carico eccessivo.</p>
+                        <p><strong>Segnale nel programma</strong> allarme critico: anossia e soffocamento della biologia aerobia.</p>
+                    </section>
+                    <section id="splash-desc-4" class="app-splash-worm-desc-panel" role="tabpanel" aria-labelledby="splash-tab-4" hidden>
+                        <h3>I predatori (protozoi e rotiferi)</h3>
+                        <p><strong>Colore reale</strong> cristallino / bianco latte.</p>
+                        <p><strong>Forma</strong> a campana o piccoli “mostriciattoli” con ciglia.</p>
+                        <p><strong>Cosa fanno</strong> consumano batteri liberi e cellule vecchie, mantenendo la popolazione giovane e l’effluente limpido.</p>
+                        <p><strong>Velocità</strong> bassa: compaiono quando l’ecosistema è stabile da tempo.</p>
+                        <p><strong>Segnale nel programma</strong> se li vedi, l’impianto è vicino al massimo dell’efficienza biologica.</p>
+                    </section>
+                </div>
+            </aside>
         </div>
         <button type="button" id="app-splash-enter-btn" class="app-splash-enter" onclick="dismissAppSplash()">Entra</button>
         <p id="app-splash-tagline" class="app-splash-tagline"><strong>Istruzioni operative interattive</strong> = hai davanti un impianto da gestire, non un capitolo da studiare: tocchi, scegli, vedi cosa si aggancia al processo biologico. Quiz + record salvati servono a rendere allenamento ciò che sulla carta resterebbe noioso.</p>
@@ -3500,6 +3705,29 @@ function finishDismissAppSplashToApp() {
         } catch (e) {}
     });
 }
+function splashSelectWorm(idx) {
+    var tabs = document.querySelectorAll('.app-splash-worm-tab');
+    var vars = document.querySelectorAll('.splash-worm-variant');
+    var pans = document.querySelectorAll('.app-splash-worm-desc-panel');
+    var i;
+    var n = Math.max(tabs.length, vars.length, pans.length);
+    for (i = 0; i < n; i++) {
+        var on = i === idx;
+        if (tabs[i]) {
+            tabs[i].classList.toggle('app-splash-worm-tab--on', on);
+            tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+        if (vars[i]) {
+            vars[i].classList.toggle('splash-worm-variant--active', on);
+        }
+        if (pans[i]) {
+            pans[i].classList.toggle('app-splash-worm-desc-panel--active', on);
+            if (on) pans[i].removeAttribute('hidden');
+            else pans[i].setAttribute('hidden', 'hidden');
+        }
+    }
+}
+window.splashSelectWorm = splashSelectWorm;
 function dismissAppSplash() {
     if (dismissAppSplash._busy) return;
     dismissAppSplash._busy = true;
