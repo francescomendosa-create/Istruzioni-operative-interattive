@@ -6025,25 +6025,43 @@ function syncSettingsQuizToggleUi() {
     if (cb) cb.checked = !!quizFeatureEnabled;
 }
 
+/** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
+function quizSettingsRefreshSubReset() {
+    var sub = document.getElementById('quiz-settings-refresh-sub');
+    if (!sub) return;
+    var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    sub.innerHTML = 'Build <span id="quiz-settings-build-label">' + b + '</span> · allinea cache e ricarica';
+}
+
 function showQuizSettingsModal() {
     const overlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
     syncSettingsQuizToggleUi();
+    quizRefreshInProgress = false;
+    quizSettingsRefreshSubReset();
     const vLab = document.getElementById('quiz-settings-version-label');
     if (vLab) vLab.textContent = APP_VERSION;
     const bLab = document.getElementById('quiz-settings-build-label');
     if (bLab) bLab.textContent = APP_BUILD;
+    const refBtn = document.getElementById('quiz-settings-refresh-btn');
+    if (refBtn) {
+        refBtn.disabled = false;
+        refBtn.removeAttribute('aria-busy');
+    }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('settings-open');
 }
 
-/** Svuota Cache Storage, chiede aggiornamento al service worker e ricarica (utile su iOS / PWA). */
+/**
+ * Da Impostazioni: forza il confronto con il server (cache svuotate + update SW),
+ * poi ricarica la pagina così la PWA installata prende file già pubblicati sul web.
+ */
 function quizSettingsForceRefresh(btn) {
     if (quizRefreshInProgress) return;
     quizRefreshInProgress = true;
     var sub = document.getElementById('quiz-settings-refresh-sub');
-    if (sub) sub.textContent = 'Aggiornamento in corso…';
+    if (sub) sub.textContent = 'Controllo aggiornamento…';
     if (btn) {
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
@@ -6058,10 +6076,16 @@ function quizSettingsForceRefresh(btn) {
             }
             if ('serviceWorker' in navigator) {
                 var reg = await navigator.serviceWorker.getRegistration();
-                if (reg && reg.update) await reg.update();
+                if (reg && reg.update) {
+                    await reg.update();
+                }
             }
         } catch (e) { /* ignore */ }
-        location.reload();
+
+        if (sub) sub.textContent = 'Applico aggiornamento — ricarico…';
+        setTimeout(function () {
+            location.reload();
+        }, 750);
     })();
 }
 
