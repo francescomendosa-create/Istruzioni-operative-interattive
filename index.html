@@ -6490,6 +6490,7 @@ async function quizSpeakWithPiper(rawText, runId) {
         if (window && window.location && window.location.protocol === 'https:' && /^http:\/\//i.test(endpoint)) {
             throw new Error('piper_mixed_content_https_page_http_endpoint');
         }
+        const hostRoot = endpoint.replace(/\/tts(\?.*)?$/i, '');
         async function fetchWithTimeout(url, options, timeoutMs) {
             const ctrl = new AbortController();
             const t = setTimeout(function () {
@@ -6506,13 +6507,19 @@ async function quizSpeakWithPiper(rawText, runId) {
                 try { clearTimeout(t); } catch (eCt) { /* ignore */ }
             }
         }
+        // Wake-up ping for free-tier sleeping instances (Render-like behavior).
+        try {
+            await fetchWithTimeout(hostRoot + '/health', { method: 'GET' }, 15000);
+        } catch (eWake) {
+            // Non-fatal: continue with TTS request anyway.
+        }
         let res = null;
         try {
             res = await fetchWithTimeout(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: rawText, voice: quizPiperVoice || 'naturale' })
-            }, 25000);
+            }, 55000);
         } catch (ePost) {
             if (String((ePost && ePost.message) || '') === 'piper_timeout') throw ePost;
             res = null;
@@ -6525,7 +6532,7 @@ async function quizSpeakWithPiper(rawText, runId) {
                     {
                     method: 'GET'
                     },
-                    25000
+                    55000
                 );
             } catch (eGet) {
                 if (String((eGet && eGet.message) || '') === 'piper_timeout') throw eGet;
