@@ -6059,8 +6059,11 @@ function showQuizSettingsModal() {
 }
 
 /**
- * Da Impostazioni: forza il confronto con il server (cache svuotate + update SW),
- * poi ricarica la pagina così la PWA installata prende file già pubblicati sul web.
+ * Da Impostazioni: massimo allineamento col server (oltre al pulsante, contano CDN,
+ * ritardi di propagazione del deploy e policy cache del browser).
+ * 1) fetch sw.js dalla rete (no-store + query anti-cache)
+ * 2) svuota Cache Storage
+ * 3) unregister di tutti i service worker → al ricarico si registra di nuovo sw.js «fresco»
  */
 function quizSettingsForceRefresh(btn) {
     if (quizRefreshInProgress) return;
@@ -6073,16 +6076,33 @@ function quizSettingsForceRefresh(btn) {
     }
     (async function () {
         try {
+            var base = new URL('.', window.location.href).href;
+            var swHref = new URL('sw.js', base).href;
+            try {
+                await fetch(swHref + '?force=' + Date.now(), {
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+            } catch (eFetch) { /* rete / CORS: si continua */ }
+
             if (window.caches && caches.keys) {
                 var keys = await caches.keys();
                 await Promise.all(keys.map(function (k) {
                     return caches.delete(k);
                 }));
             }
+
             if ('serviceWorker' in navigator) {
-                var reg = await navigator.serviceWorker.getRegistration();
-                if (reg && reg.update) {
-                    await reg.update();
+                if (navigator.serviceWorker.getRegistrations) {
+                    var regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(
+                        regs.map(function (r) {
+                            return r.unregister();
+                        })
+                    );
+                } else {
+                    var regOne = await navigator.serviceWorker.getRegistration();
+                    if (regOne) await regOne.unregister();
                 }
             }
         } catch (e) { /* ignore */ }
@@ -6093,7 +6113,7 @@ function quizSettingsForceRefresh(btn) {
                 sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
             } catch (eS) { /* ignore */ }
             location.reload();
-        }, 750);
+        }, 950);
     })();
 }
 
