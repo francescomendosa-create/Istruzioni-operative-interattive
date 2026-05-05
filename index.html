@@ -5406,8 +5406,8 @@ function dismissAppSplash() {
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="showQuizSpeechSettingsModal()" aria-label="Impostazioni parlato quiz">
-                <span><strong>Parlato automatico quiz</strong><br><span id="quiz-settings-speech-sub">Attivo</span></span>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="showQuizSpeechSettingsModal()" aria-label="Impostazioni Quiz">
+                <span><strong>Quiz</strong><br><span id="quiz-settings-speech-sub">Commentatore attivo · Velocità 1.0x</span></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="openQuizProducerPasswordFromSettings()">
@@ -5447,12 +5447,22 @@ function dismissAppSplash() {
         </div>
     </div>
     <div id="quiz-speech-settings-overlay" class="quiz-lock-overlay" aria-hidden="true">
-        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Parlato quiz">
-            <h4 class="quiz-lock-title">Parlato quiz</h4>
-            <p class="quiz-lock-hint">Se attivo, la domanda e le risposte vengono lette automaticamente ad ogni nuovo quesito.</p>
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Impostazioni Quiz">
+            <h4 class="quiz-lock-title">Impostazioni Quiz</h4>
+            <p class="quiz-lock-hint">Configura il commentatore vocale automatico per domande e risposte.</p>
+            <label class="quiz-settings-row quiz-settings-row--toggle" style="margin:8px 0 10px;">
+                <span class="quiz-settings-row-text">Attiva <strong>commentatore</strong></span>
+                <input type="checkbox" id="quiz-speech-enabled-toggle" onchange="quizSpeechSettingsSetEnabled(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
+            </label>
+            <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
+                <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Velocità parlato</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                    <input type="range" id="quiz-speech-rate-slider" min="0.7" max="1.4" step="0.05" value="1" oninput="quizSpeechSettingsSetRate(this.value)" style="flex:1;accent-color:#1565c0;">
+                    <strong id="quiz-speech-rate-label" style="min-width:42px;text-align:right;color:#1565c0;">1.0x</strong>
+                </div>
+            </div>
             <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="hideQuizSpeechSettingsModal()">Annulla</button>
-                <button type="button" class="btn-side btn-report" id="quiz-speech-settings-toggle-btn" onclick="quizSpeechSettingsToggle()">Disattiva parlato</button>
+                <button type="button" class="btn-side btn-reset" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
             </div>
         </div>
     </div>
@@ -5530,12 +5540,14 @@ let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
+const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 /** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
 let quizSpeechMutedTopbar = false;
+let quizSpeechRate = 1;
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
 const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
@@ -5693,6 +5705,7 @@ function quizPushPrefsToFirestore() {
             return firebase.firestore().collection(QUIZ_FS_COLLECTION).doc(uid).set({
                 featureEnabled: !!quizFeatureEnabled,
                 speechEnabled: !!quizSpeechEnabled,
+                speechRate: Number(quizSpeechRate) || 1,
                 panelOpen: panel,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
@@ -5724,12 +5737,18 @@ function quizPullPrefsFromFirestoreAndApply() {
                 if (typeof d.speechEnabled === 'boolean') {
                     quizSpeechEnabled = d.speechEnabled;
                 }
+                if (typeof d.speechRate === 'number' && isFinite(d.speechRate)) {
+                    quizSpeechRate = Math.max(0.7, Math.min(1.4, d.speechRate));
+                }
                 const pOpen = typeof d.panelOpen === 'boolean' ? d.panelOpen : false;
                 try {
                     localStorage.setItem(QUIZ_LS_FEATURE, quizFeatureEnabled ? '1' : '0');
                 } catch (e) {}
                 try {
                     localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, quizSpeechEnabled ? '1' : '0');
+                } catch (e) {}
+                try {
+                    localStorage.setItem(QUIZ_LS_SPEECH_RATE, String(quizSpeechRate));
                 } catch (e) {}
                 try {
                     localStorage.setItem(QUIZ_LS_PANEL, pOpen ? '1' : '0');
@@ -6052,6 +6071,15 @@ function quizSaveSpeechFeatureFlag(enabled) {
     quizSyncPrefsToFirestoreDebounced();
 }
 
+function quizSaveSpeechRate(rate) {
+    const v = Math.max(0.7, Math.min(1.4, Number(rate) || 1));
+    quizSpeechRate = v;
+    try {
+        localStorage.setItem(QUIZ_LS_SPEECH_RATE, String(v));
+    } catch (e) {}
+    quizSyncPrefsToFirestoreDebounced();
+}
+
 function quizSavePanelOpen(open) {
     try {
         localStorage.setItem(QUIZ_LS_PANEL, open ? '1' : '0');
@@ -6067,6 +6095,10 @@ function quizLoadStoredPreference() {
         const s = localStorage.getItem(QUIZ_LS_SPEECH_ENABLED);
         if (s === '1') quizSpeechEnabled = true;
         else if (s === '0') quizSpeechEnabled = false;
+        const sr = Number(localStorage.getItem(QUIZ_LS_SPEECH_RATE));
+        if (isFinite(sr)) {
+            quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
+        }
     } catch (e) {}
 }
 
@@ -6114,10 +6146,11 @@ function quizIsPlayScreenActive() {
 
 function quizSyncSpeechUi() {
     const sub = document.getElementById('quiz-settings-speech-sub');
+    const rateTxt = (Number(quizSpeechRate) || 1).toFixed(2).replace(/0$/, '');
     if (sub) {
         sub.textContent = quizSpeechEnabled
-            ? (quizSpeechMutedTopbar ? 'Attivo (silenziato ora)' : 'Attivo')
-            : 'Disattivo';
+            ? ('Commentatore attivo · Velocità ' + rateTxt + 'x' + (quizSpeechMutedTopbar ? ' · silenziato ora' : ''))
+            : ('Commentatore disattivo · Velocità ' + rateTxt + 'x');
     }
     const ico = document.getElementById('quiz-topbar-audio-icon');
     const btn = document.getElementById('quiz-topbar-audio');
@@ -6127,6 +6160,12 @@ function quizSyncSpeechUi() {
         btn.setAttribute('aria-label', lbl);
         btn.setAttribute('title', lbl);
     }
+    const cb = document.getElementById('quiz-speech-enabled-toggle');
+    if (cb) cb.checked = !!quizSpeechEnabled;
+    const slider = document.getElementById('quiz-speech-rate-slider');
+    if (slider) slider.value = String(Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1)));
+    const rateLabel = document.getElementById('quiz-speech-rate-label');
+    if (rateLabel) rateLabel.textContent = rateTxt + 'x';
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
@@ -6141,7 +6180,7 @@ function quizSpeakCurrentQuestionAndChoices() {
     });
     const utt = new SpeechSynthesisUtterance(parts.join(' '));
     utt.lang = 'it-IT';
-    utt.rate = 0.98;
+    utt.rate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
     utt.pitch = 1;
     try {
         const vv = window.speechSynthesis.getVoices() || [];
@@ -6169,9 +6208,10 @@ function quizToggleTopbarSpeechMute() {
 
 function showQuizSpeechSettingsModal() {
     const overlay = document.getElementById('quiz-speech-settings-overlay');
-    const btn = document.getElementById('quiz-speech-settings-toggle-btn');
-    if (!overlay || !btn) return;
-    btn.textContent = quizSpeechEnabled ? 'Disattiva parlato' : 'Attiva parlato';
+    const settingsOverlay = document.getElementById('quiz-settings-overlay');
+    if (!overlay) return;
+    if (settingsOverlay) settingsOverlay.classList.remove('visible');
+    quizSyncSpeechUi();
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
 }
@@ -6183,21 +6223,29 @@ function hideQuizSpeechSettingsModal() {
     overlay.setAttribute('aria-hidden', 'true');
 }
 
-function quizSpeechSettingsToggle() {
-    quizSpeechEnabled = !quizSpeechEnabled;
-    if (!quizSpeechEnabled) {
-        quizSpeechMutedTopbar = true;
-        quizStopSpeech();
-    } else {
-        quizSpeechMutedTopbar = false;
-    }
+function quizSpeechSettingsSetEnabled(on) {
+    quizSpeechEnabled = !!on;
+    quizSpeechMutedTopbar = !quizSpeechEnabled;
     quizSaveSpeechFeatureFlag(quizSpeechEnabled);
     quizSyncSpeechUi();
-    const btn = document.getElementById('quiz-speech-settings-toggle-btn');
-    if (btn) btn.textContent = quizSpeechEnabled ? 'Disattiva parlato' : 'Attiva parlato';
-    if (quizSpeechEnabled) {
+    if (!quizSpeechEnabled) {
+        quizStopSpeech();
+    } else {
         quizSpeakCurrentQuestionAndChoices();
     }
+}
+
+function quizSpeechSettingsSetRate(val) {
+    quizSaveSpeechRate(val);
+    quizSyncSpeechUi();
+    if (!quizSpeechMutedTopbar && quizSpeechEnabled) {
+        quizSpeakCurrentQuestionAndChoices();
+    }
+}
+
+function quizSpeechSettingsBackToSettings() {
+    hideQuizSpeechSettingsModal();
+    showQuizSettingsModal();
 }
 
 /** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
