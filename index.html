@@ -5462,12 +5462,23 @@ function dismissAppSplash() {
                 </div>
             </div>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
-                <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Voce realistica AI (Gemini + ElevenLabs)</div>
-                <input type="password" id="quiz-gemini-key-input" placeholder="Gemini API key" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
-                <input type="password" id="quiz-eleven-key-input" placeholder="ElevenLabs API key" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
-                <input type="text" id="quiz-eleven-voice-input" placeholder="ElevenLabs Voice ID (es. 21m00Tcm4TlvDq8ikWAM)" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
-                <button type="button" class="btn-side btn-report" style="margin-top:8px;" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
-                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Se non configurata, resta attivo il parlato locale.</p>
+                <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Voce realistica AI</div>
+                <input type="password" id="quiz-text-ai-key-input" placeholder="Chiave servizio testo AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
+                <input type="password" id="quiz-voice-ai-key-input" placeholder="Chiave servizio voce AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
+                <label for="quiz-voice-preset-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Voce</label>
+                <select id="quiz-voice-preset-select" onchange="quizVoicePresetChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel (chiara)</option>
+                    <option value="EXAVITQu4vr4xnSDxMaL">Bella (morbida)</option>
+                    <option value="TxGEqnHWrfWFTfGW9XjX">Josh (maschile)</option>
+                    <option value="VR6AewLTigWG4xSOukaG">Arnold (profonda)</option>
+                    <option value="custom">Personalizzata (ID manuale)</option>
+                </select>
+                <input type="text" id="quiz-voice-ai-id-input" placeholder="ID voce personalizzata (solo se scegli Personalizzata)" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
+                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                    <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
+                    <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
+                </div>
+                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Configura le chiavi e scegli una voce. Se incompleta, resta il parlato locale.</p>
             </div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-reset" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
@@ -6097,13 +6108,16 @@ function quizSaveSpeechRate(rate) {
 }
 
 function quizSaveAiVoiceConfig() {
-    const g = document.getElementById('quiz-gemini-key-input');
-    const e = document.getElementById('quiz-eleven-key-input');
-    const v = document.getElementById('quiz-eleven-voice-input');
+    const g = document.getElementById('quiz-text-ai-key-input');
+    const e = document.getElementById('quiz-voice-ai-key-input');
+    const preset = document.getElementById('quiz-voice-preset-select');
+    const custom = document.getElementById('quiz-voice-ai-id-input');
     const st = document.getElementById('quiz-ai-voice-status');
     quizGeminiApiKey = g ? String(g.value || '').trim() : '';
     quizElevenApiKey = e ? String(e.value || '').trim() : '';
-    quizElevenVoiceId = v ? String(v.value || '').trim() : '';
+    const presetVal = preset ? String(preset.value || '') : '';
+    if (presetVal && presetVal !== 'custom') quizElevenVoiceId = presetVal;
+    else quizElevenVoiceId = custom ? String(custom.value || '').trim() : '';
     try {
         localStorage.setItem(QUIZ_LS_GEMINI_KEY, quizGeminiApiKey);
         localStorage.setItem(QUIZ_LS_ELEVEN_KEY, quizElevenApiKey);
@@ -6111,9 +6125,27 @@ function quizSaveAiVoiceConfig() {
     } catch (eLs) { /* ignore */ }
     if (st) {
         st.textContent = quizAiVoiceConfigured()
-            ? 'Configurazione AI salvata: verrà usata voce realistica.'
+            ? 'Configurazione AI salvata: verrà usata la voce realistica.'
             : 'Configurazione incompleta: resta attivo il parlato locale.';
     }
+}
+
+function quizVoicePresetChanged(val) {
+    const c = document.getElementById('quiz-voice-ai-id-input');
+    if (!c) return;
+    c.style.display = val === 'custom' ? '' : 'none';
+}
+
+function quizTestAiVoice() {
+    const st = document.getElementById('quiz-ai-voice-status');
+    quizSaveAiVoiceConfig();
+    if (!quizAiVoiceConfigured()) {
+        if (st) st.textContent = 'Configurazione incompleta: inserisci entrambe le chiavi AI.';
+        return;
+    }
+    const runId = ++quizSpeechRunId;
+    const demo = 'Test voce. Questa è una prova del commentatore vocale realistico del quiz.';
+    quizSpeakWithGeminiAndRealVoice(demo, runId);
 }
 
 function quizSavePanelOpen(open) {
@@ -6217,16 +6249,27 @@ function quizSyncSpeechUi() {
     if (slider) slider.value = String(Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1)));
     const rateLabel = document.getElementById('quiz-speech-rate-label');
     if (rateLabel) rateLabel.textContent = rateTxt + 'x';
-    const g = document.getElementById('quiz-gemini-key-input');
+    const g = document.getElementById('quiz-text-ai-key-input');
     if (g && document.activeElement !== g) g.value = quizGeminiApiKey || '';
-    const e = document.getElementById('quiz-eleven-key-input');
+    const e = document.getElementById('quiz-voice-ai-key-input');
     if (e && document.activeElement !== e) e.value = quizElevenApiKey || '';
-    const v = document.getElementById('quiz-eleven-voice-input');
-    if (v && document.activeElement !== v) v.value = quizElevenVoiceId || '';
+    const ps = document.getElementById('quiz-voice-preset-select');
+    const cv = document.getElementById('quiz-voice-ai-id-input');
+    const knownVoiceIds = {
+        '21m00Tcm4TlvDq8ikWAM': true,
+        'EXAVITQu4vr4xnSDxMaL': true,
+        'TxGEqnHWrfWFTfGW9XjX': true,
+        'VR6AewLTigWG4xSOukaG': true
+    };
+    if (ps) {
+        ps.value = knownVoiceIds[quizElevenVoiceId] ? quizElevenVoiceId : 'custom';
+        quizVoicePresetChanged(ps.value);
+    }
+    if (cv && document.activeElement !== cv) cv.value = knownVoiceIds[quizElevenVoiceId] ? '' : (quizElevenVoiceId || '');
     const st = document.getElementById('quiz-ai-voice-status');
     if (st) {
         st.textContent = quizAiVoiceConfigured()
-            ? 'AI pronta: Gemini prepara il testo, ElevenLabs legge con voce realistica.'
+            ? 'AI pronta: testo intelligente + voce realistica attivi.'
             : 'Configurazione incompleta: resta attivo il parlato locale.';
     }
 }
