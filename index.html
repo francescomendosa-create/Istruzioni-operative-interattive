@@ -6514,9 +6514,8 @@ function quizEnsureTopbarAudioBinding() {
         } catch (eEv) {}
         quizToggleTopbarSpeechMute();
     };
+    // Use only click to avoid double-fire (pointer/touch + click) that toggles twice.
     btn.addEventListener('click', handler, { passive: false });
-    btn.addEventListener('touchstart', handler, { passive: false });
-    btn.addEventListener('pointerdown', handler, { passive: false });
 }
 
 function quizSetMuteState(muted) {
