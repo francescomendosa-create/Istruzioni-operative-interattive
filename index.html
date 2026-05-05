@@ -5780,9 +5780,7 @@ function quizPullPrefsFromFirestoreAndApply() {
                 if (typeof d.featureEnabled === 'boolean') {
                     quizFeatureEnabled = d.featureEnabled;
                 }
-                if (typeof d.speechEnabled === 'boolean') {
-                    quizSpeechEnabled = d.speechEnabled;
-                }
+                quizSpeechEnabled = true;
                 if (typeof d.speechRate === 'number' && isFinite(d.speechRate)) {
                     quizSpeechRate = Math.max(0.7, Math.min(1.4, d.speechRate));
                 }
@@ -5791,7 +5789,7 @@ function quizPullPrefsFromFirestoreAndApply() {
                     localStorage.setItem(QUIZ_LS_FEATURE, quizFeatureEnabled ? '1' : '0');
                 } catch (e) {}
                 try {
-                    localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, quizSpeechEnabled ? '1' : '0');
+                    localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, '1');
                 } catch (e) {}
                 try {
                     localStorage.setItem(QUIZ_LS_SPEECH_RATE, String(quizSpeechRate));
@@ -6304,9 +6302,9 @@ function quizSyncSpeechUi() {
     }
     const ico = document.getElementById('quiz-topbar-audio-icon');
     const btn = document.getElementById('quiz-topbar-audio');
-    if (ico) ico.textContent = (!quizSpeechEnabled || quizSpeechMutedTopbar) ? '🔇' : '🔊';
+    if (ico) ico.textContent = quizSpeechMutedTopbar ? '🔇' : '🔊';
     if (btn) {
-        const lbl = (!quizSpeechEnabled || quizSpeechMutedTopbar) ? 'Riattiva parlato quiz' : 'Silenzia parlato quiz';
+        const lbl = quizSpeechMutedTopbar ? 'Riattiva parlato quiz' : 'Silenzia parlato quiz';
         btn.setAttribute('aria-label', lbl);
         btn.setAttribute('title', lbl);
     }
@@ -6341,7 +6339,7 @@ function quizSyncSpeechUi() {
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
-    if (!quizSpeechSupported() || !quizSpeechEnabled || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
+    if (!quizSpeechSupported() || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
     const q = quizState.queue && quizState.queue[quizState.index];
     if (!q || !Array.isArray(q.options)) return;
     quizStopSpeech();
@@ -6449,10 +6447,7 @@ async function quizSpeakWithPiper(rawText, runId) {
         try {
             res = await fetch(endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'bypass-tunnel-reminder': 'true'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: rawText })
             });
         } catch (ePost) {
@@ -6462,8 +6457,7 @@ async function quizSpeakWithPiper(rawText, runId) {
             const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
             try {
                 res = await fetch(endpoint + sep + 'text=' + encodeURIComponent(rawText), {
-                    method: 'GET',
-                    headers: { 'bypass-tunnel-reminder': 'true' }
+                    method: 'GET'
                 });
             } catch (eGet) {
                 throw new Error('piper_network_unreachable');
