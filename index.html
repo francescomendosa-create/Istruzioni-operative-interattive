@@ -6212,6 +6212,8 @@ async function quizTestAiVoice() {
         st.textContent = 'Test Piper non riuscito: errore interno server Piper.';
     } else if (/piper_mixed_content/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: pagina HTTPS non puo chiamare URL Piper HTTP (mixed content).';
+    } else if (/piper_timeout/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: server lento/non risponde (timeout). Se servizio free è in sleep, attendi 20-40s e riprova.';
     } else if (/piper_network/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: server non raggiungibile dalla pagina web.';
     } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
@@ -6488,26 +6490,45 @@ async function quizSpeakWithPiper(rawText, runId) {
         if (window && window.location && window.location.protocol === 'https:' && /^http:\/\//i.test(endpoint)) {
             throw new Error('piper_mixed_content_https_page_http_endpoint');
         }
+        async function fetchWithTimeout(url, options, timeoutMs) {
+            const ctrl = new AbortController();
+            const t = setTimeout(function () {
+                try { ctrl.abort(); } catch (eAb) { /* ignore */ }
+            }, timeoutMs);
+            try {
+                const merged = Object.assign({}, options || {}, { signal: ctrl.signal });
+                return await fetch(url, merged);
+            } catch (eReq) {
+                const msg = (eReq && eReq.message) ? String(eReq.message) : '';
+                if (/aborted|abort|signal/i.test(msg)) throw new Error('piper_timeout');
+                throw eReq;
+            } finally {
+                try { clearTimeout(t); } catch (eCt) { /* ignore */ }
+            }
+        }
         let res = null;
         try {
-            res = await fetch(endpoint, {
+            res = await fetchWithTimeout(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: rawText, voice: quizPiperVoice || 'naturale' })
-            });
+            }, 25000);
         } catch (ePost) {
+            if (String((ePost && ePost.message) || '') === 'piper_timeout') throw ePost;
             res = null;
         }
         if (!res || !res.ok) {
             const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
             try {
-                res = await fetch(
+                res = await fetchWithTimeout(
                     endpoint + sep + 'text=' + encodeURIComponent(rawText) + '&voice=' + encodeURIComponent(quizPiperVoice || 'naturale'),
                     {
                     method: 'GET'
-                    }
+                    },
+                    25000
                 );
             } catch (eGet) {
+                if (String((eGet && eGet.message) || '') === 'piper_timeout') throw eGet;
                 throw new Error('piper_network_unreachable');
             }
         }
