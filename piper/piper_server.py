@@ -10,22 +10,22 @@ APP = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
-MODEL_PATH = os.environ.get("PIPER_MODEL_PATH", os.path.join(MODELS_DIR, "it_IT-paola-medium.onnx"))
+MODEL_PATH = os.environ.get("PIPER_MODEL_PATH", os.path.join(MODELS_DIR, "it_IT-riccardo-x_low.onnx"))
 MODEL_JSON_PATH = MODEL_PATH + ".json"
 MODEL_URL = os.environ.get(
     "PIPER_MODEL_URL",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/paola/medium/it_IT-paola-medium.onnx?download=true",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/riccardo/x_low/it_IT-riccardo-x_low.onnx?download=true",
 )
 MODEL_JSON_URL = os.environ.get(
     "PIPER_MODEL_JSON_URL",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/paola/medium/it_IT-paola-medium.onnx.json?download=true",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/riccardo/x_low/it_IT-riccardo-x_low.onnx.json?download=true",
 )
 VOICE = None
 VOICE_PRESETS = {
-    "naturale": SynthesisConfig(length_scale=1.05, noise_scale=0.62, noise_w_scale=0.72),
-    "telecronaca": SynthesisConfig(length_scale=0.98, noise_scale=0.60, noise_w_scale=0.68),
-    "chiara": SynthesisConfig(length_scale=1.18, noise_scale=0.56, noise_w_scale=0.66),
-    "profonda": SynthesisConfig(length_scale=1.10, noise_scale=0.70, noise_w_scale=0.80),
+    "naturale": SynthesisConfig(length_scale=0.98, noise_scale=0.58, noise_w_scale=0.68),
+    "telecronaca": SynthesisConfig(length_scale=0.92, noise_scale=0.58, noise_w_scale=0.66),
+    "chiara": SynthesisConfig(length_scale=1.10, noise_scale=0.52, noise_w_scale=0.62),
+    "profonda": SynthesisConfig(length_scale=1.02, noise_scale=0.66, noise_w_scale=0.74),
 }
 
 
