@@ -6178,7 +6178,7 @@ async function quizTestAiVoice() {
     quizSaveAiVoiceConfig();
     if (st) st.textContent = 'Test voce in corso...';
     const runId = ++quizSpeechRunId;
-    const demo = 'Test voce. Questa è una prova del commentatore vocale realistico del quiz.';
+    const demo = 'Test voce telecronaca.';
     const res = await quizSpeakUsingConfiguredEngine(demo, runId);
     if (!st) return;
     if (res && res.ok) {
