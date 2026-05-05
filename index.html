@@ -5483,6 +5483,18 @@ function dismissAppSplash() {
                     <option value="standard" selected>Standard</option>
                     <option value="coach">Coach motivazionale</option>
                 </select>
+                <label for="quiz-voice-engine-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Motore voce</label>
+                <select id="quiz-voice-engine-select" onchange="quizVoiceEngineChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="local">Locale (gratis)</option>
+                    <option value="gemini_audio">Gemini Audio (consigliato)</option>
+                    <option value="piper">Piper locale (gratis)</option>
+                    <option value="cloud">Cloud realistico</option>
+                </select>
+                <div id="quiz-piper-config-box" style="display:none;">
+                    <label for="quiz-piper-url-input" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">URL Piper</label>
+                    <input type="text" id="quiz-piper-url-input" placeholder="http://127.0.0.1:5000/tts" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
+                </div>
+                <div id="quiz-cloud-config-box">
                 <label for="quiz-voice-preset-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Voce</label>
                 <select id="quiz-voice-preset-select" onchange="quizVoicePresetChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="21m00Tcm4TlvDq8ikWAM">Rachel (chiara)</option>
@@ -5500,6 +5512,7 @@ function dismissAppSplash() {
                     <option value="custom">Personalizzata (ID manuale)</option>
                 </select>
                 <input type="text" id="quiz-voice-ai-id-input" placeholder="ID voce personalizzata (solo se scegli Personalizzata)" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
+                </div>
                 <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
                     <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
@@ -5589,6 +5602,8 @@ const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_ELEVEN_KEY = 'io-quiz-eleven-key';
 const QUIZ_LS_ELEVEN_VOICE = 'io-quiz-eleven-voice';
+const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
+const QUIZ_LS_PIPER_URL = 'io-quiz-piper-url';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyCPlQR0NTqL6GJZvgUqwFzlMxdGIk433_U';
 const QUIZ_AI_VOICE_KEY_CODE = 'sk_83488fa2743ad05426a97f7fa4df155c00c5fe2317669fea';
@@ -5604,6 +5619,8 @@ let quizGeminiApiKey = '';
 let quizElevenApiKey = '';
 let quizElevenVoiceId = '';
 let quizAiCommentStyle = 'standard';
+let quizVoiceEngine = 'local'; // local | gemini_audio | piper | cloud
+let quizPiperUrl = 'http://127.0.0.1:5000/tts';
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
 let quizAiLastError = '';
@@ -6147,10 +6164,15 @@ function quizSaveAiVoiceConfig() {
     const preset = document.getElementById('quiz-voice-preset-select');
     const custom = document.getElementById('quiz-voice-ai-id-input');
     const styleSel = document.getElementById('quiz-ai-comment-style');
+    const engSel = document.getElementById('quiz-voice-engine-select');
+    const piperUrlEl = document.getElementById('quiz-piper-url-input');
     const st = document.getElementById('quiz-ai-voice-status');
     if (gm && gm.value === 'new') quizGeminiApiKey = g ? String(g.value || '').trim() : '';
     if (em && em.value === 'new') quizElevenApiKey = e ? String(e.value || '').trim() : '';
     quizAiCommentStyle = styleSel ? String(styleSel.value || 'standard') : 'standard';
+    quizVoiceEngine = engSel ? String(engSel.value || 'local') : 'local';
+    quizPiperUrl = piperUrlEl ? String(piperUrlEl.value || '').trim() : quizPiperUrl;
+    if (!quizPiperUrl) quizPiperUrl = 'http://127.0.0.1:5000/tts';
     const presetVal = preset ? String(preset.value || '') : '';
     if (presetVal && presetVal !== 'custom') quizElevenVoiceId = presetVal;
     else quizElevenVoiceId = custom ? String(custom.value || '').trim() : '';
@@ -6159,6 +6181,8 @@ function quizSaveAiVoiceConfig() {
         localStorage.setItem(QUIZ_LS_ELEVEN_KEY, quizElevenApiKey);
         localStorage.setItem(QUIZ_LS_ELEVEN_VOICE, quizElevenVoiceId);
         localStorage.setItem('io-quiz-ai-comment-style', quizAiCommentStyle);
+        localStorage.setItem(QUIZ_LS_VOICE_ENGINE, quizVoiceEngine);
+        localStorage.setItem(QUIZ_LS_PIPER_URL, quizPiperUrl);
     } catch (eLs) { /* ignore */ }
     quizAiLastError = '';
     if (st) {
@@ -6166,6 +6190,14 @@ function quizSaveAiVoiceConfig() {
             ? 'Configurazione AI salvata: verrà usata la voce realistica.'
             : 'Configurazione incompleta: resta attivo il parlato locale.';
     }
+}
+
+function quizVoiceEngineChanged(val) {
+    quizVoiceEngine = String(val || 'local');
+    const pBox = document.getElementById('quiz-piper-config-box');
+    const cBox = document.getElementById('quiz-cloud-config-box');
+    if (pBox) pBox.style.display = quizVoiceEngine === 'piper' ? '' : 'none';
+    if (cBox) cBox.style.display = quizVoiceEngine === 'cloud' ? '' : 'none';
 }
 
 function quizAiKeyModeChanged() {
@@ -6186,26 +6218,40 @@ function quizVoicePresetChanged(val) {
 async function quizTestAiVoice() {
     const st = document.getElementById('quiz-ai-voice-status');
     quizSaveAiVoiceConfig();
-    if (!quizAiVoiceConfigured()) {
-        if (st) st.textContent = 'Configurazione incompleta: manca chiave testo, chiave voce oppure ID voce.';
+    if (quizVoiceEngine === 'cloud' && !quizAiVoiceConfigured()) {
+        if (st) st.textContent = 'Configurazione incompleta cloud: manca chiave testo, chiave voce oppure ID voce.';
         return;
     }
-    if (st) st.textContent = 'Test voce AI in corso...';
+    if (quizVoiceEngine === 'gemini_audio' && !quizResolveAiConfig().textKey) {
+        if (st) st.textContent = 'Configurazione incompleta Gemini Audio: manca chiave testo AI.';
+        return;
+    }
+    if (st) st.textContent = 'Test voce in corso...';
     const runId = ++quizSpeechRunId;
     const demo = 'Test voce. Questa è una prova del commentatore vocale realistico del quiz.';
-    const res = await quizSpeakWithGeminiAndRealVoice(demo, runId);
+    const res = await quizSpeakUsingConfiguredEngine(demo, runId);
     if (!st) return;
     if (res && res.ok) {
         st.textContent = 'Test AI riuscito: voce realistica attiva.';
         return;
     }
     var err = (res && res.error) ? String(res.error) : 'errore sconosciuto';
-    if (/voice_http_401/i.test(err)) {
+    if (/gemini_audio_http_401|gemini_audio_http_403/i.test(err)) {
+        st.textContent = 'Test Gemini Audio non riuscito: chiave testo AI non valida o non abilitata per audio.';
+    } else if (/gemini_audio_unsupported/i.test(err)) {
+        st.textContent = 'Test Gemini Audio non riuscito: modello/SDK non ha restituito audio.';
+    } else if (/voice_http_401/i.test(err)) {
         st.textContent = 'Test non riuscito: chiave voce AI non valida o senza permesso Text-to-Speech.';
     } else if (/voice_http_403/i.test(err)) {
         st.textContent = 'Test non riuscito: accesso negato alla voce selezionata (controlla Voice ID e permessi).';
     } else if (/voice_http_404/i.test(err)) {
         st.textContent = 'Test non riuscito: Voice ID non trovato.';
+    } else if (/piper_http_404|piper_http_405/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: endpoint errato. Verifica URL/route del server Piper.';
+    } else if (/piper_http_500/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: errore interno server Piper (controlla log).';
+    } else if (/piper_network/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: server non raggiungibile dalla pagina web.';
     } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
         st.textContent = 'Test non riuscito: problema rete/CORS verso servizio voce.';
     } else {
@@ -6236,6 +6282,10 @@ function quizLoadStoredPreference() {
         quizElevenApiKey = String(localStorage.getItem(QUIZ_LS_ELEVEN_KEY) || '').trim();
         quizElevenVoiceId = String(localStorage.getItem(QUIZ_LS_ELEVEN_VOICE) || '').trim();
         quizAiCommentStyle = String(localStorage.getItem('io-quiz-ai-comment-style') || 'standard');
+        quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || 'local');
+        if (!/^(local|gemini_audio|piper|cloud)$/.test(quizVoiceEngine)) quizVoiceEngine = 'local';
+        quizPiperUrl = String(localStorage.getItem(QUIZ_LS_PIPER_URL) || 'http://127.0.0.1:5000/tts').trim();
+        if (!quizPiperUrl) quizPiperUrl = 'http://127.0.0.1:5000/tts';
     } catch (e) {}
 }
 
@@ -6340,6 +6390,11 @@ function quizSyncSpeechUi() {
     quizAiKeyModeChanged();
     const styleSel = document.getElementById('quiz-ai-comment-style');
     if (styleSel) styleSel.value = quizAiCommentStyle || 'standard';
+    const engineSel = document.getElementById('quiz-voice-engine-select');
+    if (engineSel) engineSel.value = quizVoiceEngine || 'local';
+    quizVoiceEngineChanged(quizVoiceEngine || 'local');
+    const piperUrlEl = document.getElementById('quiz-piper-url-input');
+    if (piperUrlEl && document.activeElement !== piperUrlEl) piperUrlEl.value = quizPiperUrl || 'http://127.0.0.1:5000/tts';
     const ps = document.getElementById('quiz-voice-preset-select');
     const cv = document.getElementById('quiz-voice-ai-id-input');
     const knownVoiceIds = {
@@ -6363,6 +6418,13 @@ function quizSyncSpeechUi() {
     if (cv && document.activeElement !== cv) cv.value = knownVoiceIds[quizElevenVoiceId] ? '' : (quizElevenVoiceId || '');
     const st = document.getElementById('quiz-ai-voice-status');
     if (st) {
+        if (quizVoiceEngine === 'gemini_audio') {
+            st.textContent = quizAiLastError
+                ? ('Gemini Audio fallback locale: ' + quizAiLastError)
+                : (quizResolveAiConfig().textKey
+                    ? 'Gemini Audio attivo (voce generata direttamente da Gemini).'
+                    : 'Gemini Audio non configurato: manca chiave testo AI.');
+        } else
         if (quizAiVoiceConfigured()) {
             st.textContent = quizAiLastError
                 ? ('AI configurata ma ultimo test non riuscito: ' + quizAiLastError + '. Uso parlato locale di fallback.')
@@ -6389,11 +6451,70 @@ function quizSpeakCurrentQuestionAndChoices() {
         parts.push('Risposta ' + letter + '. ' + String((opt && opt.text) || ''));
     });
     const plainText = parts.join(' ');
-    if (quizAiVoiceConfigured()) {
-        quizSpeakWithGeminiAndRealVoice(plainText, runId);
-        return;
+    quizSpeakUsingConfiguredEngine(plainText, runId);
+}
+
+async function quizSpeakUsingConfiguredEngine(plainText, runId) {
+    if (quizVoiceEngine === 'gemini_audio') {
+        return quizSpeakWithGeminiAudioDirect(plainText, runId);
+    }
+    if (quizVoiceEngine === 'piper') {
+        return quizSpeakWithPiper(plainText, runId);
+    }
+    if (quizVoiceEngine === 'cloud' && quizAiVoiceConfigured()) {
+        return quizSpeakWithGeminiAndRealVoice(plainText, runId);
     }
     quizSpeakWithLocalTts(plainText, runId);
+    return { ok: true, mode: 'local_tts' };
+}
+
+async function quizSpeakWithGeminiAudioDirect(rawText, runId) {
+    try {
+        const cfg = quizResolveAiConfig();
+        if (!cfg.textKey) throw new Error('gemini_audio_missing_key');
+        const res = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' +
+            encodeURIComponent(cfg.textKey),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: rawText }] }],
+                    generationConfig: {
+                        responseModalities: ['AUDIO'],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: 'Puck' }
+                            }
+                        }
+                    }
+                })
+            }
+        );
+        if (!res.ok) throw new Error('gemini_audio_http_' + res.status);
+        const json = await res.json();
+        const parts = ((((json || {}).candidates || [])[0] || {}).content || {}).parts || [];
+        const audioPart = parts.find(function (p) {
+            return p && p.inlineData && p.inlineData.data;
+        });
+        if (!audioPart || !audioPart.inlineData || !audioPart.inlineData.data) {
+            throw new Error('gemini_audio_unsupported');
+        }
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+        const mime = String(audioPart.inlineData.mimeType || 'audio/wav');
+        const src = 'data:' + mime + ';base64,' + String(audioPart.inlineData.data);
+        const a = new Audio(src);
+        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        quizAiAudioEl = a;
+        quizAiLastError = '';
+        await a.play();
+        return { ok: true, mode: 'gemini_audio' };
+    } catch (e) {
+        quizAiLastError = (e && e.message) ? String(e.message) : 'gemini_audio_error';
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+        quizSpeakWithLocalTts(rawText, runId);
+        return { ok: false, fallback: 'local_tts', error: quizAiLastError };
+    }
 }
 
 function quizSpeakWithLocalTts(text, runId) {
@@ -6491,6 +6612,56 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
     } catch (e) {
         quizAiLastError = (e && e.message) ? String(e.message) : 'errore sconosciuto';
         if (runId !== quizSpeechRunId) return;
+        quizSpeakWithLocalTts(rawText, runId);
+        return { ok: false, fallback: 'local_tts', error: quizAiLastError };
+    }
+}
+
+async function quizSpeakWithPiper(rawText, runId) {
+    try {
+        const endpoint = String(quizPiperUrl || '').trim();
+        if (!endpoint) throw new Error('piper_network_empty_url');
+        let res = null;
+        try {
+            res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: rawText })
+            });
+        } catch (ePost) {
+            res = null;
+        }
+        if (!res || !res.ok) {
+            const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
+            try {
+                res = await fetch(endpoint + sep + 'text=' + encodeURIComponent(rawText), {
+                    method: 'GET'
+                });
+            } catch (eGet) {
+                throw new Error('piper_network_unreachable');
+            }
+        }
+        if (!res || !res.ok) throw new Error('piper_http_' + (res ? res.status : '0'));
+        const blob = await res.blob();
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+        const url = URL.createObjectURL(blob);
+        const a = new Audio(url);
+        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        a.onended = function () {
+            URL.revokeObjectURL(url);
+            if (quizAiAudioEl === a) quizAiAudioEl = null;
+        };
+        a.onerror = function () {
+            URL.revokeObjectURL(url);
+            if (quizAiAudioEl === a) quizAiAudioEl = null;
+        };
+        quizAiAudioEl = a;
+        quizAiLastError = '';
+        await a.play();
+        return { ok: true, mode: 'piper' };
+    } catch (e) {
+        quizAiLastError = (e && e.message) ? String(e.message) : 'piper_error';
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSpeakWithLocalTts(rawText, runId);
         return { ok: false, fallback: 'local_tts', error: quizAiLastError };
     }
