@@ -5572,7 +5572,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260204d';
+const APP_BUILD = '20260204e';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6204,8 +6204,6 @@ async function quizTestAiVoice() {
             st.textContent = 'Test riuscito: audio offline locale attivo.';
         } else if (res.mode === 'piper') {
             st.textContent = 'Test riuscito: telecronaca Piper attiva.';
-        } else if (res.mode === 'local_tts' && /piper_fast_fallback_local/i.test(String(res.warn || ''))) {
-            st.textContent = 'Test rapido: offline/online non pronti, usata voce locale immediata.';
         } else if (/gemini_timeout_fallback_raw_text/i.test(String(res.warn || ''))) {
             st.textContent = 'Test riuscito con fallback: Gemini lento, lettura diretta usata.';
         } else {
@@ -6238,6 +6236,8 @@ async function quizTestAiVoice() {
         st.textContent = 'Test Piper non riuscito: server lento/non risponde (timeout). Se servizio free è in sleep, attendi 20-40s e riprova.';
     } else if (/piper_network/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: server non raggiungibile dalla pagina web.';
+    } else if (/local_audio_not_found|local_audio_no_question|local_audio_error/i.test(err)) {
+        st.textContent = 'Test Piper offline non riuscito: manca audio locale. Carica i file MP3 in assets/quiz-audio.';
     } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
         st.textContent = 'Test non riuscito: problema rete/CORS.';
     } else {
@@ -6457,16 +6457,11 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
 async function quizSpeakUsingConfiguredEngine(plainText, runId, qObj) {
     try {
         const localRes = await quizSpeakLocalFileIfAvailable(qObj, runId);
-        if (localRes && localRes.ok) return localRes;
         if (quizVoiceEngine === 'piper') {
-            const piperRes = await quizSpeakWithPiper(plainText, runId);
-            if (piperRes && piperRes.ok) return piperRes;
-            if (piperRes && /piper_timeout|piper_network/i.test(String(piperRes.error || ''))) {
-                quizSpeakWithLocalTts(plainText, runId);
-                return { ok: true, mode: 'local_tts', warn: 'piper_fast_fallback_local' };
-            }
-            return piperRes;
+            if (localRes && localRes.ok) return localRes;
+            return { ok: false, error: (localRes && localRes.error) || 'local_audio_not_found' };
         }
+        if (localRes && localRes.ok) return localRes;
         const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSpeakWithLocalTts(textToSpeak, runId);
