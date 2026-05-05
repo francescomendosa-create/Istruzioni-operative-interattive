@@ -5427,7 +5427,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204n</span> · allinea cache e ricarica</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204p</span> · controlla aggiornamenti dal server</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5512,7 +5512,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204n</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204p</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5572,7 +5572,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260204n';
+const APP_BUILD = '20260204p';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6344,6 +6344,15 @@ function quizAiConfigComesFromCode() {
     return !!String(QUIZ_AI_TEXT_KEY_CODE || '').trim();
 }
 
+/** URL assoluto per MP3 (GitHub Pages / sottocartelle / base URI). */
+function quizResolveMediaUrl(relPath) {
+    try {
+        return new URL(String(relPath || '').trim(), document.baseURI || window.location.href).href;
+    } catch (eR) {
+        return String(relPath || '');
+    }
+}
+
 function quizStopIntroMusic() {
     try {
         if (quizIntroAudioEl) {
@@ -6377,7 +6386,7 @@ function quizPlayIntroMusicAlternating(opts) {
             localStorage.setItem(QUIZ_LS_INTRO_LAST, which);
         } catch (eS) { /* ignore */ }
     }
-    const url = which === '2' ? QUIZ_INTRO_AUDIO_2 : QUIZ_INTRO_AUDIO_1;
+    const url = quizResolveMediaUrl(which === '2' ? QUIZ_INTRO_AUDIO_2 : QUIZ_INTRO_AUDIO_1);
     const a = new Audio(url);
     a.loop = false;
     quizIntroAudioEl = a;
@@ -6436,13 +6445,13 @@ function quizPlaySuspenseAlternating(opts) {
             localStorage.setItem(QUIZ_LS_SUSPENSE_LAST, which);
         } catch (eSv) { /* ignore */ }
     }
-    const url = which === '2' ? QUIZ_SUSPENSE_AUDIO_2 : QUIZ_SUSPENSE_AUDIO_1;
+    const url = quizResolveMediaUrl(which === '2' ? QUIZ_SUSPENSE_AUDIO_2 : QUIZ_SUSPENSE_AUDIO_1);
     const a = new Audio(url);
     a.loop = true;
     a.volume = QUIZ_SUSPENSE_BGM_VOLUME_MAIN;
     quizSuspenseAudioEl = a;
     a.play().catch(function () { /* autoplay */ });
-    const lay = new Audio(QUIZ_SUSPENSE_AUDIO_LAYER);
+    const lay = new Audio(quizResolveMediaUrl(QUIZ_SUSPENSE_AUDIO_LAYER));
     lay.loop = true;
     lay.volume = QUIZ_SUSPENSE_BGM_VOLUME_LAYER;
     quizSuspenseLayerAudioEl = lay;
@@ -6450,27 +6459,24 @@ function quizPlaySuspenseAlternating(opts) {
 }
 
 function quizPlayCorrectAnswerSfx() {
-    if (quizSpeechMutedTopbar) return;
     try {
-        const a = new Audio(QUIZ_SFX_CORRECT);
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_CORRECT));
         a.volume = 0.9;
         a.play().catch(function () { /* autoplay */ });
     } catch (eC) { /* ignore */ }
 }
 
 function quizPlayWrongAnswerSfx() {
-    if (quizSpeechMutedTopbar) return;
     try {
-        const a = new Audio(QUIZ_SFX_WRONG);
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_WRONG));
         a.volume = 0.88;
         a.play().catch(function () { /* autoplay */ });
     } catch (eW) { /* ignore */ }
 }
 
 function quizPlayMicrobeUnlockApplauseSfx() {
-    if (quizSpeechMutedTopbar) return;
     try {
-        const a = new Audio(QUIZ_SFX_APPLAUSE);
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_APPLAUSE));
         a.volume = 0.85;
         a.play().catch(function () { /* autoplay */ });
     } catch (eA) { /* ignore */ }
@@ -6598,14 +6604,14 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
         candidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + fileName); // backward compatibility
         let chosenUrl = '';
         for (let i = 0; i < candidates.length; i += 1) {
-            const url = candidates[i];
+            const absUrl = quizResolveMediaUrl(candidates[i]);
             const ctrl = new AbortController();
             const timer = setTimeout(function () {
                 try { ctrl.abort(); } catch (eAb) { /* ignore */ }
             }, 1800);
             let headOk = false;
             try {
-                const hr = await fetch(url, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
+                const hr = await fetch(absUrl, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
                 headOk = !!(hr && hr.ok);
             } catch (eHead) {
                 headOk = false;
@@ -6613,7 +6619,7 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
                 clearTimeout(timer);
             }
             if (headOk) {
-                chosenUrl = url;
+                chosenUrl = absUrl;
                 break;
             }
         }
@@ -6923,12 +6929,22 @@ function quizSpeechSettingsBackToSettings() {
     showQuizSettingsModal();
 }
 
+/** Estrae il token build dal testo di sw.js (commento `* build: …`). */
+function quizParseSwBuildFromText(swText) {
+    try {
+        var m = String(swText || '').match(/\*\s*build:\s*([^\r\n\*]+)/i);
+        return m ? String(m[1]).trim() : '';
+    } catch (e) {
+        return '';
+    }
+}
+
 /** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
 function quizSettingsRefreshSubReset() {
     var sub = document.getElementById('quiz-settings-refresh-sub');
     if (!sub) return;
     var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    sub.innerHTML = 'Build <span id="quiz-settings-build-label">' + b + '</span> · allinea cache e ricarica';
+    sub.innerHTML = 'Build <span id="quiz-settings-build-label">' + b + '</span> · controlla aggiornamenti dal server';
 }
 
 function showQuizSettingsModal() {
@@ -6972,12 +6988,27 @@ function quizSettingsForceRefresh(btn) {
         try {
             var base = new URL('.', window.location.href).href;
             var swHref = new URL('sw.js', base).href;
+            var remoteBuild = '';
             try {
-                await fetch(swHref + '?force=' + Date.now(), {
+                var swResp = await fetch(swHref + '?force=' + Date.now(), {
                     cache: 'no-store',
                     credentials: 'same-origin'
                 });
+                if (swResp && swResp.ok) {
+                    remoteBuild = quizParseSwBuildFromText(await swResp.text());
+                }
             } catch (eFetch) { /* rete / CORS: si continua */ }
+
+            var localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
+            if (sub) {
+                if (remoteBuild && localBuild && remoteBuild !== localBuild) {
+                    sub.textContent = 'Nuovo aggiornamento ricevuto — applico e ricarico…';
+                } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
+                    sub.textContent = 'Build già allineato — pulisco cache e ricarico…';
+                } else {
+                    sub.textContent = 'Aggiornamento non verificato — ricarico per sicurezza…';
+                }
+            }
 
             if (window.caches && caches.keys) {
                 var keys = await caches.keys();
@@ -7001,7 +7032,6 @@ function quizSettingsForceRefresh(btn) {
             }
         } catch (e) { /* ignore */ }
 
-        if (sub) sub.textContent = 'Applico aggiornamento — ricarico…';
         setTimeout(function () {
             try {
                 sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
