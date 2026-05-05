@@ -5569,6 +5569,7 @@ let quizPasswordResumeSettings = false;
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
+const QUIZ_LS_SPEECH_MUTED = 'io-quiz-speech-muted';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
 const QUIZ_LS_PIPER_URL = 'io-quiz-piper-url';
@@ -6213,6 +6214,8 @@ function quizLoadStoredPreference() {
         if (isFinite(sr)) {
             quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
         }
+        const sm = localStorage.getItem(QUIZ_LS_SPEECH_MUTED);
+        quizSpeechMutedTopbar = sm === '1';
         quizGeminiApiKey = String(localStorage.getItem(QUIZ_LS_GEMINI_KEY) || '').trim();
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || 'gemini');
         if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = 'gemini';
@@ -6480,17 +6483,18 @@ async function quizSpeakWithPiper(rawText, runId) {
 }
 
 function quizToggleTopbarSpeechMute() {
-    quizSpeechMutedTopbar = !quizSpeechMutedTopbar;
-    quizSyncSpeechUi();
-    if (quizSpeechMutedTopbar) {
-        quizStopSpeech();
-    } else {
-        quizSpeakCurrentQuestionAndChoices();
-    }
+    quizSetMuteState(!quizSpeechMutedTopbar);
 }
 
 function quizSettingsSetMute(on) {
-    quizSpeechMutedTopbar = !!on;
+    quizSetMuteState(!!on);
+}
+
+function quizSetMuteState(muted) {
+    quizSpeechMutedTopbar = !!muted;
+    try {
+        localStorage.setItem(QUIZ_LS_SPEECH_MUTED, quizSpeechMutedTopbar ? '1' : '0');
+    } catch (e) {}
     quizSyncSpeechUi();
     if (quizSpeechMutedTopbar) {
         quizStopSpeech();
@@ -8477,10 +8481,10 @@ function quizShowScreen(which) {
     if (panel) panel.classList.toggle('quiz-panel--screen-play', which === 'play');
     const topbar = document.getElementById('quiz-fs-topbar');
     if (topbar) topbar.classList.toggle('quiz-fs-topbar--intro', which === 'intro');
+    quizSyncSpeechUi();
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
         quizAvatarPickerSync();
-        quizSyncSpeechUi();
     }
 }
 
