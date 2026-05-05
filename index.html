@@ -6372,12 +6372,13 @@ async function quizSpeakUsingConfiguredEngine(plainText, runId) {
 
 /** Telecronaca Gemini obbligatoria: nessun fallback al testo originale. */
 async function quizBuildGeminiCommentaryText(rawText, runId) {
+    let abortedByTimeout = false;
+    let timeoutId = null;
     try {
         const cfg = quizResolveAiConfig();
         if (!cfg.textKey) throw new Error('gemini_missing_key');
         const ctrl = new AbortController();
-        let abortedByTimeout = false;
-        const timeoutId = setTimeout(function () {
+        timeoutId = setTimeout(function () {
             abortedByTimeout = true;
             try { ctrl.abort(); } catch (eAb) { /* ignore */ }
         }, 12000);
@@ -6398,7 +6399,7 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
                 signal: ctrl.signal
             }
         );
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
         if (!res.ok) throw new Error('gemini_http_' + String(res.status || 0));
         const json = await res.json();
         if (runId !== quizSpeechRunId) throw new Error('cancelled');
@@ -6409,8 +6410,11 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         if (!out) throw new Error('gemini_empty');
         return out;
     } catch (e) {
+        if (timeoutId) {
+            try { clearTimeout(timeoutId); } catch (eCt) { /* ignore */ }
+        }
         const msgRaw = (e && e.message) ? String(e.message) : 'gemini_error';
-        const msg = abortedByTimeout || /aborted/i.test(msgRaw)
+        const msg = abortedByTimeout || /aborted|abort|signal/i.test(msgRaw)
             ? 'gemini_timeout'
             : msgRaw;
         quizAiLastError = msg;
