@@ -6178,6 +6178,8 @@ async function quizTestAiVoice() {
         st.textContent = 'Test non riuscito: inserisci la chiave testo AI.';
     } else if (/gemini_http_401|gemini_http_403/i.test(err)) {
         st.textContent = 'Test non riuscito: chiave AI non valida o senza permessi.';
+    } else if (/gemini_timeout/i.test(err)) {
+        st.textContent = 'Test non riuscito: Gemini troppo lento in risposta (timeout). Riprova tra pochi secondi.';
     } else if (/gemini_http_429/i.test(err)) {
         st.textContent = 'Test non riuscito: limite richieste/quota Gemini raggiunto (HTTP 429).';
     } else if (/gemini_http_/i.test(err)) {
@@ -6374,9 +6376,11 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         const cfg = quizResolveAiConfig();
         if (!cfg.textKey) throw new Error('gemini_missing_key');
         const ctrl = new AbortController();
+        let abortedByTimeout = false;
         const timeoutId = setTimeout(function () {
+            abortedByTimeout = true;
             try { ctrl.abort(); } catch (eAb) { /* ignore */ }
-        }, 3500);
+        }, 12000);
         var styleHint = 'tono chiaro e professionale';
         const prompt =
             'Agisci come telecronista quiz in italiano. ' +
@@ -6405,7 +6409,10 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         if (!out) throw new Error('gemini_empty');
         return out;
     } catch (e) {
-        const msg = (e && e.message) ? String(e.message) : 'gemini_error';
+        const msgRaw = (e && e.message) ? String(e.message) : 'gemini_error';
+        const msg = abortedByTimeout || /aborted/i.test(msgRaw)
+            ? 'gemini_timeout'
+            : msgRaw;
         quizAiLastError = msg;
         throw new Error(msg);
     }
