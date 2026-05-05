@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="pwa-512.png">
-    <link rel="manifest" href="manifest.json?v=20260204">
+    <link rel="manifest" href="manifest.json?v=20260205a">
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -465,8 +465,73 @@
             outline: 2px solid #fff;
             outline-offset: 2px;
         }
-        .quiz-fs-topbar--intro .quiz-fs-audio {
+        .quiz-fs-topbar-audio-cluster {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+        .quiz-fs-vol-slider {
+            width: clamp(52px, 18vw, 108px);
+            height: 36px;
+            margin: 0;
+            padding: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            touch-action: manipulation;
+            flex-shrink: 1;
+        }
+        .quiz-fs-vol-slider::-webkit-slider-runnable-track {
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.38);
+        }
+        .quiz-fs-vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            margin-top: -7px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #1f3f68;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-fs-vol-slider::-moz-range-track {
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.38);
+        }
+        .quiz-fs-vol-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #1f3f68;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-fs-topbar--intro .quiz-fs-topbar-audio-cluster {
             display: none !important;
+        }
+        @media (max-width: 520px) {
+            .quiz-fs-topbar__end {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                row-gap: 6px;
+                column-gap: 6px;
+            }
+            .quiz-fs-vol-slider {
+                width: clamp(72px, 34vw, 128px);
+                min-height: 40px;
+            }
+            .quiz-fs-audio {
+                width: 40px;
+                height: 40px;
+                font-size: 1.12rem;
+            }
         }
         .quiz-fs-exit {
             flex-shrink: 0;
@@ -5209,9 +5274,18 @@ function dismissAppSplash() {
                 <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
             </div>
             <div class="quiz-fs-topbar__end">
-                <button type="button" class="quiz-fs-audio" id="quiz-topbar-audio" aria-label="Silenzia parlato quiz" title="Silenzia parlato quiz">
-                    <span id="quiz-topbar-audio-icon" aria-hidden="true">🔊</span>
-                </button>
+                <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-game-cluster" aria-label="Musica ed effetti">
+                    <button type="button" class="quiz-fs-audio" id="quiz-topbar-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
+                        <span id="quiz-topbar-game-icon" aria-hidden="true">🎵</span>
+                    </button>
+                    <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                </div>
+                <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-speech-cluster" aria-label="Telecronaca">
+                    <button type="button" class="quiz-fs-audio" id="quiz-topbar-speech-audio" aria-label="Silenzia telecronaca" title="Silenzia telecronaca">
+                        <span id="quiz-topbar-speech-icon" aria-hidden="true">🎙️</span>
+                    </button>
+                    <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="100" aria-label="Volume telecronaca" title="Volume telecronaca">
+                </div>
                 <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -5427,7 +5501,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204p</span> · controlla aggiornamenti dal server</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260205a</span> · controlla aggiornamenti dal server</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5461,8 +5535,12 @@ function dismissAppSplash() {
             <h4 class="quiz-lock-title">Impostazioni Quiz</h4>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
                 <label class="quiz-settings-row quiz-settings-row--toggle quiz-settings-row--compact">
-                    <span class="quiz-settings-row-text">Mute quiz</span>
+                    <span class="quiz-settings-row-text">Silenzia telecronaca</span>
                     <input type="checkbox" id="quiz-speech-mute-toggle" onchange="quizSettingsSetMute(this.checked)" style="width:18px;height:18px;accent-color:#1565c0;">
+                </label>
+                <label class="quiz-settings-row quiz-settings-row--toggle quiz-settings-row--compact" style="margin-top:8px;">
+                    <span class="quiz-settings-row-text">Silenzia musica ed effetti</span>
+                    <input type="checkbox" id="quiz-gameaudio-mute-toggle" onchange="quizSettingsSetGameMute(this.checked)" style="width:18px;height:18px;accent-color:#1565c0;">
                 </label>
                 <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Velocità parlato</div>
                 <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
@@ -5512,7 +5590,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204p</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260205a</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5572,7 +5650,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260204p';
+const APP_BUILD = '20260205a';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5580,6 +5658,9 @@ const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_SPEECH_MUTED = 'io-quiz-speech-muted';
+const QUIZ_LS_GAMEAUDIO_MUTED = 'io-quiz-gameaudio-muted';
+const QUIZ_LS_COMMENTARY_VOL = 'io-quiz-commentary-vol';
+const QUIZ_LS_GAMEAUDIO_VOL = 'io-quiz-gameaudio-vol';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
 const QUIZ_LS_PIPER_VOICE = 'io-quiz-piper-voice';
@@ -5602,6 +5683,8 @@ const QUIZ_SUSPENSE_BGM_VOLUME_LAYER = 0.07;
 /** Abbassa il sottofondo mentre parla la telecronaca. */
 const QUIZ_SUSPENSE_DUCK_MAIN = 0.055;
 const QUIZ_SUSPENSE_DUCK_LAYER = 0.025;
+/** Volume relativo musica intro (moltiplicato per il canale musica/effetti). */
+const QUIZ_INTRO_BASE_VOL = 1;
 const QUIZ_SFX_CORRECT = 'assets/quiz-sfx/risposta-giusta.mp3';
 const QUIZ_SFX_WRONG = 'assets/quiz-sfx/risposta-sbagliata.mp3';
 const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
@@ -5614,6 +5697,10 @@ const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
 let quizSpeechMutedTopbar = false;
+let quizGameAudioMuted = false;
+let quizCommentaryVolume = 1;
+let quizGameAudioVolume = 1;
+let quizSuspenseDucked = false;
 let quizSpeechRate = 1;
 let quizGeminiApiKey = '';
 let quizVoiceEngine = QUIZ_DEFAULT_VOICE_ENGINE; // gemini | piper
@@ -6289,6 +6376,22 @@ function quizLoadStoredPreference() {
         }
         const sm = localStorage.getItem(QUIZ_LS_SPEECH_MUTED);
         quizSpeechMutedTopbar = sm === '1';
+        const gm = localStorage.getItem(QUIZ_LS_GAMEAUDIO_MUTED);
+        quizGameAudioMuted = gm === '1';
+        try {
+            const cvl = localStorage.getItem(QUIZ_LS_COMMENTARY_VOL);
+            if (cvl != null && cvl !== '') {
+                const c = Number(cvl);
+                if (isFinite(c) && c >= 0 && c <= 1) quizCommentaryVolume = c;
+            }
+        } catch (eCv) { /* ignore */ }
+        try {
+            const gvl = localStorage.getItem(QUIZ_LS_GAMEAUDIO_VOL);
+            if (gvl != null && gvl !== '') {
+                const g = Number(gvl);
+                if (isFinite(g) && g >= 0 && g <= 1) quizGameAudioVolume = g;
+            }
+        } catch (eGv) { /* ignore */ }
         quizGeminiApiKey = String(localStorage.getItem(QUIZ_LS_GEMINI_KEY) || '').trim();
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || QUIZ_DEFAULT_VOICE_ENGINE);
         if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = QUIZ_DEFAULT_VOICE_ENGINE;
@@ -6353,6 +6456,60 @@ function quizResolveMediaUrl(relPath) {
     }
 }
 
+function quizGetGameAudioLinearVolume() {
+    if (quizGameAudioMuted) return 0;
+    const v = Number(quizGameAudioVolume);
+    if (!(v >= 0) || v > 1) return 1;
+    return Math.max(0, Math.min(1, v));
+}
+
+function quizGetCommentaryLinearVolume() {
+    if (quizSpeechMutedTopbar) return 0;
+    const v = Number(quizCommentaryVolume);
+    if (!(v >= 0) || v > 1) return 1;
+    return Math.max(0, Math.min(1, v));
+}
+
+function quizSetCommentaryVolumeLinear(linear) {
+    quizCommentaryVolume = Math.max(0, Math.min(1, Number(linear) || 0));
+    try {
+        localStorage.setItem(QUIZ_LS_COMMENTARY_VOL, String(quizCommentaryVolume));
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
+}
+
+function quizSetGameAudioVolumeLinear(linear) {
+    quizGameAudioVolume = Math.max(0, Math.min(1, Number(linear) || 0));
+    try {
+        localStorage.setItem(QUIZ_LS_GAMEAUDIO_VOL, String(quizGameAudioVolume));
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
+}
+
+function quizApplySuspenseVolumes() {
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        const main = (quizSuspenseDucked ? QUIZ_SUSPENSE_DUCK_MAIN : QUIZ_SUSPENSE_BGM_VOLUME_MAIN) * gv;
+        const lay = (quizSuspenseDucked ? QUIZ_SUSPENSE_DUCK_LAYER : QUIZ_SUSPENSE_BGM_VOLUME_LAYER) * gv;
+        if (quizSuspenseAudioEl) quizSuspenseAudioEl.volume = main;
+        if (quizSuspenseLayerAudioEl) quizSuspenseLayerAudioEl.volume = lay;
+    } catch (eA) { /* ignore */ }
+}
+
+function quizRefreshLiveAudioVolumes() {
+    quizApplySuspenseVolumes();
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (quizIntroAudioEl) quizIntroAudioEl.volume = QUIZ_INTRO_BASE_VOL * gv;
+    } catch (eI) { /* ignore */ }
+    try {
+        const cv = quizGetCommentaryLinearVolume();
+        if (quizAiAudioEl) quizAiAudioEl.volume = cv;
+    } catch (eC) { /* ignore */ }
+}
+
 function quizStopIntroMusic() {
     try {
         if (quizIntroAudioEl) {
@@ -6368,7 +6525,10 @@ function quizPlayIntroMusicAlternating(opts) {
     const resumeOnly = !!opts.resumeOnly;
     const intro = document.getElementById('quiz-screen-intro');
     if (!intro || intro.style.display === 'none') return;
-    if (quizSpeechMutedTopbar) return;
+    if (quizGetGameAudioLinearVolume() <= 0) {
+        quizStopIntroMusic();
+        return;
+    }
     quizStopIntroMusic();
     let which = '';
     if (resumeOnly && quizIntroSessionTrack) {
@@ -6389,22 +6549,21 @@ function quizPlayIntroMusicAlternating(opts) {
     const url = quizResolveMediaUrl(which === '2' ? QUIZ_INTRO_AUDIO_2 : QUIZ_INTRO_AUDIO_1);
     const a = new Audio(url);
     a.loop = false;
+    try {
+        a.volume = QUIZ_INTRO_BASE_VOL * quizGetGameAudioLinearVolume();
+    } catch (eV) { /* ignore */ }
     quizIntroAudioEl = a;
     a.play().catch(function () { /* autoplay bloccato fino a gesture */ });
 }
 
 function quizSuspenseUnduckVolumes() {
-    try {
-        if (quizSuspenseAudioEl) quizSuspenseAudioEl.volume = QUIZ_SUSPENSE_BGM_VOLUME_MAIN;
-        if (quizSuspenseLayerAudioEl) quizSuspenseLayerAudioEl.volume = QUIZ_SUSPENSE_BGM_VOLUME_LAYER;
-    } catch (eU) { /* ignore */ }
+    quizSuspenseDucked = false;
+    quizApplySuspenseVolumes();
 }
 
 function quizSuspenseDuckVolumes() {
-    try {
-        if (quizSuspenseAudioEl) quizSuspenseAudioEl.volume = QUIZ_SUSPENSE_DUCK_MAIN;
-        if (quizSuspenseLayerAudioEl) quizSuspenseLayerAudioEl.volume = QUIZ_SUSPENSE_DUCK_LAYER;
-    } catch (eD) { /* ignore */ }
+    quizSuspenseDucked = true;
+    quizApplySuspenseVolumes();
 }
 
 function quizStopSuspenseMusic() {
@@ -6419,6 +6578,7 @@ function quizStopSuspenseMusic() {
             quizSuspenseLayerAudioEl.src = '';
             quizSuspenseLayerAudioEl = null;
         }
+        quizSuspenseDucked = false;
     } catch (eS) { /* ignore */ }
 }
 
@@ -6427,7 +6587,10 @@ function quizPlaySuspenseAlternating(opts) {
     const resumeOnly = !!opts.resumeOnly;
     const play = document.getElementById('quiz-screen-play');
     if (!play || play.style.display === 'none') return;
-    if (quizSpeechMutedTopbar) return;
+    if (quizGetGameAudioLinearVolume() <= 0) {
+        quizStopSuspenseMusic();
+        return;
+    }
     quizStopSuspenseMusic();
     let which = '';
     if (resumeOnly && quizSuspenseSessionTrack) {
@@ -6448,36 +6611,43 @@ function quizPlaySuspenseAlternating(opts) {
     const url = quizResolveMediaUrl(which === '2' ? QUIZ_SUSPENSE_AUDIO_2 : QUIZ_SUSPENSE_AUDIO_1);
     const a = new Audio(url);
     a.loop = true;
-    a.volume = QUIZ_SUSPENSE_BGM_VOLUME_MAIN;
     quizSuspenseAudioEl = a;
+    quizSuspenseDucked = false;
+    quizApplySuspenseVolumes();
     a.play().catch(function () { /* autoplay */ });
     const lay = new Audio(quizResolveMediaUrl(QUIZ_SUSPENSE_AUDIO_LAYER));
     lay.loop = true;
-    lay.volume = QUIZ_SUSPENSE_BGM_VOLUME_LAYER;
     quizSuspenseLayerAudioEl = lay;
+    quizApplySuspenseVolumes();
     lay.play().catch(function () { /* autoplay */ });
 }
 
 function quizPlayCorrectAnswerSfx() {
     try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
         const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_CORRECT));
-        a.volume = 0.9;
+        a.volume = 0.9 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eC) { /* ignore */ }
 }
 
 function quizPlayWrongAnswerSfx() {
     try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
         const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_WRONG));
-        a.volume = 0.88;
+        a.volume = 0.88 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eW) { /* ignore */ }
 }
 
 function quizPlayMicrobeUnlockApplauseSfx() {
     try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
         const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_APPLAUSE));
-        a.volume = 0.85;
+        a.volume = 0.85 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eA) { /* ignore */ }
 }
@@ -6508,22 +6678,43 @@ function quizSyncSpeechUi() {
     const sub = document.getElementById('quiz-settings-speech-sub');
     const rateTxt = (Number(quizSpeechRate) || 1).toFixed(2).replace(/0$/, '');
     if (sub) {
+        var tail = '';
+        if (quizSpeechMutedTopbar) tail += ' · telecronaca silenziata';
+        if (quizGameAudioMuted) tail += ' · musica silenziata';
         sub.textContent = quizSpeechEnabled
-            ? ('Commentatore attivo · Velocità ' + rateTxt + 'x' + (quizSpeechMutedTopbar ? ' · silenziato ora' : ''))
-            : ('Commentatore disattivo · Velocità ' + rateTxt + 'x');
+            ? ('Commentatore attivo · Velocità ' + rateTxt + 'x' + tail)
+            : ('Commentatore disattivo · Velocità ' + rateTxt + 'x' + tail);
     }
-    const ico = document.getElementById('quiz-topbar-audio-icon');
-    const btn = document.getElementById('quiz-topbar-audio');
-    if (ico) ico.textContent = quizSpeechMutedTopbar ? '🔇' : '🔊';
-    if (btn) {
-        const lbl = quizSpeechMutedTopbar ? 'Riattiva parlato quiz' : 'Silenzia parlato quiz';
-        btn.setAttribute('aria-label', lbl);
-        btn.setAttribute('title', lbl);
+    const gIco = document.getElementById('quiz-topbar-game-icon');
+    const gBtn = document.getElementById('quiz-topbar-game-audio');
+    if (gIco) gIco.textContent = quizGameAudioMuted ? '🔇' : '🎵';
+    if (gBtn) {
+        var gl = quizGameAudioMuted ? 'Riattiva musica ed effetti' : 'Silenzia musica ed effetti';
+        gBtn.setAttribute('aria-label', gl);
+        gBtn.setAttribute('title', gl);
+    }
+    const sIco = document.getElementById('quiz-topbar-speech-icon');
+    const sBtn = document.getElementById('quiz-topbar-speech-audio');
+    if (sIco) sIco.textContent = quizSpeechMutedTopbar ? '🔇' : '🎙️';
+    if (sBtn) {
+        var sl = quizSpeechMutedTopbar ? 'Riattiva telecronaca' : 'Silenzia telecronaca';
+        sBtn.setAttribute('aria-label', sl);
+        sBtn.setAttribute('title', sl);
+    }
+    const gvSl = document.getElementById('quiz-topbar-game-vol');
+    if (gvSl && document.activeElement !== gvSl) {
+        gvSl.value = String(Math.max(0, Math.min(100, Math.round(Number(quizGameAudioVolume) * 100))));
+    }
+    const svSl = document.getElementById('quiz-topbar-speech-vol');
+    if (svSl && document.activeElement !== svSl) {
+        svSl.value = String(Math.max(0, Math.min(100, Math.round(Number(quizCommentaryVolume) * 100))));
     }
     const slider = document.getElementById('quiz-speech-rate-slider');
     if (slider) slider.value = String(Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1)));
     const muteCb = document.getElementById('quiz-speech-mute-toggle');
     if (muteCb) muteCb.checked = !!quizSpeechMutedTopbar;
+    const gameMuteCb = document.getElementById('quiz-gameaudio-mute-toggle');
+    if (gameMuteCb) gameMuteCb.checked = !!quizGameAudioMuted;
     const rateLabel = document.getElementById('quiz-speech-rate-label');
     if (rateLabel) rateLabel.textContent = rateTxt + 'x';
     const g = document.getElementById('quiz-text-ai-key-input');
@@ -6627,6 +6818,9 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSuspenseDuckVolumes();
         const a = new Audio(chosenUrl);
+        try {
+            a.volume = quizGetCommentaryLinearVolume();
+        } catch (eVol) { /* ignore */ }
         a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
         a.onended = function () {
             quizSuspenseUnduckVolumes();
@@ -6734,6 +6928,9 @@ function quizSpeakWithLocalTts(text, runId) {
     utt.lang = 'it-IT';
     utt.rate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
     utt.pitch = 1;
+    try {
+        utt.volume = quizGetCommentaryLinearVolume();
+    } catch (eUv) { /* ignore */ }
     utt.onend = function () {
         quizSuspenseUnduckVolumes();
     };
@@ -6823,6 +7020,9 @@ async function quizSpeakWithPiper(rawText, runId) {
         const url = URL.createObjectURL(blob);
         const a = new Audio(url);
         a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        try {
+            a.volume = quizGetCommentaryLinearVolume();
+        } catch (eAv) { /* ignore */ }
         quizSuspenseDuckVolumes();
         a.onended = function () {
             quizSuspenseUnduckVolumes();
@@ -6849,39 +7049,65 @@ async function quizSpeakWithPiper(rawText, runId) {
     }
 }
 
-function quizToggleTopbarSpeechMute() {
-    quizSetMuteState(!quizSpeechMutedTopbar);
-}
-
 function quizSettingsSetMute(on) {
     quizSetMuteState(!!on);
 }
 
-function quizEnsureTopbarAudioBinding() {
-    const btn = document.getElementById('quiz-topbar-audio');
-    if (!btn || btn.dataset.boundMute === '1') return;
-    btn.dataset.boundMute = '1';
-    const handler = function (ev) {
-        try {
-            if (ev) {
-                ev.preventDefault();
-                ev.stopPropagation();
-            }
-        } catch (eEv) {}
-        quizToggleTopbarSpeechMute();
-    };
-    // Use only click to avoid double-fire (pointer/touch + click) that toggles twice.
-    btn.addEventListener('click', handler, { passive: false });
+function quizSettingsSetGameMute(on) {
+    quizSetGameAudioMuteState(!!on);
 }
 
-function quizSetMuteState(muted) {
-    quizSpeechMutedTopbar = !!muted;
+function quizEnsureTopbarAudioBinding() {
+    const gBtn = document.getElementById('quiz-topbar-game-audio');
+    if (gBtn && gBtn.dataset.boundGameMute !== '1') {
+        gBtn.dataset.boundGameMute = '1';
+        gBtn.addEventListener('click', function (ev) {
+            try {
+                if (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            } catch (eEv) {}
+            quizSetGameAudioMuteState(!quizGameAudioMuted);
+        }, { passive: false });
+    }
+    const sBtn = document.getElementById('quiz-topbar-speech-audio');
+    if (sBtn && sBtn.dataset.boundSpeechMute !== '1') {
+        sBtn.dataset.boundSpeechMute = '1';
+        sBtn.addEventListener('click', function (ev) {
+            try {
+                if (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            } catch (eEv2) {}
+            quizSetMuteState(!quizSpeechMutedTopbar);
+        }, { passive: false });
+    }
+    const gVol = document.getElementById('quiz-topbar-game-vol');
+    if (gVol && gVol.dataset.boundGameVol !== '1') {
+        gVol.dataset.boundGameVol = '1';
+        gVol.addEventListener('input', function () {
+            quizSetGameAudioVolumeLinear(Number(gVol.value) / 100);
+        });
+    }
+    const sVol = document.getElementById('quiz-topbar-speech-vol');
+    if (sVol && sVol.dataset.boundSpeechVol !== '1') {
+        sVol.dataset.boundSpeechVol = '1';
+        sVol.addEventListener('input', function () {
+            quizSetCommentaryVolumeLinear(Number(sVol.value) / 100);
+        });
+    }
+}
+
+function quizSetGameAudioMuteState(muted) {
+    quizGameAudioMuted = !!muted;
     try {
-        localStorage.setItem(QUIZ_LS_SPEECH_MUTED, quizSpeechMutedTopbar ? '1' : '0');
+        localStorage.setItem(QUIZ_LS_GAMEAUDIO_MUTED, quizGameAudioMuted ? '1' : '0');
     } catch (e) {}
     quizSyncSpeechUi();
-    if (quizSpeechMutedTopbar) {
-        quizStopSpeech();
+    quizRefreshLiveAudioVolumes();
+    if (quizGameAudioMuted) {
         quizStopIntroMusic();
         quizStopSuspenseMusic();
     } else {
@@ -6891,10 +7117,21 @@ function quizSetMuteState(muted) {
             quizPlayIntroMusicAlternating({ resumeOnly: true });
         } else if (play && play.style.display !== 'none') {
             quizPlaySuspenseAlternating({ resumeOnly: true });
-            quizSpeakCurrentQuestionAndChoices();
-        } else {
-            quizSpeakCurrentQuestionAndChoices();
         }
+    }
+}
+
+function quizSetMuteState(muted) {
+    quizSpeechMutedTopbar = !!muted;
+    try {
+        localStorage.setItem(QUIZ_LS_SPEECH_MUTED, quizSpeechMutedTopbar ? '1' : '0');
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
+    if (quizSpeechMutedTopbar) {
+        quizStopSpeech();
+    } else {
+        quizSpeakCurrentQuestionAndChoices();
     }
 }
 
@@ -8913,6 +9150,7 @@ function quizShowScreen(which) {
     if (topbar) topbar.classList.toggle('quiz-fs-topbar--intro', which === 'intro');
     quizEnsureTopbarAudioBinding();
     quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
         quizAvatarPickerSync();
