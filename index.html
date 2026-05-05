@@ -437,6 +437,32 @@
             fill: currentColor;
             display: block;
         }
+        .quiz-fs-audio {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 32px;
+            padding: 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .quiz-fs-audio:hover { background: rgba(255,255,255,0.22); }
+        .quiz-fs-audio:active { transform: translateY(1px); }
+        .quiz-fs-audio:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-audio {
+            display: none !important;
+        }
         .quiz-fs-exit {
             flex-shrink: 0;
             padding: 5px 12px;
@@ -5173,6 +5199,9 @@ function dismissAppSplash() {
                 <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
             </div>
             <div class="quiz-fs-topbar__end">
+                <button type="button" class="quiz-fs-audio" id="quiz-topbar-audio" onclick="quizToggleTopbarSpeechMute()" aria-label="Silenzia parlato quiz" title="Silenzia parlato quiz">
+                    <span id="quiz-topbar-audio-icon" aria-hidden="true">🔊</span>
+                </button>
                 <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -5377,6 +5406,10 @@ function dismissAppSplash() {
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="showQuizSpeechSettingsModal()" aria-label="Impostazioni parlato quiz">
+                <span><strong>Parlato automatico quiz</strong><br><span id="quiz-settings-speech-sub">Attivo</span></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="openQuizProducerPasswordFromSettings()">
                 <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -5410,6 +5443,16 @@ function dismissAppSplash() {
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-reset" onclick="cancelQuizPasswordModal()">Annulla</button>
                 <button type="button" class="btn-side btn-report" onclick="confirmQuizPassword()">Entra</button>
+            </div>
+        </div>
+    </div>
+    <div id="quiz-speech-settings-overlay" class="quiz-lock-overlay" aria-hidden="true">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Parlato quiz">
+            <h4 class="quiz-lock-title">Parlato quiz</h4>
+            <p class="quiz-lock-hint">Se attivo, la domanda e le risposte vengono lette automaticamente ad ogni nuovo quesito.</p>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-reset" onclick="hideQuizSpeechSettingsModal()">Annulla</button>
+                <button type="button" class="btn-side btn-report" id="quiz-speech-settings-toggle-btn" onclick="quizSpeechSettingsToggle()">Disattiva parlato</button>
             </div>
         </div>
     </div>
@@ -5486,10 +5529,13 @@ let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
+const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 /** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
+let quizSpeechEnabled = true;
+let quizSpeechMutedTopbar = false;
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
 const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
@@ -5646,6 +5692,7 @@ function quizPushPrefsToFirestore() {
             try { panel = localStorage.getItem(QUIZ_LS_PANEL) === '1'; } catch (e) {}
             return firebase.firestore().collection(QUIZ_FS_COLLECTION).doc(uid).set({
                 featureEnabled: !!quizFeatureEnabled,
+                speechEnabled: !!quizSpeechEnabled,
                 panelOpen: panel,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
@@ -5674,9 +5721,15 @@ function quizPullPrefsFromFirestoreAndApply() {
                 if (typeof d.featureEnabled === 'boolean') {
                     quizFeatureEnabled = d.featureEnabled;
                 }
+                if (typeof d.speechEnabled === 'boolean') {
+                    quizSpeechEnabled = d.speechEnabled;
+                }
                 const pOpen = typeof d.panelOpen === 'boolean' ? d.panelOpen : false;
                 try {
                     localStorage.setItem(QUIZ_LS_FEATURE, quizFeatureEnabled ? '1' : '0');
+                } catch (e) {}
+                try {
+                    localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, quizSpeechEnabled ? '1' : '0');
                 } catch (e) {}
                 try {
                     localStorage.setItem(QUIZ_LS_PANEL, pOpen ? '1' : '0');
@@ -5992,6 +6045,13 @@ function quizSaveFeatureFlag(enabled) {
     quizSyncPrefsToFirestoreDebounced();
 }
 
+function quizSaveSpeechFeatureFlag(enabled) {
+    try {
+        localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, enabled ? '1' : '0');
+    } catch (e) {}
+    quizSyncPrefsToFirestoreDebounced();
+}
+
 function quizSavePanelOpen(open) {
     try {
         localStorage.setItem(QUIZ_LS_PANEL, open ? '1' : '0');
@@ -6004,6 +6064,9 @@ function quizLoadStoredPreference() {
         const f = localStorage.getItem(QUIZ_LS_FEATURE);
         if (f === '1') quizFeatureEnabled = true;
         else if (f === '0') quizFeatureEnabled = false;
+        const s = localStorage.getItem(QUIZ_LS_SPEECH_ENABLED);
+        if (s === '1') quizSpeechEnabled = true;
+        else if (s === '0') quizSpeechEnabled = false;
     } catch (e) {}
 }
 
@@ -6030,6 +6093,113 @@ function syncSettingsQuizToggleUi() {
     if (cb) cb.checked = !!quizFeatureEnabled;
 }
 
+function quizSpeechSupported() {
+    return typeof window !== 'undefined' &&
+        'speechSynthesis' in window &&
+        typeof SpeechSynthesisUtterance !== 'undefined';
+}
+
+function quizStopSpeech() {
+    try {
+        if (quizSpeechSupported()) {
+            window.speechSynthesis.cancel();
+        }
+    } catch (e) {}
+}
+
+function quizIsPlayScreenActive() {
+    const play = document.getElementById('quiz-screen-play');
+    return !!(play && play.style.display !== 'none');
+}
+
+function quizSyncSpeechUi() {
+    const sub = document.getElementById('quiz-settings-speech-sub');
+    if (sub) {
+        sub.textContent = quizSpeechEnabled
+            ? (quizSpeechMutedTopbar ? 'Attivo (silenziato ora)' : 'Attivo')
+            : 'Disattivo';
+    }
+    const ico = document.getElementById('quiz-topbar-audio-icon');
+    const btn = document.getElementById('quiz-topbar-audio');
+    if (ico) ico.textContent = (!quizSpeechEnabled || quizSpeechMutedTopbar) ? '🔇' : '🔊';
+    if (btn) {
+        const lbl = (!quizSpeechEnabled || quizSpeechMutedTopbar) ? 'Riattiva parlato quiz' : 'Silenzia parlato quiz';
+        btn.setAttribute('aria-label', lbl);
+        btn.setAttribute('title', lbl);
+    }
+}
+
+function quizSpeakCurrentQuestionAndChoices() {
+    if (!quizSpeechSupported() || !quizSpeechEnabled || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
+    const q = quizState.queue && quizState.queue[quizState.index];
+    if (!q || !Array.isArray(q.options)) return;
+    quizStopSpeech();
+    const parts = ['Domanda. ' + String(q.q || '')];
+    q.options.forEach(function (opt, idx) {
+        const letter = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+        parts.push('Risposta ' + letter + '. ' + String((opt && opt.text) || ''));
+    });
+    const utt = new SpeechSynthesisUtterance(parts.join(' '));
+    utt.lang = 'it-IT';
+    utt.rate = 0.98;
+    utt.pitch = 1;
+    try {
+        const vv = window.speechSynthesis.getVoices() || [];
+        const it = vv.find(function (v) { return /^it(-|_)/i.test(String(v.lang || '')); });
+        if (it) utt.voice = it;
+    } catch (e) {}
+    try {
+        window.speechSynthesis.speak(utt);
+    } catch (e2) {}
+}
+
+function quizToggleTopbarSpeechMute() {
+    if (!quizSpeechEnabled) {
+        showQuizSpeechSettingsModal();
+        return;
+    }
+    quizSpeechMutedTopbar = !quizSpeechMutedTopbar;
+    quizSyncSpeechUi();
+    if (quizSpeechMutedTopbar) {
+        quizStopSpeech();
+    } else {
+        quizSpeakCurrentQuestionAndChoices();
+    }
+}
+
+function showQuizSpeechSettingsModal() {
+    const overlay = document.getElementById('quiz-speech-settings-overlay');
+    const btn = document.getElementById('quiz-speech-settings-toggle-btn');
+    if (!overlay || !btn) return;
+    btn.textContent = quizSpeechEnabled ? 'Disattiva parlato' : 'Attiva parlato';
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+}
+
+function hideQuizSpeechSettingsModal() {
+    const overlay = document.getElementById('quiz-speech-settings-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function quizSpeechSettingsToggle() {
+    quizSpeechEnabled = !quizSpeechEnabled;
+    if (!quizSpeechEnabled) {
+        quizSpeechMutedTopbar = true;
+        quizStopSpeech();
+    } else {
+        quizSpeechMutedTopbar = false;
+    }
+    quizSaveSpeechFeatureFlag(quizSpeechEnabled);
+    quizSyncSpeechUi();
+    const btn = document.getElementById('quiz-speech-settings-toggle-btn');
+    if (btn) btn.textContent = quizSpeechEnabled ? 'Disattiva parlato' : 'Attiva parlato';
+    if (quizSpeechEnabled) {
+        quizSpeakCurrentQuestionAndChoices();
+    }
+}
+
 /** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
 function quizSettingsRefreshSubReset() {
     var sub = document.getElementById('quiz-settings-refresh-sub');
@@ -6053,6 +6223,7 @@ function showQuizSettingsModal() {
         refBtn.disabled = false;
         refBtn.removeAttribute('aria-busy');
     }
+    quizSyncSpeechUi();
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('settings-open');
@@ -6123,6 +6294,7 @@ function hideQuizSettingsModal() {
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('settings-open');
+    hideQuizSpeechSettingsModal();
 }
 
 function openQuizProducerPasswordFromSettings() {
@@ -7965,6 +8137,9 @@ function quizShowScreen(which) {
     const over = document.getElementById('quiz-screen-over');
     const panel = document.getElementById('quiz-panel');
     if (!intro || !play || !over) return;
+    if (which !== 'play') {
+        quizStopSpeech();
+    }
     intro.style.display = which === 'intro' ? 'block' : 'none';
     play.style.display = which === 'play' ? 'flex' : 'none';
     over.style.display = which === 'over' ? 'block' : 'none';
@@ -7976,6 +8151,7 @@ function quizShowScreen(which) {
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
         quizAvatarPickerSync();
+        quizSyncSpeechUi();
     }
 }
 
@@ -8145,6 +8321,8 @@ function quizRenderQuestion(opts) {
     }
     quizUpdatePlayProgress();
     quizScheduleQuestionTimerTicks();
+    quizSyncSpeechUi();
+    quizSpeakCurrentQuestionAndChoices();
 
     if (!opts.instant && body) {
         body.classList.add('quiz-fade-in');
@@ -8234,6 +8412,7 @@ function quizAnswer(idx) {
     }
 
     quizClearQuestionTimer();
+    quizStopSpeech();
     quizAnswerLocked = true;
 
     const ch = document.getElementById('quiz-choices');
@@ -10422,6 +10601,7 @@ function openQuiz() {
 }
 
 function closeQuiz() {
+    quizStopSpeech();
     quizAdelfoCancelIntro();
     quizCancelScoreAnim();
     const top10m = document.getElementById('quiz-top10-name-modal');
@@ -10544,6 +10724,7 @@ window.addEventListener('load', function initQuizProtection() {
         function finishQuizInit() {
             applyQuizVisibility();
             syncSettingsQuizToggleUi();
+            quizSyncSpeechUi();
             const infoV = document.getElementById('quiz-info-version-label');
             if (infoV) infoV.textContent = APP_VERSION;
             const infoB = document.getElementById('quiz-info-build-label');
