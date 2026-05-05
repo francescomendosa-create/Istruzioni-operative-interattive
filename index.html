@@ -5592,7 +5592,7 @@ const QUIZ_LS_ELEVEN_VOICE = 'io-quiz-eleven-voice';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyCPlQR0NTqL6GJZvgUqwFzlMxdGIk433_U';
 const QUIZ_AI_VOICE_KEY_CODE = 'sk_83488fa2743ad05426a97f7fa4df155c00c5fe2317669fea';
-const QUIZ_AI_VOICE_ID_CODE = '';
+const QUIZ_AI_VOICE_ID_CODE = 'JfznbVXrGXYh0gZo9Lcp';
 /** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
@@ -6400,27 +6400,36 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
         var styleHint = 'tono chiaro e professionale';
         if (quizAiCommentStyle === 'short') styleHint = 'tono molto sintetico e diretto';
         if (quizAiCommentStyle === 'coach') styleHint = 'tono incoraggiante da coach';
-        const prompt =
-            'Riformula in italiano parlato chiaro, massimo 120 parole, senza markdown. ' +
-            'Usa ' + styleHint + '. Mantieni domanda e risposte in ordine. Testo: ' + rawText;
-        const gemRes = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
-            encodeURIComponent(cfg.textKey),
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
+        let aiText = rawText;
+        if (cfg.textKey) {
+            try {
+                const prompt =
+                    'Riformula in italiano parlato chiaro, massimo 120 parole, senza markdown. ' +
+                    'Usa ' + styleHint + '. Mantieni domanda e risposte in ordine. Testo: ' + rawText;
+                const gemRes = await fetch(
+                    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
+                    encodeURIComponent(cfg.textKey),
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        })
+                    }
+                );
+                if (gemRes.ok) {
+                    const gemJson = await gemRes.json();
+                    const cand =
+                        String(
+                            (((gemJson || {}).candidates || [])[0] || {}).content &&
+                            ((((gemJson || {}).candidates || [])[0].content.parts || [])[0] || {}).text
+                        ).trim();
+                    if (cand) aiText = cand;
+                }
+            } catch (eGem) {
+                /* Se il testo AI fallisce, usiamo comunque testo originale con voce realistica */
             }
-        );
-        if (!gemRes.ok) throw new Error('gemini_http_' + gemRes.status);
-        const gemJson = await gemRes.json();
-        const aiText =
-            String(
-                (((gemJson || {}).candidates || [])[0] || {}).content &&
-                ((((gemJson || {}).candidates || [])[0].content.parts || [])[0] || {}).text
-            ).trim() || rawText;
+        }
         if (runId !== quizSpeechRunId) return;
 
         const voiceRes = await fetch(
@@ -6443,7 +6452,7 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
                 })
             }
         );
-        if (!voiceRes.ok) throw new Error('eleven_http_' + voiceRes.status);
+        if (!voiceRes.ok) throw new Error('voice_http_' + voiceRes.status);
         const blob = await voiceRes.blob();
         if (runId !== quizSpeechRunId) return;
         const url = URL.createObjectURL(blob);
