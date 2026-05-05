@@ -296,6 +296,40 @@
         .quiz-fs-topbar--solo-exit {
             justify-content: flex-end;
         }
+        .quiz-fs-topbar--with-settings {
+            justify-content: space-between;
+        }
+        .quiz-fs-settings {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 32px;
+            padding: 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .quiz-fs-settings:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+        .quiz-fs-settings:active {
+            transform: translateY(1px);
+        }
+        .quiz-fs-settings:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+        .quiz-fs-settings svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            display: block;
+        }
         .quiz-fs-exit {
             flex-shrink: 0;
             padding: 5px 12px;
@@ -986,6 +1020,59 @@
             letter-spacing: 0.06em;
             color: #78909c;
         }
+        /* Telefono: ~15% più compatto; griglia per centrare frecce e riquadro foto sulla stessa riga. */
+        @media (max-width: 768px) {
+            .quiz-avatar-picker {
+                display: grid;
+                grid-template-columns: 38px min(204px, 47.6vw) 38px;
+                grid-template-rows: auto auto;
+                align-items: center;
+                justify-content: center;
+                column-gap: clamp(5px, 1.8vw, 9px);
+                row-gap: 4px;
+                margin: 10px auto 4px;
+                padding: 0 4px;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            #quiz-avatar-prev {
+                grid-column: 1;
+                grid-row: 1;
+                justify-self: end;
+                align-self: center;
+            }
+            .quiz-avatar-picker__stage {
+                grid-column: 2;
+                grid-row: 1;
+                width: 100%;
+                max-width: min(204px, 47.6vw);
+                border-radius: 13px;
+                justify-self: center;
+            }
+            #quiz-avatar-next {
+                grid-column: 3;
+                grid-row: 1;
+                justify-self: start;
+                align-self: center;
+            }
+            .quiz-avatar-picker__counter {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                width: 100%;
+                margin: 0;
+                font-size: 0.66rem;
+            }
+            .quiz-avatar-picker__nav {
+                width: 38px;
+                height: 38px;
+                font-size: 0.92rem;
+            }
+            .quiz-avatar-picker__img {
+                image-rendering: auto;
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+            }
+        }
         .quiz-level-single .quiz-level-title {
             display: block;
             font-weight: bold;
@@ -1178,11 +1265,28 @@
             min-width: 0;
             justify-self: start;
         }
-        /* Vite: stessa grafica di Posizione (lbl + valore) — PC e tablet orizzontale */
+        /* Vite: ritratto scelto all’avvio + numero — PC e tablet orizzontale */
         .quiz-play-lives-inline-wrap {
             display: none;
             align-items: center;
             gap: 6px;
+        }
+        .quiz-play-lives-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quiz-play-lives-avatar {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            object-fit: cover;
+            object-position: center 14%;
+            border: 1px solid rgba(144, 164, 174, 0.45);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            background: #eceff1;
+            pointer-events: none;
         }
         @media (min-width: 1025px) {
             .quiz-play-lives-inline-wrap {
@@ -3119,7 +3223,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 5000;
+            z-index: 10030;
             padding: 18px;
         }
         .quiz-lock-overlay.visible { display: flex; }
@@ -3130,7 +3234,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 5000;
+            z-index: 10020;
             padding: 18px;
         }
         .quiz-settings-overlay.visible { display: flex; }
@@ -3192,7 +3296,7 @@
             line-height: 1;
         }
         .quiz-info-overlay {
-            z-index: 5200;
+            z-index: 10040;
             align-items: center;
             justify-content: center;
             overflow-y: auto;
@@ -3320,7 +3424,7 @@
             }
         }
         .quiz-lock-overlay--producer {
-            z-index: 5100;
+            z-index: 10030;
         }
         .quiz-lock-box {
             width: min(92vw, 360px);
@@ -4883,7 +4987,12 @@ function dismissAppSplash() {
 </div>
 
     <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
-        <div class="quiz-fs-topbar quiz-fs-topbar--solo-exit">
+        <div class="quiz-fs-topbar quiz-fs-topbar--with-settings">
+            <button type="button" class="quiz-fs-settings" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+            </button>
             <button type="button" class="quiz-fs-exit" onclick="quizTopExit()">Esci</button>
         </div>
         <div class="quiz-fs-scroll">
@@ -6246,7 +6355,7 @@ let quizBankCache = null;
 const QUIZ_BANK_BUILD_ID = 9;
 const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
-let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0 };
+let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0, avatarIndex: 0 };
 /** Somma dei punti guadagnati con il tempo residuo (solo domande con countdown attivo). */
 let quizSessionTimerBonusTotal = 0;
 let quizAnswerLocked = false;
@@ -7490,6 +7599,20 @@ function quizAvatarUrl(i) {
     }
 }
 
+/** Indice avatar scelto in intro (sessione + variabile globale). */
+function quizGetSessionAvatarIndex() {
+    try {
+        const s = sessionStorage.getItem('quizAvatarIndex');
+        if (s != null) {
+            const n = parseInt(s, 10);
+            if (!isNaN(n) && n >= 0 && n < QUIZ_AVATAR_COUNT) {
+                return n;
+            }
+        }
+    } catch (e2) { /* ignore */ }
+    return Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizAvatarIndex) || 0));
+}
+
 function quizAvatarPickerLoadStored() {
     try {
         const v = sessionStorage.getItem('quizAvatarIndex');
@@ -7614,12 +7737,18 @@ function quizUpdatePlayProgress(extra) {
     const timerCumulPts = Math.max(0, Number(quizSessionTimerBonusTotal) || 0);
     const timerCumulTickCls = extra.timerCumulTick ? ' quiz-play-oneline-val--tick' : '';
     const livesRemain = Math.max(0, QUIZ_RULE_MAX_ERRORS - (Number(quizState.wrongCount) || 0));
+    const avIdx = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizState.avatarIndex) || 0));
+    const avUrl = quizAvatarUrl(avIdx);
     const livesRow =
         '<span class="quiz-play-lives-inline-wrap">' +
-        '<span class="quiz-play-oneline-lbl">Vite</span>' +
+        '<span class="quiz-play-lives-inline">' +
+        '<img class="quiz-play-lives-avatar" src="' +
+        escapeQuizHtml(avUrl) +
+        '" alt="" width="30" height="30" decoding="async" draggable="false">' +
         '<strong id="quiz-play-lives-val" class="quiz-play-oneline-val">' +
         livesRemain +
         '</strong>' +
+        '</span>' +
         '</span>';
     const timerSummaryRow =
         showTimerCumulUi
@@ -8475,22 +8604,7 @@ function quizFinish(completedAll, opts) {
         quizState.score = baseScore + wormBonus;
     }
 
-    let saveAvatar = 0;
-    try {
-        const s = sessionStorage.getItem('quizAvatarIndex');
-        if (s != null) {
-            const n = parseInt(s, 10);
-            if (!isNaN(n) && n >= 0 && n < QUIZ_AVATAR_COUNT) {
-                saveAvatar = n;
-            } else {
-                saveAvatar = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizAvatarIndex) || 0));
-            }
-        } else {
-            saveAvatar = Math.max(0, Math.min(QUIZ_AVATAR_COUNT - 1, Number(quizAvatarIndex) || 0));
-        }
-    } catch (eAv) {
-        saveAvatar = 0;
-    }
+    const saveAvatar = quizGetSessionAvatarIndex();
 
     const pendingRow = {
         name: (quizState.name && String(quizState.name).trim()) ? String(quizState.name).trim().slice(0, 40) : 'Operatore',
@@ -8551,6 +8665,7 @@ function quizStart() {
     quizState.index = 0;
     quizState.score = 0;
     quizState.wrongCount = 0;
+    quizState.avatarIndex = quizGetSessionAvatarIndex();
     quizSessionTimerBonusTotal = 0;
 
     if (!quizState.queue.length) {
