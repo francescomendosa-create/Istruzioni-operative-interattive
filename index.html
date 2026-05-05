@@ -5485,16 +5485,14 @@ function dismissAppSplash() {
                 </select>
                 <label for="quiz-voice-engine-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Motore voce</label>
                 <select id="quiz-voice-engine-select" onchange="quizVoiceEngineChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
-                    <option value="local">Locale (gratis)</option>
-                    <option value="gemini_audio">Gemini Audio (consigliato)</option>
-                    <option value="piper">Piper locale (gratis)</option>
-                    <option value="cloud">Cloud realistico</option>
+                    <option value="local">Locale (consigliato)</option>
+                    <option value="piper">Piper locale (avanzato)</option>
                 </select>
                 <div id="quiz-piper-config-box" style="display:none;">
                     <label for="quiz-piper-url-input" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">URL Piper</label>
                     <input type="text" id="quiz-piper-url-input" placeholder="http://127.0.0.1:5000/tts" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
                 </div>
-                <div id="quiz-cloud-config-box">
+                <div id="quiz-cloud-config-box" style="display:none;">
                 <label for="quiz-voice-preset-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Voce</label>
                 <select id="quiz-voice-preset-select" onchange="quizVoicePresetChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="21m00Tcm4TlvDq8ikWAM">Rachel (chiara)</option>
@@ -5517,7 +5515,7 @@ function dismissAppSplash() {
                     <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
                 </div>
-                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Configura le chiavi e scegli una voce. Se incompleta, resta il parlato locale.</p>
+                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità semplificata: usa parlato locale. Piper è opzionale.</p>
             </div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-reset" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
@@ -5619,7 +5617,7 @@ let quizGeminiApiKey = '';
 let quizElevenApiKey = '';
 let quizElevenVoiceId = '';
 let quizAiCommentStyle = 'standard';
-let quizVoiceEngine = 'local'; // local | gemini_audio | piper | cloud
+let quizVoiceEngine = 'local'; // local | piper
 let quizPiperUrl = 'http://127.0.0.1:5000/tts';
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
@@ -6195,9 +6193,7 @@ function quizSaveAiVoiceConfig() {
 function quizVoiceEngineChanged(val) {
     quizVoiceEngine = String(val || 'local');
     const pBox = document.getElementById('quiz-piper-config-box');
-    const cBox = document.getElementById('quiz-cloud-config-box');
     if (pBox) pBox.style.display = quizVoiceEngine === 'piper' ? '' : 'none';
-    if (cBox) cBox.style.display = quizVoiceEngine === 'cloud' ? '' : 'none';
 }
 
 function quizAiKeyModeChanged() {
@@ -6218,42 +6214,26 @@ function quizVoicePresetChanged(val) {
 async function quizTestAiVoice() {
     const st = document.getElementById('quiz-ai-voice-status');
     quizSaveAiVoiceConfig();
-    if (quizVoiceEngine === 'cloud' && !quizAiVoiceConfigured()) {
-        if (st) st.textContent = 'Configurazione incompleta cloud: manca chiave testo, chiave voce oppure ID voce.';
-        return;
-    }
-    if (quizVoiceEngine === 'gemini_audio' && !quizResolveAiConfig().textKey) {
-        if (st) st.textContent = 'Configurazione incompleta Gemini Audio: manca chiave testo AI.';
-        return;
-    }
     if (st) st.textContent = 'Test voce in corso...';
     const runId = ++quizSpeechRunId;
     const demo = 'Test voce. Questa è una prova del commentatore vocale realistico del quiz.';
     const res = await quizSpeakUsingConfiguredEngine(demo, runId);
     if (!st) return;
     if (res && res.ok) {
-        st.textContent = 'Test AI riuscito: voce realistica attiva.';
+        st.textContent = quizVoiceEngine === 'piper'
+            ? 'Test Piper riuscito: voce Piper attiva.'
+            : 'Test locale riuscito: voce dispositivo attiva.';
         return;
     }
     var err = (res && res.error) ? String(res.error) : 'errore sconosciuto';
-    if (/gemini_audio_http_401|gemini_audio_http_403/i.test(err)) {
-        st.textContent = 'Test Gemini Audio non riuscito: chiave testo AI non valida o non abilitata per audio.';
-    } else if (/gemini_audio_unsupported/i.test(err)) {
-        st.textContent = 'Test Gemini Audio non riuscito: modello/SDK non ha restituito audio.';
-    } else if (/voice_http_401/i.test(err)) {
-        st.textContent = 'Test non riuscito: chiave voce AI non valida o senza permesso Text-to-Speech.';
-    } else if (/voice_http_403/i.test(err)) {
-        st.textContent = 'Test non riuscito: accesso negato alla voce selezionata (controlla Voice ID e permessi).';
-    } else if (/voice_http_404/i.test(err)) {
-        st.textContent = 'Test non riuscito: Voice ID non trovato.';
-    } else if (/piper_http_404|piper_http_405/i.test(err)) {
+    if (/piper_http_404|piper_http_405/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: endpoint errato. Verifica URL/route del server Piper.';
     } else if (/piper_http_500/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: errore interno server Piper (controlla log).';
     } else if (/piper_network/i.test(err)) {
         st.textContent = 'Test Piper non riuscito: server non raggiungibile dalla pagina web.';
     } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
-        st.textContent = 'Test non riuscito: problema rete/CORS verso servizio voce.';
+        st.textContent = 'Test non riuscito: problema rete/CORS.';
     } else {
         st.textContent = 'Test non riuscito: ' + err;
     }
@@ -6283,7 +6263,7 @@ function quizLoadStoredPreference() {
         quizElevenVoiceId = String(localStorage.getItem(QUIZ_LS_ELEVEN_VOICE) || '').trim();
         quizAiCommentStyle = String(localStorage.getItem('io-quiz-ai-comment-style') || 'standard');
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || 'local');
-        if (!/^(local|gemini_audio|piper|cloud)$/.test(quizVoiceEngine)) quizVoiceEngine = 'local';
+        if (!/^(local|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = 'local';
         quizPiperUrl = String(localStorage.getItem(QUIZ_LS_PIPER_URL) || 'http://127.0.0.1:5000/tts').trim();
         if (!quizPiperUrl) quizPiperUrl = 'http://127.0.0.1:5000/tts';
     } catch (e) {}
@@ -6418,25 +6398,18 @@ function quizSyncSpeechUi() {
     if (cv && document.activeElement !== cv) cv.value = knownVoiceIds[quizElevenVoiceId] ? '' : (quizElevenVoiceId || '');
     const st = document.getElementById('quiz-ai-voice-status');
     if (st) {
-        if (quizVoiceEngine === 'gemini_audio') {
+        if (quizVoiceEngine === 'piper') {
             st.textContent = quizAiLastError
-                ? ('Gemini Audio fallback locale: ' + quizAiLastError)
-                : (quizResolveAiConfig().textKey
-                    ? 'Gemini Audio attivo (voce generata direttamente da Gemini).'
-                    : 'Gemini Audio non configurato: manca chiave testo AI.');
-        } else
-        if (quizAiVoiceConfigured()) {
-            st.textContent = quizAiLastError
-                ? ('AI configurata ma ultimo test non riuscito: ' + quizAiLastError + '. Uso parlato locale di fallback.')
-                : (quizAiConfigComesFromCode()
-                    ? 'AI pronta da configurazione codice: testo intelligente + voce realistica attivi.'
-                    : 'AI pronta: testo intelligente + voce realistica attivi.');
+                ? ('Piper non disponibile: ' + quizAiLastError + '. Uso voce locale di fallback.')
+                : 'Piper attivo (con fallback locale automatico).';
         } else {
-            st.textContent = 'Configurazione incompleta: resta attivo il parlato locale.';
+            st.textContent = quizResolveAiConfig().textKey
+                ? 'Motore locale attivo + commentatore Gemini (fallback locale automatico).'
+                : 'Motore locale attivo (gratis e stabile).';
         }
     }
     const keyFields = document.getElementById('quiz-ai-key-fields');
-    if (keyFields) keyFields.style.display = quizAiConfigComesFromCode() ? 'none' : '';
+    if (keyFields) keyFields.style.display = 'none';
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
@@ -6455,65 +6428,54 @@ function quizSpeakCurrentQuestionAndChoices() {
 }
 
 async function quizSpeakUsingConfiguredEngine(plainText, runId) {
-    if (quizVoiceEngine === 'gemini_audio') {
-        return quizSpeakWithGeminiAudioDirect(plainText, runId);
-    }
+    const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
+    if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
     if (quizVoiceEngine === 'piper') {
-        return quizSpeakWithPiper(plainText, runId);
+        return quizSpeakWithPiper(textToSpeak, runId);
     }
-    if (quizVoiceEngine === 'cloud' && quizAiVoiceConfigured()) {
-        return quizSpeakWithGeminiAndRealVoice(plainText, runId);
-    }
-    quizSpeakWithLocalTts(plainText, runId);
+    quizSpeakWithLocalTts(textToSpeak, runId);
     return { ok: true, mode: 'local_tts' };
 }
 
-async function quizSpeakWithGeminiAudioDirect(rawText, runId) {
+/** Commentatore Gemini: rende il parlato più naturale, fallback immediato al testo originale. */
+async function quizBuildGeminiCommentaryText(rawText, runId) {
     try {
         const cfg = quizResolveAiConfig();
-        if (!cfg.textKey) throw new Error('gemini_audio_missing_key');
+        if (!cfg.textKey) return rawText;
+        const ctrl = new AbortController();
+        const timeoutId = setTimeout(function () {
+            try { ctrl.abort(); } catch (eAb) { /* ignore */ }
+        }, 3500);
+        var styleHint = 'tono chiaro e professionale';
+        if (quizAiCommentStyle === 'short') styleHint = 'tono molto sintetico e diretto';
+        if (quizAiCommentStyle === 'coach') styleHint = 'tono incoraggiante da coach';
+        const prompt =
+            'Agisci come commentatore quiz in italiano. ' +
+            'Riformula il testo in parlato naturale, max 110 parole, senza markdown. ' +
+            'Mantieni domanda e opzioni complete. Usa ' + styleHint + '. Testo: ' + rawText;
         const res = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' +
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
             encodeURIComponent(cfg.textKey),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ role: 'user', parts: [{ text: rawText }] }],
-                    generationConfig: {
-                        responseModalities: ['AUDIO'],
-                        speechConfig: {
-                            voiceConfig: {
-                                prebuiltVoiceConfig: { voiceName: 'Puck' }
-                            }
-                        }
-                    }
-                })
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }]
+                }),
+                signal: ctrl.signal
             }
         );
-        if (!res.ok) throw new Error('gemini_audio_http_' + res.status);
+        clearTimeout(timeoutId);
+        if (!res.ok) return rawText;
         const json = await res.json();
-        const parts = ((((json || {}).candidates || [])[0] || {}).content || {}).parts || [];
-        const audioPart = parts.find(function (p) {
-            return p && p.inlineData && p.inlineData.data;
-        });
-        if (!audioPart || !audioPart.inlineData || !audioPart.inlineData.data) {
-            throw new Error('gemini_audio_unsupported');
-        }
-        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
-        const mime = String(audioPart.inlineData.mimeType || 'audio/wav');
-        const src = 'data:' + mime + ';base64,' + String(audioPart.inlineData.data);
-        const a = new Audio(src);
-        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
-        quizAiAudioEl = a;
-        quizAiLastError = '';
-        await a.play();
-        return { ok: true, mode: 'gemini_audio' };
+        if (runId !== quizSpeechRunId) return rawText;
+        const out = String(
+            (((json || {}).candidates || [])[0] || {}).content &&
+            ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text
+        ).trim();
+        return out || rawText;
     } catch (e) {
-        quizAiLastError = (e && e.message) ? String(e.message) : 'gemini_audio_error';
-        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
-        quizSpeakWithLocalTts(rawText, runId);
-        return { ok: false, fallback: 'local_tts', error: quizAiLastError };
+        return rawText;
     }
 }
 
@@ -6531,90 +6493,6 @@ function quizSpeakWithLocalTts(text, runId) {
     try {
         window.speechSynthesis.speak(utt);
     } catch (e2) {}
-}
-
-async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
-    try {
-        const cfg = quizResolveAiConfig();
-        var styleHint = 'tono chiaro e professionale';
-        if (quizAiCommentStyle === 'short') styleHint = 'tono molto sintetico e diretto';
-        if (quizAiCommentStyle === 'coach') styleHint = 'tono incoraggiante da coach';
-        let aiText = rawText;
-        if (cfg.textKey) {
-            try {
-                const prompt =
-                    'Riformula in italiano parlato chiaro, massimo 120 parole, senza markdown. ' +
-                    'Usa ' + styleHint + '. Mantieni domanda e risposte in ordine. Testo: ' + rawText;
-                const gemRes = await fetch(
-                    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
-                    encodeURIComponent(cfg.textKey),
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    }
-                );
-                if (gemRes.ok) {
-                    const gemJson = await gemRes.json();
-                    const cand =
-                        String(
-                            (((gemJson || {}).candidates || [])[0] || {}).content &&
-                            ((((gemJson || {}).candidates || [])[0].content.parts || [])[0] || {}).text
-                        ).trim();
-                    if (cand) aiText = cand;
-                }
-            } catch (eGem) {
-                /* Se il testo AI fallisce, usiamo comunque testo originale con voce realistica */
-            }
-        }
-        if (runId !== quizSpeechRunId) return;
-
-        const voiceRes = await fetch(
-            'https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(cfg.voiceId),
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'xi-api-key': cfg.voiceKey
-                },
-                body: JSON.stringify({
-                    text: aiText,
-                    model_id: 'eleven_multilingual_v2',
-                    voice_settings: {
-                        stability: 0.45,
-                        similarity_boost: 0.8,
-                        style: 0.28,
-                        use_speaker_boost: true
-                    }
-                })
-            }
-        );
-        if (!voiceRes.ok) throw new Error('voice_http_' + voiceRes.status);
-        const blob = await voiceRes.blob();
-        if (runId !== quizSpeechRunId) return;
-        const url = URL.createObjectURL(blob);
-        const a = new Audio(url);
-        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
-        a.onended = function () {
-            URL.revokeObjectURL(url);
-            if (quizAiAudioEl === a) quizAiAudioEl = null;
-        };
-        a.onerror = function () {
-            URL.revokeObjectURL(url);
-            if (quizAiAudioEl === a) quizAiAudioEl = null;
-        };
-        quizAiAudioEl = a;
-        quizAiLastError = '';
-        await a.play();
-        return { ok: true, mode: 'real_voice' };
-    } catch (e) {
-        quizAiLastError = (e && e.message) ? String(e.message) : 'errore sconosciuto';
-        if (runId !== quizSpeechRunId) return;
-        quizSpeakWithLocalTts(rawText, runId);
-        return { ok: false, fallback: 'local_tts', error: quizAiLastError };
-    }
 }
 
 async function quizSpeakWithPiper(rawText, runId) {
