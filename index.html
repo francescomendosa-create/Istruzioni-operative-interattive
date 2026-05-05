@@ -5463,8 +5463,24 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
                 <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Voce realistica AI</div>
-                <input type="password" id="quiz-text-ai-key-input" placeholder="Chiave servizio testo AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
-                <input type="password" id="quiz-voice-ai-key-input" placeholder="Chiave servizio voce AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
+                <label for="quiz-text-ai-key-mode" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Chiave testo AI</label>
+                <select id="quiz-text-ai-key-mode" onchange="quizAiKeyModeChanged()" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="saved">Usa chiave già salvata</option>
+                    <option value="new">Inserisci nuova chiave</option>
+                </select>
+                <input type="password" id="quiz-text-ai-key-input" placeholder="Nuova chiave servizio testo AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
+                <label for="quiz-voice-ai-key-mode" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Chiave voce AI</label>
+                <select id="quiz-voice-ai-key-mode" onchange="quizAiKeyModeChanged()" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="saved">Usa chiave già salvata</option>
+                    <option value="new">Inserisci nuova chiave</option>
+                </select>
+                <input type="password" id="quiz-voice-ai-key-input" placeholder="Nuova chiave servizio voce AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
+                <label for="quiz-ai-comment-style" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Stile commentatore</label>
+                <select id="quiz-ai-comment-style" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="short">Breve e diretto</option>
+                    <option value="standard" selected>Standard</option>
+                    <option value="coach">Coach motivazionale</option>
+                </select>
                 <label for="quiz-voice-preset-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Voce</label>
                 <select id="quiz-voice-preset-select" onchange="quizVoicePresetChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="21m00Tcm4TlvDq8ikWAM">Rachel (chiara)</option>
@@ -5573,6 +5589,7 @@ let quizSpeechRate = 1;
 let quizGeminiApiKey = '';
 let quizElevenApiKey = '';
 let quizElevenVoiceId = '';
+let quizAiCommentStyle = 'standard';
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
 const QUIZ_FS_COLLECTION = 'quiz_settings';
@@ -6110,11 +6127,15 @@ function quizSaveSpeechRate(rate) {
 function quizSaveAiVoiceConfig() {
     const g = document.getElementById('quiz-text-ai-key-input');
     const e = document.getElementById('quiz-voice-ai-key-input');
+    const gm = document.getElementById('quiz-text-ai-key-mode');
+    const em = document.getElementById('quiz-voice-ai-key-mode');
     const preset = document.getElementById('quiz-voice-preset-select');
     const custom = document.getElementById('quiz-voice-ai-id-input');
+    const styleSel = document.getElementById('quiz-ai-comment-style');
     const st = document.getElementById('quiz-ai-voice-status');
-    quizGeminiApiKey = g ? String(g.value || '').trim() : '';
-    quizElevenApiKey = e ? String(e.value || '').trim() : '';
+    if (gm && gm.value === 'new') quizGeminiApiKey = g ? String(g.value || '').trim() : '';
+    if (em && em.value === 'new') quizElevenApiKey = e ? String(e.value || '').trim() : '';
+    quizAiCommentStyle = styleSel ? String(styleSel.value || 'standard') : 'standard';
     const presetVal = preset ? String(preset.value || '') : '';
     if (presetVal && presetVal !== 'custom') quizElevenVoiceId = presetVal;
     else quizElevenVoiceId = custom ? String(custom.value || '').trim() : '';
@@ -6122,12 +6143,22 @@ function quizSaveAiVoiceConfig() {
         localStorage.setItem(QUIZ_LS_GEMINI_KEY, quizGeminiApiKey);
         localStorage.setItem(QUIZ_LS_ELEVEN_KEY, quizElevenApiKey);
         localStorage.setItem(QUIZ_LS_ELEVEN_VOICE, quizElevenVoiceId);
+        localStorage.setItem('io-quiz-ai-comment-style', quizAiCommentStyle);
     } catch (eLs) { /* ignore */ }
     if (st) {
         st.textContent = quizAiVoiceConfigured()
             ? 'Configurazione AI salvata: verrà usata la voce realistica.'
             : 'Configurazione incompleta: resta attivo il parlato locale.';
     }
+}
+
+function quizAiKeyModeChanged() {
+    const gm = document.getElementById('quiz-text-ai-key-mode');
+    const em = document.getElementById('quiz-voice-ai-key-mode');
+    const g = document.getElementById('quiz-text-ai-key-input');
+    const e = document.getElementById('quiz-voice-ai-key-input');
+    if (g && gm) g.style.display = gm.value === 'new' ? '' : 'none';
+    if (e && em) e.style.display = em.value === 'new' ? '' : 'none';
 }
 
 function quizVoicePresetChanged(val) {
@@ -6170,6 +6201,7 @@ function quizLoadStoredPreference() {
         quizGeminiApiKey = String(localStorage.getItem(QUIZ_LS_GEMINI_KEY) || '').trim();
         quizElevenApiKey = String(localStorage.getItem(QUIZ_LS_ELEVEN_KEY) || '').trim();
         quizElevenVoiceId = String(localStorage.getItem(QUIZ_LS_ELEVEN_VOICE) || '').trim();
+        quizAiCommentStyle = String(localStorage.getItem('io-quiz-ai-comment-style') || 'standard');
     } catch (e) {}
 }
 
@@ -6253,6 +6285,13 @@ function quizSyncSpeechUi() {
     if (g && document.activeElement !== g) g.value = quizGeminiApiKey || '';
     const e = document.getElementById('quiz-voice-ai-key-input');
     if (e && document.activeElement !== e) e.value = quizElevenApiKey || '';
+    const gm = document.getElementById('quiz-text-ai-key-mode');
+    const em = document.getElementById('quiz-voice-ai-key-mode');
+    if (gm) gm.value = quizGeminiApiKey ? 'saved' : 'new';
+    if (em) em.value = quizElevenApiKey ? 'saved' : 'new';
+    quizAiKeyModeChanged();
+    const styleSel = document.getElementById('quiz-ai-comment-style');
+    if (styleSel) styleSel.value = quizAiCommentStyle || 'standard';
     const ps = document.getElementById('quiz-voice-preset-select');
     const cv = document.getElementById('quiz-voice-ai-id-input');
     const knownVoiceIds = {
@@ -6311,9 +6350,12 @@ function quizSpeakWithLocalTts(text, runId) {
 
 async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
     try {
+        var styleHint = 'tono chiaro e professionale';
+        if (quizAiCommentStyle === 'short') styleHint = 'tono molto sintetico e diretto';
+        if (quizAiCommentStyle === 'coach') styleHint = 'tono incoraggiante da coach';
         const prompt =
             'Riformula in italiano parlato chiaro, massimo 120 parole, senza markdown. ' +
-            'Mantieni domanda e risposte in ordine. Testo: ' + rawText;
+            'Usa ' + styleHint + '. Mantieni domanda e risposte in ordine. Testo: ' + rawText;
         const gemRes = await fetch(
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
             encodeURIComponent(quizGeminiApiKey),
