@@ -1,0 +1,422 @@
+[
+  {
+    "ref": "MBBR — principi",
+    "question": "Cos'è, in sintesi, un processo MBBR (Moving Bed Biofilm Reactor)?",
+    "file": "mbbr-principi--cos-in-sintesi-un-processo-mbbr-movi.mp3",
+    "path": "assets/quiz-audio/mbbr-principi--cos-in-sintesi-un-processo-mbbr-movi.mp3"
+  },
+  {
+    "ref": "MBBR — ossigeno",
+    "question": "Nel biologico aerobico, a cosa serve principalmente l'ossigeno disciolto (OD)?",
+    "file": "mbbr-ossigeno--nel-biologico-aerobico-a-cosa-serve-.mp3",
+    "path": "assets/quiz-audio/mbbr-ossigeno--nel-biologico-aerobico-a-cosa-serve-.mp3"
+  },
+  {
+    "ref": "Chimico-fisico — PAC",
+    "question": "Che ruolo ha tipicamente un coagulante come il PAC nel trattamento chimico-fisico?",
+    "file": "chimico-fisico-pac--che-ruolo-ha-tipicamente-un-coagulan.mp3",
+    "path": "assets/quiz-audio/chimico-fisico-pac--che-ruolo-ha-tipicamente-un-coagulan.mp3"
+  },
+  {
+    "ref": "Chimico-fisico — PAM",
+    "question": "Che funzione svolge di solito il polielettrolita (PAM) dopo la coagulazione?",
+    "file": "chimico-fisico-pam--che-funzione-svolge-di-solito-il-pol.mp3",
+    "path": "assets/quiz-audio/chimico-fisico-pam--che-funzione-svolge-di-solito-il-pol.mp3"
+  },
+  {
+    "ref": "Flottazione / DAF",
+    "question": "Nella flottazione ad aria disciolta (DAF), che cosa succede tipicamente all'ingresso in vasca dell'acqua satura?",
+    "file": "flottazione-daf--nella-flottazione-ad-aria-disciolta-.mp3",
+    "path": "assets/quiz-audio/flottazione-daf--nella-flottazione-ad-aria-disciolta-.mp3"
+  },
+  {
+    "ref": "pH & coagulazione",
+    "question": "Perché il pH influenza fortemente l'efficacia della coagulazione con sali di alluminio o ferro?",
+    "file": "ph-coagulazione--perch-il-ph-influenza-fortemente-lef.mp3",
+    "path": "assets/quiz-audio/ph-coagulazione--perch-il-ph-influenza-fortemente-lef.mp3"
+  },
+  {
+    "ref": "Saturatore / aria",
+    "question": "Che ruolo ha il saturatore in una linea di flottazione con aria disciolta?",
+    "file": "saturatore-aria--che-ruolo-ha-il-saturatore-in-una-li.mp3",
+    "path": "assets/quiz-audio/saturatore-aria--che-ruolo-ha-il-saturatore-in-una-li.mp3"
+  },
+  {
+    "ref": "Raschiatori",
+    "question": "Cosa fanno i raschiatori su un flottatore o chiarificatore a superficie?",
+    "file": "raschiatori--cosa-fanno-i-raschiatori-su-un-flott.mp3",
+    "path": "assets/quiz-audio/raschiatori--cosa-fanno-i-raschiatori-su-un-flott.mp3"
+  },
+  {
+    "ref": "Chiarificazione",
+    "question": "Cosa indica in genere una torbidità elevata del chiarificato a valle del chimico-fisico?",
+    "file": "chiarificazione--cosa-indica-in-genere-una-torbidit-e.mp3",
+    "path": "assets/quiz-audio/chiarificazione--cosa-indica-in-genere-una-torbidit-e.mp3"
+  },
+  {
+    "ref": "Biologia — nutrienti",
+    "question": "Perché in molti reflui industriali si integrano nutrienti (es. azoto come urea)?",
+    "file": "biologia-nutrienti--perch-in-molti-reflui-industriali-si.mp3",
+    "path": "assets/quiz-audio/biologia-nutrienti--perch-in-molti-reflui-industriali-si.mp3"
+  },
+  {
+    "ref": "MBBR — carrier",
+    "question": "Cosa sono i «carrier» in un MBBR?",
+    "file": "mbbr-carrier--cosa-sono-i-carrier-in-un-mbbr.mp3",
+    "path": "assets/quiz-audio/mbbr-carrier--cosa-sono-i-carrier-in-un-mbbr.mp3"
+  },
+  {
+    "ref": "Griglie / idraulica",
+    "question": "Perché si usano spesso griglie o reti di protezione a valle di un MBBR?",
+    "file": "griglie-idraulica--perch-si-usano-spesso-griglie-o-reti.mp3",
+    "path": "assets/quiz-audio/griglie-idraulica--perch-si-usano-spesso-griglie-o-reti.mp3"
+  },
+  {
+    "ref": "Cono / fango",
+    "question": "Cosa misura in genere un cono Imhoff o simile sul fango di un impianto?",
+    "file": "cono-fango--cosa-misura-in-genere-un-cono-imhoff.mp3",
+    "path": "assets/quiz-audio/cono-fango--cosa-misura-in-genere-un-cono-imhoff.mp3"
+  },
+  {
+    "ref": "Trattamento — sintesi",
+    "question": "Che cosa si intende per «trattamento chimico-fisico» a monte del biologico?",
+    "file": "trattamento-sintesi--che-cosa-si-intende-per-trattamento-.mp3",
+    "path": "assets/quiz-audio/trattamento-sintesi--che-cosa-si-intende-per-trattamento-.mp3"
+  },
+  {
+    "ref": "COD / BOD",
+    "question": "«COD» nei report di impianto: in pratica cosa ti sta dicendo?",
+    "file": "cod-bod--cod-nei-report-di-impianto-in-pratic.mp3",
+    "path": "assets/quiz-audio/cod-bod--cod-nei-report-di-impianto-in-pratic.mp3"
+  },
+  {
+    "ref": "BOD",
+    "question": "BOD5 (spesso scritto così): cosa misura di solito?",
+    "file": "bod--bod5-spesso-scritto-cos-cosa-misura-.mp3",
+    "path": "assets/quiz-audio/bod--bod5-spesso-scritto-cos-cosa-misura-.mp3"
+  },
+  {
+    "ref": "Insufflaggio",
+    "question": "Aria che bolle dal fondo in vasca MBBR: a cosa ti serve davvero, oltre al «rumore»?",
+    "file": "insufflaggio--aria-che-bolle-dal-fondo-in-vasca-mb.mp3",
+    "path": "assets/quiz-audio/insufflaggio--aria-che-bolle-dal-fondo-in-vasca-mb.mp3"
+  },
+  {
+    "ref": "NTU",
+    "question": "NTU alta sullo strumento: in parole da capanno cosa vuol dire?",
+    "file": "ntu--ntu-alta-sullo-strumento-in-parole-d.mp3",
+    "path": "assets/quiz-audio/ntu--ntu-alta-sullo-strumento-in-parole-d.mp3"
+  },
+  {
+    "ref": "Ordine chimica",
+    "question": "PAC e PAM: perché di solito il PAC sta prima?",
+    "file": "ordine-chimica--pac-e-pam-perch-di-solito-il-pac-sta.mp3",
+    "path": "assets/quiz-audio/ordine-chimica--pac-e-pam-perch-di-solito-il-pac-sta.mp3"
+  },
+  {
+    "ref": "pH — miti",
+    "question": "pH completamente fuori range sulla coagulazione: cosa rischi sul campo?",
+    "file": "ph-miti--ph-completamente-fuori-range-sulla-c.mp3",
+    "path": "assets/quiz-audio/ph-miti--ph-completamente-fuori-range-sulla-c.mp3"
+  },
+  {
+    "ref": "Carrier persi",
+    "question": "Vedi carrier che finiscono a valle: è una cosa da ignorare?",
+    "file": "carrier-persi--vedi-carrier-che-finiscono-a-valle-u.mp3",
+    "path": "assets/quiz-audio/carrier-persi--vedi-carrier-che-finiscono-a-valle-u.mp3"
+  },
+  {
+    "ref": "Sludge blanket",
+    "question": "Coperta di fango (sludge blanket) alta in chiarificatore: che sapore ha come problema?",
+    "file": "sludge-blanket--coperta-di-fango-sludge-blanket-alta.mp3",
+    "path": "assets/quiz-audio/sludge-blanket--coperta-di-fango-sludge-blanket-alta.mp3"
+  },
+  {
+    "ref": "Pompe dosaggio",
+    "question": "Pompa dosatrice del PAC: a cosa pensa chi la mette lì?",
+    "file": "pompe-dosaggio--pompa-dosatrice-del-pac-a-cosa-pensa.mp3",
+    "path": "assets/quiz-audio/pompe-dosaggio--pompa-dosatrice-del-pac-a-cosa-pensa.mp3"
+  },
+  {
+    "ref": "Diffusori",
+    "question": "Diffusori nell'MBBR: che lavoro fanno?",
+    "file": "diffusori--diffusori-nellmbbr-che-lavoro-fanno.mp3",
+    "path": "assets/quiz-audio/diffusori--diffusori-nellmbbr-che-lavoro-fanno.mp3"
+  },
+  {
+    "ref": "Schiuma leggera",
+    "question": "Una schiuma leggera su biologico, con acqua limpida e carrier che si muovono: spesso è…",
+    "file": "schiuma-leggera--una-schiuma-leggera-su-biologico-con.mp3",
+    "path": "assets/quiz-audio/schiuma-leggera--una-schiuma-leggera-su-biologico-con.mp3"
+  },
+  {
+    "ref": "Chimico vs biologico",
+    "question": "Chimico-fisico prima del biologico: perché c'è quasi sempre?",
+    "file": "chimico-vs-biologico--chimico-fisico-prima-del-biologico-p.mp3",
+    "path": "assets/quiz-audio/chimico-vs-biologico--chimico-fisico-prima-del-biologico-p.mp3"
+  },
+  {
+    "ref": "Mixer & PAC",
+    "question": "Mixer di coagulazione spento ma dose PAC aumentata: quale effetto è più plausibile?",
+    "file": "mixer-pac--mixer-di-coagulazione-spento-ma-dose.mp3",
+    "path": "assets/quiz-audio/mixer-pac--mixer-di-coagulazione-spento-ma-dose.mp3"
+  },
+  {
+    "ref": "pH fuori range",
+    "question": "pH di coagulazione molto fuori dal range tipico (es. 6,5–7,5 per molti sistemi alluminio): cosa succede spesso al PAC?",
+    "file": "ph-fuori-range--ph-di-coagulazione-molto-fuori-dal-r.mp3",
+    "path": "assets/quiz-audio/ph-fuori-range--ph-di-coagulazione-molto-fuori-dal-r.mp3"
+  },
+  {
+    "ref": "Saturatore — pressione",
+    "question": "Pressione nel saturatore troppo bassa rispetto al progetto: effetto tipico sulla DAF?",
+    "file": "saturatore-pressione--pressione-nel-saturatore-troppo-bass.mp3",
+    "path": "assets/quiz-audio/saturatore-pressione--pressione-nel-saturatore-troppo-bass.mp3"
+  },
+  {
+    "ref": "PAM — diluizione",
+    "question": "Polielettrolita eccessivamente diluito o mal preparato: rischio principale?",
+    "file": "pam-diluizione--polielettrolita-eccessivamente-dilui.mp3",
+    "path": "assets/quiz-audio/pam-diluizione--polielettrolita-eccessivamente-dilui.mp3"
+  },
+  {
+    "ref": "MBBR — aerazione",
+    "question": "Aerazione non uniforme (zone morte e «fontane» locali): effetto sul processo?",
+    "file": "mbbr-aerazione--aerazione-non-uniforme-zone-morte-e-.mp3",
+    "path": "assets/quiz-audio/mbbr-aerazione--aerazione-non-uniforme-zone-morte-e-.mp3"
+  },
+  {
+    "ref": "O₂ & biofilm",
+    "question": "Ossigeno disciolto cronicamente basso nel biologico aerobico: rischio sul biofilm?",
+    "file": "o-biofilm--ossigeno-disciolto-cronicamente-bass.mp3",
+    "path": "assets/quiz-audio/o-biofilm--ossigeno-disciolto-cronicamente-bass.mp3"
+  },
+  {
+    "ref": "Oli → MBBR",
+    "question": "Oli o grassi nel chiarificato che raggiungono l'MBBR: effetto tipico sui carrier?",
+    "file": "oli-mbbr--oli-o-grassi-nel-chiarificato-che-ra.mp3",
+    "path": "assets/quiz-audio/oli-mbbr--oli-o-grassi-nel-chiarificato-che-ra.mp3"
+  },
+  {
+    "ref": "Temperatura",
+    "question": "Temperatura del biologico molto fuori dalla finestra operativa tipica (es. molto sotto 15 °C o molto sopra 35 °C): cosa accade di solito?",
+    "file": "temperatura--temperatura-del-biologico-molto-fuor.mp3",
+    "path": "assets/quiz-audio/temperatura--temperatura-del-biologico-molto-fuor.mp3"
+  },
+  {
+    "ref": "Shock di carico",
+    "question": "Picco improvviso di COD (shock load) nel biologico: effetto immediato sull'ossigeno?",
+    "file": "shock-di-carico--picco-improvviso-di-cod-shock-load-n.mp3",
+    "path": "assets/quiz-audio/shock-di-carico--picco-improvviso-di-cod-shock-load-n.mp3"
+  },
+  {
+    "ref": "Ricircolo DAF",
+    "question": "Il ricircolo trattato verso il saturatore in DAF serve principalmente a…",
+    "file": "ricircolo-daf--il-ricircolo-trattato-verso-il-satur.mp3",
+    "path": "assets/quiz-audio/ricircolo-daf--il-ricircolo-trattato-verso-il-satur.mp3"
+  },
+  {
+    "ref": "PAC senza PAM",
+    "question": "PAC dosato correttamente ma PAM assente o inefficace: cosa si osserva spesso?",
+    "file": "pac-senza-pam--pac-dosato-correttamente-ma-pam-asse.mp3",
+    "path": "assets/quiz-audio/pac-senza-pam--pac-dosato-correttamente-ma-pam-asse.mp3"
+  },
+  {
+    "ref": "Torbidità NTU",
+    "question": "Chiarificato con NTU molto più alto del target verso l'MBBR: priorità operativa tipica?",
+    "file": "torbidit-ntu--chiarificato-con-ntu-molto-pi-alto-d.mp3",
+    "path": "assets/quiz-audio/torbidit-ntu--chiarificato-con-ntu-molto-pi-alto-d.mp3"
+  },
+  {
+    "ref": "Carbonio attivo",
+    "question": "Carbonio attivo sul biologico in emergenza da composti tossici/adsorbibili: ruolo atteso?",
+    "file": "carbonio-attivo--carbonio-attivo-sul-biologico-in-eme.mp3",
+    "path": "assets/quiz-audio/carbonio-attivo--carbonio-attivo-sul-biologico-in-eme.mp3"
+  },
+  {
+    "ref": "Pompa PAC a secco",
+    "question": "Pompa PAC che «mangia aria» o va a vuoto: cosa sospetti per prima cosa?",
+    "file": "pompa-pac-a-secco--pompa-pac-che-mangia-aria-o-va-a-vuo.mp3",
+    "path": "assets/quiz-audio/pompa-pac-a-secco--pompa-pac-che-mangia-aria-o-va-a-vuo.mp3"
+  },
+  {
+    "ref": "Linea PAM",
+    "question": "PAM che non scende in vasca ma la pompa «batte»: spesso dove guardi?",
+    "file": "linea-pam--pam-che-non-scende-in-vasca-ma-la-po.mp3",
+    "path": "assets/quiz-audio/linea-pam--pam-che-non-scende-in-vasca-ma-la-po.mp3"
+  },
+  {
+    "ref": "Raschiatori lenti",
+    "question": "Raschiatori lenti o fermi sulla superficie: rischio immediato?",
+    "file": "raschiatori-lenti--raschiatori-lenti-o-fermi-sulla-supe.mp3",
+    "path": "assets/quiz-audio/raschiatori-lenti--raschiatori-lenti-o-fermi-sulla-supe.mp3"
+  },
+  {
+    "ref": "Microbolle che contano",
+    "question": "In DAF, microbolle «scarse»: cosa vedi tipicamente in uscita?",
+    "file": "microbolle-che-contano--in-daf-microbolle-scarse-cosa-vedi-t.mp3",
+    "path": "assets/quiz-audio/microbolle-che-contano--in-daf-microbolle-scarse-cosa-vedi-t.mp3"
+  },
+  {
+    "ref": "Fontane d'aria",
+    "question": "«Fontana» d'aria in un punto e zona morta accanto: che casino è?",
+    "file": "fontane-daria--fontana-daria-in-un-punto-e-zona-mor.mp3",
+    "path": "assets/quiz-audio/fontane-daria--fontana-daria-in-un-punto-e-zona-mor.mp3"
+  },
+  {
+    "ref": "O2 all'alba",
+    "question": "OD che crolla ogni notte se riduci troppo l'aria: perché è fastidioso?",
+    "file": "o2-allalba--od-che-crolla-ogni-notte-se-riduci-t.mp3",
+    "path": "assets/quiz-audio/o2-allalba--od-che-crolla-ogni-notte-se-riduci-t.mp3"
+  },
+  {
+    "ref": "Oli leggeri",
+    "question": "Film oleoso sottile sui carrier: cosa temi per il processo?",
+    "file": "oli-leggeri--film-oleoso-sottile-sui-carrier-cosa.mp3",
+    "path": "assets/quiz-audio/oli-leggeri--film-oleoso-sottile-sui-carrier-cosa.mp3"
+  },
+  {
+    "ref": "Serie sediflottatori",
+    "question": "Mettere in serie i sediflottatori in gestione: che idea è?",
+    "file": "serie-sediflottatori--mettere-in-serie-i-sediflottatori-in.mp3",
+    "path": "assets/quiz-audio/serie-sediflottatori--mettere-in-serie-i-sediflottatori-in.mp3"
+  },
+  {
+    "ref": "Urea",
+    "question": "Urea nel biologico: quando ha senso parlarne?",
+    "file": "urea--urea-nel-biologico-quando-ha-senso-p.mp3",
+    "path": "assets/quiz-audio/urea--urea-nel-biologico-quando-ha-senso-p.mp3"
+  },
+  {
+    "ref": "Griglie MBBR",
+    "question": "Griglia a valle MBBR intasata da plastica: effetto pratico?",
+    "file": "griglie-mbbr--griglia-a-valle-mbbr-intasata-da-pla.mp3",
+    "path": "assets/quiz-audio/griglie-mbbr--griglia-a-valle-mbbr-intasata-da-pla.mp3"
+  },
+  {
+    "ref": "Campione cono",
+    "question": "Cono che «non scende» come vorresti: che messaggio dà spesso?",
+    "file": "campione-cono--cono-che-non-scende-come-vorresti-ch.mp3",
+    "path": "assets/quiz-audio/campione-cono--cono-che-non-scende-come-vorresti-ch.mp3"
+  },
+  {
+    "ref": "DAF + chimica",
+    "question": "Perché in molti reflui oleosi la DAF richiede quasi sempre una buona coagulazione/flocculazione a monte?",
+    "file": "daf-chimica--perch-in-molti-reflui-oleosi-la-daf-.mp3",
+    "path": "assets/quiz-audio/daf-chimica--perch-in-molti-reflui-oleosi-la-daf-.mp3"
+  },
+  {
+    "ref": "MBBR — trasporto",
+    "question": "Nel biofilm MBBR, cosa limita spesso il tasso di ossidazione quando il film diventa molto spesso?",
+    "file": "mbbr-trasporto--nel-biofilm-mbbr-cosa-limita-spesso-.mp3",
+    "path": "assets/quiz-audio/mbbr-trasporto--nel-biofilm-mbbr-cosa-limita-spesso-.mp3"
+  },
+  {
+    "ref": "N / P",
+    "question": "Squilibrio marcato nutrienti (N e P) rispetto al carico organico in biologia industriale: effetto tipico?",
+    "file": "n-p--squilibrio-marcato-nutrienti-n-e-p-r.mp3",
+    "path": "assets/quiz-audio/n-p--squilibrio-marcato-nutrienti-n-e-p-r.mp3"
+  },
+  {
+    "ref": "Oli & schiuma",
+    "question": "Schiuma scura persistente su biologico con sospetta fase oleosa a monte: ipotesi tecnica prudente?",
+    "file": "oli-schiuma--schiuma-scura-persistente-su-biologi.mp3",
+    "path": "assets/quiz-audio/oli-schiuma--schiuma-scura-persistente-su-biologi.mp3"
+  },
+  {
+    "ref": "Doppio stress",
+    "question": "Temperatura fuori range e contemporaneamente O₂ basso: perché è particolarmente critico?",
+    "file": "doppio-stress--temperatura-fuori-range-e-contempora.mp3",
+    "path": "assets/quiz-audio/doppio-stress--temperatura-fuori-range-e-contempora.mp3"
+  },
+  {
+    "ref": "Portata CF",
+    "question": "Riduzione temporanea della portata sul chimico-fisico in crisi di separazione: effetto atteso sulla qualità del chiarificato?",
+    "file": "portata-cf--riduzione-temporanea-della-portata-s.mp3",
+    "path": "assets/quiz-audio/portata-cf--riduzione-temporanea-della-portata-s.mp3"
+  },
+  {
+    "ref": "Microbolle",
+    "question": "Perché in DAF si cercano tipicamente microbolle e non solo bolle grossolane?",
+    "file": "microbolle--perch-in-daf-si-cercano-tipicamente-.mp3",
+    "path": "assets/quiz-audio/microbolle--perch-in-daf-si-cercano-tipicamente-.mp3"
+  },
+  {
+    "ref": "PAC vs ferro",
+    "question": "PAC (alluminio) e sali di ferro come coagulanti: affermazione corretta in impiantistica?",
+    "file": "pac-vs-ferro--pac-alluminio-e-sali-di-ferro-come-c.mp3",
+    "path": "assets/quiz-audio/pac-vs-ferro--pac-alluminio-e-sali-di-ferro-come-c.mp3"
+  },
+  {
+    "ref": "Shear / biofilm",
+    "question": "Moto dei carrier e turbolenza controllata in MBBR: contributo al biofilm?",
+    "file": "shear-biofilm--moto-dei-carrier-e-turbolenza-contro.mp3",
+    "path": "assets/quiz-audio/shear-biofilm--moto-dei-carrier-e-turbolenza-contro.mp3"
+  },
+  {
+    "ref": "Monte → valle",
+    "question": "Dopo un peggioramento marcato del chimico-fisico (oli/solidi), perché si interviene prioritariamente a monte?",
+    "file": "monte-valle--dopo-un-peggioramento-marcato-del-ch.mp3",
+    "path": "assets/quiz-audio/monte-valle--dopo-un-peggioramento-marcato-del-ch.mp3"
+  },
+  {
+    "ref": "Tensioattivi / schiuma",
+    "question": "Eccesso di tensioattivi o stress biologico: legame plausibile con schiuma in vasca?",
+    "file": "tensioattivi-schiuma--eccesso-di-tensioattivi-o-stress-bio.mp3",
+    "path": "assets/quiz-audio/tensioattivi-schiuma--eccesso-di-tensioattivi-o-stress-bio.mp3"
+  },
+  {
+    "ref": "Turbolenza DAF",
+    "question": "Turbolenza pazzesca in vasca DAF mentre fiocchi delicati: che rischio è realistico?",
+    "file": "turbolenza-daf--turbolenza-pazzesca-in-vasca-daf-men.mp3",
+    "path": "assets/quiz-audio/turbolenza-daf--turbolenza-pazzesca-in-vasca-daf-men.mp3"
+  },
+  {
+    "ref": "Kinetic shock",
+    "question": "Shock di carico organico improvviso: perché «non basta» spesso solo alzare un po' l'aria e basta?",
+    "file": "kinetic-shock--shock-di-carico-organico-improvviso-.mp3",
+    "path": "assets/quiz-audio/kinetic-shock--shock-di-carico-organico-improvviso-.mp3"
+  },
+  {
+    "ref": "Membrane a valle",
+    "question": "Solidi e oli che passano verso un MBR a membrane: cosa temi di più nel medio periodo?",
+    "file": "membrane-a-valle--solidi-e-oli-che-passano-verso-un-mb.mp3",
+    "path": "assets/quiz-audio/membrane-a-valle--solidi-e-oli-che-passano-verso-un-mb.mp3"
+  },
+  {
+    "ref": "Dosaggi in crisi",
+    "question": "In crisi, aumentare tutto insieme (PAC, PAM, portata, aria) a caso: perché è una pessima idea?",
+    "file": "dosaggi-in-crisi--in-crisi-aumentare-tutto-insieme-pac.mp3",
+    "path": "assets/quiz-audio/dosaggi-in-crisi--in-crisi-aumentare-tutto-insieme-pac.mp3"
+  },
+  {
+    "ref": "Raschiatura",
+    "question": "Raschiatura inefficace + oli: perché il danno «scivola» spesso verso il biologico?",
+    "file": "raschiatura--raschiatura-inefficace-oli-perch-il-.mp3",
+    "path": "assets/quiz-audio/raschiatura--raschiatura-inefficace-oli-perch-il-.mp3"
+  },
+  {
+    "ref": "Coagulazione in fretta",
+    "question": "Tempi di reazione troppo corti dopo PAC/PAM: cosa succede di frequente?",
+    "file": "coagulazione-in-fretta--tempi-di-reazione-troppo-corti-dopo-.mp3",
+    "path": "assets/quiz-audio/coagulazione-in-fretta--tempi-di-reazione-troppo-corti-dopo-.mp3"
+  },
+  {
+    "ref": "Nitrificazione",
+    "question": "Nitrificatori autotrofi vs eterotrofi sul COD: in impianto cosa implica spesso sull'ossigeno?",
+    "file": "nitrificazione--nitrificatori-autotrofi-vs-eterotrof.mp3",
+    "path": "assets/quiz-audio/nitrificazione--nitrificatori-autotrofi-vs-eterotrof.mp3"
+  },
+  {
+    "ref": "Saturatore — energia",
+    "question": "Aria fine vs grossolana: perché in progetto si bilancia efficienza e intasamento dei diffusori?",
+    "file": "saturatore-energia--aria-fine-vs-grossolana-perch-in-pro.mp3",
+    "path": "assets/quiz-audio/saturatore-energia--aria-fine-vs-grossolana-perch-in-pro.mp3"
+  },
+  {
+    "ref": "Monte oleoso",
+    "question": "Oleo persistente a monte non risolto: perché «non lo recuperi» solo col biologico?",
+    "file": "monte-oleoso--oleo-persistente-a-monte-non-risolto.mp3",
+    "path": "assets/quiz-audio/monte-oleoso--oleo-persistente-a-monte-non-risolto.mp3"
+  }
+]
