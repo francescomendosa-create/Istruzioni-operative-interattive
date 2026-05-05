@@ -5489,6 +5489,14 @@ function dismissAppSplash() {
                     <option value="EXAVITQu4vr4xnSDxMaL">Bella (morbida)</option>
                     <option value="TxGEqnHWrfWFTfGW9XjX">Josh (maschile)</option>
                     <option value="VR6AewLTigWG4xSOukaG">Arnold (profonda)</option>
+                    <option value="JfznbVXrGXYh0gZo9Lcp">Voce extra 1</option>
+                    <option value="UpS8xQpFvE8XAzZeW2Iu">Voce extra 2</option>
+                    <option value="JfjzwHPmCw6p6fdGVt4Y">Voce extra 3</option>
+                    <option value="QttbagfgqUCm9K0VgUyT">Voce extra 4</option>
+                    <option value="YQ36DZjvxVXPUHeSwvFK">Voce extra 5</option>
+                    <option value="wNIMZNAVa95a3UpgwWJr">Voce extra 6</option>
+                    <option value="GOAZNavLupajyL3YafaD">Voce extra 7</option>
+                    <option value="b8jhBTcGAq4kQGWmKprT">Voce extra 8</option>
                     <option value="custom">Personalizzata (ID manuale)</option>
                 </select>
                 <input type="text" id="quiz-voice-ai-id-input" placeholder="ID voce personalizzata (solo se scegli Personalizzata)" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
@@ -5582,8 +5590,8 @@ const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_ELEVEN_KEY = 'io-quiz-eleven-key';
 const QUIZ_LS_ELEVEN_VOICE = 'io-quiz-eleven-voice';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
-const QUIZ_AI_TEXT_KEY_CODE = '';
-const QUIZ_AI_VOICE_KEY_CODE = '';
+const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyCPlQR0NTqL6GJZvgUqwFzlMxdGIk433_U';
+const QUIZ_AI_VOICE_KEY_CODE = 'sk_83488fa2743ad05426a97f7fa4df155c00c5fe2317669fea';
 const QUIZ_AI_VOICE_ID_CODE = '';
 /** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
@@ -6320,7 +6328,15 @@ function quizSyncSpeechUi() {
         '21m00Tcm4TlvDq8ikWAM': true,
         'EXAVITQu4vr4xnSDxMaL': true,
         'TxGEqnHWrfWFTfGW9XjX': true,
-        'VR6AewLTigWG4xSOukaG': true
+        'VR6AewLTigWG4xSOukaG': true,
+        'JfznbVXrGXYh0gZo9Lcp': true,
+        'UpS8xQpFvE8XAzZeW2Iu': true,
+        'JfjzwHPmCw6p6fdGVt4Y': true,
+        'QttbagfgqUCm9K0VgUyT': true,
+        'YQ36DZjvxVXPUHeSwvFK': true,
+        'wNIMZNAVa95a3UpgwWJr': true,
+        'GOAZNavLupajyL3YafaD': true,
+        'b8jhBTcGAq4kQGWmKprT': true
     };
     if (ps) {
         ps.value = knownVoiceIds[quizElevenVoiceId] ? quizElevenVoiceId : 'custom';
