@@ -6168,9 +6168,13 @@ async function quizTestAiVoice() {
     const res = await quizSpeakUsingConfiguredEngine(demo, runId);
     if (!st) return;
     if (res && res.ok) {
-        st.textContent = (res.mode === 'piper')
-            ? 'Test riuscito: telecronaca Piper attiva.'
-            : 'Test riuscito: telecronaca Gemini attiva.';
+        if (res.mode === 'piper') {
+            st.textContent = 'Test riuscito: telecronaca Piper attiva.';
+        } else if (/gemini_timeout_fallback_raw_text/i.test(String(res.warn || ''))) {
+            st.textContent = 'Test riuscito con fallback: Gemini lento, lettura diretta usata.';
+        } else {
+            st.textContent = 'Test riuscito: telecronaca Gemini attiva.';
+        }
         return;
     }
     var err = (res && res.error) ? String(res.error) : 'errore sconosciuto';
@@ -6365,7 +6369,7 @@ async function quizSpeakUsingConfiguredEngine(plainText, runId) {
         const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSpeakWithLocalTts(textToSpeak, runId);
-        return { ok: true, mode: 'local_tts' };
+        return { ok: true, mode: 'local_tts', warn: quizAiLastError || '' };
     } catch (e) {
         const msg = (e && e.message) ? String(e.message) : 'gemini_error';
         return { ok: false, error: msg };
@@ -6383,7 +6387,7 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         timeoutId = setTimeout(function () {
             abortedByTimeout = true;
             try { ctrl.abort(); } catch (eAb) { /* ignore */ }
-        }, 12000);
+        }, 22000);
         var styleHint = 'tono chiaro e professionale';
         const prompt =
             'Agisci come telecronista quiz in italiano. ' +
@@ -6424,6 +6428,11 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         const msg = abortedByTimeout || /aborted|abort|signal/i.test(msgRaw)
             ? 'gemini_timeout'
             : msgRaw;
+        if (msg === 'gemini_timeout') {
+            // Fallback morbido: evita blocco lettura quando Gemini è lento.
+            quizAiLastError = 'gemini_timeout_fallback_raw_text';
+            return rawText;
+        }
         quizAiLastError = msg;
         throw new Error(msg);
     }
