@@ -395,6 +395,10 @@
         .quiz-fs-topbar--intro .quiz-fs-exit--topbar {
             display: none !important;
         }
+        /* Durante le domande: Esci in alto è superfluo (indietro in barra + Esc). */
+        body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-fs-exit--topbar {
+            display: none !important;
+        }
         .quiz-fs-topbar--intro .quiz-fs-back--intro,
         .quiz-fs-topbar:not(.quiz-fs-topbar--intro) .quiz-fs-back--intro {
             display: inline-flex !important;
