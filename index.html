@@ -5463,6 +5463,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
                 <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Voce realistica AI</div>
+                <div id="quiz-ai-key-fields">
                 <label for="quiz-text-ai-key-mode" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Chiave testo AI</label>
                 <select id="quiz-text-ai-key-mode" onchange="quizAiKeyModeChanged()" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="saved">Usa chiave già salvata</option>
@@ -5475,6 +5476,7 @@ function dismissAppSplash() {
                     <option value="new">Inserisci nuova chiave</option>
                 </select>
                 <input type="password" id="quiz-voice-ai-key-input" placeholder="Nuova chiave servizio voce AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
+                </div>
                 <label for="quiz-ai-comment-style" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Stile commentatore</label>
                 <select id="quiz-ai-comment-style" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="short">Breve e diretto</option>
@@ -5579,6 +5581,10 @@ const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_ELEVEN_KEY = 'io-quiz-eleven-key';
 const QUIZ_LS_ELEVEN_VOICE = 'io-quiz-eleven-voice';
+/* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
+const QUIZ_AI_TEXT_KEY_CODE = '';
+const QUIZ_AI_VOICE_KEY_CODE = '';
+const QUIZ_AI_VOICE_ID_CODE = '';
 /** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
@@ -5592,6 +5598,7 @@ let quizElevenVoiceId = '';
 let quizAiCommentStyle = 'standard';
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
+let quizAiLastError = '';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
 const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
@@ -6145,6 +6152,7 @@ function quizSaveAiVoiceConfig() {
         localStorage.setItem(QUIZ_LS_ELEVEN_VOICE, quizElevenVoiceId);
         localStorage.setItem('io-quiz-ai-comment-style', quizAiCommentStyle);
     } catch (eLs) { /* ignore */ }
+    quizAiLastError = '';
     if (st) {
         st.textContent = quizAiVoiceConfigured()
             ? 'Configurazione AI salvata: verrà usata la voce realistica.'
@@ -6171,7 +6179,7 @@ function quizTestAiVoice() {
     const st = document.getElementById('quiz-ai-voice-status');
     quizSaveAiVoiceConfig();
     if (!quizAiVoiceConfigured()) {
-        if (st) st.textContent = 'Configurazione incompleta: inserisci entrambe le chiavi AI.';
+        if (st) st.textContent = 'Configurazione incompleta: manca chiave testo, chiave voce oppure ID voce.';
         return;
     }
     const runId = ++quizSpeechRunId;
@@ -6235,7 +6243,21 @@ function quizSpeechSupported() {
 }
 
 function quizAiVoiceConfigured() {
-    return !!(quizGeminiApiKey && quizElevenApiKey && quizElevenVoiceId);
+    const rk = quizResolveAiConfig();
+    return !!(rk.textKey && rk.voiceKey && rk.voiceId);
+}
+
+function quizResolveAiConfig() {
+    const textKey = String(QUIZ_AI_TEXT_KEY_CODE || quizGeminiApiKey || '').trim();
+    const voiceKey = String(QUIZ_AI_VOICE_KEY_CODE || quizElevenApiKey || '').trim();
+    const voiceId = String(QUIZ_AI_VOICE_ID_CODE || quizElevenVoiceId || '').trim();
+    return { textKey, voiceKey, voiceId };
+}
+
+function quizAiConfigComesFromCode() {
+    return !!(String(QUIZ_AI_TEXT_KEY_CODE || '').trim() &&
+        String(QUIZ_AI_VOICE_KEY_CODE || '').trim() &&
+        String(QUIZ_AI_VOICE_ID_CODE || '').trim());
 }
 
 function quizStopSpeech() {
@@ -6307,10 +6329,18 @@ function quizSyncSpeechUi() {
     if (cv && document.activeElement !== cv) cv.value = knownVoiceIds[quizElevenVoiceId] ? '' : (quizElevenVoiceId || '');
     const st = document.getElementById('quiz-ai-voice-status');
     if (st) {
-        st.textContent = quizAiVoiceConfigured()
-            ? 'AI pronta: testo intelligente + voce realistica attivi.'
-            : 'Configurazione incompleta: resta attivo il parlato locale.';
+        if (quizAiVoiceConfigured()) {
+            st.textContent = quizAiLastError
+                ? ('AI configurata ma ultimo test non riuscito: ' + quizAiLastError + '. Uso parlato locale di fallback.')
+                : (quizAiConfigComesFromCode()
+                    ? 'AI pronta da configurazione codice: testo intelligente + voce realistica attivi.'
+                    : 'AI pronta: testo intelligente + voce realistica attivi.');
+        } else {
+            st.textContent = 'Configurazione incompleta: resta attivo il parlato locale.';
+        }
     }
+    const keyFields = document.getElementById('quiz-ai-key-fields');
+    if (keyFields) keyFields.style.display = quizAiConfigComesFromCode() ? 'none' : '';
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
@@ -6350,6 +6380,7 @@ function quizSpeakWithLocalTts(text, runId) {
 
 async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
     try {
+        const cfg = quizResolveAiConfig();
         var styleHint = 'tono chiaro e professionale';
         if (quizAiCommentStyle === 'short') styleHint = 'tono molto sintetico e diretto';
         if (quizAiCommentStyle === 'coach') styleHint = 'tono incoraggiante da coach';
@@ -6358,7 +6389,7 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
             'Usa ' + styleHint + '. Mantieni domanda e risposte in ordine. Testo: ' + rawText;
         const gemRes = await fetch(
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
-            encodeURIComponent(quizGeminiApiKey),
+            encodeURIComponent(cfg.textKey),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6377,12 +6408,12 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
         if (runId !== quizSpeechRunId) return;
 
         const voiceRes = await fetch(
-            'https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(quizElevenVoiceId),
+            'https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(cfg.voiceId),
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'xi-api-key': quizElevenApiKey
+                    'xi-api-key': cfg.voiceKey
                 },
                 body: JSON.stringify({
                     text: aiText,
@@ -6411,8 +6442,10 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
             if (quizAiAudioEl === a) quizAiAudioEl = null;
         };
         quizAiAudioEl = a;
+        quizAiLastError = '';
         await a.play();
     } catch (e) {
+        quizAiLastError = (e && e.message) ? String(e.message) : 'errore sconosciuto';
         if (runId !== quizSpeechRunId) return;
         quizSpeakWithLocalTts(rawText, runId);
     }
