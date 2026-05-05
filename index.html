@@ -6183,16 +6183,34 @@ function quizVoicePresetChanged(val) {
     c.style.display = val === 'custom' ? '' : 'none';
 }
 
-function quizTestAiVoice() {
+async function quizTestAiVoice() {
     const st = document.getElementById('quiz-ai-voice-status');
     quizSaveAiVoiceConfig();
     if (!quizAiVoiceConfigured()) {
         if (st) st.textContent = 'Configurazione incompleta: manca chiave testo, chiave voce oppure ID voce.';
         return;
     }
+    if (st) st.textContent = 'Test voce AI in corso...';
     const runId = ++quizSpeechRunId;
     const demo = 'Test voce. Questa è una prova del commentatore vocale realistico del quiz.';
-    quizSpeakWithGeminiAndRealVoice(demo, runId);
+    const res = await quizSpeakWithGeminiAndRealVoice(demo, runId);
+    if (!st) return;
+    if (res && res.ok) {
+        st.textContent = 'Test AI riuscito: voce realistica attiva.';
+        return;
+    }
+    var err = (res && res.error) ? String(res.error) : 'errore sconosciuto';
+    if (/voice_http_401/i.test(err)) {
+        st.textContent = 'Test non riuscito: chiave voce AI non valida o senza permesso Text-to-Speech.';
+    } else if (/voice_http_403/i.test(err)) {
+        st.textContent = 'Test non riuscito: accesso negato alla voce selezionata (controlla Voice ID e permessi).';
+    } else if (/voice_http_404/i.test(err)) {
+        st.textContent = 'Test non riuscito: Voice ID non trovato.';
+    } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
+        st.textContent = 'Test non riuscito: problema rete/CORS verso servizio voce.';
+    } else {
+        st.textContent = 'Test non riuscito: ' + err;
+    }
 }
 
 function quizSavePanelOpen(open) {
@@ -6469,10 +6487,12 @@ async function quizSpeakWithGeminiAndRealVoice(rawText, runId) {
         quizAiAudioEl = a;
         quizAiLastError = '';
         await a.play();
+        return { ok: true, mode: 'real_voice' };
     } catch (e) {
         quizAiLastError = (e && e.message) ? String(e.message) : 'errore sconosciuto';
         if (runId !== quizSpeechRunId) return;
         quizSpeakWithLocalTts(rawText, runId);
+        return { ok: false, fallback: 'local_tts', error: quizAiLastError };
     }
 }
 
