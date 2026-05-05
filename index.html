@@ -5467,8 +5467,17 @@ function dismissAppSplash() {
                 </select>
                 <input type="password" id="quiz-text-ai-key-input" placeholder="Nuova chiave servizio testo AI" style="margin-top:8px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;display:none;">
                 </div>
+                <label for="quiz-voice-engine-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Motore telecronaca</label>
+                <select id="quiz-voice-engine-select" onchange="quizVoiceEngineChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
+                    <option value="gemini">Gemini</option>
+                    <option value="piper">Piper</option>
+                </select>
+                <div id="quiz-piper-config-box" style="display:none;">
+                    <label for="quiz-piper-url-input" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">URL Piper</label>
+                    <input type="text" id="quiz-piper-url-input" placeholder="http://127.0.0.1:5000/tts" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;">
+                </div>
                 <div class="quiz-settings-row-title" style="margin-top:8px;font-weight:700;color:#1a237e;">Modalità telecronaca</div>
-                <p style="margin:6px 0 0;font-size:0.76rem;color:#546e7a;">Telecronaca Gemini sempre attiva (nessun fallback testo locale).</p>
+                <p style="margin:6px 0 0;font-size:0.76rem;color:#546e7a;">Puoi usare Gemini o Piper in modo indipendente.</p>
                 <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
                     <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
@@ -5556,6 +5565,8 @@ const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
+const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
+const QUIZ_LS_PIPER_URL = 'io-quiz-piper-url';
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyCPlQR0NTqL6GJZvgUqwFzlMxdGIk433_U';
@@ -5567,6 +5578,8 @@ let quizSpeechEnabled = true;
 let quizSpeechMutedTopbar = false;
 let quizSpeechRate = 1;
 let quizGeminiApiKey = '';
+let quizVoiceEngine = 'gemini'; // gemini | piper
+let quizPiperUrl = 'http://127.0.0.1:5000/tts';
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
 let quizAiLastError = '';
@@ -6105,18 +6118,29 @@ function quizSaveSpeechRate(rate) {
 function quizSaveAiVoiceConfig() {
     const g = document.getElementById('quiz-text-ai-key-input');
     const gm = document.getElementById('quiz-text-ai-key-mode');
+    const engineSel = document.getElementById('quiz-voice-engine-select');
+    const piperUrlEl = document.getElementById('quiz-piper-url-input');
     const st = document.getElementById('quiz-ai-voice-status');
     if (gm && gm.value === 'new') quizGeminiApiKey = g ? String(g.value || '').trim() : '';
+    quizVoiceEngine = engineSel ? String(engineSel.value || 'gemini') : 'gemini';
+    quizPiperUrl = piperUrlEl ? String(piperUrlEl.value || '').trim() : quizPiperUrl;
+    if (!quizPiperUrl) quizPiperUrl = 'http://127.0.0.1:5000/tts';
     try {
         localStorage.setItem(QUIZ_LS_GEMINI_KEY, quizGeminiApiKey);
+        localStorage.setItem(QUIZ_LS_VOICE_ENGINE, quizVoiceEngine);
+        localStorage.setItem(QUIZ_LS_PIPER_URL, quizPiperUrl);
         localStorage.setItem('io-quiz-ai-comment-style', 'standard');
         localStorage.setItem(QUIZ_LS_GEMINI_COMMENTATOR, '1');
     } catch (eLs) { /* ignore */ }
     quizAiLastError = '';
     if (st) {
-        st.textContent = quizAiVoiceConfigured()
-            ? 'Configurazione salvata: telecronaca Gemini attiva.'
-            : 'Configurazione incompleta: manca la chiave testo per Gemini.';
+        if (quizVoiceEngine === 'piper') {
+            st.textContent = 'Configurazione salvata: telecronaca Piper attiva.';
+        } else {
+            st.textContent = quizAiVoiceConfigured()
+                ? 'Configurazione salvata: telecronaca Gemini attiva.'
+                : 'Configurazione incompleta: manca la chiave testo per Gemini.';
+        }
     }
 }
 
@@ -6135,7 +6159,9 @@ async function quizTestAiVoice() {
     const res = await quizSpeakUsingConfiguredEngine(demo, runId);
     if (!st) return;
     if (res && res.ok) {
-        st.textContent = 'Test riuscito: telecronaca Gemini attiva.';
+        st.textContent = (res.mode === 'piper')
+            ? 'Test riuscito: telecronaca Piper attiva.'
+            : 'Test riuscito: telecronaca Gemini attiva.';
         return;
     }
     var err = (res && res.error) ? String(res.error) : 'errore sconosciuto';
@@ -6149,6 +6175,12 @@ async function quizTestAiVoice() {
         st.textContent = 'Test non riuscito: errore servizio Gemini (' + err.replace('gemini_http_', 'HTTP ') + ').';
     } else if (/gemini_empty/i.test(err)) {
         st.textContent = 'Test non riuscito: Gemini non ha restituito testo utile.';
+    } else if (/piper_http_404|piper_http_405/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: endpoint errato. Verifica URL/route.';
+    } else if (/piper_http_500/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: errore interno server Piper.';
+    } else if (/piper_network/i.test(err)) {
+        st.textContent = 'Test Piper non riuscito: server non raggiungibile dalla pagina web.';
     } else if (/Failed to fetch|NetworkError|TypeError/i.test(err)) {
         st.textContent = 'Test non riuscito: problema rete/CORS.';
     } else {
@@ -6175,6 +6207,10 @@ function quizLoadStoredPreference() {
             quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
         }
         quizGeminiApiKey = String(localStorage.getItem(QUIZ_LS_GEMINI_KEY) || '').trim();
+        quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || 'gemini');
+        if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = 'gemini';
+        quizPiperUrl = String(localStorage.getItem(QUIZ_LS_PIPER_URL) || 'http://127.0.0.1:5000/tts').trim();
+        if (!quizPiperUrl) quizPiperUrl = 'http://127.0.0.1:5000/tts';
         try { localStorage.setItem('io-quiz-ai-comment-style', 'standard'); } catch (eLs) {}
     } catch (e) {}
 }
@@ -6268,14 +6304,23 @@ function quizSyncSpeechUi() {
     const gm = document.getElementById('quiz-text-ai-key-mode');
     if (gm) gm.value = quizGeminiApiKey ? 'saved' : 'new';
     quizAiKeyModeChanged();
+    const engineSel = document.getElementById('quiz-voice-engine-select');
+    if (engineSel) engineSel.value = quizVoiceEngine || 'gemini';
+    quizVoiceEngineChanged(quizVoiceEngine || 'gemini');
+    const piperUrlEl = document.getElementById('quiz-piper-url-input');
+    if (piperUrlEl && document.activeElement !== piperUrlEl) piperUrlEl.value = quizPiperUrl || 'http://127.0.0.1:5000/tts';
     const st = document.getElementById('quiz-ai-voice-status');
     if (st) {
-        st.textContent = quizResolveAiConfig().textKey
-            ? 'Telecronaca Gemini attiva.'
-            : 'Telecronaca Gemini non configurata (manca chiave testo).';
+        if (quizVoiceEngine === 'piper') {
+            st.textContent = 'Telecronaca Piper attiva.';
+        } else {
+            st.textContent = quizResolveAiConfig().textKey
+                ? 'Telecronaca Gemini attiva.'
+                : 'Telecronaca Gemini non configurata (manca chiave testo).';
+        }
     }
     const keyFields = document.getElementById('quiz-ai-key-fields');
-    if (keyFields) keyFields.style.display = 'none';
+    if (keyFields) keyFields.style.display = (quizVoiceEngine === 'gemini') ? 'block' : 'none';
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
@@ -6295,6 +6340,9 @@ function quizSpeakCurrentQuestionAndChoices() {
 
 async function quizSpeakUsingConfiguredEngine(plainText, runId) {
     try {
+        if (quizVoiceEngine === 'piper') {
+            return await quizSpeakWithPiper(plainText, runId);
+        }
         const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSpeakWithLocalTts(textToSpeak, runId);
@@ -6362,6 +6410,61 @@ function quizSpeakWithLocalTts(text, runId) {
     try {
         window.speechSynthesis.speak(utt);
     } catch (e2) {}
+}
+
+function quizVoiceEngineChanged(val) {
+    quizVoiceEngine = String(val || 'gemini');
+    if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = 'gemini';
+    const pBox = document.getElementById('quiz-piper-config-box');
+    if (pBox) pBox.style.display = quizVoiceEngine === 'piper' ? '' : 'none';
+    const keyFields = document.getElementById('quiz-ai-key-fields');
+    if (keyFields) keyFields.style.display = quizVoiceEngine === 'gemini' ? 'block' : 'none';
+}
+
+async function quizSpeakWithPiper(rawText, runId) {
+    try {
+        const endpoint = String(quizPiperUrl || '').trim();
+        if (!endpoint) throw new Error('piper_network_empty_url');
+        let res = null;
+        try {
+            res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: rawText })
+            });
+        } catch (ePost) {
+            res = null;
+        }
+        if (!res || !res.ok) {
+            const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
+            try {
+                res = await fetch(endpoint + sep + 'text=' + encodeURIComponent(rawText), { method: 'GET' });
+            } catch (eGet) {
+                throw new Error('piper_network_unreachable');
+            }
+        }
+        if (!res || !res.ok) throw new Error('piper_http_' + (res ? res.status : '0'));
+        const blob = await res.blob();
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+        const url = URL.createObjectURL(blob);
+        const a = new Audio(url);
+        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        a.onended = function () {
+            URL.revokeObjectURL(url);
+            if (quizAiAudioEl === a) quizAiAudioEl = null;
+        };
+        a.onerror = function () {
+            URL.revokeObjectURL(url);
+            if (quizAiAudioEl === a) quizAiAudioEl = null;
+        };
+        quizAiAudioEl = a;
+        quizAiLastError = '';
+        await a.play();
+        return { ok: true, mode: 'piper' };
+    } catch (e) {
+        quizAiLastError = (e && e.message) ? String(e.message) : 'piper_error';
+        return { ok: false, error: quizAiLastError };
+    }
 }
 
 function quizToggleTopbarSpeechMute() {
