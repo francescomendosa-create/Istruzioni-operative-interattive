@@ -5483,6 +5483,10 @@ function dismissAppSplash() {
                     <option value="standard" selected>Standard</option>
                     <option value="coach">Coach motivazionale</option>
                 </select>
+                <label class="quiz-settings-row quiz-settings-row--toggle" style="margin:8px 0 6px;">
+                    <span class="quiz-settings-row-text">Usa <strong>commentatore Gemini</strong> (testo)</span>
+                    <input type="checkbox" id="quiz-gemini-commentator-toggle" onchange="quizGeminiCommentatorToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
+                </label>
                 <label for="quiz-voice-engine-select" style="display:block;margin-top:8px;font-size:0.75rem;color:#546e7a;">Motore voce</label>
                 <select id="quiz-voice-engine-select" onchange="quizVoiceEngineChanged(this.value)" style="margin-top:4px;width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;">
                     <option value="local">Locale (consigliato)</option>
@@ -5602,6 +5606,7 @@ const QUIZ_LS_ELEVEN_KEY = 'io-quiz-eleven-key';
 const QUIZ_LS_ELEVEN_VOICE = 'io-quiz-eleven-voice';
 const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
 const QUIZ_LS_PIPER_URL = 'io-quiz-piper-url';
+const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyCPlQR0NTqL6GJZvgUqwFzlMxdGIk433_U';
 const QUIZ_AI_VOICE_KEY_CODE = 'sk_83488fa2743ad05426a97f7fa4df155c00c5fe2317669fea';
@@ -5617,6 +5622,7 @@ let quizGeminiApiKey = '';
 let quizElevenApiKey = '';
 let quizElevenVoiceId = '';
 let quizAiCommentStyle = 'standard';
+let quizGeminiCommentatorEnabled = true;
 let quizVoiceEngine = 'local'; // local | piper
 let quizPiperUrl = 'http://127.0.0.1:5000/tts';
 let quizSpeechRunId = 0;
@@ -6181,6 +6187,7 @@ function quizSaveAiVoiceConfig() {
         localStorage.setItem('io-quiz-ai-comment-style', quizAiCommentStyle);
         localStorage.setItem(QUIZ_LS_VOICE_ENGINE, quizVoiceEngine);
         localStorage.setItem(QUIZ_LS_PIPER_URL, quizPiperUrl);
+        localStorage.setItem(QUIZ_LS_GEMINI_COMMENTATOR, quizGeminiCommentatorEnabled ? '1' : '0');
     } catch (eLs) { /* ignore */ }
     quizAiLastError = '';
     if (st) {
@@ -6188,6 +6195,14 @@ function quizSaveAiVoiceConfig() {
             ? 'Configurazione AI salvata: verrà usata la voce realistica.'
             : 'Configurazione incompleta: resta attivo il parlato locale.';
     }
+}
+
+function quizGeminiCommentatorToggle(on) {
+    quizGeminiCommentatorEnabled = !!on;
+    try {
+        localStorage.setItem(QUIZ_LS_GEMINI_COMMENTATOR, quizGeminiCommentatorEnabled ? '1' : '0');
+    } catch (e) {}
+    quizSyncSpeechUi();
 }
 
 function quizVoiceEngineChanged(val) {
@@ -6262,6 +6277,9 @@ function quizLoadStoredPreference() {
         quizElevenApiKey = String(localStorage.getItem(QUIZ_LS_ELEVEN_KEY) || '').trim();
         quizElevenVoiceId = String(localStorage.getItem(QUIZ_LS_ELEVEN_VOICE) || '').trim();
         quizAiCommentStyle = String(localStorage.getItem('io-quiz-ai-comment-style') || 'standard');
+        const gc = localStorage.getItem(QUIZ_LS_GEMINI_COMMENTATOR);
+        if (gc === '0') quizGeminiCommentatorEnabled = false;
+        else if (gc === '1') quizGeminiCommentatorEnabled = true;
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || 'local');
         if (!/^(local|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = 'local';
         quizPiperUrl = String(localStorage.getItem(QUIZ_LS_PIPER_URL) || 'http://127.0.0.1:5000/tts').trim();
@@ -6370,6 +6388,8 @@ function quizSyncSpeechUi() {
     quizAiKeyModeChanged();
     const styleSel = document.getElementById('quiz-ai-comment-style');
     if (styleSel) styleSel.value = quizAiCommentStyle || 'standard';
+    const gemCb = document.getElementById('quiz-gemini-commentator-toggle');
+    if (gemCb) gemCb.checked = !!quizGeminiCommentatorEnabled;
     const engineSel = document.getElementById('quiz-voice-engine-select');
     if (engineSel) engineSel.value = quizVoiceEngine || 'local';
     quizVoiceEngineChanged(quizVoiceEngine || 'local');
@@ -6403,9 +6423,11 @@ function quizSyncSpeechUi() {
                 ? ('Piper non disponibile: ' + quizAiLastError + '. Uso voce locale di fallback.')
                 : 'Piper attivo (con fallback locale automatico).';
         } else {
-            st.textContent = quizResolveAiConfig().textKey
-                ? 'Motore locale attivo + commentatore Gemini (fallback locale automatico).'
-                : 'Motore locale attivo (gratis e stabile).';
+            st.textContent = quizGeminiCommentatorEnabled
+                ? (quizResolveAiConfig().textKey
+                    ? 'Motore locale + commentatore Gemini attivo.'
+                    : 'Motore locale + commentatore Gemini non configurato (manca chiave testo).')
+                : 'Motore locale attivo (commentatore Gemini disattivato).';
         }
     }
     const keyFields = document.getElementById('quiz-ai-key-fields');
@@ -6440,6 +6462,7 @@ async function quizSpeakUsingConfiguredEngine(plainText, runId) {
 /** Commentatore Gemini: rende il parlato più naturale, fallback immediato al testo originale. */
 async function quizBuildGeminiCommentaryText(rawText, runId) {
     try {
+        if (!quizGeminiCommentatorEnabled) return rawText;
         const cfg = quizResolveAiConfig();
         if (!cfg.textKey) return rawText;
         const ctrl = new AbortController();
