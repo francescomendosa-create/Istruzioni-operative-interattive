@@ -6182,6 +6182,8 @@ async function quizTestAiVoice() {
         st.textContent = 'Test non riuscito: Gemini troppo lento in risposta (timeout). Riprova tra pochi secondi.';
     } else if (/gemini_http_429/i.test(err)) {
         st.textContent = 'Test non riuscito: limite richieste/quota Gemini raggiunto (HTTP 429).';
+    } else if (/gemini_http_503/i.test(err)) {
+        st.textContent = 'Test non riuscito: servizio Gemini momentaneamente non disponibile (HTTP 503). Riprova tra poco.';
     } else if (/gemini_http_/i.test(err)) {
         st.textContent = 'Test non riuscito: errore servizio Gemini (' + err.replace('gemini_http_', 'HTTP ') + ').';
     } else if (/gemini_empty/i.test(err)) {
@@ -6387,18 +6389,23 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
             'Agisci come telecronista quiz in italiano. ' +
             'Riformula in stile telecronaca coinvolgente ma chiara, max 110 parole, senza markdown. ' +
             'Mantieni domanda e opzioni complete. Usa ' + styleHint + '. Testo: ' + rawText;
-        const res = await fetch(
+        const gemUrl =
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
-            encodeURIComponent(cfg.textKey),
-            {
+            encodeURIComponent(cfg.textKey);
+        const reqBody = JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }]
+        });
+        let res = null;
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+            res = await fetch(gemUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }]
-                }),
+                body: reqBody,
                 signal: ctrl.signal
-            }
-        );
+            });
+            if (res.ok || res.status !== 503 || attempt === 2) break;
+            await new Promise(function (r) { setTimeout(r, 450 * (attempt + 1)); });
+        }
         if (timeoutId) clearTimeout(timeoutId);
         if (!res.ok) throw new Error('gemini_http_' + String(res.status || 0));
         const json = await res.json();
