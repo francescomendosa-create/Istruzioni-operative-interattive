@@ -5572,7 +5572,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260204c';
+const APP_BUILD = '20260204d';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6180,11 +6180,32 @@ async function quizTestAiVoice() {
     if (st) st.textContent = 'Test voce in corso...';
     const runId = ++quizSpeechRunId;
     const demo = 'Test voce telecronaca.';
-    const res = await quizSpeakUsingConfiguredEngine(demo, runId);
+    let sampleQ = null;
+    try {
+        sampleQ = (quizState && quizState.queue && quizState.queue[quizState.index]) || (QUIZ_CURATED && QUIZ_CURATED[0]) || null;
+        if (sampleQ && !Array.isArray(sampleQ.options)) {
+            sampleQ = quizMakeQuestion(
+                Number(sampleQ.l) || 1,
+                1,
+                String(sampleQ.ref || 'Test offline'),
+                String(sampleQ.q || demo),
+                String(sampleQ.ok || 'Opzione A'),
+                String(sampleQ.w1 || 'Opzione B'),
+                String(sampleQ.w2 || 'Opzione C')
+            );
+        }
+    } catch (eQ) {
+        sampleQ = null;
+    }
+    const res = await quizSpeakUsingConfiguredEngine(demo, runId, sampleQ);
     if (!st) return;
     if (res && res.ok) {
-        if (res.mode === 'piper') {
+        if (res.mode === 'local_file') {
+            st.textContent = 'Test riuscito: audio offline locale attivo.';
+        } else if (res.mode === 'piper') {
             st.textContent = 'Test riuscito: telecronaca Piper attiva.';
+        } else if (res.mode === 'local_tts' && /piper_fast_fallback_local/i.test(String(res.warn || ''))) {
+            st.textContent = 'Test rapido: offline/online non pronti, usata voce locale immediata.';
         } else if (/gemini_timeout_fallback_raw_text/i.test(String(res.warn || ''))) {
             st.textContent = 'Test riuscito con fallback: Gemini lento, lettura diretta usata.';
         } else {
@@ -6438,7 +6459,13 @@ async function quizSpeakUsingConfiguredEngine(plainText, runId, qObj) {
         const localRes = await quizSpeakLocalFileIfAvailable(qObj, runId);
         if (localRes && localRes.ok) return localRes;
         if (quizVoiceEngine === 'piper') {
-            return await quizSpeakWithPiper(plainText, runId);
+            const piperRes = await quizSpeakWithPiper(plainText, runId);
+            if (piperRes && piperRes.ok) return piperRes;
+            if (piperRes && /piper_timeout|piper_network/i.test(String(piperRes.error || ''))) {
+                quizSpeakWithLocalTts(plainText, runId);
+                return { ok: true, mode: 'local_tts', warn: 'piper_fast_fallback_local' };
+            }
+            return piperRes;
         }
         const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
@@ -6563,7 +6590,7 @@ async function quizSpeakWithPiper(rawText, runId) {
         }
         // Wake-up ping for free-tier sleeping instances (Render-like behavior).
         try {
-            await fetchWithTimeout(hostRoot + '/health', { method: 'GET' }, 15000);
+            await fetchWithTimeout(hostRoot + '/health', { method: 'GET' }, 3500);
         } catch (eWake) {
             // Non-fatal: continue with TTS request anyway.
         }
@@ -6573,7 +6600,7 @@ async function quizSpeakWithPiper(rawText, runId) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: rawText, voice: quizPiperVoice || 'naturale' })
-            }, 55000);
+            }, 9000);
         } catch (ePost) {
             if (String((ePost && ePost.message) || '') === 'piper_timeout') throw ePost;
             res = null;
@@ -6586,7 +6613,7 @@ async function quizSpeakWithPiper(rawText, runId) {
                     {
                     method: 'GET'
                     },
-                    55000
+                    9000
                 );
             } catch (eGet) {
                 if (String((eGet && eGet.message) || '') === 'piper_timeout') throw eGet;
