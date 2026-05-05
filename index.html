@@ -5483,6 +5483,8 @@ let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
+/** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
+const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
@@ -6084,6 +6086,9 @@ function quizSettingsForceRefresh(btn) {
 
         if (sub) sub.textContent = 'Applico aggiornamento — ricarico…';
         setTimeout(function () {
+            try {
+                sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
+            } catch (eS) { /* ignore */ }
             location.reload();
         }, 750);
     })();
@@ -10520,9 +10525,25 @@ window.addEventListener('load', function initQuizProtection() {
             if (infoV) infoV.textContent = APP_VERSION;
             const infoB = document.getElementById('quiz-info-build-label');
             if (infoB) infoB.textContent = APP_BUILD;
+            var reopenSettings = false;
+            try {
+                reopenSettings = sessionStorage.getItem(QUIZ_SS_REOPEN_SETTINGS) === '1';
+                if (reopenSettings) {
+                    sessionStorage.removeItem(QUIZ_SS_REOPEN_SETTINGS);
+                }
+            } catch (eRs) { /* ignore */ }
             if (quizFeatureEnabled && quizShouldRestorePanelOpen()) {
                 requestAnimationFrame(function () {
                     openQuiz();
+                    if (reopenSettings) {
+                        requestAnimationFrame(function () {
+                            showQuizSettingsModal();
+                        });
+                    }
+                });
+            } else if (reopenSettings) {
+                requestAnimationFrame(function () {
+                    showQuizSettingsModal();
                 });
             }
             try {
