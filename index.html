@@ -306,6 +306,8 @@
             align-items: center;
             gap: 8px;
             min-width: 0;
+            position: relative;
+            z-index: 3;
         }
         .quiz-fs-topbar__center {
             display: none;
@@ -453,6 +455,9 @@
             box-sizing: border-box;
             font-size: 1rem;
             line-height: 1;
+            position: relative;
+            z-index: 4;
+            pointer-events: auto;
         }
         .quiz-fs-audio:hover { background: rgba(255,255,255,0.22); }
         .quiz-fs-audio:active { transform: translateY(1px); }
@@ -5199,7 +5204,7 @@ function dismissAppSplash() {
                 <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
             </div>
             <div class="quiz-fs-topbar__end">
-                <button type="button" class="quiz-fs-audio" id="quiz-topbar-audio" onclick="quizToggleTopbarSpeechMute()" aria-label="Silenzia parlato quiz" title="Silenzia parlato quiz">
+                <button type="button" class="quiz-fs-audio" id="quiz-topbar-audio" aria-label="Silenzia parlato quiz" title="Silenzia parlato quiz">
                     <span id="quiz-topbar-audio-icon" aria-hidden="true">🔊</span>
                 </button>
                 <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
@@ -6444,7 +6449,10 @@ async function quizSpeakWithPiper(rawText, runId) {
         try {
             res = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'bypass-tunnel-reminder': 'true'
+                },
                 body: JSON.stringify({ text: rawText })
             });
         } catch (ePost) {
@@ -6453,7 +6461,10 @@ async function quizSpeakWithPiper(rawText, runId) {
         if (!res || !res.ok) {
             const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
             try {
-                res = await fetch(endpoint + sep + 'text=' + encodeURIComponent(rawText), { method: 'GET' });
+                res = await fetch(endpoint + sep + 'text=' + encodeURIComponent(rawText), {
+                    method: 'GET',
+                    headers: { 'bypass-tunnel-reminder': 'true' }
+                });
             } catch (eGet) {
                 throw new Error('piper_network_unreachable');
             }
@@ -6488,6 +6499,24 @@ function quizToggleTopbarSpeechMute() {
 
 function quizSettingsSetMute(on) {
     quizSetMuteState(!!on);
+}
+
+function quizEnsureTopbarAudioBinding() {
+    const btn = document.getElementById('quiz-topbar-audio');
+    if (!btn || btn.dataset.boundMute === '1') return;
+    btn.dataset.boundMute = '1';
+    const handler = function (ev) {
+        try {
+            if (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
+        } catch (eEv) {}
+        quizToggleTopbarSpeechMute();
+    };
+    btn.addEventListener('click', handler, { passive: false });
+    btn.addEventListener('touchstart', handler, { passive: false });
+    btn.addEventListener('pointerdown', handler, { passive: false });
 }
 
 function quizSetMuteState(muted) {
@@ -8481,6 +8510,7 @@ function quizShowScreen(which) {
     if (panel) panel.classList.toggle('quiz-panel--screen-play', which === 'play');
     const topbar = document.getElementById('quiz-fs-topbar');
     if (topbar) topbar.classList.toggle('quiz-fs-topbar--intro', which === 'intro');
+    quizEnsureTopbarAudioBinding();
     quizSyncSpeechUi();
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
