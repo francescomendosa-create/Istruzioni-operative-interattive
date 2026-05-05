@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="max-age=0, must-revalidate">
     <title>Istruzioni operative interattive</title>
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="pwa-192.png">
@@ -10,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="pwa-512.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json?v=20260204">
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -10414,7 +10415,15 @@ window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
             /* Percorsi assoluti dalla cartella della pagina: necessario su GitHub Pages (/repo/...) */
             var base = new URL('.', window.location.href).href;
             var swUrl = new URL('sw.js', base).href;
-            navigator.serviceWorker.register(swUrl, { scope: base }).catch(function () {});
+            navigator.serviceWorker
+                .register(swUrl, { scope: base })
+                .then(function (reg) {
+                    try {
+                        if (reg && reg.update) reg.update();
+                    } catch (eUp) { /* ignore */ }
+                    return reg;
+                })
+                .catch(function () {});
         } catch (e) { /* file:// o contesti particolari */ }
     });
 })();
