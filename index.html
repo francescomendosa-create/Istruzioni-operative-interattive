@@ -5427,7 +5427,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204c</span> · allinea cache e ricarica</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204n</span> · allinea cache e ricarica</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5488,7 +5488,7 @@ function dismissAppSplash() {
                         <option value="naturale">Naturale (consigliata)</option>
                         <option value="telecronaca">Telecronaca</option>
                         <option value="chiara">Chiara e lenta</option>
-                        <option value="profonda">Più profonda</option>
+                        <option value="profonda">Maschile profonda</option>
                     </select>
                     <p style="margin:6px 0 0;font-size:0.72rem;color:#546e7a;">Endpoint Piper impostato automaticamente per tutti i dispositivi.</p>
                 </div>
@@ -5512,7 +5512,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204c</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204n</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5572,7 +5572,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260204e';
+const APP_BUILD = '20260204n';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5587,6 +5587,24 @@ const QUIZ_LS_READ_MODE = 'io-quiz-read-mode';
 const QUIZ_DEFAULT_VOICE_ENGINE = 'piper';
 const QUIZ_DEFAULT_PIPER_URL = 'https://quiz-piper-tts.onrender.com/tts';
 const QUIZ_LOCAL_AUDIO_BASE = 'assets/quiz-audio';
+/** Musica schermata intro quiz: alterna tra i due file a ogni ingresso. */
+const QUIZ_INTRO_AUDIO_1 = 'assets/quiz-intro/intro-1.mp3';
+const QUIZ_INTRO_AUDIO_2 = 'assets/quiz-intro/intro-2.mp3';
+const QUIZ_LS_INTRO_LAST = 'io-quiz-intro-last-audio';
+/** Sottofondo suspense durante ogni domanda (alterna a ogni nuova domanda). */
+const QUIZ_SUSPENSE_AUDIO_1 = 'assets/quiz-suspense/durente-quiz-suspance.mp3';
+const QUIZ_SUSPENSE_AUDIO_2 = 'assets/quiz-suspense/durante-quiz-suspance-2.mp3';
+/** Strato aggiuntivo: suona sempre in loop insieme al brano principale (volume basso). */
+const QUIZ_SUSPENSE_AUDIO_LAYER = 'assets/quiz-suspense/suspance-3.mp3';
+const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
+const QUIZ_SUSPENSE_BGM_VOLUME_MAIN = 0.17;
+const QUIZ_SUSPENSE_BGM_VOLUME_LAYER = 0.07;
+/** Abbassa il sottofondo mentre parla la telecronaca. */
+const QUIZ_SUSPENSE_DUCK_MAIN = 0.055;
+const QUIZ_SUSPENSE_DUCK_LAYER = 0.025;
+const QUIZ_SFX_CORRECT = 'assets/quiz-sfx/risposta-giusta.mp3';
+const QUIZ_SFX_WRONG = 'assets/quiz-sfx/risposta-sbagliata.mp3';
+const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
@@ -5604,6 +5622,12 @@ let quizPiperVoice = 'naturale';
 let quizReadMode = 'qa'; // q | qa
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
+/** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
+let quizIntroSessionTrack = null;
+let quizIntroAudioEl = null;
+let quizSuspenseSessionTrack = null;
+let quizSuspenseAudioEl = null;
+let quizSuspenseLayerAudioEl = null;
 let quizAiLastError = '';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
@@ -6320,8 +6344,141 @@ function quizAiConfigComesFromCode() {
     return !!String(QUIZ_AI_TEXT_KEY_CODE || '').trim();
 }
 
+function quizStopIntroMusic() {
+    try {
+        if (quizIntroAudioEl) {
+            quizIntroAudioEl.pause();
+            quizIntroAudioEl.src = '';
+            quizIntroAudioEl = null;
+        }
+    } catch (eI) { /* ignore */ }
+}
+
+function quizPlayIntroMusicAlternating(opts) {
+    opts = opts || {};
+    const resumeOnly = !!opts.resumeOnly;
+    const intro = document.getElementById('quiz-screen-intro');
+    if (!intro || intro.style.display === 'none') return;
+    if (quizSpeechMutedTopbar) return;
+    quizStopIntroMusic();
+    let which = '';
+    if (resumeOnly && quizIntroSessionTrack) {
+        which = quizIntroSessionTrack;
+    } else {
+        let last = '';
+        try {
+            last = String(localStorage.getItem(QUIZ_LS_INTRO_LAST) || '');
+        } catch (eLs) { last = ''; }
+        if (last === '1') which = '2';
+        else if (last === '2') which = '1';
+        else which = '1';
+        quizIntroSessionTrack = which;
+        try {
+            localStorage.setItem(QUIZ_LS_INTRO_LAST, which);
+        } catch (eS) { /* ignore */ }
+    }
+    const url = which === '2' ? QUIZ_INTRO_AUDIO_2 : QUIZ_INTRO_AUDIO_1;
+    const a = new Audio(url);
+    a.loop = false;
+    quizIntroAudioEl = a;
+    a.play().catch(function () { /* autoplay bloccato fino a gesture */ });
+}
+
+function quizSuspenseUnduckVolumes() {
+    try {
+        if (quizSuspenseAudioEl) quizSuspenseAudioEl.volume = QUIZ_SUSPENSE_BGM_VOLUME_MAIN;
+        if (quizSuspenseLayerAudioEl) quizSuspenseLayerAudioEl.volume = QUIZ_SUSPENSE_BGM_VOLUME_LAYER;
+    } catch (eU) { /* ignore */ }
+}
+
+function quizSuspenseDuckVolumes() {
+    try {
+        if (quizSuspenseAudioEl) quizSuspenseAudioEl.volume = QUIZ_SUSPENSE_DUCK_MAIN;
+        if (quizSuspenseLayerAudioEl) quizSuspenseLayerAudioEl.volume = QUIZ_SUSPENSE_DUCK_LAYER;
+    } catch (eD) { /* ignore */ }
+}
+
+function quizStopSuspenseMusic() {
+    try {
+        if (quizSuspenseAudioEl) {
+            quizSuspenseAudioEl.pause();
+            quizSuspenseAudioEl.src = '';
+            quizSuspenseAudioEl = null;
+        }
+        if (quizSuspenseLayerAudioEl) {
+            quizSuspenseLayerAudioEl.pause();
+            quizSuspenseLayerAudioEl.src = '';
+            quizSuspenseLayerAudioEl = null;
+        }
+    } catch (eS) { /* ignore */ }
+}
+
+function quizPlaySuspenseAlternating(opts) {
+    opts = opts || {};
+    const resumeOnly = !!opts.resumeOnly;
+    const play = document.getElementById('quiz-screen-play');
+    if (!play || play.style.display === 'none') return;
+    if (quizSpeechMutedTopbar) return;
+    quizStopSuspenseMusic();
+    let which = '';
+    if (resumeOnly && quizSuspenseSessionTrack) {
+        which = quizSuspenseSessionTrack;
+    } else {
+        let last = '';
+        try {
+            last = String(localStorage.getItem(QUIZ_LS_SUSPENSE_LAST) || '');
+        } catch (eLs) { last = ''; }
+        if (last === '1') which = '2';
+        else if (last === '2') which = '1';
+        else which = '1';
+        quizSuspenseSessionTrack = which;
+        try {
+            localStorage.setItem(QUIZ_LS_SUSPENSE_LAST, which);
+        } catch (eSv) { /* ignore */ }
+    }
+    const url = which === '2' ? QUIZ_SUSPENSE_AUDIO_2 : QUIZ_SUSPENSE_AUDIO_1;
+    const a = new Audio(url);
+    a.loop = true;
+    a.volume = QUIZ_SUSPENSE_BGM_VOLUME_MAIN;
+    quizSuspenseAudioEl = a;
+    a.play().catch(function () { /* autoplay */ });
+    const lay = new Audio(QUIZ_SUSPENSE_AUDIO_LAYER);
+    lay.loop = true;
+    lay.volume = QUIZ_SUSPENSE_BGM_VOLUME_LAYER;
+    quizSuspenseLayerAudioEl = lay;
+    lay.play().catch(function () { /* autoplay */ });
+}
+
+function quizPlayCorrectAnswerSfx() {
+    if (quizSpeechMutedTopbar) return;
+    try {
+        const a = new Audio(QUIZ_SFX_CORRECT);
+        a.volume = 0.9;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eC) { /* ignore */ }
+}
+
+function quizPlayWrongAnswerSfx() {
+    if (quizSpeechMutedTopbar) return;
+    try {
+        const a = new Audio(QUIZ_SFX_WRONG);
+        a.volume = 0.88;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eW) { /* ignore */ }
+}
+
+function quizPlayMicrobeUnlockApplauseSfx() {
+    if (quizSpeechMutedTopbar) return;
+    try {
+        const a = new Audio(QUIZ_SFX_APPLAUSE);
+        a.volume = 0.85;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eA) { /* ignore */ }
+}
+
 function quizStopSpeech() {
     quizSpeechRunId += 1;
+    quizSuspenseUnduckVolumes();
     try {
         if (quizSpeechSupported()) {
             window.speechSynthesis.cancel();
@@ -6419,36 +6576,66 @@ function quizSlugifyAudioName(txt) {
     return s || 'quiz-item';
 }
 
-function quizBuildLocalAudioPathForQuestion(q) {
+function quizBuildLocalAudioPathForQuestion(q, voicePreset) {
     const ref = quizSlugifyAudioName((q && q.ref) || '');
     const title = quizSlugifyAudioName((q && q.q) || '').slice(0, 36);
-    return QUIZ_LOCAL_AUDIO_BASE + '/' + ref + '--' + title + '.mp3';
+    const fileName = ref + '--' + title + '.mp3';
+    const v = String(voicePreset || '').trim().toLowerCase();
+    if (/^(naturale|telecronaca|chiara|profonda)$/.test(v)) {
+        return QUIZ_LOCAL_AUDIO_BASE + '/' + v + '/' + fileName;
+    }
+    return QUIZ_LOCAL_AUDIO_BASE + '/' + fileName;
 }
 
 async function quizSpeakLocalFileIfAvailable(q, runId) {
     try {
         if (!q) return { ok: false, error: 'local_audio_no_question' };
-        const url = quizBuildLocalAudioPathForQuestion(q);
-        const ctrl = new AbortController();
-        const timer = setTimeout(function () {
-            try { ctrl.abort(); } catch (eAb) { /* ignore */ }
-        }, 1800);
-        let headOk = false;
-        try {
-            const hr = await fetch(url, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
-            headOk = !!(hr && hr.ok);
-        } catch (eHead) {
-            headOk = false;
-        } finally {
-            clearTimeout(timer);
+        const fileName = quizBuildLocalAudioPathForQuestion(q).split('/').pop();
+        const preferredVoice = String(quizPiperVoice || 'naturale');
+        const candidates = [];
+        candidates.push(quizBuildLocalAudioPathForQuestion(q, preferredVoice));
+        if (preferredVoice !== 'naturale') candidates.push(quizBuildLocalAudioPathForQuestion(q, 'naturale'));
+        candidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + fileName); // backward compatibility
+        let chosenUrl = '';
+        for (let i = 0; i < candidates.length; i += 1) {
+            const url = candidates[i];
+            const ctrl = new AbortController();
+            const timer = setTimeout(function () {
+                try { ctrl.abort(); } catch (eAb) { /* ignore */ }
+            }, 1800);
+            let headOk = false;
+            try {
+                const hr = await fetch(url, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
+                headOk = !!(hr && hr.ok);
+            } catch (eHead) {
+                headOk = false;
+            } finally {
+                clearTimeout(timer);
+            }
+            if (headOk) {
+                chosenUrl = url;
+                break;
+            }
         }
-        if (!headOk) return { ok: false, error: 'local_audio_not_found' };
+        if (!chosenUrl) return { ok: false, error: 'local_audio_not_found' };
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
-        const a = new Audio(url);
+        quizSuspenseDuckVolumes();
+        const a = new Audio(chosenUrl);
         a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        a.onended = function () {
+            quizSuspenseUnduckVolumes();
+        };
+        a.onerror = function () {
+            quizSuspenseUnduckVolumes();
+        };
         quizAiAudioEl = a;
-        await a.play();
-        return { ok: true, mode: 'local_file', url: url };
+        try {
+            await a.play();
+        } catch (ePl) {
+            quizSuspenseUnduckVolumes();
+            throw ePl;
+        }
+        return { ok: true, mode: 'local_file', url: chosenUrl };
     } catch (e) {
         return { ok: false, error: 'local_audio_error' };
     }
@@ -6536,10 +6723,17 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
 
 function quizSpeakWithLocalTts(text, runId) {
     if (runId !== quizSpeechRunId) return;
+    quizSuspenseDuckVolumes();
     const utt = new SpeechSynthesisUtterance(text);
     utt.lang = 'it-IT';
     utt.rate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
     utt.pitch = 1;
+    utt.onend = function () {
+        quizSuspenseUnduckVolumes();
+    };
+    utt.onerror = function () {
+        quizSuspenseUnduckVolumes();
+    };
     try {
         const vv = window.speechSynthesis.getVoices() || [];
         const it = vv.find(function (v) { return /^it(-|_)/i.test(String(v.lang || '')); });
@@ -6547,7 +6741,9 @@ function quizSpeakWithLocalTts(text, runId) {
     } catch (e) {}
     try {
         window.speechSynthesis.speak(utt);
-    } catch (e2) {}
+    } catch (e2) {
+        quizSuspenseUnduckVolumes();
+    }
 }
 
 function quizVoiceEngineChanged(val) {
@@ -6621,17 +6817,25 @@ async function quizSpeakWithPiper(rawText, runId) {
         const url = URL.createObjectURL(blob);
         const a = new Audio(url);
         a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        quizSuspenseDuckVolumes();
         a.onended = function () {
+            quizSuspenseUnduckVolumes();
             URL.revokeObjectURL(url);
             if (quizAiAudioEl === a) quizAiAudioEl = null;
         };
         a.onerror = function () {
+            quizSuspenseUnduckVolumes();
             URL.revokeObjectURL(url);
             if (quizAiAudioEl === a) quizAiAudioEl = null;
         };
         quizAiAudioEl = a;
         quizAiLastError = '';
-        await a.play();
+        try {
+            await a.play();
+        } catch (ePlay) {
+            quizSuspenseUnduckVolumes();
+            throw ePlay;
+        }
         return { ok: true, mode: 'piper' };
     } catch (e) {
         quizAiLastError = (e && e.message) ? String(e.message) : 'piper_error';
@@ -6672,8 +6876,19 @@ function quizSetMuteState(muted) {
     quizSyncSpeechUi();
     if (quizSpeechMutedTopbar) {
         quizStopSpeech();
+        quizStopIntroMusic();
+        quizStopSuspenseMusic();
     } else {
-        quizSpeakCurrentQuestionAndChoices();
+        const intro = document.getElementById('quiz-screen-intro');
+        const play = document.getElementById('quiz-screen-play');
+        if (intro && intro.style.display !== 'none') {
+            quizPlayIntroMusicAlternating({ resumeOnly: true });
+        } else if (play && play.style.display !== 'none') {
+            quizPlaySuspenseAlternating({ resumeOnly: true });
+            quizSpeakCurrentQuestionAndChoices();
+        } else {
+            quizSpeakCurrentQuestionAndChoices();
+        }
     }
 }
 
@@ -8162,6 +8377,8 @@ function quizScheduleQuestionTimerTicks() {
 function quizTimeUp() {
     if (quizAnswerLocked) return;
     quizAnswerLocked = true;
+    quizStopSpeech();
+    quizStopSuspenseMusic();
     quizBioVatSink();
     const q = quizState.queue[quizState.index];
     if (!q) {
@@ -8648,6 +8865,14 @@ function quizShowScreen(which) {
     if (which !== 'play') {
         quizStopSpeech();
     }
+    if (which !== 'intro') {
+        quizIntroSessionTrack = null;
+        quizStopIntroMusic();
+    }
+    if (which !== 'play') {
+        quizSuspenseSessionTrack = null;
+        quizStopSuspenseMusic();
+    }
     intro.style.display = which === 'intro' ? 'block' : 'none';
     play.style.display = which === 'play' ? 'flex' : 'none';
     over.style.display = which === 'over' ? 'block' : 'none';
@@ -8661,6 +8886,7 @@ function quizShowScreen(which) {
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
         quizAvatarPickerSync();
+        quizPlayIntroMusicAlternating();
     }
 }
 
@@ -8831,6 +9057,7 @@ function quizRenderQuestion(opts) {
     quizUpdatePlayProgress();
     quizScheduleQuestionTimerTicks();
     quizSyncSpeechUi();
+    quizPlaySuspenseAlternating();
     quizSpeakCurrentQuestionAndChoices();
 
     if (!opts.instant && body) {
@@ -8922,6 +9149,7 @@ function quizAnswer(idx) {
 
     quizClearQuestionTimer();
     quizStopSpeech();
+    quizStopSuspenseMusic();
     quizAnswerLocked = true;
 
     const ch = document.getElementById('quiz-choices');
@@ -8937,6 +9165,7 @@ function quizAnswer(idx) {
     });
 
     if (idx === q.correctIndex) {
+        quizPlayCorrectAnswerSfx();
         const prevScore = quizState.score;
         quizState.score += q.points + timerBonusPts;
         if (timerBonusPts > 0) {
@@ -9011,6 +9240,7 @@ function quizAnswer(idx) {
             quizAnimateScorePoints(prevScore, quizState.score, finishCorrect);
         }
     } else {
+        quizPlayWrongAnswerSfx();
         let continuePlay = false;
         let fatalNoWorms = false;
         if (fb) {
@@ -9947,6 +10177,7 @@ function quizOpenMicrobeUnlockModal(wormIdx, onContinue) {
     quizMicrobeUnlockModalContinuation = onContinue;
     modal.classList.add('quiz-microbe-unlock-modal--open');
     modal.setAttribute('aria-hidden', 'false');
+    quizPlayMicrobeUnlockApplauseSfx();
     document.addEventListener('keydown', quizMicrobeUnlockModalKeydown, true);
     setTimeout(function () {
         const b = document.getElementById('quiz-microbe-unlock-ok');
