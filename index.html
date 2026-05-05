@@ -1298,6 +1298,29 @@
                 display: inline-flex;
             }
         }
+        /* Smartphone: vite visibili nella fila sotto Posizione + grado (non inline). */
+        @media (max-width: 768px) {
+            .quiz-play-lives-inline-wrap {
+                display: inline-flex !important;
+                flex-basis: 100%;
+                width: 100%;
+                order: 10;
+                margin-top: 5px;
+                padding-top: 5px;
+                border-top: 1px solid rgba(25, 118, 210, 0.18);
+                align-items: center;
+                justify-content: flex-start;
+                gap: 8px;
+            }
+            .quiz-play-oneline-left {
+                align-items: flex-start;
+            }
+            .quiz-play-lives-avatar {
+                width: 26px;
+                height: 26px;
+                border-radius: 7px;
+            }
+        }
         .quiz-play-oneline-center {
             display: flex;
             flex-direction: column;
