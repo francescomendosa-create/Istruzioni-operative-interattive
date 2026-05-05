@@ -300,6 +300,112 @@
         .quiz-fs-topbar--with-settings {
             justify-content: space-between;
         }
+        .quiz-fs-topbar__start,
+        .quiz-fs-topbar__end {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .quiz-fs-topbar__center {
+            display: none;
+            min-width: 0;
+            max-width: min(72vw, 420px);
+            text-align: center;
+            justify-self: center;
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 235, 59, 0.42);
+            background: linear-gradient(180deg, rgba(0, 24, 48, 0.45) 0%, rgba(0, 0, 0, 0.22) 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                0 2px 10px rgba(0, 0, 0, 0.28);
+        }
+        .quiz-fs-topbar__mode-title {
+            display: block;
+            font-size: clamp(0.62rem, 1.9vw, 0.76rem);
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            line-height: 1.2;
+            color: #ffeb3b;
+            text-shadow:
+                0 0 1px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(0, 0, 0, 0.55),
+                0 0 18px rgba(255, 235, 59, 0.55);
+        }
+        @supports (background-clip: text) {
+            .quiz-fs-topbar__mode-title {
+                color: transparent;
+                background: linear-gradient(185deg, #fffde7 0%, #ffeb3b 42%, #fbc02d 78%, #f9a825 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                text-shadow: none;
+                filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 0 14px rgba(255, 213, 79, 0.5));
+            }
+        }
+        .quiz-fs-topbar--intro {
+            display: grid;
+            grid-template-columns: minmax(38px, 1fr) auto minmax(38px, 1fr);
+            align-items: center;
+            gap: 6px 10px;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-topbar__center {
+            display: block;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-topbar__start {
+            justify-self: start;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-topbar__end {
+            justify-self: end;
+        }
+        .quiz-fs-back {
+            flex-shrink: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 32px;
+            padding: 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .quiz-fs-back:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+        .quiz-fs-back:active {
+            transform: translateY(1px);
+        }
+        .quiz-fs-back:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+        .quiz-fs-back svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            display: block;
+            margin-left: -2px;
+        }
+        .quiz-fs-settings--top-end {
+            display: none;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-settings--top-start {
+            display: none !important;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-exit--topbar {
+            display: none !important;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-back--intro {
+            display: inline-flex !important;
+        }
+        .quiz-fs-topbar--intro .quiz-fs-settings--top-end {
+            display: inline-flex !important;
+        }
         .quiz-fs-settings {
             flex-shrink: 0;
             display: inline-flex;
@@ -4110,6 +4216,41 @@
                 row-gap: 5px;
             }
         }
+        /*
+          Tablet in verticale: sulla sola home (splash) usa layout e proporzioni come su telefono.
+          splash-active è tolto dal body dopo «Entra», quindi il resto dell’app resta invariato.
+        */
+        @media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+            body.splash-active .app-splash-intro-bio {
+                flex-direction: column;
+                align-items: center;
+            }
+            body.splash-active .app-splash-intro-desc-col {
+                width: 100%;
+                max-width: 100%;
+            }
+            body.splash-active .app-splash-worm-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                row-gap: 5px;
+            }
+            body.splash-active .app-splash-mascot-wrap {
+                margin-bottom: 12px;
+                min-height: min(180px, 56vw);
+            }
+            body.splash-active .app-splash-icon-live {
+                width: min(188px, 62vw);
+                height: min(188px, 62vw);
+            }
+            body.splash-active .app-splash-enter {
+                width: min(100%, 320px);
+                padding: 14px 24px;
+                letter-spacing: 0.12em;
+            }
+            body.splash-active .app-splash-subbrand {
+                letter-spacing: 0.14em;
+            }
+        }
         .app-splash-icon-live {
             width: min(220px, 58vw);
             height: min(220px, 58vw);
@@ -5011,13 +5152,30 @@ function dismissAppSplash() {
 </div>
 
     <div id="quiz-panel" class="quiz-panel" aria-live="polite" role="dialog" aria-modal="true" aria-label="Quiz operativo">
-        <div class="quiz-fs-topbar quiz-fs-topbar--with-settings">
-            <button type="button" class="quiz-fs-settings" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                </svg>
-            </button>
-            <button type="button" class="quiz-fs-exit" onclick="quizTopExit()">Esci</button>
+        <div class="quiz-fs-topbar quiz-fs-topbar--with-settings" id="quiz-fs-topbar">
+            <div class="quiz-fs-topbar__start">
+                <button type="button" class="quiz-fs-back quiz-fs-back--intro" id="quiz-intro-back" onclick="quizTopExit()" aria-label="Indietro" title="Indietro">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <button type="button" class="quiz-fs-settings quiz-fs-settings--top-start" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="quiz-fs-topbar__center">
+                <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
+            </div>
+            <div class="quiz-fs-topbar__end">
+                <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                </button>
+                <button type="button" class="quiz-fs-exit quiz-fs-exit--topbar" id="quiz-topbar-exit" onclick="quizTopExit()">Esci</button>
+            </div>
         </div>
         <div class="quiz-fs-scroll">
         <div id="quiz-screen-intro">
@@ -5220,6 +5378,13 @@ function dismissAppSplash() {
                 <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
+                <div>
+                    <div class="quiz-settings-row-title">Aggiorna</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260204b</span> · allinea cache e ricarica</div>
+                </div>
+                <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
+            </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
                 <div>
                     <div class="quiz-settings-row-title">Info</div>
@@ -5253,7 +5418,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260204b</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5312,6 +5477,9 @@ let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
+/** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
+const APP_BUILD = '20260204b';
+let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
@@ -5863,9 +6031,38 @@ function showQuizSettingsModal() {
     syncSettingsQuizToggleUi();
     const vLab = document.getElementById('quiz-settings-version-label');
     if (vLab) vLab.textContent = APP_VERSION;
+    const bLab = document.getElementById('quiz-settings-build-label');
+    if (bLab) bLab.textContent = APP_BUILD;
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('settings-open');
+}
+
+/** Svuota Cache Storage, chiede aggiornamento al service worker e ricarica (utile su iOS / PWA). */
+function quizSettingsForceRefresh(btn) {
+    if (quizRefreshInProgress) return;
+    quizRefreshInProgress = true;
+    var sub = document.getElementById('quiz-settings-refresh-sub');
+    if (sub) sub.textContent = 'Aggiornamento in corso…';
+    if (btn) {
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+    }
+    (async function () {
+        try {
+            if (window.caches && caches.keys) {
+                var keys = await caches.keys();
+                await Promise.all(keys.map(function (k) {
+                    return caches.delete(k);
+                }));
+            }
+            if ('serviceWorker' in navigator) {
+                var reg = await navigator.serviceWorker.getRegistration();
+                if (reg && reg.update) await reg.update();
+            }
+        } catch (e) { /* ignore */ }
+        location.reload();
+    })();
 }
 
 function hideQuizSettingsModal() {
@@ -5945,6 +6142,8 @@ function showQuizInfoDetailModal() {
     const overlay = document.getElementById('quiz-info-overlay');
     const verEl = document.getElementById('quiz-info-version-label');
     if (verEl && typeof APP_VERSION !== 'undefined') verEl.textContent = APP_VERSION;
+    const buildEl = document.getElementById('quiz-info-build-label');
+    if (buildEl && typeof APP_BUILD !== 'undefined') buildEl.textContent = APP_BUILD;
     const bodyEl = document.querySelector('.quiz-info-body');
     if (bodyEl) bodyEl.scrollTop = 0;
     if (!overlay) return;
@@ -7720,6 +7919,8 @@ function quizShowScreen(which) {
     const rankWrap = document.getElementById('quiz-rank-wrap');
     if (rankWrap) rankWrap.style.display = which === 'intro' ? 'block' : 'none';
     if (panel) panel.classList.toggle('quiz-panel--screen-play', which === 'play');
+    const topbar = document.getElementById('quiz-fs-topbar');
+    if (topbar) topbar.classList.toggle('quiz-fs-topbar--intro', which === 'intro');
     if (which === 'intro') {
         quizAvatarPickerLoadStored();
         quizAvatarPickerSync();
@@ -10155,8 +10356,16 @@ function openQuiz() {
     const scrollBox = document.querySelector(".quiz-fs-scroll");
     if (scrollBox) scrollBox.scrollTop = 0;
     requestAnimationFrame(() => {
-        const ex = document.querySelector(".quiz-fs-exit");
-        if (ex) ex.focus();
+        const tb = document.getElementById('quiz-fs-topbar');
+        if (tb && tb.classList.contains('quiz-fs-topbar--intro')) {
+            const backBtn = document.getElementById('quiz-intro-back');
+            if (backBtn) {
+                backBtn.focus();
+                return;
+            }
+        }
+        const ex = document.getElementById('quiz-topbar-exit');
+        if (ex && ex.offsetParent !== null) ex.focus();
     });
 }
 
@@ -10285,6 +10494,8 @@ window.addEventListener('load', function initQuizProtection() {
             syncSettingsQuizToggleUi();
             const infoV = document.getElementById('quiz-info-version-label');
             if (infoV) infoV.textContent = APP_VERSION;
+            const infoB = document.getElementById('quiz-info-build-label');
+            if (infoB) infoB.textContent = APP_BUILD;
             if (quizFeatureEnabled && quizShouldRestorePanelOpen()) {
                 requestAnimationFrame(function () {
                     openQuiz();
