@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="max-age=0, must-revalidate">
     <title>Istruzioni operative interattive</title>
     <link rel="icon" href="favicon.ico" sizes="any">
@@ -33,6 +33,14 @@
 
         html {
             height: 100%;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        /* Touch: niente doppio-tap zoom; il viewport blocca pinch su iPhone/iPad (PWA e Safari). */
+        @media (hover: none) and (pointer: coarse) {
+            html {
+                touch-action: manipulation;
+            }
         }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -6106,7 +6114,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zq';
+const APP_BUILD = '20260506zr';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
