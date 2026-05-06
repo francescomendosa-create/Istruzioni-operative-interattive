@@ -2801,33 +2801,196 @@
             color: #2b4f73;
             font-size: 0.88rem;
         }
-        .quiz-vf-timer-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .quiz-vf-o2-meter-wrap {
             margin-bottom: 14px;
         }
-        .quiz-vf-timer-track {
-            flex: 1;
-            height: 10px;
-            border-radius: 999px;
-            background: rgba(22, 53, 86, 0.12);
-            overflow: hidden;
+        .quiz-vf-o2-meter-label {
+            font-size: 0.78rem;
+            color: #3d5c78;
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
         }
-        .quiz-vf-timer-fill {
-            height: 100%;
-            width: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #2f7d4a 0%, #c43333 100%);
-            transform-origin: left center;
-            transition: width 0.08s linear;
+        .quiz-vf-o2-meter {
+            margin-bottom: 6px;
         }
-        .quiz-vf-timer-sec {
-            min-width: 2ch;
-            font-weight: 800;
+        .quiz-vf-o2-meter__rail {
+            position: relative;
+            height: 22px;
+            border-radius: 11px;
+            background: linear-gradient(90deg, rgba(180, 60, 60, 0.35) 0%, rgba(120, 140, 160, 0.25) 55%, rgba(40, 160, 220, 0.45) 100%);
+            border: 1px solid rgba(22, 53, 86, 0.2);
+            overflow: visible;
+        }
+        .quiz-vf-o2-meter__tick {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.68rem;
+            color: #4a6b88;
+            font-weight: 700;
+            transform: translateX(-50%);
+        }
+        .quiz-vf-o2-meter__tick--0 { left: 0%; transform: translateX(0); }
+        .quiz-vf-o2-meter__tick--mid { left: 55.555555%; }
+        .quiz-vf-o2-meter__tick--max { left: 100%; transform: translateX(-100%); }
+        .quiz-vf-o2-meter__fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 55.555555%;
+            border-radius: 11px 0 0 11px;
+            background: linear-gradient(90deg, #c62828 0%, #42a5f5 55%, #29b6f6 100%);
+            opacity: 0.85;
+            pointer-events: none;
+            transition: width 0.06s linear;
+        }
+        .quiz-vf-o2-meter__needle {
+            position: absolute;
+            top: -4px;
+            bottom: -4px;
+            width: 4px;
+            margin-left: -2px;
+            border-radius: 2px;
+            background: #0d2140;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+            left: 55.555555%;
+            pointer-events: none;
+            transition: left 0.06s linear;
+        }
+        .quiz-vf-o2-readout {
+            font-size: 0.92rem;
+            color: #143254;
+            text-align: center;
+        }
+        .quiz-vf-o2-readout strong {
             font-variant-numeric: tabular-nums;
-            color: #123759;
+        }
+        .quiz-vf-rules-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10081;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(5, 14, 28, 0.82);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-vf-rules-modal.quiz-vf-rules-modal--open {
+            display: flex;
+        }
+        .quiz-vf-rules-modal__box {
+            width: min(92vw, 520px);
+            max-height: min(88vh, 640px);
+            overflow: auto;
+            border-radius: 14px;
+            padding: 18px;
+            background: linear-gradient(180deg, #f5f9fc 0%, #e8f1f9 100%);
+            border: 1px solid rgba(26, 53, 84, 0.18);
+            box-shadow: 0 18px 44px rgba(5, 22, 40, 0.45);
+        }
+        .quiz-vf-rules-modal__title {
+            margin: 0 0 10px;
+            color: #0f3558;
+            font-size: 1.12rem;
+        }
+        .quiz-vf-rules-modal__lead {
+            margin: 0 0 10px;
+            color: #2b4f73;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+        .quiz-vf-rules-modal__list {
+            margin: 0 0 14px 18px;
+            padding: 0;
+            color: #224860;
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+        .quiz-vf-rules-modal__list li {
+            margin: 6px 0;
+        }
+        .quiz-vf-rules-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .quiz-vf-outcome-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10082;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(4, 12, 24, 0.78);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .quiz-vf-outcome-modal.quiz-vf-outcome-modal--open {
+            display: flex;
+        }
+        .quiz-vf-outcome-modal__box {
+            width: min(94vw, 520px);
+            border-radius: 14px;
+            padding: 18px;
+            background: #fff;
+            border: 1px solid rgba(22, 53, 86, 0.16);
+            box-shadow: 0 18px 46px rgba(5, 18, 34, 0.42);
+        }
+        .quiz-vf-outcome-modal__box h3 {
+            margin: 0 0 8px;
+            color: #102a45;
             font-size: 1.05rem;
+        }
+        .quiz-vf-outcome-modal__lead {
+            margin: 0 0 10px;
+            color: #2d5372;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+        .quiz-vf-outcome-modal__o2 {
+            margin: 0 0 12px;
+            font-size: 0.88rem;
+            color: #1565c0;
+            font-weight: 700;
+        }
+        .quiz-vf-outcome-worms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+            margin: 12px 0 16px;
+            min-height: 44px;
+        }
+        .quiz-vf-outcome-worm {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(56, 142, 60, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+        .quiz-vf-outcome-worm--lost::after {
+            content: '✕';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #c62828;
+            text-shadow: 0 0 3px #fff, 0 0 6px #fff;
+            line-height: 1;
+        }
+        .quiz-vf-outcome-modal__actions {
+            display: flex;
+            justify-content: flex-end;
         }
         .quiz-vf-statement {
             margin: 0 0 18px;
@@ -2885,12 +3048,30 @@
             align-items: stretch;
             gap: 12px;
         }
-        .quiz-vf-intro-video {
+        /* Copre watermark testuale in alto a destra nel file MP4 (non eliminabile dal codice). */
+        .quiz-vf-intro-video-wrap {
+            position: relative;
             width: 100%;
-            max-height: min(78vh, 720px);
             border-radius: 12px;
+            overflow: hidden;
             background: #000;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        }
+        .quiz-vf-intro-video {
+            width: 100%;
+            display: block;
+            max-height: min(78vh, 720px);
+            background: #000;
+        }
+        .quiz-vf-intro-wm-cover {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: min(46%, 280px);
+            height: min(22%, 88px);
+            min-height: 40px;
+            pointer-events: none;
+            background: radial-gradient(ellipse 115% 130% at 100% 0%, rgba(6, 8, 12, 0.97) 0%, rgba(10, 12, 18, 0.72) 42%, transparent 78%);
         }
         .quiz-vf-intro-skip {
             align-self: flex-end;
@@ -2910,6 +3091,10 @@
             }
             .quiz-vf-intro-video {
                 max-height: min(70vh, 560px);
+            }
+            .quiz-vf-intro-wm-cover {
+                width: min(52%, 240px);
+                height: min(26%, 76px);
             }
         }
 
@@ -6481,11 +6666,18 @@ function dismissAppSplash() {
             <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
                 <h3 id="quiz-vf-title" class="quiz-vf-modal__title">Vero o falso</h3>
                 <p id="quiz-vf-subtitle" class="quiz-vf-modal__subtitle"></p>
-                <div class="quiz-vf-timer-wrap">
-                    <div id="quiz-vf-timer-track" class="quiz-vf-timer-track" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10">
-                        <div id="quiz-vf-timer-fill" class="quiz-vf-timer-fill"></div>
+                <div class="quiz-vf-o2-meter-wrap">
+                    <div class="quiz-vf-o2-meter-label">Ossigeno disciolto (mg/L · scala di gioco)</div>
+                    <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
+                        <div class="quiz-vf-o2-meter__rail">
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--0">0</span>
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--mid">2,5</span>
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--max">4,5</span>
+                            <div id="quiz-vf-o2-meter-fill" class="quiz-vf-o2-meter__fill"></div>
+                            <div id="quiz-vf-o2-meter-needle" class="quiz-vf-o2-meter__needle" aria-hidden="true"></div>
+                        </div>
                     </div>
-                    <span id="quiz-vf-timer-sec" class="quiz-vf-timer-sec" aria-live="polite">10</span>
+                    <div id="quiz-vf-o2-readout" class="quiz-vf-o2-readout">OD ≈ <strong id="quiz-vf-o2-value">2,5</strong></div>
                 </div>
                 <p id="quiz-vf-statement" class="quiz-vf-statement"></p>
                 <div class="quiz-vf-actions">
@@ -6496,8 +6688,42 @@ function dismissAppSplash() {
         </div>
         <div id="quiz-vf-intro-layer" class="quiz-vf-intro-layer" aria-hidden="true">
             <div class="quiz-vf-intro-layer__box">
-                <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline preload="metadata"></video>
+                <div class="quiz-vf-intro-video-wrap">
+                    <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline preload="metadata"></video>
+                    <div class="quiz-vf-intro-wm-cover" aria-hidden="true"></div>
+                </div>
                 <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
+            </div>
+        </div>
+        <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-title">
+            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__title">Mantieni l'ossigenazione ottimale</h3>
+                <p class="quiz-vf-rules-modal__lead">
+                    Il misuratore simula l’ossigeno disciolto (0–4,5 mg/L): parti da <strong>2,5</strong> e la barra cala con il tempo.
+                    Risposta <strong>giusta</strong>: recuperi circa un secondo di ossigeno; <strong>sbagliata</strong>: ne perdi circa uno.
+                    Se l’ossigeno arriva a <strong>zero</strong>, la modalità termina: resta un solo microbo in vasca.
+                    A fine turno, secondo l’OD finale, puoi guadagnare o perdere vermi — come nella parte principale del quiz.
+                </p>
+                <ul class="quiz-vf-rules-modal__list">
+                    <li>OD finale tra <strong>3,5 e 4</strong>: premio — 4 vermi delle varianti migliori già sbloccate.</li>
+                    <li>OD tra <strong>1 e 2,5</strong>: +2 vermi.</li>
+                    <li>OD tra <strong>0,1 e 0,9</strong>: −2 vermi (crescita in difficoltà).</li>
+                    <li><strong>OD = 0</strong> durante il gioco: tutti i vermi tranne uno vengono rimossi.</li>
+                </ul>
+                <div class="quiz-vf-rules-modal__actions">
+                    <button type="button" class="btn-side btn-report" onclick="quizVfRulesModalOk()">Ho capito — inizia</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-vf-outcome-modal" class="quiz-vf-outcome-modal" aria-hidden="true" aria-labelledby="quiz-vf-outcome-title">
+            <div class="quiz-vf-outcome-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <h3 id="quiz-vf-outcome-title"></h3>
+                <p id="quiz-vf-outcome-lead" class="quiz-vf-outcome-modal__lead"></p>
+                <p id="quiz-vf-outcome-o2" class="quiz-vf-outcome-modal__o2"></p>
+                <div id="quiz-vf-outcome-worms" class="quiz-vf-outcome-worms"></div>
+                <div class="quiz-vf-outcome-modal__actions">
+                    <button type="button" class="btn-side btn-report" onclick="quizVfOutcomeModalOk()">Continua</button>
+                </div>
             </div>
         </div>
 
@@ -6520,7 +6746,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507u</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507x</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6664,7 +6890,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507u';
+const APP_BUILD = '20260507x';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6699,8 +6925,16 @@ const QUIZ_VF_BGM = 'assets/quiz-suspense/vf-mode-suspance-3.mp3';
 /** Presentazione video all’ingresso della modalità Vero o falso (prima delle 5 domande). */
 const QUIZ_VF_INTRO_VIDEO = 'assets/quiz-vf/intro-vero-o-falso.mp4';
 const QUIZ_VF_BGM_VOLUME = 0.38;
+/** Riferimento: da 2,5 a 0 richiede ~10 s di decadimento al tasso sotto. */
 const QUIZ_VF_SECONDS = 10;
 const QUIZ_VF_POINTS_CORRECT = 1;
+const QUIZ_VF_O2_MIN = 0;
+const QUIZ_VF_O2_MAX = 4.5;
+const QUIZ_VF_O2_START = 2.5;
+/** mg/L al secondo (scala qualitativa): 2,5 → 0 in 10 s. */
+const QUIZ_VF_O2_DECAY_PER_SEC = 0.25;
+const QUIZ_VF_O2_DELTA_SEC = 1;
+const QUIZ_VF_O2_BUMP = QUIZ_VF_O2_DECAY_PER_SEC * QUIZ_VF_O2_DELTA_SEC;
 const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
 const QUIZ_SUSPENSE_BGM_VOLUME_MAIN = 0.17;
 const QUIZ_SUSPENSE_BGM_VOLUME_LAYER = 0.07;
@@ -6713,6 +6947,8 @@ const QUIZ_SETTINGS_VOICE_TEST_BGM_MULT = 0.16;
 const QUIZ_INTRO_BASE_VOL = 1;
 const QUIZ_SFX_CORRECT = 'assets/quiz-sfx/risposta-giusta.mp3';
 const QUIZ_SFX_WRONG = 'assets/quiz-sfx/risposta-sbagliata.mp3';
+/** Suono al «passaggio» a 10 secondi sul timer (domande normali: ultimi 10 s; Vero o falso: partenza da 10 s). */
+const QUIZ_SFX_TIMER_10SEC = 'assets/quiz-sfx/timer-10-secondi.mp3';
 const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
 /** Click sul tasto OK del modale acquisizione verme (canale musica/effetti). */
 const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
@@ -6818,10 +7054,13 @@ let quizVfActive = false;
 let quizVfBlockRound = 0;
 let quizVfIdxInBlock = 0;
 let quizVfTimerRaf = null;
-let quizVfDeadline = null;
 let quizVfChoiceBusy = false;
 let quizVfSessionContinuation = null;
 let quizVfIntroCompletionLock = false;
+let quizVfOxygen = QUIZ_VF_O2_START;
+let quizVfOxygenLastTs = 0;
+let quizVfOxygenLoopRunning = false;
+let quizVfOxygenDepleted = false;
 let quizAiLastError = '';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
@@ -8187,9 +8426,7 @@ function quizVfIntroCompleteGoToQuestions() {
         quizVfIntroCompletionLock = false;
         return;
     }
-    quizVfModalShow();
-    quizPlayVfModeMusic();
-    quizVfRunSingleStep();
+    quizVfRulesModalShow();
 }
 
 function quizVfIntroSkip() {
@@ -8206,9 +8443,7 @@ function quizVfBeginIntroOrQuestions() {
     const layer = document.getElementById('quiz-vf-intro-layer');
     quizVfIntroCompletionLock = false;
     if (!v || !layer) {
-        quizVfModalShow();
-        quizPlayVfModeMusic();
-        quizVfRunSingleStep();
+        quizVfRulesModalShow();
         return;
     }
     const url = quizResolveMediaUrl(QUIZ_VF_INTRO_VIDEO);
@@ -8235,59 +8470,251 @@ function quizVfBeginIntroOrQuestions() {
     }
 }
 
-function quizVfClearTimer() {
+function quizVfRulesModalShow() {
+    const m = document.getElementById('quiz-vf-rules-modal');
+    if (m) {
+        m.classList.add('quiz-vf-rules-modal--open');
+        m.setAttribute('aria-hidden', 'false');
+    }
+}
+
+function quizVfRulesModalHide() {
+    const m = document.getElementById('quiz-vf-rules-modal');
+    if (m) {
+        m.classList.remove('quiz-vf-rules-modal--open');
+        m.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizVfRulesModalOk() {
+    quizVfRulesModalHide();
+    quizVfIntroCompletionLock = false;
+    if (!quizVfActive) return;
+    quizVfModalShow();
+    quizPlayVfModeMusic();
+    quizVfRunSingleStep();
+}
+
+function quizVfOutcomeModalShow() {
+    const m = document.getElementById('quiz-vf-outcome-modal');
+    if (m) {
+        m.classList.add('quiz-vf-outcome-modal--open');
+        m.setAttribute('aria-hidden', 'false');
+    }
+}
+
+function quizVfOutcomeModalHide() {
+    const m = document.getElementById('quiz-vf-outcome-modal');
+    if (m) {
+        m.classList.remove('quiz-vf-outcome-modal--open');
+        m.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizVfOutcomeModalOk() {
+    quizVfOutcomeModalHide();
+    quizVfFinishSessionCore();
+}
+
+function quizVfFormatO2(val) {
+    const n = Math.max(QUIZ_VF_O2_MIN, Math.min(QUIZ_VF_O2_MAX, Number(val) || 0));
+    return n.toFixed(1).replace('.', ',');
+}
+
+function quizVfPaintOxygenMeter() {
+    const o2 = Math.max(QUIZ_VF_O2_MIN, Math.min(QUIZ_VF_O2_MAX, quizVfOxygen));
+    const pct = QUIZ_VF_O2_MAX > 0 ? (o2 / QUIZ_VF_O2_MAX) * 100 : 0;
+    const fill = document.getElementById('quiz-vf-o2-meter-fill');
+    const needle = document.getElementById('quiz-vf-o2-meter-needle');
+    const readout = document.getElementById('quiz-vf-o2-value');
+    const meter = document.getElementById('quiz-vf-o2-meter');
+    if (fill) fill.style.width = pct + '%';
+    if (needle) needle.style.left = pct + '%';
+    if (readout) readout.textContent = quizVfFormatO2(o2);
+    if (meter) meter.setAttribute('aria-valuenow', o2.toFixed(2).replace('.', ','));
+}
+
+function quizVfStopOxygenDecay() {
+    quizVfOxygenLoopRunning = false;
     if (quizVfTimerRaf != null) {
         cancelAnimationFrame(quizVfTimerRaf);
         quizVfTimerRaf = null;
     }
-    quizVfDeadline = null;
 }
 
-function quizVfPaintTimer(frac) {
-    const fill = document.getElementById('quiz-vf-timer-fill');
-    const secEl = document.getElementById('quiz-vf-timer-sec');
-    const track = document.getElementById('quiz-vf-timer-track');
-    if (!fill || !secEl || !track) return;
-    const p = Math.max(0, Math.min(1, frac));
-    fill.style.width = (p * 100) + '%';
-    const leftSec = quizVfDeadline ? Math.max(0, (quizVfDeadline - Date.now()) / 1000) : 0;
-    const display = Math.ceil(Math.min(QUIZ_VF_SECONDS, leftSec) - 1e-6);
-    secEl.textContent = String(Math.max(0, display));
-    track.setAttribute('aria-valuenow', String(Math.max(0, Math.min(QUIZ_VF_SECONDS, display))));
+function quizVfClearTimer() {
+    quizVfStopOxygenDecay();
+    quizTimerTenSecCuePlayed = false;
 }
 
-function quizVfTimerLoop() {
+function quizVfStartOxygenDecayForQuestion() {
+    quizVfClearTimer();
+    quizVfOxygen = QUIZ_VF_O2_START;
+    quizVfOxygenLastTs = performance.now();
+    quizVfOxygenLoopRunning = true;
+    quizVfPaintOxygenMeter();
+    quizVfTimerRaf = requestAnimationFrame(quizVfOxygenLoop);
+}
+
+function quizVfOxygenLoop() {
     quizVfTimerRaf = null;
-    if (!quizVfActive || !quizVfDeadline) return;
-    const leftMs = quizVfDeadline - Date.now();
-    const frac = leftMs / (QUIZ_VF_SECONDS * 1000);
-    quizVfPaintTimer(frac);
-    if (leftMs <= 0) {
-        quizVfOnTimeout();
+    if (!quizVfActive || !quizVfOxygenLoopRunning) return;
+    const now = performance.now();
+    let dt = (now - quizVfOxygenLastTs) / 1000;
+    if (dt > 0.12) dt = 0.12;
+    quizVfOxygenLastTs = now;
+    quizVfOxygen -= QUIZ_VF_O2_DECAY_PER_SEC * dt;
+    const equivSec = quizVfOxygen > 0 ? quizVfOxygen / QUIZ_VF_O2_DECAY_PER_SEC : 0;
+    if (!quizTimerTenSecCuePlayed && equivSec > 0 && Math.ceil(equivSec - 1e-9) === 10) {
+        quizTimerTenSecCuePlayed = true;
+        quizPlayTimerTenSecondCueSfx();
+    }
+    if (quizVfOxygen <= 0) {
+        quizVfOxygen = 0;
+        quizVfPaintOxygenMeter();
+        quizVfTriggerAnoxiaDuringQuestion();
         return;
     }
-    quizVfTimerRaf = requestAnimationFrame(quizVfTimerLoop);
+    quizVfPaintOxygenMeter();
+    quizVfTimerRaf = requestAnimationFrame(quizVfOxygenLoop);
 }
 
-function quizVfStartTimerForCurrentStep() {
-    quizVfClearTimer();
-    quizVfDeadline = Date.now() + QUIZ_VF_SECONDS * 1000;
-    quizVfPaintTimer(1);
-    quizVfTimerRaf = requestAnimationFrame(quizVfTimerLoop);
+function quizVfApplyAnswerDelta(ok) {
+    const d = ok ? QUIZ_VF_O2_BUMP : -QUIZ_VF_O2_BUMP;
+    quizVfOxygen = Math.min(QUIZ_VF_O2_MAX, Math.max(QUIZ_VF_O2_MIN, quizVfOxygen + d));
 }
 
-function quizVfOnTimeout() {
-    if (!quizVfActive || quizVfChoiceBusy) return;
+function quizVfOutcomeWormCells(n, lost) {
+    let html = '';
+    const cls = 'quiz-vf-outcome-worm' + (lost ? ' quiz-vf-outcome-worm--lost' : '');
+    for (let i = 0; i < n; i++) {
+        html += '<div class="' + cls + '" title="" aria-hidden="true">🪱</div>';
+    }
+    return html;
+}
+
+function quizVfTriggerAnoxiaDuringQuestion() {
+    if (!quizVfActive) return;
     quizVfChoiceBusy = true;
+    quizVfStopOxygenDecay();
     quizVfClearTimer();
     quizStopSpeech();
+    quizVfOxygenDepleted = true;
+    const lost = Math.max(0, quizBioWormCount - 1);
+    quizBioRemoveWorms(lost);
     try {
         quizPlayWrongAnswerSfx();
     } catch (eW) { /* ignore */ }
-    window.setTimeout(function () {
-        quizVfChoiceBusy = false;
-        quizVfAdvanceAfterStep();
-    }, 220);
+    const title = document.getElementById('quiz-vf-outcome-title');
+    const lead = document.getElementById('quiz-vf-outcome-lead');
+    const o2el = document.getElementById('quiz-vf-outcome-o2');
+    const worms = document.getElementById('quiz-vf-outcome-worms');
+    if (title) title.textContent = 'Biomassa in sofferenza';
+    if (lead) {
+        lead.textContent =
+            'Carenza critica di ossigeno: la biomassa collassa. Resta un solo microganismo rappresentativo in vasca; gli altri sono persi.';
+    }
+    if (o2el) o2el.textContent = 'OD ≈ 0 mg/L (scala di gioco)';
+    if (worms) worms.innerHTML = lost > 0 ? quizVfOutcomeWormCells(lost, true) : '';
+    quizVfOutcomeModalShow();
+}
+
+function quizBioVatRewardBestWorms(n) {
+    const gRoot = document.getElementById('quiz-bio-worms');
+    if (!gRoot || n <= 0) return;
+    const qIdx = Math.max(0, quizState.index);
+    const unlocked = quizBioUnlockedSplashVariantIndices(qIdx);
+    const sorted = unlocked.slice().sort(function (a, b) {
+        return b - a;
+    });
+    for (let i = 0; i < n; i++) {
+        const vi = sorted.length ? sorted[Math.min(Math.floor(i / 2), sorted.length - 1)] : null;
+        quizBioWormCount += 1;
+        const slotIdx = quizBioWormCount - 1;
+        if (vi !== null && vi !== undefined) {
+            quizBioAppendSplashWormVariant(gRoot, vi, slotIdx, { doDrop: false });
+        } else {
+            quizBioAppendGenericWorm(gRoot, slotIdx, {});
+        }
+        quizBioVatApplyFillFromState();
+    }
+}
+
+function quizVfApplyEndRewards(finalO2) {
+    if (quizVfOxygenDepleted) return;
+    const o = Number(finalO2);
+    if (o >= 3.5 && o <= 4.5) {
+        quizBioVatRewardBestWorms(4);
+    } else if (o >= 1 && o <= 2.5) {
+        quizBioVatOnCorrectAnswer(quizState.index, {});
+        quizBioVatOnCorrectAnswer(quizState.index, {});
+    } else if (o >= 0.1 && o < 1) {
+        quizBioRemoveWorms(2);
+    }
+}
+
+function quizVfShowOutcomeEndPopup(finalO2) {
+    const o = Number(finalO2);
+    const titleEl = document.getElementById('quiz-vf-outcome-title');
+    const leadEl = document.getElementById('quiz-vf-outcome-lead');
+    const o2El = document.getElementById('quiz-vf-outcome-o2');
+    const wormsEl = document.getElementById('quiz-vf-outcome-worms');
+    if (o2El) o2El.textContent = 'OD finale ≈ ' + quizVfFormatO2(o) + ' mg/L (scala di gioco)';
+    let title = 'Fine turno Vero o falso';
+    let lead = 'Sessione completata senza anossia.';
+    let wormHtml = '';
+    if (o >= 3.5 && o <= 4.5) {
+        title = 'Ossigeno ottimale';
+        lead = 'Biomassa in crescita: hai guadagnato 4 vermi delle varianti migliori già sbloccate.';
+        wormHtml = quizVfOutcomeWormCells(4, false);
+    } else if (o >= 1 && o <= 2.5) {
+        title = 'Ossigenazione sufficiente';
+        lead = 'Condizioni stabili: +2 vermi in vasca.';
+        wormHtml = quizVfOutcomeWormCells(2, false);
+    } else if (o >= 0.1 && o < 1) {
+        title = 'Stress da carenza parziale';
+        lead = 'Ossigeno molto basso: per carenza perdi 2 vermi.';
+        wormHtml = quizVfOutcomeWormCells(2, true);
+    } else {
+        lead = 'Nessun bonus o penalità legati alle soglie OD per questo risultato.';
+        wormHtml = '';
+    }
+    if (titleEl) titleEl.textContent = title;
+    if (leadEl) leadEl.textContent = lead;
+    if (wormsEl) wormsEl.innerHTML = wormHtml;
+    quizVfOutcomeModalShow();
+}
+
+function quizVfFinalizeRoundSuccess(finalO2) {
+    quizVfChoiceBusy = false;
+    quizVfStopOxygenDecay();
+    quizVfClearTimer();
+    quizStopSpeech();
+    quizVfApplyEndRewards(finalO2);
+    quizVfShowOutcomeEndPopup(finalO2);
+}
+
+function quizVfFinishSessionCore() {
+    quizVfOutcomeModalHide();
+    quizVfRulesModalHide();
+    quizVfClearTimer();
+    quizStopSpeech();
+    quizVfActive = false;
+    quizVfChoiceBusy = false;
+    quizAnswerLocked = false;
+    quizVfIntroCompletionLock = false;
+    quizVfIdxInBlock = 0;
+    quizVfBlockRound = (Math.floor(Number(quizVfBlockRound) || 0) + 1);
+    quizVfOxygenDepleted = false;
+    quizVfModalHide();
+    quizStopVfModeMusic();
+    const fn = quizVfSessionContinuation;
+    quizVfSessionContinuation = null;
+    if (typeof fn === 'function') {
+        try {
+            fn();
+        } catch (eFn) { /* ignore */ }
+    }
 }
 
 function quizVfSectionBaseIndex() {
@@ -8301,15 +8728,6 @@ function quizVfCurrentItem() {
     return arr[i] || null;
 }
 
-function quizVfAdvanceAfterStep() {
-    quizVfIdxInBlock += 1;
-    if (quizVfIdxInBlock >= 5) {
-        quizVfFinishSession();
-        return;
-    }
-    quizVfRunSingleStep();
-}
-
 function quizVfRunSingleStep() {
     const item = quizVfCurrentItem();
     const sub = document.getElementById('quiz-vf-subtitle');
@@ -8317,46 +8735,41 @@ function quizVfRunSingleStep() {
     const bt = document.getElementById('quiz-vf-btn-true');
     const bf = document.getElementById('quiz-vf-btn-false');
     if (!item || !st) {
-        quizVfFinishSession();
+        quizVfFinishSessionCore();
         return;
     }
-    if (sub) sub.textContent = 'Domanda ' + (quizVfIdxInBlock + 1) + ' di 5 · tempo ' + QUIZ_VF_SECONDS + ' secondi';
+    if (sub) {
+        sub.textContent =
+            'Domanda ' +
+            (quizVfIdxInBlock + 1) +
+            ' di 5 · mantieni OD sopra zero (scala 0–4,5 mg/L, start 2,5)';
+    }
     st.textContent = item.statement;
     if (bt) bt.disabled = false;
     if (bf) bf.disabled = false;
     quizVfChoiceBusy = false;
-    quizVfStartTimerForCurrentStep();
+    quizVfStartOxygenDecayForQuestion();
     void quizSpeakVfStatement(item);
-}
-
-function quizVfFinishSession() {
-    quizVfClearTimer();
-    quizStopSpeech();
-    quizVfActive = false;
-    quizVfChoiceBusy = false;
-    quizVfIdxInBlock = 0;
-    quizVfBlockRound = (Math.floor(Number(quizVfBlockRound) || 0) + 1);
-    quizVfModalHide();
-    quizStopVfModeMusic();
-    const fn = quizVfSessionContinuation;
-    quizVfSessionContinuation = null;
-    if (typeof fn === 'function') {
-        try {
-            fn();
-        } catch (eFn) { /* ignore */ }
-    }
 }
 
 function quizVfForceEnd() {
     quizVfClearTimer();
     quizVfActive = false;
+    quizAnswerLocked = false;
     quizVfChoiceBusy = false;
     quizVfIdxInBlock = 0;
     quizVfSessionContinuation = null;
+    quizVfOxygenDepleted = false;
     try {
         quizVfStopIntroVideo();
     } catch (eI) { /* ignore */ }
     quizVfIntroCompletionLock = false;
+    try {
+        quizVfRulesModalHide();
+    } catch (eR) { /* ignore */ }
+    try {
+        quizVfOutcomeModalHide();
+    } catch (eO) { /* ignore */ }
     quizVfModalHide();
     quizStopVfModeMusic();
 }
@@ -8373,6 +8786,7 @@ function quizRunVfPhaseThen(done) {
     quizVfActive = true;
     quizAnswerLocked = true;
     quizVfIdxInBlock = 0;
+    quizVfOxygenDepleted = false;
     quizVfBeginIntroOrQuestions();
 }
 
@@ -8385,7 +8799,7 @@ function quizWrapBonusContinuation(inner) {
 }
 
 function quizVfAnswer(choiceTrue) {
-    if (!quizVfActive || quizVfChoiceBusy) return;
+    if (!quizVfActive || quizVfChoiceBusy || quizVfOxygenDepleted) return;
     const item = quizVfCurrentItem();
     if (!item) return;
     quizVfChoiceBusy = true;
@@ -8393,6 +8807,7 @@ function quizVfAnswer(choiceTrue) {
     const bf = document.getElementById('quiz-vf-btn-false');
     if (bt) bt.disabled = true;
     if (bf) bf.disabled = true;
+    quizVfStopOxygenDecay();
     quizVfClearTimer();
     quizStopSpeech();
     const ok = !!item.answer === !!choiceTrue;
@@ -8409,10 +8824,24 @@ function quizVfAnswer(choiceTrue) {
             quizPlayWrongAnswerSfx();
         } catch (eW) { /* ignore */ }
     }
+    quizVfApplyAnswerDelta(ok);
+    quizVfPaintOxygenMeter();
+    if (quizVfOxygen <= 0) {
+        quizVfOxygen = 0;
+        quizVfTriggerAnoxiaDuringQuestion();
+        return;
+    }
+    const qSlot = quizVfIdxInBlock;
     const delay = ok ? 190 : 230;
     window.setTimeout(function () {
+        if (!quizVfActive || quizVfOxygenDepleted) return;
+        if (qSlot >= 4) {
+            quizVfFinalizeRoundSuccess(quizVfOxygen);
+            return;
+        }
         quizVfChoiceBusy = false;
-        quizVfAdvanceAfterStep();
+        quizVfIdxInBlock += 1;
+        quizVfRunSingleStep();
     }, delay);
 }
 
@@ -8465,6 +8894,16 @@ function quizPlayCorrectAnswerSfx() {
         a.volume = 0.9 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eC) { /* ignore */ }
+}
+
+function quizPlayTimerTenSecondCueSfx() {
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_TIMER_10SEC));
+        a.volume = 0.88 * gv;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eT) { /* ignore */ }
 }
 
 function quizPreloadWrongAnswerSfx() {
@@ -10376,6 +10815,8 @@ let quizQuestionTimerId = null;
 let quizQuestionTimerIntervalId = null;
 let quizTimerDeadline = null;
 let quizTimerVisualActive = false;
+/** Evita di ripetere il suono «10 secondi» più volte sullo stesso countdown. */
+let quizTimerTenSecCuePlayed = false;
 /** Vermi aggiunti a ogni risposta corretta (vasca biologica). */
 let quizBioWormCount = 0;
 /** Contatore id SVG per microbi splash clonati in vasca / anteprime risposte. */
@@ -10807,6 +11248,7 @@ function quizClearQuestionTimer() {
     }
     quizTimerDeadline = null;
     quizTimerVisualActive = false;
+    quizTimerTenSecCuePlayed = false;
     quizBioVatSetTimerUrgent(false);
     quizBioVatClearAllMenaceMarks();
 }
@@ -11302,6 +11744,10 @@ function quizScheduleQuestionTimerTicks() {
         const urgent = leftSec > 0 && leftSec <= QUIZ_TIMER_URGENT_SEC;
         quizTimerPaint(frac, displaySec, urgent);
         quizBioVatUpdateMenace(leftSec);
+        if (!quizTimerTenSecCuePlayed && displaySec === 10 && leftMs > 0) {
+            quizTimerTenSecCuePlayed = true;
+            quizPlayTimerTenSecondCueSfx();
+        }
         if (leftMs <= 0) {
             quizClearQuestionTimer();
             if (!quizAnswerLocked) quizTimeUp();
