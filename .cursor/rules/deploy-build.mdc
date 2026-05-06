@@ -1,0 +1,14 @@
+---
+description: Bump build (APP_BUILD + sw.js) come ultimo passo dopo modifiche al progetto
+alwaysApply: true
+---
+
+# Build deploy — ultimo passo obbligatorio
+
+Dopo **qualsiasi** modifica a codice o asset che va pubblicata (o che l’utente testerà con cache/service worker):
+
+1. **Ultima cosa da fare** prima di chiudere il task: incrementare il build in **`index.html`** → `const APP_BUILD = '…'` (stesso valore in **`sw.js`** nella riga `* build: …`).
+2. I due valori devono **coincidere** (il codice può allinearli; vedi commento vicino a `APP_BUILD` in `index.html`).
+3. Non dimenticare: se si aggiorna solo l’HTML senza toccare `sw.js`, i client con PWA possono restare su cache vecchia finché il service worker non vede un file `sw.js` cambiato.
+
+Se l’utente chiede esplicitamente di non bumpare il build, rispettare quell’eccezione.
