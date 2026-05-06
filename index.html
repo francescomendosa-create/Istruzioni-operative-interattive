@@ -5872,7 +5872,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506x';
+const APP_BUILD = '20260506y';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7174,7 +7174,7 @@ function quizGetUiSfxVoices(relPath) {
     if (quizUiSfxPool[key]) return quizUiSfxPool[key];
     const url = quizResolveMediaUrl(key);
     const voices = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 2; i++) {
         try {
             const a = new Audio(url);
             a.preload = 'auto';
@@ -7199,16 +7199,10 @@ function quizUnlockUiSfxOnce() {
         Object.keys(quizUiSfxPool).forEach(function (k) {
             (quizUiSfxPool[k] || []).forEach(function (a) {
                 try {
-                    a.volume = 0.0001;
+                    a.preload = 'auto';
+                    a.muted = false;
                     a.currentTime = 0;
-                    const p = a.play();
-                    if (p && typeof p.then === 'function') {
-                        p.then(function () {
-                            try { a.pause(); a.currentTime = 0; } catch (eR) { /* ignore */ }
-                        }).catch(function () { /* ignore */ });
-                    } else {
-                        try { a.pause(); a.currentTime = 0; } catch (eR2) { /* ignore */ }
-                    }
+                    try { a.load(); } catch (eLd) { /* ignore */ }
                 } catch (eU) { /* ignore */ }
             });
         });
@@ -7257,9 +7251,6 @@ function initIstruzioniUiClickSounds() {
             const tag = (raw.tagName || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
             const now = Date.now();
-            if (!fromPressStart) {
-                if ((now - quizUiSfxLastInteractionAt) < 700) return;
-            }
             if ((now - quizUiSfxLastPlayAt) < 110) return;
 
             const colBox = raw.closest('.col-box');
