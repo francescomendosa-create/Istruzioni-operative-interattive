@@ -482,12 +482,36 @@
             gap: 4px;
             flex-shrink: 1;
             min-width: 0;
-            touch-action: none;
+            touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
         }
-        .quiz-fs-vol-slider {
+        /* Slot: area touch ampia; su iOS il range nativo spesso non riceve il drag. */
+        .quiz-fs-vol-slot {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            min-height: 44px;
             width: clamp(52px, 18vw, 108px);
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            touch-action: none;
+        }
+        .quiz-fs-vol-touchpad {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 4;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .quiz-fs-vol-slider {
+            width: 100%;
             height: 36px;
             margin: 0;
             padding: 0;
@@ -498,7 +522,7 @@
             touch-action: none;
             pointer-events: auto;
             position: relative;
-            z-index: 5;
+            z-index: 0;
             flex-shrink: 1;
             -webkit-tap-highlight-color: transparent;
         }
@@ -548,8 +572,11 @@
                 row-gap: 6px;
                 column-gap: 6px;
             }
-            .quiz-fs-vol-slider {
+            .quiz-fs-vol-slot {
                 width: clamp(72px, 34vw, 128px);
+            }
+            .quiz-fs-vol-slider {
+                width: 100%;
                 min-height: 40px;
             }
             .quiz-fs-audio {
@@ -5679,7 +5706,10 @@ function dismissAppSplash() {
                         <button type="button" class="quiz-fs-audio" id="quiz-intro-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
                             <span id="quiz-intro-game-icon" aria-hidden="true">🎵</span>
                         </button>
-                        <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                        <div class="quiz-fs-vol-slot">
+                            <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                            <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5688,13 +5718,19 @@ function dismissAppSplash() {
                     <button type="button" class="quiz-fs-audio" id="quiz-topbar-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
                         <span id="quiz-topbar-game-icon" aria-hidden="true">🎵</span>
                     </button>
-                    <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                    <div class="quiz-fs-vol-slot">
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                        <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                    </div>
                 </div>
                 <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-speech-cluster" aria-label="Telecronaca">
                     <button type="button" class="quiz-fs-audio" id="quiz-topbar-speech-audio" aria-label="Silenzia telecronaca" title="Silenzia telecronaca">
                         <span id="quiz-topbar-speech-icon" aria-hidden="true">🎙️</span>
                     </button>
-                    <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="100" aria-label="Volume telecronaca" title="Volume telecronaca">
+                    <div class="quiz-fs-vol-slot">
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="100" aria-label="Volume telecronaca" title="Volume telecronaca">
+                        <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                    </div>
                 </div>
                 <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -6070,7 +6106,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zp';
+const APP_BUILD = '20260506zq';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8173,6 +8209,8 @@ function quizEnsureTopbarAudioBinding() {
     function bindRangeTouchBridge(slider, onApply) {
         if (!slider || slider.dataset.boundTouchBridge === '1') return;
         slider.dataset.boundTouchBridge = '1';
+        const slot = slider.closest('.quiz-fs-vol-slot');
+        const surface = (slot && slot.querySelector('.quiz-fs-vol-touchpad')) || slider;
         const applyFromClientX = function (clientX) {
             try {
                 const min = Number(slider.min || 0);
@@ -8189,7 +8227,12 @@ function quizEnsureTopbarAudioBinding() {
             } catch (eR) { /* ignore */ }
         };
         let touchActive = false;
-        const endTouchDrag = function () {
+        const endTouchDrag = function (ev) {
+            if (touchActive && ev && ev.changedTouches && ev.changedTouches[0]) {
+                try {
+                    applyFromClientX(ev.changedTouches[0].clientX);
+                } catch (eE) { /* ignore */ }
+            }
             touchActive = false;
         };
         const onTouchStart = function (ev) {
@@ -8214,7 +8257,7 @@ function quizEnsureTopbarAudioBinding() {
             try { ev.preventDefault(); } catch (eP) { /* ignore */ }
             ptrId = ev.pointerId;
             try {
-                slider.setPointerCapture(ptrId);
+                surface.setPointerCapture(ptrId);
             } catch (eCap) { /* ignore */ }
             applyFromClientX(ev.clientX);
         };
@@ -8227,24 +8270,24 @@ function quizEnsureTopbarAudioBinding() {
             if (ev && ptrId != null && ev.pointerId === ptrId) {
                 ptrId = null;
                 try {
-                    slider.releasePointerCapture(ev.pointerId);
+                    surface.releasePointerCapture(ev.pointerId);
                 } catch (eR) { /* ignore */ }
             }
         };
         const usePointer = typeof window.PointerEvent !== 'undefined' && !quizPreferTouchSliderBridge();
         if (usePointer) {
-            slider.addEventListener('pointerdown', onPtrDown, { passive: false, capture: true });
-            slider.addEventListener('pointermove', onPtrMove, { passive: false });
-            slider.addEventListener('pointerup', onPtrUp, { passive: true });
-            slider.addEventListener('pointercancel', onPtrUp, { passive: true });
-            slider.addEventListener('lostpointercapture', function () {
+            surface.addEventListener('pointerdown', onPtrDown, { passive: false, capture: true });
+            surface.addEventListener('pointermove', onPtrMove, { passive: false });
+            surface.addEventListener('pointerup', onPtrUp, { passive: true });
+            surface.addEventListener('pointercancel', onPtrUp, { passive: true });
+            surface.addEventListener('lostpointercapture', function () {
                 ptrId = null;
             }, { passive: true });
         } else {
-            slider.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
-            slider.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
-            slider.addEventListener('touchend', endTouchDrag, { passive: true, capture: true });
-            slider.addEventListener('touchcancel', endTouchDrag, { passive: true, capture: true });
+            surface.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+            surface.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+            surface.addEventListener('touchend', endTouchDrag, { passive: true, capture: true });
+            surface.addEventListener('touchcancel', endTouchDrag, { passive: true, capture: true });
         }
     }
 
