@@ -3980,6 +3980,8 @@
         }
         /* Riga «Aggiorna»: verde (come Diagnostica), distinto dal giallo Quiz. */
         #quiz-settings-refresh-btn.quiz-settings-row {
+            padding: 8px 12px;
+            margin: 0 0 6px;
             background: linear-gradient(180deg, #5be39a 0%, #2fc777 52%, #1fae64 100%);
             border: 2px solid rgba(255, 255, 255, 0.45);
             box-shadow:
@@ -3990,10 +3992,10 @@
         #quiz-settings-refresh-btn .quiz-settings-row-title {
             color: #fff;
             text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-        }
-        #quiz-settings-refresh-btn .quiz-settings-row-sub {
-            color: rgba(255, 255, 255, 0.92);
-            font-weight: 600;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            line-height: 1.25;
         }
         #quiz-settings-refresh-btn .quiz-settings-build-label {
             color: rgba(255, 255, 255, 0.88);
@@ -4004,7 +4006,7 @@
         }
         #quiz-settings-refresh-btn .quiz-settings-refresh-icon {
             display: inline-block;
-            font-size: 1.45rem;
+            font-size: 1.22rem;
             color: #fff;
             line-height: 1;
             filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.15));
@@ -6286,10 +6288,9 @@ function dismissAppSplash() {
                 <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
-            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
-                <div>
-                    <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505f</span> · controlla aggiornamenti dal server</div>
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna dalla rete (build corrente)">
+                <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
+                    Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507l</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6433,7 +6434,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507k';
+const APP_BUILD = '20260507l';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8897,19 +8898,19 @@ function quizSettingsBuildHighlightSet(on) {
     } catch (e) { /* ignore */ }
 }
 
-/** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
-function quizSettingsRefreshSubReset() {
-    var sub = document.getElementById('quiz-settings-refresh-sub');
-    if (!sub) return;
+/** Ripristina riga Aggiorna: solo «Build» + numero (evidenziazione se serve). */
+function quizSettingsRefreshLineReset() {
+    var line = document.getElementById('quiz-settings-refresh-line');
+    if (!line) return;
     var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     var hl = quizSettingsBuildHighlightGet();
     var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '');
-    sub.innerHTML =
+    line.innerHTML =
         'Build <span id="quiz-settings-build-label" class="' +
         spanCls +
         '">' +
         b +
-        '</span> · controlla aggiornamenti dal server';
+        '</span>';
 }
 
 function showQuizSettingsModal() {
@@ -8920,7 +8921,7 @@ function showQuizSettingsModal() {
     if (!overlay) return;
     syncSettingsQuizToggleUi();
     quizRefreshInProgress = false;
-    quizSettingsRefreshSubReset();
+    quizSettingsRefreshLineReset();
     const vLab = document.getElementById('quiz-settings-version-label');
     if (vLab) vLab.textContent = APP_VERSION;
     const bLab = document.getElementById('quiz-settings-build-label');
@@ -8947,8 +8948,8 @@ function showQuizSettingsModal() {
 function quizSettingsForceRefresh(btn) {
     if (quizRefreshInProgress) return;
     quizRefreshInProgress = true;
-    var sub = document.getElementById('quiz-settings-refresh-sub');
-    if (sub) sub.textContent = 'Controllo aggiornamento…';
+    var line = document.getElementById('quiz-settings-refresh-line');
+    if (line) line.textContent = 'Controllo…';
     if (btn) {
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
@@ -8975,13 +8976,13 @@ function quizSettingsForceRefresh(btn) {
             } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
                 quizSettingsBuildHighlightSet(false);
             }
-            if (sub) {
+            if (line) {
                 if (remoteBuild && localBuild && remoteBuild !== localBuild) {
-                    sub.textContent = 'Nuovo aggiornamento ricevuto — applico e ricarico…';
+                    line.textContent = 'Nuovo build — ricarico…';
                 } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
-                    sub.textContent = 'Build già allineato — pulisco cache e ricarico…';
+                    line.textContent = 'Allineato — ricarico…';
                 } else {
-                    sub.textContent = 'Aggiornamento non verificato — ricarico per sicurezza…';
+                    line.textContent = 'Ricarico…';
                 }
             }
 
