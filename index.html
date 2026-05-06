@@ -507,8 +507,19 @@
             -webkit-user-select: none;
             user-select: none;
         }
-        /* Smartphone (stretti): solo icone mute in barra — slider nascosti (PC/tablet ≥640px li rivedono). */
-        @media (max-width: 639px) {
+        /*
+         * Slider volume barra quiz: visibili su PC e tablet sempre (anche finestra stretta).
+         * Nascosti solo su smartphone stretti (non si basa solo sul viewport, così il desktop ridotto non perde gli slider).
+         * iPhone: sempre senza slider (classe ios-iphone nel <head>).
+         */
+        html.ios-iphone #quiz-fs-topbar .quiz-fs-vol-slot {
+            display: none !important;
+        }
+        html.ios-iphone #quiz-fs-topbar .quiz-fs-topbar-audio-cluster {
+            gap: 0;
+            flex-shrink: 0;
+        }
+        @media (max-width: 639px) and (max-device-width: 640px) {
             #quiz-fs-topbar .quiz-fs-vol-slot {
                 display: none !important;
             }
@@ -692,9 +703,6 @@
             min-width: 44px;
             min-height: 44px;
             box-sizing: border-box;
-        }
-        html.ios-iphone #quiz-fs-topbar .quiz-fs-vol-slot {
-            min-height: 48px;
         }
         /* Impostazioni → riga che apre telecronaca / suono quiz */
         html.ios-iphone #quiz-settings-quiz-speech-btn.quiz-settings-row {
@@ -6341,7 +6349,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507q</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507r</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6485,7 +6493,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507q';
+const APP_BUILD = '20260507r';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
