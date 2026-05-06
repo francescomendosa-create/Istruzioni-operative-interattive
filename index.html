@@ -2487,25 +2487,11 @@
             font-size: 0.72rem;
         }
         .quiz-bonus-pick-card__back img {
-            width: calc(100% - 16px);
-            height: calc(100% - 16px);
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
             object-fit: contain;
             object-position: center;
             display: block;
-        }
-        .quiz-bonus-pick-card__back .quiz-bonus-pick-card__label {
-            position: absolute;
-            left: 4px;
-            right: 4px;
-            bottom: 4px;
-            margin: 0;
-            padding: 3px 4px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.84);
-            font-size: 0.68rem;
-            font-weight: 800;
-            text-align: center;
-            line-height: 1.1;
         }
         .quiz-bonus-pick-result { margin-top: 14px; display: none; border-radius: 12px; border: 1px solid rgba(22, 53, 86, 0.2); background: #fff; padding: 12px; align-items: center; gap: 12px; }
         .quiz-bonus-pick-result.quiz-bonus-pick-result--show { display: flex; }
@@ -5858,7 +5844,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506p';
+const APP_BUILD = '20260506r';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5900,6 +5886,8 @@ const QUIZ_SFX_WRONG = 'assets/quiz-sfx/risposta-sbagliata.mp3';
 const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
 /** Click sul tasto OK del modale acquisizione verme (canale musica/effetti). */
 const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
+/** Flip carta bonus + conferma popup bonus. */
+const QUIZ_SFX_BONUS_OK = 'assets/quiz-sfx/effetto-ok.mp3';
 /** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
 const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
 const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
@@ -6905,9 +6893,21 @@ function quizIsIntroQuizScreenVisible() {
     return intro.style.display === 'block';
 }
 
+/** True quando è visibile la home iniziale (splash): qui la musica quiz deve restare spenta. */
+function quizIsHomeSplashVisible() {
+    const splash = document.getElementById('app-splash');
+    if (!splash) return false;
+    if (document.body.classList.contains('splash-active')) return true;
+    return splash.classList.contains('app-splash--visible') && splash.getAttribute('aria-hidden') !== 'true';
+}
+
 /** Riprende la musica intro se era attesa (refresh / tab / BFCache) e il volume gioco è attivo. */
 function quizEnsureIntroMusicPlaying() {
     try {
+        if (quizIsHomeSplashVisible()) {
+            quizStopQuizAmbientMusic();
+            return;
+        }
         if (!quizIsIntroQuizScreenVisible()) return;
         if (quizGetGameAudioLinearVolume() <= 0) return;
         if (quizIntroAudioEl && quizIntroAudioEl.src) {
@@ -6923,6 +6923,10 @@ function quizEnsureIntroMusicPlaying() {
 /** Riprende il sottofondo partita se era attivo prima del background. */
 function quizEnsurePlayMusicPlaying() {
     try {
+        if (quizIsHomeSplashVisible()) {
+            quizStopQuizAmbientMusic();
+            return;
+        }
         if (!quizIsPlayScreenActive()) return;
         if (quizGetGameAudioLinearVolume() <= 0) return;
         if (quizSuspenseAudioEl && quizSuspenseAudioEl.src) {
@@ -6964,6 +6968,10 @@ function quizInstallIntroMusicLifecycleHooks() {
         'visibilitychange',
         function () {
             if (document.visibilityState === 'visible') {
+                if (quizIsHomeSplashVisible()) {
+                    quizStopQuizAmbientMusic();
+                    return;
+                }
                 quizEnsureIntroMusicPlaying();
                 quizEnsurePlayMusicPlaying();
             } else {
@@ -6976,6 +6984,10 @@ function quizInstallIntroMusicLifecycleHooks() {
         quizStopQuizAmbientMusic();
     }, { passive: true });
     window.addEventListener('focus', function () {
+        if (quizIsHomeSplashVisible()) {
+            quizStopQuizAmbientMusic();
+            return;
+        }
         quizEnsureIntroMusicPlaying();
         quizEnsurePlayMusicPlaying();
     }, { passive: true });
@@ -7114,6 +7126,16 @@ function quizPlayMicrobeUnlockOkClickSfx() {
         a.volume = 0.95 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eOk) { /* ignore */ }
+}
+
+function quizPlayBonusOkSfx() {
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_BONUS_OK));
+        a.volume = 0.95 * gv;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eOkB) { /* ignore */ }
 }
 
 function playUiClickDomandeSfx() {
@@ -7914,26 +7936,47 @@ function quizSettingsForceRefresh(btn) {
             }
 
             if ('serviceWorker' in navigator) {
+                var ctrlPromise = new Promise(function (resolve) {
+                    var done = false;
+                    var finish = function () {
+                        if (done) return;
+                        done = true;
+                        try { navigator.serviceWorker.removeEventListener('controllerchange', finish); } catch (eRm) {}
+                        resolve();
+                    };
+                    try { navigator.serviceWorker.addEventListener('controllerchange', finish, { once: true }); } catch (eEv) {}
+                    setTimeout(finish, 1200);
+                });
                 if (navigator.serviceWorker.getRegistrations) {
                     var regs = await navigator.serviceWorker.getRegistrations();
                     await Promise.all(
                         regs.map(function (r) {
-                            return r.unregister();
+                            try {
+                                if (r && r.update) r.update();
+                            } catch (eUp) { /* ignore */ }
+                            return Promise.resolve();
                         })
                     );
                 } else {
                     var regOne = await navigator.serviceWorker.getRegistration();
-                    if (regOne) await regOne.unregister();
+                    if (regOne && regOne.update) {
+                        try { await regOne.update(); } catch (eUp1) { /* ignore */ }
+                    }
                 }
+                await ctrlPromise;
             }
         } catch (e) { /* ignore */ }
 
-        setTimeout(function () {
-            try {
-                sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
-            } catch (eS) { /* ignore */ }
+        try {
+            sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
+        } catch (eS) { /* ignore */ }
+        try {
+            var freshUrl = new URL(window.location.href);
+            freshUrl.searchParams.set('v', String(Date.now()));
+            window.location.replace(freshUrl.toString());
+        } catch (eR) {
             location.reload();
-        }, 950);
+        }
     })();
 }
 
@@ -8831,6 +8874,7 @@ function quizBonusDescribe(item) {
     return 'Pericolo: perdi 20 punti.';
 }
 function quizBonusContinue() {
+    quizPlayBonusOkSfx();
     const fn = quizBonusPickContinuation;
     quizBonusPickContinuation = null; quizBonusPickResolved = false;
     quizBonusPickModalHide();
@@ -8868,11 +8912,7 @@ function quizOpenBonusPickModal(onContinue) {
             revealImg.src = item.img || '';
             revealImg.alt = item.label || '';
             revealImg.onerror = function () { this.style.display = 'none'; };
-            const revealLabel = document.createElement('span');
-            revealLabel.className = 'quiz-bonus-pick-card__label';
-            revealLabel.textContent = item.label || 'Bonus';
             back.appendChild(revealImg);
-            back.appendChild(revealLabel);
             inner.appendChild(front);
             inner.appendChild(back);
             btn.appendChild(inner);
@@ -8881,14 +8921,17 @@ function quizOpenBonusPickModal(onContinue) {
                 if (quizBonusPickResolved) return;
                 quizBonusPickResolved = true;
                 btn.classList.add('is-revealed');
+                quizPlayBonusOkSfx();
                 quizBonusApplyOutcome(item);
-                resultImg.src = item.img || '';
-                resultImg.alt = item.label || '';
-                resultTitle.textContent = item.title || 'Bonus';
-                resultDesc.textContent = quizBonusDescribe(item);
-                result.style.display = 'flex';
-                result.classList.add('quiz-bonus-pick-result--show');
-                try { result.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) { /* ignore */ }
+                setTimeout(function () {
+                    resultImg.src = item.img || '';
+                    resultImg.alt = item.label || '';
+                    resultTitle.textContent = item.title || 'Bonus';
+                    resultDesc.textContent = quizBonusDescribe(item);
+                    result.style.display = 'flex';
+                    result.classList.add('quiz-bonus-pick-result--show');
+                    try { result.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) { /* ignore */ }
+                }, 320);
             });
             grid.appendChild(btn);
         } catch (eCard) {
@@ -12802,7 +12845,7 @@ window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
             var base = new URL('.', window.location.href).href;
             var swUrl = new URL('sw.js', base).href;
             navigator.serviceWorker
-                .register(swUrl, { scope: base })
+                .register(swUrl, { scope: base, updateViaCache: 'none' })
                 .then(function (reg) {
                     try {
                         if (reg && reg.update) reg.update();
