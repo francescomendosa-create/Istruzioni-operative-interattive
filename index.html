@@ -17,6 +17,18 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Istruzioni">
     <link rel="apple-touch-icon" sizes="180x180" href="pwa-180.png">
+    <script>
+    /* Solo iPhone / iPod touch: classe per CSS dedicato. iPad e Android non vengono toccati. */
+    (function () {
+        try {
+            var ua = navigator.userAgent || '';
+            var ipad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);
+            if ((/iPhone/i.test(ua) || /iPod/i.test(ua)) && !ipad) {
+                document.documentElement.classList.add('ios-iphone');
+            }
+        } catch (e) { /* ignore */ }
+    })();
+    </script>
     <style>
         :root {
             --primary: #2c3e50;
@@ -518,6 +530,22 @@
             cursor: pointer;
             box-sizing: border-box;
         }
+        /* Safari iOS: il range nativo ruba hit-test; il touchpad sopra gestisce tutto. */
+        .quiz-fs-vol-slot .quiz-fs-vol-slider {
+            pointer-events: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .quiz-fs-vol-slot:focus-within .quiz-fs-vol-slider {
+                pointer-events: auto;
+            }
+        }
+        .quiz-speech-rate-slot {
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+            width: auto;
+            min-height: 42px;
+        }
         .quiz-fs-vol-slider {
             width: 100%;
             height: 36px;
@@ -593,7 +621,64 @@
                 font-size: 1.12rem;
             }
         }
-        .quiz-fs-exit {
+        /*
+         * Solo iPhone / iPod (html.ios-iphone): bersagli ≥44px e più aria tra mute / slider / cluster.
+         * iPad, Android e desktop restano invariati (nessuna classe → nessuna di queste regole).
+         */
+        html.ios-iphone .quiz-fs-topbar__start,
+        html.ios-iphone .quiz-fs-topbar__end {
+            gap: 10px;
+        }
+        html.ios-iphone .quiz-fs-topbar__end {
+            column-gap: 10px;
+            row-gap: 8px;
+        }
+        html.ios-iphone .quiz-fs-topbar-audio-cluster {
+            gap: 8px;
+        }
+        html.ios-iphone .quiz-fs-audio {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            box-sizing: border-box;
+        }
+        html.ios-iphone .quiz-fs-vol-slot {
+            min-height: 48px;
+        }
+        /* Impostazioni → riga che apre telecronaca / suono quiz */
+        html.ios-iphone #quiz-settings-quiz-speech-btn.quiz-settings-row {
+            min-height: 48px;
+            padding-top: 14px;
+            padding-bottom: 14px;
+        }
+        html.ios-iphone #quiz-settings-quiz-speech-btn {
+            margin-bottom: 6px;
+        }
+        /* Modale Impostazioni Quiz (velocità, voci): controlli più alti, meno tap fuori bersaglio */
+        html.ios-iphone #quiz-speech-settings-overlay .quiz-lock-box select {
+            min-height: 44px;
+            padding: 10px 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        html.ios-iphone #quiz-speech-settings-overlay #quiz-speech-rate-slider {
+            min-height: 44px;
+            margin: 6px 0;
+            box-sizing: border-box;
+        }
+        html.ios-iphone #quiz-speech-settings-overlay .btn-side {
+            min-height: 44px;
+            padding: 10px 16px;
+            box-sizing: border-box;
+        }
+        html.ios-iphone #quiz-speech-settings-overlay .quiz-lock-actions {
+            margin-top: 16px;
+            gap: 10px;
+        }
+        html.ios-iphone #quiz-speech-settings-overlay .quiz-speech-voice-actions {
+            gap: 10px !important;
+        }
             flex-shrink: 0;
             padding: 5px 12px;
             border-radius: 8px;
@@ -4677,6 +4762,12 @@
                 flex-direction: column;
                 align-items: center;
             }
+            /* Colonna mascotte era max 220px: le 5 tab erano troppo strette. Usa tutta la larghezza del blocco. */
+            .app-splash-intro-viz-col {
+                width: 100%;
+                max-width: 100%;
+                align-self: stretch;
+            }
             .app-splash-intro-desc-col {
                 width: 100%;
                 max-width: 100%;
@@ -4688,27 +4779,42 @@
             }
         }
         /*
-          Solo smartphone (non tablet ≥600px): nomi vermi su una sola riga, pill più compatte
-          → meno altezza occupata, più spazio per il blocco testo sotto senza stravolgere il layout.
+          Solo smartphone (non tablet ≥600px): le tab erano limitate alla larghezza della colonna mascotte
+          (~58vw / 220px) → pill strette e testo che usciva e si sovrapponeva. Qui la colonna va a tutta larghezza
+          disponibile; le pill dividono lo spazio in 5 colonne uguali con testo centrato e a capo dentro la pill.
         */
         @media (max-width: 599px) {
             .app-splash-worm-tabs {
                 flex-wrap: nowrap;
                 justify-content: stretch;
                 align-items: stretch;
-                gap: 2px;
-                padding: 0 1px;
+                gap: 3px;
+                padding: 0 4px;
+                box-sizing: border-box;
                 row-gap: 0;
+                width: 100%;
+                max-width: 100%;
             }
             .app-splash-worm-tab {
                 flex: 1 1 0;
                 min-width: 0;
-                padding: 4px 2px;
-                min-height: 30px;
-                font-size: clamp(0.42rem, 3.05vw, 0.56rem);
+                max-width: 100%;
+                padding: 6px 3px;
+                min-height: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                word-break: normal;
+                hyphens: auto;
+                -webkit-hyphens: auto;
                 letter-spacing: 0;
-                line-height: 1.05;
+                line-height: 1.12;
                 border-width: 1px;
+                font-size: clamp(7px, 2.05vw, 10px);
+                box-sizing: border-box;
             }
             .app-splash-intro-viz-col {
                 gap: 4px;
@@ -4741,6 +4847,11 @@
             body.splash-active .app-splash-intro-bio {
                 flex-direction: column;
                 align-items: center;
+            }
+            body.splash-active .app-splash-intro-viz-col {
+                width: 100%;
+                max-width: 100%;
+                align-self: stretch;
             }
             body.splash-active .app-splash-intro-desc-col {
                 width: 100%;
@@ -6109,8 +6220,11 @@ function dismissAppSplash() {
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
                 <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Velocità parlato</div>
                 <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                    <input type="range" id="quiz-speech-rate-slider" min="0.7" max="1.4" step="0.05" value="1" oninput="quizSpeechSettingsSetRate(this.value)" style="flex:1;accent-color:#1565c0;">
-                    <strong id="quiz-speech-rate-label" style="min-width:42px;text-align:right;color:#1565c0;">1.0x</strong>
+                    <div class="quiz-fs-vol-slot quiz-speech-rate-slot">
+                        <input type="range" id="quiz-speech-rate-slider" class="quiz-fs-vol-slider" min="0.7" max="1.4" step="0.05" value="1" aria-label="Velocità parlato telecronaca" style="width:100%;accent-color:#1565c0;">
+                        <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                    </div>
+                    <strong id="quiz-speech-rate-label" style="min-width:42px;text-align:right;color:#1565c0;flex-shrink:0;">1.0x</strong>
                 </div>
             </div>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
@@ -6136,7 +6250,7 @@ function dismissAppSplash() {
                     <p style="margin:6px 0 0;font-size:0.72rem;color:#546e7a;">Endpoint Piper impostato automaticamente per tutti i dispositivi.</p>
                 </div>
                 <div class="quiz-settings-row-title" style="margin-top:8px;font-weight:700;color:#1a237e;">Modalità telecronaca</div>
-                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                <div class="quiz-speech-voice-actions" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
                     <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
                 </div>
@@ -6215,7 +6329,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260506zx';
+const APP_BUILD = '20260507b';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8314,130 +8428,173 @@ function quizPreferTouchSliderBridge() {
     return false;
 }
 
-function quizEnsureTopbarAudioBinding() {
-    function bindRangeTouchBridge(slider, onApply) {
-        if (!slider || slider.dataset.boundTouchBridge === '1') return;
-        slider.dataset.boundTouchBridge = '1';
-        const slot = slider.closest('.quiz-fs-vol-slot');
-        const surface = (slot && slot.querySelector('.quiz-fs-vol-touchpad')) || slider;
-        const applyFromClientX = function (clientX) {
-            try {
-                const min = Number(slider.min || 0);
-                const max = Number(slider.max || 100);
-                const rect = slider.getBoundingClientRect();
-                if (!rect || rect.width <= 1) return;
-                const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                const v = min + ratio * (max - min);
-                const rounded = Math.round(v);
-                if (Number(slider.value) !== rounded) {
-                    slider.value = String(rounded);
-                }
-                onApply();
-            } catch (eR) { /* ignore */ }
-        };
-        let touchActive = false;
-        const endTouchDrag = function (ev) {
-            if (touchActive && ev && ev.changedTouches && ev.changedTouches[0]) {
-                try {
-                    applyFromClientX(ev.changedTouches[0].clientX);
-                } catch (eE) { /* ignore */ }
+/** Mute in barra quiz: su iOS touchend affidabile + click filtrato (evita doppio toggle). */
+function quizBindIosFriendlyAudioButton(btn, handler) {
+    if (!btn || btn.dataset.boundIosAudioBtn === '1') return;
+    btn.dataset.boundIosAudioBtn = '1';
+    var lastTouchEndMs = 0;
+    const wrapClick = function (ev) {
+        try {
+            if (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
             }
-            touchActive = false;
-        };
-        const onTouchStart = function (ev) {
-            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
-            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
-            touchActive = true;
-            const t = ev.touches && ev.touches[0];
-            if (t) applyFromClientX(t.clientX);
-        };
-        const onTouchMove = function (ev) {
-            if (!touchActive) return;
-            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
-            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
-            const t = ev.touches && ev.touches[0];
-            if (t) applyFromClientX(t.clientX);
-        };
-        let ptrId = null;
-        const onPtrDown = function (ev) {
-            if (!ev) return;
-            if (ev.pointerType === 'mouse' && ev.button !== 0) return;
-            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
-            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
-            ptrId = ev.pointerId;
-            try {
-                surface.setPointerCapture(ptrId);
-            } catch (eCap) { /* ignore */ }
-            applyFromClientX(ev.clientX);
-        };
-        const onPtrMove = function (ev) {
-            if (ptrId == null || !ev || ev.pointerId !== ptrId) return;
-            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
-            applyFromClientX(ev.clientX);
-        };
-        const onPtrUp = function (ev) {
-            if (ev && ptrId != null && ev.pointerId === ptrId) {
-                ptrId = null;
+        } catch (e0) { /* ignore */ }
+        handler(ev);
+    };
+    if (quizPreferTouchSliderBridge()) {
+        btn.addEventListener(
+            'touchend',
+            function (ev) {
                 try {
-                    surface.releasePointerCapture(ev.pointerId);
-                } catch (eR) { /* ignore */ }
-            }
-        };
-        const usePointer = typeof window.PointerEvent !== 'undefined' && !quizPreferTouchSliderBridge();
-        if (usePointer) {
-            surface.addEventListener('pointerdown', onPtrDown, { passive: false, capture: true });
-            surface.addEventListener('pointermove', onPtrMove, { passive: false });
-            surface.addEventListener('pointerup', onPtrUp, { passive: true });
-            surface.addEventListener('pointercancel', onPtrUp, { passive: true });
-            surface.addEventListener('lostpointercapture', function () {
-                ptrId = null;
-            }, { passive: true });
-        } else {
-            surface.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
-            surface.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
-            surface.addEventListener('touchend', endTouchDrag, { passive: true, capture: true });
-            surface.addEventListener('touchcancel', endTouchDrag, { passive: true, capture: true });
-        }
+                    if (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }
+                } catch (e1) { /* ignore */ }
+                lastTouchEndMs = Date.now();
+                handler(ev);
+            },
+            { passive: false }
+        );
+        btn.addEventListener('click', function (ev) {
+            if (Date.now() - lastTouchEndMs < 450) return;
+            wrapClick(ev);
+        }, { passive: false });
+    } else {
+        btn.addEventListener('click', wrapClick, { passive: false });
     }
+}
 
+/**
+ * Slider volume / velocità: su touch, move/end su document (il dito esce dal touchpad);
+ * snap allo step; il range in .quiz-fs-vol-slot ha pointer-events: none in CSS.
+ */
+function quizBindRangeTouchBridge(slider, onApply) {
+    if (!slider || slider.dataset.boundTouchBridge === '1') return;
+    slider.dataset.boundTouchBridge = '1';
+    const slot = slider.closest('.quiz-fs-vol-slot');
+    const surface = (slot && slot.querySelector('.quiz-fs-vol-touchpad')) || slider;
+    const min = Number(slider.min || 0);
+    const max = Number(slider.max || 100);
+    const stepAttr = slider.getAttribute('step');
+    var stepSafe;
+    if (stepAttr == null || stepAttr === '') {
+        stepSafe = max - min >= 1 ? 1 : 0.01;
+    } else {
+        var s = Number(stepAttr);
+        stepSafe = !isNaN(s) && s > 0 ? s : 0.01;
+    }
+    const applyFromClientX = function (clientX) {
+        try {
+            const rect = slider.getBoundingClientRect();
+            if (!rect || rect.width <= 1) return;
+            const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            const raw = min + ratio * (max - min);
+            var v = min + Math.round((raw - min) / stepSafe) * stepSafe;
+            v = Math.max(min, Math.min(max, v));
+            if (stepSafe >= 1) {
+                v = Math.round(v);
+            } else {
+                v = Number(v.toFixed(4));
+            }
+            const prev = parseFloat(slider.value);
+            if (isNaN(prev) || Math.abs(prev - v) > stepSafe * 0.0001) {
+                slider.value = String(v);
+            }
+            onApply();
+        } catch (eR) { /* ignore */ }
+    };
+    var touchActive = false;
+    const docOpts = { capture: true, passive: false };
+    const onDocTouchMove = function (ev) {
+        if (!touchActive) return;
+        try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+        const t = ev.touches && ev.touches[0];
+        if (t) applyFromClientX(t.clientX);
+    };
+    const onDocTouchEnd = function (ev) {
+        if (!touchActive) return;
+        try {
+            if (ev.changedTouches && ev.changedTouches[0]) {
+                applyFromClientX(ev.changedTouches[0].clientX);
+            }
+        } catch (eE) { /* ignore */ }
+        touchActive = false;
+        document.removeEventListener('touchmove', onDocTouchMove, docOpts);
+        document.removeEventListener('touchend', onDocTouchEnd, docOpts);
+        document.removeEventListener('touchcancel', onDocTouchEnd, docOpts);
+    };
+    const onSurfaceTouchStart = function (ev) {
+        try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
+        try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+        touchActive = true;
+        const t = ev.touches && ev.touches[0];
+        if (t) applyFromClientX(t.clientX);
+        document.addEventListener('touchmove', onDocTouchMove, docOpts);
+        document.addEventListener('touchend', onDocTouchEnd, docOpts);
+        document.addEventListener('touchcancel', onDocTouchEnd, docOpts);
+    };
+    var ptrId = null;
+    const onPtrDown = function (ev) {
+        if (!ev) return;
+        if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+        try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
+        try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+        ptrId = ev.pointerId;
+        try {
+            surface.setPointerCapture(ptrId);
+        } catch (eCap) { /* ignore */ }
+        applyFromClientX(ev.clientX);
+    };
+    const onPtrMove = function (ev) {
+        if (ptrId == null || !ev || ev.pointerId !== ptrId) return;
+        try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+        applyFromClientX(ev.clientX);
+    };
+    const onPtrUp = function (ev) {
+        if (ev && ptrId != null && ev.pointerId === ptrId) {
+            ptrId = null;
+            try {
+                surface.releasePointerCapture(ev.pointerId);
+            } catch (eR) { /* ignore */ }
+        }
+    };
+    const usePointer = typeof window.PointerEvent !== 'undefined' && !quizPreferTouchSliderBridge();
+    if (usePointer) {
+        surface.addEventListener('pointerdown', onPtrDown, { passive: false, capture: true });
+        surface.addEventListener('pointermove', onPtrMove, { passive: false });
+        surface.addEventListener('pointerup', onPtrUp, { passive: true });
+        surface.addEventListener('pointercancel', onPtrUp, { passive: true });
+        surface.addEventListener('lostpointercapture', function () {
+            ptrId = null;
+        }, { passive: true });
+    } else {
+        surface.addEventListener('touchstart', onSurfaceTouchStart, { passive: false, capture: true });
+    }
+}
+
+function quizEnsureTopbarAudioBinding() {
     const gBtn = document.getElementById('quiz-topbar-game-audio');
     if (gBtn && gBtn.dataset.boundGameMute !== '1') {
         gBtn.dataset.boundGameMute = '1';
-        gBtn.addEventListener('click', function (ev) {
-            try {
-                if (ev) {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                }
-            } catch (eEv) {}
+        quizBindIosFriendlyAudioButton(gBtn, function () {
             quizSetGameAudioMuteState(!quizGameAudioMuted);
-        }, { passive: false });
+        });
     }
     const gBtnIntro = document.getElementById('quiz-intro-game-audio');
     if (gBtnIntro && gBtnIntro.dataset.boundGameMute !== '1') {
         gBtnIntro.dataset.boundGameMute = '1';
-        gBtnIntro.addEventListener('click', function (ev) {
-            try {
-                if (ev) {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                }
-            } catch (eEvI) {}
+        quizBindIosFriendlyAudioButton(gBtnIntro, function () {
             quizSetGameAudioMuteState(!quizGameAudioMuted);
-        }, { passive: false });
+        });
     }
     const sBtn = document.getElementById('quiz-topbar-speech-audio');
     if (sBtn && sBtn.dataset.boundSpeechMute !== '1') {
         sBtn.dataset.boundSpeechMute = '1';
-        sBtn.addEventListener('click', function (ev) {
-            try {
-                if (ev) {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                }
-            } catch (eEv2) {}
+        quizBindIosFriendlyAudioButton(sBtn, function () {
             quizSetMuteState(!quizSpeechMutedTopbar);
-        }, { passive: false });
+        });
     }
     const gVol = document.getElementById('quiz-topbar-game-vol');
     if (gVol && gVol.dataset.boundGameVol !== '1') {
@@ -8447,7 +8604,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         gVol.addEventListener('input', onGameVol);
         gVol.addEventListener('change', onGameVol);
-        bindRangeTouchBridge(gVol, onGameVol);
+        quizBindRangeTouchBridge(gVol, onGameVol);
     }
     const gVolIntro = document.getElementById('quiz-intro-game-vol');
     if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
@@ -8457,7 +8614,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         gVolIntro.addEventListener('input', onGameVolIntro);
         gVolIntro.addEventListener('change', onGameVolIntro);
-        bindRangeTouchBridge(gVolIntro, onGameVolIntro);
+        quizBindRangeTouchBridge(gVolIntro, onGameVolIntro);
     }
     const sVol = document.getElementById('quiz-topbar-speech-vol');
     if (sVol && sVol.dataset.boundSpeechVol !== '1') {
@@ -8467,7 +8624,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         sVol.addEventListener('input', onSpeechVol);
         sVol.addEventListener('change', onSpeechVol);
-        bindRangeTouchBridge(sVol, onSpeechVol);
+        quizBindRangeTouchBridge(sVol, onSpeechVol);
     }
 }
 
@@ -8514,6 +8671,11 @@ function showQuizSpeechSettingsModal() {
     quizSyncSpeechUi();
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            quizEnsureSpeechRateSliderTouch();
+        });
+    });
 }
 
 function hideQuizSpeechSettingsModal() {
@@ -8529,6 +8691,19 @@ function quizSpeechSettingsSetRate(val) {
     if (!quizSpeechMutedTopbar && quizSpeechEnabled) {
         quizSpeakCurrentQuestionAndChoices();
     }
+}
+
+/** Slider velocità in Impostazioni Quiz: stesso bridge touch della barra (iOS). */
+function quizEnsureSpeechRateSliderTouch() {
+    const sr = document.getElementById('quiz-speech-rate-slider');
+    if (!sr || sr.dataset.boundSpeechRateUi === '1') return;
+    sr.dataset.boundSpeechRateUi = '1';
+    const onRate = function () {
+        quizSpeechSettingsSetRate(sr.value);
+    };
+    sr.addEventListener('input', onRate);
+    sr.addEventListener('change', onRate);
+    quizBindRangeTouchBridge(sr, onRate);
 }
 
 function quizSpeechSettingsBackToSettings() {
