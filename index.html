@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="pwa-512.png">
-    <link rel="manifest" href="manifest.json?v=20260205a">
+    <link rel="manifest" href="manifest.json?v=20260505e">
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -355,6 +355,17 @@
         .quiz-fs-topbar--intro .quiz-fs-topbar__center {
             display: block;
         }
+        .quiz-fs-topbar__center-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            max-width: 100%;
+        }
+        .quiz-fs-topbar__center-inner .quiz-fs-topbar__mode-title {
+            flex: 0 1 auto;
+        }
         .quiz-fs-topbar--intro .quiz-fs-topbar__start {
             justify-self: start;
         }
@@ -513,7 +524,14 @@
             border: 2px solid #1f3f68;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
         }
-        .quiz-fs-topbar--intro .quiz-fs-topbar-audio-cluster {
+        /* Intro: solo musica accanto al titolo; telecronaca resta nella barra ma nascosta. In gioco: cluster intro nel titolo nascosto, musica a destra come prima. */
+        .quiz-fs-topbar--intro #quiz-topbar-speech-cluster {
+            display: none !important;
+        }
+        .quiz-fs-topbar--intro #quiz-topbar-game-cluster {
+            display: none !important;
+        }
+        .quiz-fs-topbar:not(.quiz-fs-topbar--intro) #quiz-intro-game-cluster {
             display: none !important;
         }
         @media (max-width: 520px) {
@@ -3473,6 +3491,46 @@
             padding: 18px;
         }
         .quiz-settings-overlay.visible { display: flex; }
+        /**
+         * Dopo «Aggiorna» la pagina si ricarica: questo strato (attivato da <head>) copre il contenuto
+         * finché non è pronto il vero #quiz-settings-overlay, così la finestra non «scompare».
+         */
+        html.quiz-settings-reopen-pending {
+            overflow: hidden;
+        }
+        html.quiz-settings-reopen-pending::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 10018;
+            pointer-events: all;
+        }
+        html.quiz-settings-reopen-pending::after {
+            content: 'Aggiornamento in corso…';
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(92vw, 440px);
+            min-height: 120px;
+            box-sizing: border-box;
+            padding: 24px 20px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+            z-index: 10019;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.95rem;
+            color: #1a237e;
+            font-weight: 700;
+            pointer-events: none;
+        }
         .quiz-settings-box {
             width: min(92vw, 440px);
             border-radius: 14px;
@@ -3529,6 +3587,14 @@
             color: #607d8b;
             margin-top: 4px;
             font-weight: 600;
+        }
+        .quiz-settings-info-row .quiz-settings-build-label {
+            color: #78909c;
+            font-weight: 700;
+        }
+        .quiz-settings-info-row .quiz-settings-build-label--updated {
+            color: #1b5e20;
+            font-weight: 800;
         }
         .quiz-settings-info-chev {
             font-size: 1.35rem;
@@ -4701,6 +4767,15 @@
     <script>
     window.__FIREBASE_QUIZ_CONFIG__ = null;
     </script>
+    <script>
+        (function () {
+            try {
+                if (sessionStorage.getItem('io-quiz-reopen-settings-after-reload') === '1') {
+                    document.documentElement.classList.add('quiz-settings-reopen-pending');
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
 </head>
 <body>
 
@@ -5271,7 +5346,15 @@ function dismissAppSplash() {
                 </button>
             </div>
             <div class="quiz-fs-topbar__center">
-                <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
+                <div class="quiz-fs-topbar__center-inner">
+                    <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
+                    <div class="quiz-fs-topbar-audio-cluster" id="quiz-intro-game-cluster" aria-label="Musica ed effetti">
+                        <button type="button" class="quiz-fs-audio" id="quiz-intro-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
+                            <span id="quiz-intro-game-icon" aria-hidden="true">🎵</span>
+                        </button>
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                    </div>
+                </div>
             </div>
             <div class="quiz-fs-topbar__end">
                 <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-game-cluster" aria-label="Musica ed effetti">
@@ -5501,7 +5584,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label">20260205a</span> · controlla aggiornamenti dal server</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505e</span> · controlla aggiornamenti dal server</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5534,14 +5617,6 @@ function dismissAppSplash() {
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Impostazioni Quiz">
             <h4 class="quiz-lock-title">Impostazioni Quiz</h4>
             <div class="quiz-settings-row" style="display:block;cursor:default;margin-bottom:10px;">
-                <label class="quiz-settings-row quiz-settings-row--toggle quiz-settings-row--compact">
-                    <span class="quiz-settings-row-text">Silenzia telecronaca</span>
-                    <input type="checkbox" id="quiz-speech-mute-toggle" onchange="quizSettingsSetMute(this.checked)" style="width:18px;height:18px;accent-color:#1565c0;">
-                </label>
-                <label class="quiz-settings-row quiz-settings-row--toggle quiz-settings-row--compact" style="margin-top:8px;">
-                    <span class="quiz-settings-row-text">Silenzia musica ed effetti</span>
-                    <input type="checkbox" id="quiz-gameaudio-mute-toggle" onchange="quizSettingsSetGameMute(this.checked)" style="width:18px;height:18px;accent-color:#1565c0;">
-                </label>
                 <div class="quiz-settings-row-title" style="font-weight:700;color:#1a237e;">Velocità parlato</div>
                 <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
                     <input type="range" id="quiz-speech-rate-slider" min="0.7" max="1.4" step="0.05" value="1" oninput="quizSpeechSettingsSetRate(this.value)" style="flex:1;accent-color:#1565c0;">
@@ -5575,7 +5650,7 @@ function dismissAppSplash() {
                     <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
                 </div>
-                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità Gemini telecronaca attiva.</p>
+                <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità telecronaca online attiva.</p>
             </div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-reset" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
@@ -5590,7 +5665,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260205a</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260505e</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5650,7 +5725,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260205a';
+const APP_BUILD = '20260505e';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5668,6 +5743,8 @@ const QUIZ_LS_READ_MODE = 'io-quiz-read-mode';
 const QUIZ_DEFAULT_VOICE_ENGINE = 'piper';
 const QUIZ_DEFAULT_PIPER_URL = 'https://quiz-piper-tts.onrender.com/tts';
 const QUIZ_LOCAL_AUDIO_BASE = 'assets/quiz-audio';
+/** MP3 fisso riprodotto all’avvio partita (prima della prima domanda); stessa cartella voce delle altre tracce. */
+const QUIZ_LOCAL_INTRO_FILENAME = 'quiz-session-intro.mp3';
 /** Musica schermata intro quiz: alterna tra i due file a ogni ingresso. */
 const QUIZ_INTRO_AUDIO_1 = 'assets/quiz-intro/intro-1.mp3';
 const QUIZ_INTRO_AUDIO_2 = 'assets/quiz-intro/intro-2.mp3';
@@ -5688,11 +5765,18 @@ const QUIZ_INTRO_BASE_VOL = 1;
 const QUIZ_SFX_CORRECT = 'assets/quiz-sfx/risposta-giusta.mp3';
 const QUIZ_SFX_WRONG = 'assets/quiz-sfx/risposta-sbagliata.mp3';
 const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
+/** Click sul tasto OK del modale acquisizione verme (canale musica/effetti). */
+const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
+/** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
+const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
+const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
-/** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. */
+/** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. (Stessa stringa in <head> per lo strato «fermo».) */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
+/** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
+const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
@@ -5709,6 +5793,8 @@ let quizPiperVoice = 'naturale';
 let quizReadMode = 'qa'; // q | qa
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
+/** Effetto risposta sbagliata: un solo elemento Audio precaricato per partenza immediata. */
+let quizWrongSfxAudio = null;
 /** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
 let quizIntroSessionTrack = null;
 let quizIntroAudioEl = null;
@@ -6273,8 +6359,8 @@ function quizSaveAiVoiceConfig() {
             st.textContent = 'Configurazione salvata: telecronaca Piper attiva.';
         } else {
             st.textContent = quizAiVoiceConfigured()
-                ? 'Configurazione salvata: telecronaca Gemini attiva.'
-                : 'Configurazione incompleta: manca la chiave testo per Gemini.';
+                ? 'Configurazione salvata: telecronaca online attiva.'
+                : 'Configurazione incompleta: manca la chiave testo per la telecronaca online.';
         }
     }
 }
@@ -6318,7 +6404,7 @@ async function quizTestAiVoice() {
         } else if (/gemini_timeout_fallback_raw_text/i.test(String(res.warn || ''))) {
             st.textContent = 'Test riuscito con fallback: Gemini lento, lettura diretta usata.';
         } else {
-            st.textContent = 'Test riuscito: telecronaca Gemini attiva.';
+            st.textContent = 'Test riuscito: telecronaca online attiva.';
         }
         return;
     }
@@ -6417,6 +6503,8 @@ function applyQuizVisibility() {
     const quizPanel = document.getElementById('quiz-panel');
     if (quizNav) quizNav.style.display = quizFeatureEnabled ? '' : 'none';
     if (quizPanel && !quizFeatureEnabled) {
+        quizStopQuizAmbientMusic();
+        quizStopSpeech();
         quizPanel.classList.remove('visible');
         document.body.classList.remove('quiz-open');
     }
@@ -6454,6 +6542,50 @@ function quizResolveMediaUrl(relPath) {
     } catch (eR) {
         return String(relPath || '');
     }
+}
+
+/**
+ * Primo path relativo che esiste sul server. Prima HEAD (leggero); se non supportato o fallisce,
+ * prova GET con Range 1 byte — molti host statici / CDN non rispondono 200 a HEAD sui .mp3.
+ */
+async function quizResolveFirstExistingMediaUrl(relPaths) {
+    if (!relPaths || !relPaths.length) return '';
+    const timeoutMs = 1800;
+    for (let i = 0; i < relPaths.length; i += 1) {
+        const absUrl = quizResolveMediaUrl(relPaths[i]);
+        const ctrl = new AbortController();
+        const timer = setTimeout(function () {
+            try {
+                ctrl.abort();
+            } catch (eAb) {
+                /* ignore */
+            }
+        }, timeoutMs);
+        let found = false;
+        try {
+            try {
+                const hr = await fetch(absUrl, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
+                found = !!(hr && hr.ok);
+            } catch (eHeadOnly) {
+                found = false;
+            }
+            if (!found) {
+                const gr = await fetch(absUrl, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal: ctrl.signal,
+                    headers: { Range: 'bytes=0-0' }
+                });
+                found = !!(gr && (gr.ok || gr.status === 206 || gr.status === 200));
+            }
+        } catch (eFetch) {
+            found = false;
+        } finally {
+            clearTimeout(timer);
+        }
+        if (found) return absUrl;
+    }
+    return '';
 }
 
 function quizGetGameAudioLinearVolume() {
@@ -6553,7 +6685,66 @@ function quizPlayIntroMusicAlternating(opts) {
         a.volume = QUIZ_INTRO_BASE_VOL * quizGetGameAudioLinearVolume();
     } catch (eV) { /* ignore */ }
     quizIntroAudioEl = a;
-    a.play().catch(function () { /* autoplay bloccato fino a gesture */ });
+    a.play().catch(function () {
+        /* Autoplay spesso bloccato dopo refresh senza gesto: si riprova al primo tocco / pagina visibile. */
+        quizBindIntroMusicResumeGestures();
+    });
+}
+
+/** True se il pannello quiz è aperto sulla schermata intro (titolo «Modalità quiz»). */
+function quizIsIntroQuizScreenVisible() {
+    const panel = document.getElementById('quiz-panel');
+    const intro = document.getElementById('quiz-screen-intro');
+    if (!panel || !intro || !panel.classList.contains('visible')) return false;
+    if (!document.body.classList.contains('quiz-open')) return false;
+    if (panel.classList.contains('quiz-panel--screen-play')) return false;
+    return intro.style.display === 'block';
+}
+
+/** Riprende la musica intro se era attesa (refresh / tab / BFCache) e il volume gioco è attivo. */
+function quizEnsureIntroMusicPlaying() {
+    try {
+        if (!quizIsIntroQuizScreenVisible()) return;
+        if (quizGetGameAudioLinearVolume() <= 0) return;
+        if (quizIntroAudioEl && quizIntroAudioEl.src) {
+            try {
+                if (!quizIntroAudioEl.paused && !quizIntroAudioEl.ended) return;
+            } catch (eCh) { /* ignore */ }
+        }
+        quizPlayIntroMusicAlternating({ resumeOnly: true });
+    } catch (eEns) { /* ignore */ }
+}
+
+let quizIntroMusicResumeGesturesBound = false;
+
+/** Registra una tantum: dopo interazione utente riprova la musica intro se serve (policy autoplay). */
+function quizBindIntroMusicResumeGestures() {
+    if (quizIntroMusicResumeGesturesBound) return;
+    quizIntroMusicResumeGesturesBound = true;
+    const resume = function () {
+        quizEnsureIntroMusicPlaying();
+    };
+    document.addEventListener('pointerdown', resume, { capture: true, passive: true });
+    document.addEventListener('keydown', resume, { capture: true, passive: true });
+}
+
+function quizInstallIntroMusicLifecycleHooks() {
+    if (quizInstallIntroMusicLifecycleHooks._done) return;
+    quizInstallIntroMusicLifecycleHooks._done = true;
+    window.addEventListener(
+        'pageshow',
+        function () {
+            requestAnimationFrame(quizEnsureIntroMusicPlaying);
+        },
+        { passive: true }
+    );
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'visible') quizEnsureIntroMusicPlaying();
+        },
+        { passive: true }
+    );
 }
 
 function quizSuspenseUnduckVolumes() {
@@ -6580,6 +6771,12 @@ function quizStopSuspenseMusic() {
         }
         quizSuspenseDucked = false;
     } catch (eS) { /* ignore */ }
+}
+
+/** Musica schermata intro + sottofondo domande: da fermare uscendo dal quiz o sulla pagina istruzioni. */
+function quizStopQuizAmbientMusic() {
+    quizStopIntroMusic();
+    quizStopSuspenseMusic();
 }
 
 function quizPlaySuspenseAlternating(opts) {
@@ -6632,11 +6829,34 @@ function quizPlayCorrectAnswerSfx() {
     } catch (eC) { /* ignore */ }
 }
 
+function quizPreloadWrongAnswerSfx() {
+    if (quizWrongSfxAudio) return;
+    try {
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_WRONG));
+        a.preload = 'auto';
+        try {
+            a.load();
+        } catch (eL) {
+            /* ignore */
+        }
+        quizWrongSfxAudio = a;
+    } catch (eW) {
+        /* ignore */
+    }
+}
+
 function quizPlayWrongAnswerSfx() {
     try {
         const gv = quizGetGameAudioLinearVolume();
         if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_WRONG));
+        quizPreloadWrongAnswerSfx();
+        const a = quizWrongSfxAudio || new Audio(quizResolveMediaUrl(QUIZ_SFX_WRONG));
+        try {
+            a.pause();
+            a.currentTime = 0;
+        } catch (eT) {
+            /* ignore */
+        }
         a.volume = 0.88 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eW) { /* ignore */ }
@@ -6650,6 +6870,93 @@ function quizPlayMicrobeUnlockApplauseSfx() {
         a.volume = 0.85 * gv;
         a.play().catch(function () { /* autoplay */ });
     } catch (eA) { /* ignore */ }
+}
+
+function quizPlayMicrobeUnlockOkClickSfx() {
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_MICROBE_OK_CLICK));
+        a.volume = 0.95 * gv;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eOk) { /* ignore */ }
+}
+
+function playUiClickDomandeSfx() {
+    try {
+        const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
+        if (gv <= 0) return;
+        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_DOMANDE));
+        a.volume = 0.82 * gv;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eU1) { /* ignore */ }
+}
+
+function playUiClickGenericoSfx() {
+    try {
+        const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
+        if (gv <= 0) return;
+        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_UI));
+        a.volume = 0.78 * gv;
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eU2) { /* ignore */ }
+}
+
+/**
+ * Clic 1: pulsanti nelle sezioni #cf-content / #mbr-content (domande e contenuti generati).
+ * Clic 2: header, impostazioni, quiz (senza suoni dedicati), splash, report, ecc.
+ */
+function initIstruzioniUiClickSounds() {
+    if (initIstruzioniUiClickSounds._done) return;
+    initIstruzioniUiClickSounds._done = true;
+    document.addEventListener(
+        'click',
+        function (ev) {
+            const raw = ev.target;
+            if (!raw || raw.nodeType !== 1) return;
+            if (typeof raw.closest !== 'function') return;
+            if (raw.closest('[data-ui-click-off]')) return;
+            const tag = (raw.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+            const colBox = raw.closest('.col-box');
+            if (
+                colBox &&
+                (colBox.closest('#cf-content') || colBox.closest('#mbr-content'))
+            ) {
+                playUiClickDomandeSfx();
+                return;
+            }
+
+            let btn = raw.closest('button');
+            const summ = !btn ? raw.closest('summary') : null;
+            const roleBtn = !btn && !summ ? raw.closest('[role="button"]') : null;
+            let activator = btn || summ || roleBtn;
+            if (!activator) {
+                const lab = raw.closest('label');
+                if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
+            }
+            if (!activator) return;
+
+            if (activator.closest('#app-splash')) {
+                if (
+                    activator.id === 'app-splash-enter-btn' ||
+                    activator.classList.contains('app-splash-enter')
+                ) {
+                    return;
+                }
+            }
+            if (activator.matches('.quiz-choice-btn')) return;
+            if (activator.id === 'quiz-microbe-unlock-ok') return;
+
+            if (activator.closest('#cf-content') || activator.closest('#mbr-content')) {
+                playUiClickDomandeSfx();
+                return;
+            }
+            playUiClickGenericoSfx();
+        },
+        false
+    );
 }
 
 function quizStopSpeech() {
@@ -6686,12 +6993,21 @@ function quizSyncSpeechUi() {
             : ('Commentatore disattivo · Velocità ' + rateTxt + 'x' + tail);
     }
     const gIco = document.getElementById('quiz-topbar-game-icon');
+    const gIcoIntro = document.getElementById('quiz-intro-game-icon');
     const gBtn = document.getElementById('quiz-topbar-game-audio');
-    if (gIco) gIco.textContent = quizGameAudioMuted ? '🔇' : '🎵';
+    const gBtnIntro = document.getElementById('quiz-intro-game-audio');
+    const gameMuteIcon = quizGameAudioMuted ? '🔇' : '🎵';
+    if (gIco) gIco.textContent = gameMuteIcon;
+    if (gIcoIntro) gIcoIntro.textContent = gameMuteIcon;
     if (gBtn) {
         var gl = quizGameAudioMuted ? 'Riattiva musica ed effetti' : 'Silenzia musica ed effetti';
         gBtn.setAttribute('aria-label', gl);
         gBtn.setAttribute('title', gl);
+    }
+    if (gBtnIntro) {
+        var glI = quizGameAudioMuted ? 'Riattiva musica ed effetti' : 'Silenzia musica ed effetti';
+        gBtnIntro.setAttribute('aria-label', glI);
+        gBtnIntro.setAttribute('title', glI);
     }
     const sIco = document.getElementById('quiz-topbar-speech-icon');
     const sBtn = document.getElementById('quiz-topbar-speech-audio');
@@ -6702,8 +7018,13 @@ function quizSyncSpeechUi() {
         sBtn.setAttribute('title', sl);
     }
     const gvSl = document.getElementById('quiz-topbar-game-vol');
+    const gvSlIntro = document.getElementById('quiz-intro-game-vol');
+    const gvPct = String(Math.max(0, Math.min(100, Math.round(Number(quizGameAudioVolume) * 100))));
     if (gvSl && document.activeElement !== gvSl) {
-        gvSl.value = String(Math.max(0, Math.min(100, Math.round(Number(quizGameAudioVolume) * 100))));
+        gvSl.value = gvPct;
+    }
+    if (gvSlIntro && document.activeElement !== gvSlIntro) {
+        gvSlIntro.value = gvPct;
     }
     const svSl = document.getElementById('quiz-topbar-speech-vol');
     if (svSl && document.activeElement !== svSl) {
@@ -6711,10 +7032,6 @@ function quizSyncSpeechUi() {
     }
     const slider = document.getElementById('quiz-speech-rate-slider');
     if (slider) slider.value = String(Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1)));
-    const muteCb = document.getElementById('quiz-speech-mute-toggle');
-    if (muteCb) muteCb.checked = !!quizSpeechMutedTopbar;
-    const gameMuteCb = document.getElementById('quiz-gameaudio-mute-toggle');
-    if (gameMuteCb) gameMuteCb.checked = !!quizGameAudioMuted;
     const rateLabel = document.getElementById('quiz-speech-rate-label');
     if (rateLabel) rateLabel.textContent = rateTxt + 'x';
     const g = document.getElementById('quiz-text-ai-key-input');
@@ -6736,8 +7053,8 @@ function quizSyncSpeechUi() {
             st.textContent = 'Telecronaca Piper attiva.';
         } else {
             st.textContent = quizResolveAiConfig().textKey
-                ? 'Telecronaca Gemini attiva.'
-                : 'Telecronaca Gemini non configurata (manca chiave testo).';
+                ? 'Telecronaca online attiva.'
+                : 'Telecronaca online non configurata (manca chiave testo).';
         }
     }
     const keyFields = document.getElementById('quiz-ai-key-fields');
@@ -6754,8 +7071,69 @@ function quizSpeakCurrentQuestionAndChoices() {
     quizSpeakUsingConfiguredEngine(plainText, runId, q);
 }
 
+/**
+ * All’inizio partita: se esiste `quiz-session-intro.mp3` (stessa logica percorso delle tracce domanda),
+ * lo riproduce prima della telecronaca della prima domanda.
+ */
+async function quizPlayOfflineSessionIntroThenQuestion() {
+    if (!quizSpeechSupported() || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) {
+        quizSpeakCurrentQuestionAndChoices();
+        return;
+    }
+    if (quizState.index !== 0) {
+        quizSpeakCurrentQuestionAndChoices();
+        return;
+    }
+    const pv = String(quizPiperVoice || 'naturale').trim().toLowerCase();
+    const introCandidates = [];
+    if (/^(naturale|telecronaca|chiara|profonda)$/.test(pv)) {
+        introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + pv + '/' + QUIZ_LOCAL_INTRO_FILENAME);
+        if (pv !== 'naturale') {
+            introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/naturale/' + QUIZ_LOCAL_INTRO_FILENAME);
+        }
+    }
+    introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + QUIZ_LOCAL_INTRO_FILENAME);
+    const introUrl = await quizResolveFirstExistingMediaUrl(introCandidates);
+    if (!introUrl) {
+        quizSpeakCurrentQuestionAndChoices();
+        return;
+    }
+    const runId = quizSpeechRunId;
+    quizSuspenseDuckVolumes();
+    const a = new Audio(introUrl);
+    try {
+        a.volume = quizGetCommentaryLinearVolume();
+    } catch (eVol) {
+        /* ignore */
+    }
+    a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+    quizAiAudioEl = a;
+    function finishIntroThenSpeak() {
+        quizSuspenseUnduckVolumes();
+        try {
+            if (quizAiAudioEl === a) quizAiAudioEl = null;
+        } catch (eCl) {
+            /* ignore */
+        }
+        if (runId !== quizSpeechRunId) return;
+        quizSpeakCurrentQuestionAndChoices();
+    }
+    a.onended = finishIntroThenSpeak;
+    a.onerror = finishIntroThenSpeak;
+    try {
+        await a.play();
+    } catch (ePl) {
+        finishIntroThenSpeak();
+    }
+}
+
+/**
+ * Testo per Gemini, Piper e TTS quando non si riproduce solo l’MP3 file.
+ * Nessun prefisso «Domanda.» (allineato agli MP3 offline rigenerati).
+ */
 function quizBuildQuestionNarrationText(q) {
-    const parts = ['Domanda. ' + String((q && q.q) || '')];
+    const qtext = String((q && q.q) || '');
+    const parts = [qtext];
     if (quizReadMode === 'qa' && q && Array.isArray(q.options)) {
         q.options.forEach(function (opt, idx) {
             const letter = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
@@ -6784,6 +7162,10 @@ function quizBuildLocalAudioPathForQuestion(q, voicePreset) {
     return QUIZ_LOCAL_AUDIO_BASE + '/' + fileName;
 }
 
+/**
+ * MP3 offline: riprodotti così come sono. Per non sentire «domanda» ogni volta, rigenerare i file senza
+ * quella parola in apertura (vedi scripts/generate-offline-quiz-audio.mjs).
+ */
 async function quizSpeakLocalFileIfAvailable(q, runId) {
     try {
         if (!q) return { ok: false, error: 'local_audio_no_question' };
@@ -6793,27 +7175,7 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
         candidates.push(quizBuildLocalAudioPathForQuestion(q, preferredVoice));
         if (preferredVoice !== 'naturale') candidates.push(quizBuildLocalAudioPathForQuestion(q, 'naturale'));
         candidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + fileName); // backward compatibility
-        let chosenUrl = '';
-        for (let i = 0; i < candidates.length; i += 1) {
-            const absUrl = quizResolveMediaUrl(candidates[i]);
-            const ctrl = new AbortController();
-            const timer = setTimeout(function () {
-                try { ctrl.abort(); } catch (eAb) { /* ignore */ }
-            }, 1800);
-            let headOk = false;
-            try {
-                const hr = await fetch(absUrl, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
-                headOk = !!(hr && hr.ok);
-            } catch (eHead) {
-                headOk = false;
-            } finally {
-                clearTimeout(timer);
-            }
-            if (headOk) {
-                chosenUrl = absUrl;
-                break;
-            }
-        }
+        const chosenUrl = await quizResolveFirstExistingMediaUrl(candidates);
         if (!chosenUrl) return { ok: false, error: 'local_audio_not_found' };
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSuspenseDuckVolumes();
@@ -7071,6 +7433,19 @@ function quizEnsureTopbarAudioBinding() {
             quizSetGameAudioMuteState(!quizGameAudioMuted);
         }, { passive: false });
     }
+    const gBtnIntro = document.getElementById('quiz-intro-game-audio');
+    if (gBtnIntro && gBtnIntro.dataset.boundGameMute !== '1') {
+        gBtnIntro.dataset.boundGameMute = '1';
+        gBtnIntro.addEventListener('click', function (ev) {
+            try {
+                if (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            } catch (eEvI) {}
+            quizSetGameAudioMuteState(!quizGameAudioMuted);
+        }, { passive: false });
+    }
     const sBtn = document.getElementById('quiz-topbar-speech-audio');
     if (sBtn && sBtn.dataset.boundSpeechMute !== '1') {
         sBtn.dataset.boundSpeechMute = '1';
@@ -7089,6 +7464,13 @@ function quizEnsureTopbarAudioBinding() {
         gVol.dataset.boundGameVol = '1';
         gVol.addEventListener('input', function () {
             quizSetGameAudioVolumeLinear(Number(gVol.value) / 100);
+        });
+    }
+    const gVolIntro = document.getElementById('quiz-intro-game-vol');
+    if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
+        gVolIntro.dataset.boundGameVol = '1';
+        gVolIntro.addEventListener('input', function () {
+            quizSetGameAudioVolumeLinear(Number(gVolIntro.value) / 100);
         });
     }
     const sVol = document.getElementById('quiz-topbar-speech-vol');
@@ -7176,15 +7558,43 @@ function quizParseSwBuildFromText(swText) {
     }
 }
 
+function quizSettingsBuildHighlightGet() {
+    try {
+        return localStorage.getItem(QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT) === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
+function quizSettingsBuildHighlightSet(on) {
+    try {
+        if (on) {
+            localStorage.setItem(QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT, '1');
+        } else {
+            localStorage.removeItem(QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT);
+        }
+    } catch (e) { /* ignore */ }
+}
+
 /** Ripristina sottotitolo riga Aggiorna (con span build) dopo stati temporanei. */
 function quizSettingsRefreshSubReset() {
     var sub = document.getElementById('quiz-settings-refresh-sub');
     if (!sub) return;
     var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    sub.innerHTML = 'Build <span id="quiz-settings-build-label">' + b + '</span> · controlla aggiornamenti dal server';
+    var hl = quizSettingsBuildHighlightGet();
+    var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '');
+    sub.innerHTML =
+        'Build <span id="quiz-settings-build-label" class="' +
+        spanCls +
+        '">' +
+        b +
+        '</span> · controlla aggiornamenti dal server';
 }
 
 function showQuizSettingsModal() {
+    try {
+        document.documentElement.classList.remove('quiz-settings-reopen-pending');
+    } catch (eRm) { /* ignore */ }
     const overlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
     syncSettingsQuizToggleUi();
@@ -7237,6 +7647,11 @@ function quizSettingsForceRefresh(btn) {
             } catch (eFetch) { /* rete / CORS: si continua */ }
 
             var localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
+            if (remoteBuild && localBuild && remoteBuild !== localBuild) {
+                quizSettingsBuildHighlightSet(true);
+            } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
+                quizSettingsBuildHighlightSet(false);
+            }
             if (sub) {
                 if (remoteBuild && localBuild && remoteBuild !== localBuild) {
                     sub.textContent = 'Nuovo aggiornamento ricevuto — applico e ricarico…';
@@ -7279,6 +7694,9 @@ function quizSettingsForceRefresh(btn) {
 }
 
 function hideQuizSettingsModal() {
+    try {
+        document.documentElement.classList.remove('quiz-settings-reopen-pending');
+    } catch (eRm) { /* ignore */ }
     const overlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
     overlay.classList.remove('visible');
@@ -7789,7 +8207,7 @@ const db = {
 
 /* ========= Quiz (livelli 1–3, punteggi 5/10/15, 2 errori = fine, bonus vermi, classifica: Firestore + cache locale) ========= */
 let quizBankCache = null;
-const QUIZ_BANK_BUILD_ID = 9;
+const QUIZ_BANK_BUILD_ID = 10;
 const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
 let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0, avatarIndex: 0 };
@@ -8686,12 +9104,47 @@ function quizShuffle(arr) {
     return a;
 }
 
+/** Stesso algoritmo di scripts/generate-offline-quiz-audio.mjs — ordine A/B/C uguale agli MP3 generati. */
+function quizHashStringSeed(s) {
+    let h = 2166136261 >>> 0;
+    const str = String(s || '');
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+}
+
+function quizMulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+        let t = (a += 0x6d2b79f5) | 0;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function quizDeterministicShuffle(arr, seed) {
+    const rand = quizMulberry32(seed);
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 function quizMakeQuestion(level, points, ref, qText, truth, wrongA, wrongB) {
-    const opts = quizShuffle([
-        { text: truth, ok: true },
-        { text: wrongA, ok: false },
-        { text: wrongB, ok: false }
-    ]);
+    const seed = quizHashStringSeed(ref + '\n' + qText + '\n' + truth);
+    const opts = quizDeterministicShuffle(
+        [
+            { text: truth, ok: true },
+            { text: wrongA, ok: false },
+            { text: wrongB, ok: false }
+        ],
+        seed
+    );
     return {
         level,
         points,
@@ -9326,7 +9779,9 @@ function quizRenderQuestion(opts) {
     quizScheduleQuestionTimerTicks();
     quizSyncSpeechUi();
     quizPlaySuspenseAlternating();
-    quizSpeakCurrentQuestionAndChoices();
+    if (!opts.suppressSpeech) {
+        quizSpeakCurrentQuestionAndChoices();
+    }
 
     if (!opts.instant && body) {
         body.classList.add('quiz-fade-in');
@@ -9415,6 +9870,8 @@ function quizAnswer(idx) {
         }
     }
 
+    const isCorrect = idx === q.correctIndex;
+
     quizClearQuestionTimer();
     quizStopSpeech();
     quizStopSuspenseMusic();
@@ -9432,7 +9889,11 @@ function quizAnswer(idx) {
         else b.classList.add('quiz-opt-dim');
     });
 
-    if (idx === q.correctIndex) {
+    if (!isCorrect) {
+        quizPlayWrongAnswerSfx();
+    }
+
+    if (isCorrect) {
         quizPlayCorrectAnswerSfx();
         const prevScore = quizState.score;
         quizState.score += q.points + timerBonusPts;
@@ -9508,7 +9969,6 @@ function quizAnswer(idx) {
             quizAnimateScorePoints(prevScore, quizState.score, finishCorrect);
         }
     } else {
-        quizPlayWrongAnswerSfx();
         let continuePlay = false;
         let fatalNoWorms = false;
         if (fb) {
@@ -10140,9 +10600,11 @@ function quizStart() {
     for (let s = 0; s < QUIZ_START_WORM_COUNT; s++) {
         quizBioVatOnCorrectAnswer(-1);
     }
+    quizPreloadWrongAnswerSfx();
     quizShowScreen('play');
-    quizRenderQuestion({ instant: true });
+    quizRenderQuestion({ instant: true, suppressSpeech: true });
     quizRenderLeaderboard();
+    void quizPlayOfflineSessionIntroThenQuestion();
     requestAnimationFrame(function () {
         requestAnimationFrame(function () {
             try {
@@ -10422,6 +10884,7 @@ function quizMicrobeUnlockModalForceClose() {
 }
 
 function quizMicrobeUnlockModalOk() {
+    quizPlayMicrobeUnlockOkClickSfx();
     const fn = quizMicrobeUnlockModalContinuation;
     quizMicrobeUnlockModalHide();
     if (typeof fn === 'function') {
@@ -11606,10 +12069,14 @@ function openQuiz() {
         const ex = document.getElementById('quiz-topbar-exit');
         if (ex && ex.offsetParent !== null) ex.focus();
     });
+    requestAnimationFrame(function () {
+        requestAnimationFrame(quizEnsureIntroMusicPlaying);
+    });
 }
 
 function closeQuiz() {
     quizStopSpeech();
+    quizStopQuizAmbientMusic();
     quizAdelfoCancelIntro();
     quizCancelScoreAnim();
     const top10m = document.getElementById('quiz-top10-name-modal');
@@ -11761,6 +12228,13 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizAdelfoWarmFrames();
             } catch (eAdW) { /* ignore */ }
+            try {
+                quizPreloadWrongAnswerSfx();
+            } catch (eWx) { /* ignore */ }
+            try {
+                quizInstallIntroMusicLifecycleHooks();
+                quizBindIntroMusicResumeGestures();
+            } catch (eLm) { /* ignore */ }
             render();
             try {
                 quizUpdateFirebaseSyncUi();
@@ -11868,6 +12342,16 @@ document.addEventListener('toggle', function (ev) {
             else if (mq.addListener) mq.addListener(onDmChange);
         } catch (e) { /* ignore */ }
     }
+})();
+
+(function scheduleIstruzioniUiClickSounds() {
+    function go() {
+        try {
+            initIstruzioniUiClickSounds();
+        } catch (eUi) { /* ignore */ }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+    else go();
 })();
 
 window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
