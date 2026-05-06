@@ -4501,7 +4501,9 @@
         .app-splash-worm-tab {
             flex: 0 1 auto;
             white-space: nowrap;
-            padding: 4px 6px;
+            padding: 6px 8px;
+            min-height: 40px;
+            box-sizing: border-box;
             font-size: clamp(0.5rem, 1.35vw, 0.62rem);
             font-weight: 800;
             letter-spacing: 0.02em;
@@ -4511,6 +4513,8 @@
             background: rgba(15, 39, 68, 0.35);
             color: rgba(232, 244, 252, 0.95);
             cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.12);
             transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
         }
         .app-splash-worm-tab:hover {
@@ -5247,11 +5251,11 @@
             </div>
         </div>
                 <div class="app-splash-worm-tabs" role="tablist" aria-label="Scegli il gruppo microbico">
-                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" title="I demolitori (batteri eterotrofi)" onclick="splashSelectWorm(0)">Demolitori</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" title="I sottili (batteri nitrificanti)" onclick="splashSelectWorm(1)">Sottili</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" title="I filamentosi (la rete)" onclick="splashSelectWorm(2)">Filamentosi</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" title="I settici (batteri anaerobi)" onclick="splashSelectWorm(3)">Settici</button>
-                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" title="I predatori (protozoi e rotiferi)" onclick="splashSelectWorm(4)">Predatori</button>
+                    <button type="button" class="app-splash-worm-tab app-splash-worm-tab--on" role="tab" aria-selected="true" id="splash-tab-0" aria-controls="splash-desc-0" title="I demolitori (batteri eterotrofi)">Demolitori</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-1" aria-controls="splash-desc-1" title="I sottili (batteri nitrificanti)">Sottili</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-2" aria-controls="splash-desc-2" title="I filamentosi (la rete)">Filamentosi</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-3" aria-controls="splash-desc-3" title="I settici (batteri anaerobi)">Settici</button>
+                    <button type="button" class="app-splash-worm-tab" role="tab" aria-selected="false" id="splash-tab-4" aria-controls="splash-desc-4" title="I predatori (protozoi e rotiferi)">Predatori</button>
                 </div>
             </div>
             <aside class="app-splash-intro-desc-col">
@@ -5321,6 +5325,137 @@
         document.body.classList.add('splash-active');
     }
 })();
+var SPLASH_HOME_BIO_REL = 'assets/splash/suono-biologico.mp3';
+var SPLASH_WORM_CLICK_REL = 'assets/ui-sfx/clickcc.mp3';
+var splashHomeBioAudio = null;
+var splashWormTabLastPointerAt = 0;
+function splashGetHomeMusicLinearVol() {
+    try {
+        if (localStorage.getItem('io-quiz-gameaudio-muted') === '1') return 0;
+        var raw = localStorage.getItem('io-quiz-gameaudio-vol');
+        if (raw != null) {
+            var g = parseFloat(raw);
+            if (isFinite(g) && g >= 0 && g <= 1) return g;
+        }
+    } catch (e0) { /* ignore */ }
+    return 0.9;
+}
+function stopSplashHomeBioMusic() {
+    try {
+        if (splashHomeBioAudio) {
+            splashHomeBioAudio.pause();
+            splashHomeBioAudio.currentTime = 0;
+        }
+    } catch (e1) { /* ignore */ }
+}
+function startSplashHomeBioMusic() {
+    try {
+        var onSplash = document.body.classList.contains('splash-active');
+        if (!onSplash) {
+            var sp0 = document.getElementById('app-splash');
+            if (!sp0 || !sp0.classList.contains('app-splash--visible') || sp0.getAttribute('aria-hidden') === 'true') return;
+        }
+        var vol = splashGetHomeMusicLinearVol();
+        if (vol <= 0) {
+            stopSplashHomeBioMusic();
+            return;
+        }
+        stopSplashHomeBioMusic();
+        var url = new URL(SPLASH_HOME_BIO_REL, window.location.href).href;
+        if (!splashHomeBioAudio) splashHomeBioAudio = new Audio();
+        var a = splashHomeBioAudio;
+        a.loop = true;
+        try {
+            a.setAttribute('playsinline', '');
+            a.setAttribute('webkit-playsinline', '');
+        } catch (eA) { /* ignore */ }
+        if (a.dataset.splashHomeSrc !== url) {
+            a.dataset.splashHomeSrc = url;
+            a.src = url;
+            try {
+                a.load();
+            } catch (eL) { /* ignore */ }
+        }
+        a.volume = Math.min(1, 0.58 * vol);
+        var pr = a.play();
+        if (pr && typeof pr.then === 'function') pr.catch(function () {});
+    } catch (e2) { /* ignore */ }
+}
+function splashRefreshHomeBioMusicVolume() {
+    try {
+        var vol = splashGetHomeMusicLinearVol();
+        if (!splashHomeBioAudio) return;
+        splashHomeBioAudio.volume = Math.min(1, 0.58 * vol);
+        if (vol <= 0) stopSplashHomeBioMusic();
+        else if (document.body.classList.contains('splash-active') && splashHomeBioAudio.paused) {
+            startSplashHomeBioMusic();
+        }
+    } catch (eR) { /* ignore */ }
+}
+function playSplashWormTabClickSfx() {
+    try {
+        var vol = splashGetHomeMusicLinearVol();
+        if (vol <= 0) return;
+        var a = new Audio(new URL(SPLASH_WORM_CLICK_REL, window.location.href).href);
+        a.volume = Math.min(1, 0.92 * vol);
+        var pr = a.play();
+        if (pr && typeof pr.then === 'function') pr.catch(function () {});
+    } catch (eC) { /* ignore */ }
+}
+(function splashHomeBioAndTabsBind() {
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState !== 'visible') {
+            stopSplashHomeBioMusic();
+        } else if (document.body.classList.contains('splash-active')) {
+            startSplashHomeBioMusic();
+        }
+    }, { passive: true });
+    window.addEventListener('blur', stopSplashHomeBioMusic, { passive: true });
+    window.addEventListener('focus', function () {
+        if (document.body.classList.contains('splash-active')) startSplashHomeBioMusic();
+    }, { passive: true });
+    var tabsHost = document.querySelector('.app-splash-worm-tabs');
+    if (tabsHost && !tabsHost.dataset.splashWormBound) {
+        tabsHost.dataset.splashWormBound = '1';
+        function idxFromEv(ev) {
+            try {
+                var t = ev.target;
+                if (!t || !t.closest) return -1;
+                var btn = t.closest('.app-splash-worm-tab');
+                if (!btn || btn.disabled) return -1;
+                var m = btn.id && String(btn.id).match(/^splash-tab-(\d+)$/);
+                return m ? parseInt(m[1], 10) : -1;
+            } catch (e) {
+                return -1;
+            }
+        }
+        tabsHost.addEventListener('pointerdown', function (ev) {
+            var idx = idxFromEv(ev);
+            if (idx < 0) return;
+            if (typeof ev.button === 'number' && ev.button !== 0) return;
+            splashWormTabLastPointerAt = Date.now();
+            splashSelectWorm(idx);
+        }, true);
+        tabsHost.addEventListener('click', function (ev) {
+            var idx = idxFromEv(ev);
+            if (idx < 0) return;
+            if (Date.now() - splashWormTabLastPointerAt < 480) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                return;
+            }
+            splashSelectWorm(idx);
+        }, true);
+    }
+    setTimeout(function () {
+        try {
+            if (document.body.classList.contains('splash-active')) startSplashHomeBioMusic();
+        } catch (eT) { /* ignore */ }
+    }, 0);
+})();
+window.splashRefreshHomeBioMusicVolume = splashRefreshHomeBioMusicVolume;
+window.startSplashHomeBioMusic = startSplashHomeBioMusic;
+window.stopSplashHomeBioMusic = stopSplashHomeBioMusic;
 var SPLASH_ENTER_SOUND_REL = 'assets/sounds/bubble/bubble-dragon-pop.mp3';
 function getSplashEnterSoundAbsoluteUrl() {
     try {
@@ -5403,6 +5538,7 @@ function playSplashBubblePop() {
     } catch (e) {}
 }
 function finishDismissAppSplashToApp() {
+    stopSplashHomeBioMusic();
     requestAnimationFrame(function () {
         var KEY = 'io-splash-dismissed-session';
         var sp = document.getElementById('app-splash');
@@ -5418,6 +5554,7 @@ function finishDismissAppSplashToApp() {
     });
 }
 function splashSelectWorm(idx) {
+    playSplashWormTabClickSfx();
     var tabs = document.querySelectorAll('.app-splash-worm-tab');
     var vars = document.querySelectorAll('.splash-worm-variant');
     var pans = document.querySelectorAll('.app-splash-worm-desc-panel');
@@ -5443,6 +5580,7 @@ window.splashSelectWorm = splashSelectWorm;
 function dismissAppSplash() {
     if (dismissAppSplash._busy) return;
     dismissAppSplash._busy = true;
+    stopSplashHomeBioMusic();
     var sp = document.getElementById('app-splash');
     var btn = document.getElementById('app-splash-enter-btn');
     if (btn) {
@@ -5926,7 +6064,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zf';
+const APP_BUILD = '20260506zj';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5944,6 +6082,7 @@ const QUIZ_LS_READ_MODE = 'io-quiz-read-mode';
 const QUIZ_DEFAULT_VOICE_ENGINE = 'piper';
 const QUIZ_DEFAULT_PIPER_URL = 'https://quiz-piper-tts.onrender.com/tts';
 const QUIZ_LOCAL_AUDIO_BASE = 'assets/quiz-audio';
+const QUIZ_LOCAL_AUDIO_BASE_Q = 'assets/quiz-audio-q';
 /** MP3 fisso riprodotto all’avvio partita (prima della prima domanda); stessa cartella voce delle altre tracce. */
 const QUIZ_LOCAL_INTRO_FILENAME = 'quiz-session-intro.mp3';
 /** Musica schermata intro quiz: alterna tra i due file a ogni ingresso. */
@@ -5970,8 +6109,9 @@ const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
 const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
 /** Flip carta bonus + conferma popup bonus. */
 const QUIZ_SFX_BONUS_OK = 'assets/quiz-sfx/effetto-ok.mp3';
-/** Bonus game: apertura popup, premio, penalita fango. */
-const QUIZ_SFX_BONUS_POPUP = 'assets/quiz-sfx/bonus-popup.mp3';
+/** Bonus game: musica durante la scelta delle carte (si ferma alla selezione). */
+const QUIZ_SFX_BONUS_SCELTA = 'assets/quiz-sfx/scelta.mp3';
+/** Bonus game: premio, penalita fango. */
 const QUIZ_SFX_BONUS_WIN = 'assets/quiz-sfx/bonus-win.mp3';
 const QUIZ_SFX_BONUS_FANGO = 'assets/quiz-sfx/bonus-fango.mp3';
 /** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
@@ -6016,6 +6156,8 @@ let quizWrongSfxAudio = null;
 let quizBonusPickContinuation = null;
 let quizBonusPickResolved = false;
 let quizBonusPickKeydownBound = false;
+/** Musica schermata scelta bonus: elemento persistente per poterla fermare subito al tap. */
+let quizBonusSceltaAudio = null;
 /** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
 let quizIntroSessionTrack = null;
 let quizIntroAudioEl = null;
@@ -6828,7 +6970,7 @@ async function quizResolveFirstExistingMediaUrl(relPaths) {
     try {
         const allLocalQuizAudio = relPaths.every(function (p) {
             const s = String(p || '');
-            return s.indexOf(QUIZ_LOCAL_AUDIO_BASE + '/') === 0;
+            return s.indexOf(QUIZ_LOCAL_AUDIO_BASE + '/') === 0 || s.indexOf(QUIZ_LOCAL_AUDIO_BASE_Q + '/') === 0;
         });
         if (allLocalQuizAudio) {
             return quizResolveMediaUrl(relPaths[0]);
@@ -6927,6 +7069,9 @@ function quizRefreshLiveAudioVolumes() {
         const cv = quizGetCommentaryLinearVolume();
         if (quizAiAudioEl) quizAiAudioEl.volume = cv;
     } catch (eC) { /* ignore */ }
+    try {
+        if (typeof window.splashRefreshHomeBioMusicVolume === 'function') window.splashRefreshHomeBioMusicVolume();
+    } catch (eS) { /* ignore */ }
 }
 
 function quizStopIntroMusic() {
@@ -7227,8 +7372,39 @@ function quizPlayBonusOkSfx() {
     quizPlayUiSfxFast(QUIZ_SFX_BONUS_OK, 0.95);
 }
 
-function quizPlayBonusPopupSfx() {
-    quizPlayUiSfxFast(QUIZ_SFX_BONUS_POPUP, 0.92);
+function quizEnsureBonusSceltaAudio() {
+    if (quizBonusSceltaAudio) return quizBonusSceltaAudio;
+    try {
+        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_BONUS_SCELTA));
+        a.preload = 'auto';
+        a.loop = true;
+        try { a.load(); } catch (eL) { /* ignore */ }
+        quizBonusSceltaAudio = a;
+    } catch (eA) {
+        quizBonusSceltaAudio = null;
+    }
+    return quizBonusSceltaAudio;
+}
+
+function quizStopBonusSceltaMusic() {
+    try {
+        const a = quizBonusSceltaAudio;
+        if (!a) return;
+        a.pause();
+        a.currentTime = 0;
+    } catch (eS) { /* ignore */ }
+}
+
+function quizStartBonusSceltaMusic() {
+    quizStopBonusSceltaMusic();
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
+        const a = quizEnsureBonusSceltaAudio();
+        if (!a) return;
+        a.volume = Math.max(0, Math.min(1, 0.86 * gv));
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eP) { /* ignore */ }
 }
 
 function quizPlayBonusOutcomeSfx(item) {
@@ -7321,16 +7497,15 @@ function quizGetUiSfxVoices(relPath) {
 }
 
 function quizPrimeUiSfxPool() {
+    quizEnsureBonusSceltaAudio();
     quizGetUiSfxVoices(UI_SFX_CLICK_DOMANDE);
     quizGetUiSfxVoices(UI_SFX_CLICK_UI);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_OK);
-    quizGetUiSfxVoices(QUIZ_SFX_BONUS_POPUP);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_WIN);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_FANGO);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
-    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_POPUP);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
 }
@@ -7357,7 +7532,6 @@ function quizUnlockUiSfxOnce() {
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
-    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_POPUP);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
 }
@@ -7623,15 +7797,16 @@ async function quizPlayOfflineSessionIntroThenQuestion() {
         quizSpeakCurrentQuestionAndChoices();
         return;
     }
+    const introBase = String(quizReadMode || 'qa').toLowerCase() === 'q' ? QUIZ_LOCAL_AUDIO_BASE_Q : QUIZ_LOCAL_AUDIO_BASE;
     const pv = String(quizPiperVoice || 'naturale').trim().toLowerCase();
     const introCandidates = [];
     if (/^(naturale|telecronaca|chiara|profonda)$/.test(pv)) {
-        introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + pv + '/' + QUIZ_LOCAL_INTRO_FILENAME);
+        introCandidates.push(introBase + '/' + pv + '/' + QUIZ_LOCAL_INTRO_FILENAME);
         if (pv !== 'naturale') {
-            introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/naturale/' + QUIZ_LOCAL_INTRO_FILENAME);
+            introCandidates.push(introBase + '/naturale/' + QUIZ_LOCAL_INTRO_FILENAME);
         }
     }
-    introCandidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + QUIZ_LOCAL_INTRO_FILENAME);
+    introCandidates.push(introBase + '/' + QUIZ_LOCAL_INTRO_FILENAME);
     const introUrl = await quizResolveFirstExistingMediaUrl(introCandidates);
     if (!introUrl) {
         quizSpeakCurrentQuestionAndChoices();
@@ -7690,15 +7865,17 @@ function quizSlugifyAudioName(txt) {
     return s || 'quiz-item';
 }
 
-function quizBuildLocalAudioPathForQuestion(q, voicePreset) {
+function quizBuildLocalAudioPathForQuestion(q, voicePreset, readModeOverride) {
     const ref = quizSlugifyAudioName((q && q.ref) || '');
     const title = quizSlugifyAudioName((q && q.q) || '').slice(0, 36);
     const fileName = ref + '--' + title + '.mp3';
     const v = String(voicePreset || '').trim().toLowerCase();
+    const rm = String(readModeOverride || quizReadMode || 'qa').toLowerCase();
+    const base = rm === 'q' ? QUIZ_LOCAL_AUDIO_BASE_Q : QUIZ_LOCAL_AUDIO_BASE;
     if (/^(naturale|telecronaca|chiara|profonda)$/.test(v)) {
-        return QUIZ_LOCAL_AUDIO_BASE + '/' + v + '/' + fileName;
+        return base + '/' + v + '/' + fileName;
     }
-    return QUIZ_LOCAL_AUDIO_BASE + '/' + fileName;
+    return base + '/' + fileName;
 }
 
 /**
@@ -7708,12 +7885,15 @@ function quizBuildLocalAudioPathForQuestion(q, voicePreset) {
 async function quizSpeakLocalFileIfAvailable(q, runId) {
     try {
         if (!q) return { ok: false, error: 'local_audio_no_question' };
-        const fileName = quizBuildLocalAudioPathForQuestion(q).split('/').pop();
+        const currentReadMode = String(quizReadMode || 'qa').toLowerCase();
+        const fileName = quizBuildLocalAudioPathForQuestion(q, undefined, currentReadMode).split('/').pop();
         const preferredVoice = String(quizPiperVoice || 'naturale');
         const candidates = [];
-        candidates.push(quizBuildLocalAudioPathForQuestion(q, preferredVoice));
-        if (preferredVoice !== 'naturale') candidates.push(quizBuildLocalAudioPathForQuestion(q, 'naturale'));
-        candidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + fileName); // backward compatibility
+        candidates.push(quizBuildLocalAudioPathForQuestion(q, preferredVoice, currentReadMode));
+        if (preferredVoice !== 'naturale') candidates.push(quizBuildLocalAudioPathForQuestion(q, 'naturale', currentReadMode));
+        if (currentReadMode !== 'q') {
+            candidates.push(QUIZ_LOCAL_AUDIO_BASE + '/' + fileName); // backward compatibility (solo qa)
+        }
         const chosenUrl = await quizResolveFirstExistingMediaUrl(candidates);
         if (!chosenUrl) return { ok: false, error: 'local_audio_not_found' };
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
@@ -9181,6 +9361,7 @@ function quizBonusFangoItem() {
     return { id: 'fango-morto', label: 'Fango morto', img: QUIZ_BONUS_ASSET_FANGO, kind: 'fango', value: QUIZ_BONUS_FANGO_POINTS, title: 'Pericolo -20 punti' };
 }
 function quizBonusPickModalHide() {
+    quizStopBonusSceltaMusic();
     const modal = document.getElementById('quiz-bonus-pick-modal');
     if (modal) { modal.classList.remove('quiz-bonus-pick-modal--open'); modal.setAttribute('aria-hidden', 'true'); }
     const result = document.getElementById('quiz-bonus-pick-result');
@@ -9256,6 +9437,7 @@ function quizOpenBonusPickModal(onContinue) {
             btn.addEventListener('click', function () {
                 if (quizBonusPickResolved) return;
                 quizBonusPickResolved = true;
+                quizStopBonusSceltaMusic();
                 btn.classList.add('is-revealed');
                 quizPlayBonusOkSfx();
                 quizBonusApplyOutcome(item);
@@ -9286,7 +9468,7 @@ function quizOpenBonusPickModal(onContinue) {
     }
     modal.classList.add('quiz-bonus-pick-modal--open');
     modal.setAttribute('aria-hidden', 'false');
-    quizPlayBonusPopupSfx();
+    quizStartBonusSceltaMusic();
     if (!quizBonusPickKeydownBound) { document.addEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = true; }
 }
 
@@ -12755,6 +12937,9 @@ function goToProgramHome() {
     }
     window.scrollTo(0, 0);
     isManualScrolling = false;
+    try {
+        if (typeof startSplashHomeBioMusic === 'function') startSplashHomeBioMusic();
+    } catch (e5) { /* ignore */ }
 }
 
 function scrollToSec(s) {

@@ -24,6 +24,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const INDEX_HTML = path.join(ROOT, 'index.html');
 const OUT_BASE = path.join(ROOT, 'assets', 'quiz-audio');
+const OUT_BASE_Q = path.join(ROOT, 'assets', 'quiz-audio-q');
 
 /** Deve coincidere con QUIZ_LOCAL_INTRO_FILENAME + flusso `quizPlayOfflineSessionIntroThenQuestion` in index.html */
 const QUIZ_SESSION_INTRO_FILE = 'quiz-session-intro.mp3';
@@ -93,9 +94,9 @@ function makeQuestion(row) {
 }
 
 /** Testo lettura offline: MAI con «Domanda.» — così gli MP3 non ripetono la parola ogni domanda. */
-function buildOfflineNarrationText(q) {
+function buildOfflineNarrationText(q, readMode) {
     const parts = [String((q && q.q) || '')];
-    if (q && Array.isArray(q.options)) {
+    if (String(readMode || 'qa') === 'qa' && q && Array.isArray(q.options)) {
         q.options.forEach(function (opt, idx) {
             const letter = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
             parts.push('Risposta ' + letter + '. ' + String((opt && opt.text) || ''));
@@ -159,12 +160,14 @@ function extractQuizCuratedArrayLiteral(html) {
 }
 
 function parseArgs() {
-    const out = { dryRun: false, voice: 'naturale', endpoint: process.env.PIPER_URL || '' };
+    const out = { dryRun: false, voice: 'naturale', endpoint: process.env.PIPER_URL || '', readMode: 'qa' };
     for (const a of process.argv.slice(2)) {
         if (a === '--dry-run') out.dryRun = true;
         else if (a.startsWith('--voice=')) out.voice = a.slice('--voice='.length).trim() || 'naturale';
         else if (a.startsWith('--endpoint=')) out.endpoint = a.slice('--endpoint='.length).trim();
+        else if (a.startsWith('--read-mode=')) out.readMode = a.slice('--read-mode='.length).trim() || 'qa';
     }
+    if (!/^(q|qa)$/.test(out.readMode)) out.readMode = 'qa';
     return out;
 }
 
@@ -193,7 +196,8 @@ async function main() {
     if (!Array.isArray(QUIZ_CURATED)) throw new Error('QUIZ_CURATED non è un array');
 
     const voiceFolder = args.voice;
-    const outDir = path.join(OUT_BASE, voiceFolder);
+    const outRoot = args.readMode === 'q' ? OUT_BASE_Q : OUT_BASE;
+    const outDir = path.join(outRoot, voiceFolder);
     if (!args.dryRun) {
         fs.mkdirSync(outDir, { recursive: true });
     }
@@ -228,7 +232,7 @@ async function main() {
     for (let idx = 0; idx < QUIZ_CURATED.length; idx++) {
         const row = QUIZ_CURATED[idx];
         const q = makeQuestion(row);
-        const text = buildOfflineNarrationText(q);
+        const text = buildOfflineNarrationText(q, args.readMode);
         const ref = slugifyAudioName(q.ref || '');
         const title = slugifyAudioName(q.q || '').slice(0, 36);
         const fileName = ref + '--' + title + '.mp3';
