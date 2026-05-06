@@ -6300,9 +6300,9 @@ function dismissAppSplash() {
                 <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
-            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna dalla rete (build corrente)">
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507l</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507o</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6446,7 +6446,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507n';
+const APP_BUILD = '20260507o';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8910,7 +8910,7 @@ function quizSettingsBuildHighlightSet(on) {
     } catch (e) { /* ignore */ }
 }
 
-/** Ripristina riga Aggiorna: solo «Build» + numero (evidenziazione se serve). */
+/** Ripristina riga pulsante: «Aggiorna · Build» + numero (niente sottotitolo lungo sul server). */
 function quizSettingsRefreshLineReset() {
     var line = document.getElementById('quiz-settings-refresh-line');
     if (!line) return;
@@ -8918,7 +8918,7 @@ function quizSettingsRefreshLineReset() {
     var hl = quizSettingsBuildHighlightGet();
     var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '');
     line.innerHTML =
-        'Build <span id="quiz-settings-build-label" class="' +
+        'Aggiorna · Build <span id="quiz-settings-build-label" class="' +
         spanCls +
         '">' +
         b +
@@ -8961,7 +8961,7 @@ function quizSettingsForceRefresh(btn) {
     if (quizRefreshInProgress) return;
     quizRefreshInProgress = true;
     var line = document.getElementById('quiz-settings-refresh-line');
-    if (line) line.textContent = 'Controllo…';
+    if (line) line.textContent = 'Aggiorna…';
     if (btn) {
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
@@ -8990,11 +8990,11 @@ function quizSettingsForceRefresh(btn) {
             }
             if (line) {
                 if (remoteBuild && localBuild && remoteBuild !== localBuild) {
-                    line.textContent = 'Nuovo build — ricarico…';
+                    line.textContent = 'Aggiorna: nuovo build — ricarico…';
                 } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
-                    line.textContent = 'Allineato — ricarico…';
+                    line.textContent = 'Aggiorna: allineato — ricarico…';
                 } else {
-                    line.textContent = 'Ricarico…';
+                    line.textContent = 'Aggiorna — ricarico…';
                 }
             }
 
