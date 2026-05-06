@@ -3952,21 +3952,24 @@
                 animation: none;
             }
         }
-        /* Riga «Impostazioni Quiz»: stessa evidenza gialla della riga Aggiorna. */
+        /* Riga «Impostazioni Quiz»: stessi colori del pulsante Quiz in home (.btn-quiz). */
         #quiz-settings-quiz-speech-btn.quiz-settings-row {
-            background: linear-gradient(180deg, #fffef5 0%, #fff9c4 55%, #fff59d 100%);
-            border-color: #fbc02d;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            background: linear-gradient(180deg, #f6d365 0%, #fda085 100%);
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            box-shadow:
+                0 4px 0 rgba(0, 0, 0, 0.14),
+                0 6px 12px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.45);
         }
         #quiz-settings-quiz-speech-btn strong {
-            color: #e65100;
+            color: #1a1a1a;
         }
         #quiz-settings-quiz-speech-btn #quiz-settings-speech-sub {
-            color: #6d4c41;
+            color: #424242;
             font-weight: 600;
         }
         #quiz-settings-quiz-speech-btn .quiz-settings-info-chev {
-            color: #f57c00;
+            color: #1a1a1a;
         }
         .quiz-info-overlay {
             z-index: 10040;
@@ -4837,6 +4840,35 @@
             }
             .app-splash-worm-desc-panel p {
                 margin: 0 0 7px;
+            }
+            /* Solo iPhone: 3 pill sopra + 2 sotto (ordine invariato: Demolitori…Filamentosi | Settici…Predatori). */
+            html.ios-iphone .app-splash-worm-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: stretch;
+                gap: 6px 5px;
+                row-gap: 6px;
+            }
+            html.ios-iphone .app-splash-worm-tab {
+                flex: 1 1 auto;
+                max-width: none;
+            }
+            html.ios-iphone .app-splash-worm-tab:nth-child(1),
+            html.ios-iphone .app-splash-worm-tab:nth-child(2),
+            html.ios-iphone .app-splash-worm-tab:nth-child(3) {
+                flex: 1 1 calc(33.333% - 5px);
+                max-width: calc(33.333% - 4px);
+                min-width: 0;
+            }
+            html.ios-iphone .app-splash-worm-tab:nth-child(4),
+            html.ios-iphone .app-splash-worm-tab:nth-child(5) {
+                flex: 1 1 calc(50% - 4px);
+                max-width: calc(50% - 3px);
+                min-width: 0;
+            }
+            html.ios-iphone .app-splash-worm-tab {
+                font-size: clamp(8px, 2.35vw, 11px);
+                padding: 6px 5px;
             }
         }
         /*
@@ -6329,7 +6361,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507b';
+const APP_BUILD = '20260507d';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
