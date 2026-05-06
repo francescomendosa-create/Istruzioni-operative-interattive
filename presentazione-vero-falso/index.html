@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Esempio — Vero o Falso (animazione)</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(165deg, #e8f5e9 0%, #f1f8e9 35%, #eceff1 100%);
+            color: #263238;
+        }
+        .wrap {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px 80px;
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(1.1rem, 4vw, 1.65rem);
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #37474f;
+            text-align: center;
+            opacity: 0.92;
+        }
+        .hint {
+            margin: 0 0 28px;
+            font-size: 0.82rem;
+            color: #546e7a;
+            text-align: center;
+            max-width: 420px;
+        }
+        .stage {
+            position: relative;
+            width: min(92vw, 520px);
+            height: min(52vw, 280px);
+            max-height: 320px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        /* Semicerchio decorativo (sottile) */
+        .stage::after {
+            content: "";
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: 0;
+            height: 45%;
+            border: 3px solid rgba(46, 125, 50, 0.2);
+            border-bottom: none;
+            border-radius: 999px 999px 0 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        body.phase-3 .stage::after {
+            opacity: 1;
+        }
+        .pill {
+            position: absolute;
+            bottom: 0;
+            padding: 18px 36px;
+            border: none;
+            border-radius: 999px;
+            font-size: clamp(1.05rem, 4.2vw, 1.45rem);
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #fff;
+            cursor: default;
+            box-shadow:
+                0 4px 0 rgba(0, 0, 0, 0.12),
+                0 8px 24px rgba(0, 0, 0, 0.15);
+            transition:
+                opacity 0.55s ease,
+                transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1),
+                filter 0.4s ease;
+            transform-origin: center bottom;
+        }
+        .pill--vero {
+            background: linear-gradient(180deg, #43a047 0%, #2e7d32 45%, #1b5e20 100%);
+        }
+        .pill--falso {
+            background: linear-gradient(180deg, #ef5350 0%, #e53935 45%, #b71c1c 100%);
+        }
+        .connector {
+            position: absolute;
+            left: 50%;
+            bottom: 38%;
+            transform: translateX(-50%) scale(0.6);
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: 700;
+            font-style: italic;
+            color: #546e7a;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
+            pointer-events: none;
+            line-height: 1;
+        }
+        /* Fase 1: solo VERO al centro */
+        body.phase-1 .pill--vero {
+            left: 50%;
+            transform: translateX(-50%) scale(1.08);
+            opacity: 1;
+        }
+        body.phase-1 .pill--falso {
+            left: 50%;
+            transform: translateX(-50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.phase-1 .connector {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.5);
+        }
+        /* Fase 2: solo FALSO al centro */
+        body.phase-2 .pill--falso {
+            left: 50%;
+            transform: translateX(-50%) scale(1.08);
+            opacity: 1;
+        }
+        body.phase-2 .pill--vero {
+            left: 50%;
+            transform: translateX(-50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.phase-2 .connector {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.5);
+        }
+        /* Fase 3: semicerchio — VERO a sinistra, FALSO a destra, "o" in mezzo */
+        body.phase-3 .pill--vero {
+            left: 12%;
+            transform: translateX(0) rotate(-14deg) scale(1);
+            opacity: 1;
+        }
+        body.phase-3 .pill--falso {
+            left: auto;
+            right: 12%;
+            transform: translateX(0) rotate(14deg) scale(1);
+            opacity: 1;
+        }
+        body.phase-3 .connector {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        .controls {
+            margin-top: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .controls button {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1px solid #90a4ae;
+            background: #fff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            color: #37474f;
+        }
+        .controls button:hover {
+            background: #eceff1;
+        }
+        .phase-label {
+            font-size: 0.78rem;
+            color: #607d8b;
+            min-width: 200px;
+            text-align: center;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pill, .connector, .stage::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="phase-1">
+    <div class="wrap">
+        <h1>Vero o falso</h1>
+        <p class="hint">Esempio animato: apri questo file nel browser (doppio clic). Sequenza che si ripete — solo Vero, solo Falso, poi entrambi a semicerchio con «o».</p>
+        <div class="stage" aria-live="polite">
+            <span class="connector" aria-hidden="true">o</span>
+            <span class="pill pill--vero" role="img" aria-label="Vero">Vero</span>
+            <span class="pill pill--falso" role="img" aria-label="Falso">Falso</span>
+        </div>
+        <div class="controls">
+            <button type="button" id="btn-play">Riproduci ciclo</button>
+            <button type="button" id="btn-pause">Pausa</button>
+            <span class="phase-label" id="phase-label">1 — Solo VERO</span>
+        </div>
+    </div>
+    <script>
+(function () {
+    var body = document.body;
+    var label = document.getElementById('phase-label');
+    var paused = false;
+    var timer = null;
+    var D1 = 2600;
+    var D2 = 2600;
+    var D3 = 3200;
+    var PAUSE = 900;
+
+    var texts = {
+        1: '1 — Solo VERO (verde)',
+        2: '2 — Solo FALSO (rosso)',
+        3: '3 — VERO e FALSO insieme · «o» al centro'
+    };
+
+    function setPhase(n) {
+        body.className = 'phase-' + n;
+        if (label) label.textContent = texts[n];
+    }
+
+    function clearTimers() {
+        if (timer) clearTimeout(timer);
+        timer = null;
+    }
+
+    function runCycle(fromStart) {
+        clearTimers();
+        if (paused) return;
+        var step = fromStart ? 1 : 1;
+        setPhase(1);
+        timer = setTimeout(function () {
+            if (paused) return;
+            setPhase(2);
+            timer = setTimeout(function () {
+                if (paused) return;
+                setPhase(3);
+                timer = setTimeout(function () {
+                    if (paused) return;
+                    timer = setTimeout(function () {
+                        runCycle(true);
+                    }, PAUSE);
+                }, D3);
+            }, D2);
+        }, D1);
+    }
+
+    document.getElementById('btn-play').addEventListener('click', function () {
+        paused = false;
+        runCycle(true);
+    });
+    document.getElementById('btn-pause').addEventListener('click', function () {
+        paused = true;
+        clearTimers();
+    });
+
+    runCycle(true);
+})();
+    </script>
+</body>
+</html>
