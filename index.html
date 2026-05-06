@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="pwa-512.png">
-    <link rel="manifest" href="manifest.json?v=20260505c">
+    <link rel="manifest" href="manifest.json?v=20260505e">
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -5584,7 +5584,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505c</span> · controlla aggiornamenti dal server</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505e</span> · controlla aggiornamenti dal server</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5665,7 +5665,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260505c</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260505e</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5725,7 +5725,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260505c';
+const APP_BUILD = '20260505e';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6544,7 +6544,10 @@ function quizResolveMediaUrl(relPath) {
     }
 }
 
-/** Primo path relativo per cui HEAD risponde ok (stesso criterio degli MP3 domanda). */
+/**
+ * Primo path relativo che esiste sul server. Prima HEAD (leggero); se non supportato o fallisce,
+ * prova GET con Range 1 byte — molti host statici / CDN non rispondono 200 a HEAD sui .mp3.
+ */
 async function quizResolveFirstExistingMediaUrl(relPaths) {
     if (!relPaths || !relPaths.length) return '';
     const timeoutMs = 1800;
@@ -6558,16 +6561,29 @@ async function quizResolveFirstExistingMediaUrl(relPaths) {
                 /* ignore */
             }
         }, timeoutMs);
-        let headOk = false;
+        let found = false;
         try {
-            const hr = await fetch(absUrl, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
-            headOk = !!(hr && hr.ok);
-        } catch (eHead) {
-            headOk = false;
+            try {
+                const hr = await fetch(absUrl, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal });
+                found = !!(hr && hr.ok);
+            } catch (eHeadOnly) {
+                found = false;
+            }
+            if (!found) {
+                const gr = await fetch(absUrl, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal: ctrl.signal,
+                    headers: { Range: 'bytes=0-0' }
+                });
+                found = !!(gr && (gr.ok || gr.status === 206 || gr.status === 200));
+            }
+        } catch (eFetch) {
+            found = false;
         } finally {
             clearTimeout(timer);
         }
-        if (headOk) return absUrl;
+        if (found) return absUrl;
     }
     return '';
 }
@@ -6669,7 +6685,66 @@ function quizPlayIntroMusicAlternating(opts) {
         a.volume = QUIZ_INTRO_BASE_VOL * quizGetGameAudioLinearVolume();
     } catch (eV) { /* ignore */ }
     quizIntroAudioEl = a;
-    a.play().catch(function () { /* autoplay bloccato fino a gesture */ });
+    a.play().catch(function () {
+        /* Autoplay spesso bloccato dopo refresh senza gesto: si riprova al primo tocco / pagina visibile. */
+        quizBindIntroMusicResumeGestures();
+    });
+}
+
+/** True se il pannello quiz è aperto sulla schermata intro (titolo «Modalità quiz»). */
+function quizIsIntroQuizScreenVisible() {
+    const panel = document.getElementById('quiz-panel');
+    const intro = document.getElementById('quiz-screen-intro');
+    if (!panel || !intro || !panel.classList.contains('visible')) return false;
+    if (!document.body.classList.contains('quiz-open')) return false;
+    if (panel.classList.contains('quiz-panel--screen-play')) return false;
+    return intro.style.display === 'block';
+}
+
+/** Riprende la musica intro se era attesa (refresh / tab / BFCache) e il volume gioco è attivo. */
+function quizEnsureIntroMusicPlaying() {
+    try {
+        if (!quizIsIntroQuizScreenVisible()) return;
+        if (quizGetGameAudioLinearVolume() <= 0) return;
+        if (quizIntroAudioEl && quizIntroAudioEl.src) {
+            try {
+                if (!quizIntroAudioEl.paused && !quizIntroAudioEl.ended) return;
+            } catch (eCh) { /* ignore */ }
+        }
+        quizPlayIntroMusicAlternating({ resumeOnly: true });
+    } catch (eEns) { /* ignore */ }
+}
+
+let quizIntroMusicResumeGesturesBound = false;
+
+/** Registra una tantum: dopo interazione utente riprova la musica intro se serve (policy autoplay). */
+function quizBindIntroMusicResumeGestures() {
+    if (quizIntroMusicResumeGesturesBound) return;
+    quizIntroMusicResumeGesturesBound = true;
+    const resume = function () {
+        quizEnsureIntroMusicPlaying();
+    };
+    document.addEventListener('pointerdown', resume, { capture: true, passive: true });
+    document.addEventListener('keydown', resume, { capture: true, passive: true });
+}
+
+function quizInstallIntroMusicLifecycleHooks() {
+    if (quizInstallIntroMusicLifecycleHooks._done) return;
+    quizInstallIntroMusicLifecycleHooks._done = true;
+    window.addEventListener(
+        'pageshow',
+        function () {
+            requestAnimationFrame(quizEnsureIntroMusicPlaying);
+        },
+        { passive: true }
+    );
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'visible') quizEnsureIntroMusicPlaying();
+        },
+        { passive: true }
+    );
 }
 
 function quizSuspenseUnduckVolumes() {
@@ -6986,26 +7061,6 @@ function quizSyncSpeechUi() {
     if (keyFields) keyFields.style.display = (quizVoiceEngine === 'gemini') ? 'block' : 'none';
 }
 
-/** Stesse milestone in cui la telecronaca può anteporre «Domanda.» e usare l’MP3 pre-registrato in partita. */
-function quizTelecronacaDomandaMilestoneIndicesOneBased() {
-    return [1, 5, 10, 15, 20];
-}
-
-function quizTelecronacaCurrentQuestionIndexOneBased() {
-    if (typeof quizState !== 'undefined' && quizState && typeof quizState.index === 'number') {
-        return quizState.index + 1;
-    }
-    return 1;
-}
-
-function quizTelecronacaShouldPrefixDomandaWord() {
-    return (
-        quizTelecronacaDomandaMilestoneIndicesOneBased().indexOf(
-            quizTelecronacaCurrentQuestionIndexOneBased()
-        ) >= 0
-    );
-}
-
 function quizSpeakCurrentQuestionAndChoices() {
     if (!quizSpeechSupported() || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
     const q = quizState.queue && quizState.queue[quizState.index];
@@ -7074,12 +7129,11 @@ async function quizPlayOfflineSessionIntroThenQuestion() {
 
 /**
  * Testo per Gemini, Piper e TTS quando non si riproduce solo l’MP3 file.
- * «Domanda.» solo alle milestone 1, 5, 10, 15, 20.
+ * Nessun prefisso «Domanda.» (allineato agli MP3 offline rigenerati).
  */
 function quizBuildQuestionNarrationText(q) {
-    const sayDomandaWord = quizTelecronacaShouldPrefixDomandaWord();
     const qtext = String((q && q.q) || '');
-    const parts = [sayDomandaWord ? 'Domanda. ' + qtext : qtext];
+    const parts = [qtext];
     if (quizReadMode === 'qa' && q && Array.isArray(q.options)) {
         q.options.forEach(function (opt, idx) {
             const letter = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
@@ -12015,6 +12069,9 @@ function openQuiz() {
         const ex = document.getElementById('quiz-topbar-exit');
         if (ex && ex.offsetParent !== null) ex.focus();
     });
+    requestAnimationFrame(function () {
+        requestAnimationFrame(quizEnsureIntroMusicPlaying);
+    });
 }
 
 function closeQuiz() {
@@ -12174,6 +12231,10 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizPreloadWrongAnswerSfx();
             } catch (eWx) { /* ignore */ }
+            try {
+                quizInstallIntroMusicLifecycleHooks();
+                quizBindIntroMusicResumeGestures();
+            } catch (eLm) { /* ignore */ }
             render();
             try {
                 quizUpdateFirebaseSyncUi();
