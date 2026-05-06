@@ -48,7 +48,8 @@ def sync_once(root: Path, tts_url: str, voice: str, timeout_sec: int) -> None:
         if out_path.exists():
             skipped += 1
             continue
-        text = f"Domanda. {question}"
+        # Allineato a quizBuildQuestionNarrationText / generate-offline-quiz-audio.mjs (senza prefisso «Domanda.»).
+        text = str(question).strip()
         try:
             audio = call_tts(tts_url, text, voice, timeout_sec=timeout_sec)
             out_path.write_bytes(audio)

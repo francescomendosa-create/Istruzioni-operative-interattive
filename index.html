@@ -492,7 +492,11 @@
             appearance: none;
             background: transparent;
             cursor: pointer;
-            touch-action: manipulation;
+            /* iOS Safari: con manipulation il drag del range pu? non aggiornare correttamente. */
+            touch-action: auto;
+            pointer-events: auto;
+            position: relative;
+            z-index: 5;
             flex-shrink: 1;
         }
         .quiz-fs-vol-slider::-webkit-slider-runnable-track {
@@ -5122,20 +5126,12 @@
 </div>
 <script>
 (function splashInit() {
-    var KEY = 'io-splash-dismissed-session';
-    try {
-        if (sessionStorage.getItem(KEY) === '1') {
-            document.body.classList.remove('splash-active');
-            var sp = document.getElementById('app-splash');
-            if (sp) {
-                sp.classList.remove('app-splash--visible');
-                sp.setAttribute('aria-hidden', 'true');
-            }
-        } else {
-            document.body.classList.add('splash-active');
-        }
-    } catch (e) {
-        document.body.classList.add('splash-active');
+    // Sequenza fissa: Home splash sempre visibile all'avvio app.
+    document.body.classList.add('splash-active');
+    var sp = document.getElementById('app-splash');
+    if (sp) {
+        sp.classList.add('app-splash--visible');
+        sp.setAttribute('aria-hidden', 'false');
     }
 })();
 var SPLASH_ENTER_SOUND_REL = 'assets/sounds/bubble/bubble-dragon-pop.mp3';
@@ -5725,7 +5721,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506b';
+const APP_BUILD = '20260506g';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5795,6 +5791,10 @@ let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
 /** Effetto risposta sbagliata: un solo elemento Audio precaricato per partenza immediata. */
 let quizWrongSfxAudio = null;
+/** Cache effetti brevi UI: riduce latenza su smartphone/tablet. */
+let quizSfxPool = Object.create(null);
+/** Evita doppio trigger pointerdown+click sullo stesso tap. */
+let quizUiClickSfxLastPointerTs = 0;
 /** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
 let quizIntroSessionTrack = null;
 let quizIntroAudioEl = null;
@@ -6772,6 +6772,20 @@ function quizEnsureIntroMusicPlaying() {
     } catch (eEns) { /* ignore */ }
 }
 
+/** Riprende il sottofondo partita se era attivo prima del background. */
+function quizEnsurePlayMusicPlaying() {
+    try {
+        if (!quizIsPlayScreenActive()) return;
+        if (quizGetGameAudioLinearVolume() <= 0) return;
+        if (quizSuspenseAudioEl && quizSuspenseAudioEl.src) {
+            try {
+                if (!quizSuspenseAudioEl.paused && !quizSuspenseAudioEl.ended) return;
+            } catch (eCh) { /* ignore */ }
+        }
+        quizPlaySuspenseAlternating({ resumeOnly: true });
+    } catch (eEns) { /* ignore */ }
+}
+
 let quizIntroMusicResumeGesturesBound = false;
 
 /** Registra una tantum: dopo interazione utente riprova la musica intro se serve (policy autoplay). */
@@ -6798,7 +6812,28 @@ function quizInstallIntroMusicLifecycleHooks() {
     document.addEventListener(
         'visibilitychange',
         function () {
-            if (document.visibilityState === 'visible') quizEnsureIntroMusicPlaying();
+            if (document.visibilityState === 'visible') {
+                quizEnsureIntroMusicPlaying();
+                quizEnsurePlayMusicPlaying();
+            } else {
+                // App non visibile (background / lock screen): ferma solo musica gioco.
+                quizStopQuizAmbientMusic();
+            }
+        },
+        { passive: true }
+    );
+    window.addEventListener(
+        'blur',
+        function () {
+            quizStopQuizAmbientMusic();
+        },
+        { passive: true }
+    );
+    window.addEventListener(
+        'focus',
+        function () {
+            quizEnsureIntroMusicPlaying();
+            quizEnsurePlayMusicPlaying();
         },
         { passive: true }
     );
@@ -6939,13 +6974,37 @@ function quizPlayMicrobeUnlockOkClickSfx() {
     } catch (eOk) { /* ignore */ }
 }
 
+function quizGetPooledSfx(url) {
+    const key = String(url || '');
+    if (!key) return null;
+    if (quizSfxPool[key]) return quizSfxPool[key];
+    try {
+        const a = new Audio(key);
+        a.preload = 'auto';
+        try { a.load(); } catch (eL) { /* ignore */ }
+        quizSfxPool[key] = a;
+        return a;
+    } catch (e) {
+        return null;
+    }
+}
+
+function quizPlayPooledSfx(url, volume) {
+    try {
+        const base = quizGetPooledSfx(url);
+        if (!base) return;
+        const a = base.cloneNode(true);
+        a.volume = Math.max(0, Math.min(1, Number(volume) || 0));
+        const p = a.play();
+        if (p && typeof p.catch === 'function') p.catch(function () { /* autoplay */ });
+    } catch (eP) { /* ignore */ }
+}
+
 function playUiClickDomandeSfx() {
     try {
         const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
         if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_DOMANDE));
-        a.volume = 0.82 * gv;
-        a.play().catch(function () { /* autoplay */ });
+        quizPlayPooledSfx(quizResolveMediaUrl(UI_SFX_CLICK_DOMANDE), 0.82 * gv);
     } catch (eU1) { /* ignore */ }
 }
 
@@ -6953,10 +7012,53 @@ function playUiClickGenericoSfx() {
     try {
         const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
         if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_UI));
-        a.volume = 0.78 * gv;
-        a.play().catch(function () { /* autoplay */ });
+        quizPlayPooledSfx(quizResolveMediaUrl(UI_SFX_CLICK_UI), 0.78 * gv);
     } catch (eU2) { /* ignore */ }
+}
+
+function quizHandleUiClickSoundForTarget(raw) {
+    if (!raw || raw.nodeType !== 1) return false;
+    if (typeof raw.closest !== 'function') return false;
+    if (raw.closest('[data-ui-click-off]')) return false;
+    const tag = (raw.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+
+    const colBox = raw.closest('.col-box');
+    if (
+        colBox &&
+        (colBox.closest('#cf-content') || colBox.closest('#mbr-content'))
+    ) {
+        playUiClickDomandeSfx();
+        return true;
+    }
+
+    let btn = raw.closest('button');
+    const summ = !btn ? raw.closest('summary') : null;
+    const roleBtn = !btn && !summ ? raw.closest('[role="button"]') : null;
+    let activator = btn || summ || roleBtn;
+    if (!activator) {
+        const lab = raw.closest('label');
+        if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
+    }
+    if (!activator) return false;
+
+    if (activator.closest('#app-splash')) {
+        if (
+            activator.id === 'app-splash-enter-btn' ||
+            activator.classList.contains('app-splash-enter')
+        ) {
+            return false;
+        }
+    }
+    if (activator.matches('.quiz-choice-btn')) return false;
+    if (activator.id === 'quiz-microbe-unlock-ok') return false;
+
+    if (activator.closest('#cf-content') || activator.closest('#mbr-content')) {
+        playUiClickDomandeSfx();
+        return true;
+    }
+    playUiClickGenericoSfx();
+    return true;
 }
 
 /**
@@ -6966,51 +7068,26 @@ function playUiClickGenericoSfx() {
 function initIstruzioniUiClickSounds() {
     if (initIstruzioniUiClickSounds._done) return;
     initIstruzioniUiClickSounds._done = true;
+    // Preload aggressivo per ridurre il ritardo sui primi tap mobile/tablet.
+    quizGetPooledSfx(quizResolveMediaUrl(UI_SFX_CLICK_DOMANDE));
+    quizGetPooledSfx(quizResolveMediaUrl(UI_SFX_CLICK_UI));
+    document.addEventListener(
+        'pointerdown',
+        function (ev) {
+            const isPrimary = ev.isPrimary !== false;
+            if (!isPrimary) return;
+            const t = Date.now();
+            if (quizHandleUiClickSoundForTarget(ev.target)) {
+                quizUiClickSfxLastPointerTs = t;
+            }
+        },
+        { capture: true, passive: true }
+    );
     document.addEventListener(
         'click',
         function (ev) {
-            const raw = ev.target;
-            if (!raw || raw.nodeType !== 1) return;
-            if (typeof raw.closest !== 'function') return;
-            if (raw.closest('[data-ui-click-off]')) return;
-            const tag = (raw.tagName || '').toLowerCase();
-            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-
-            const colBox = raw.closest('.col-box');
-            if (
-                colBox &&
-                (colBox.closest('#cf-content') || colBox.closest('#mbr-content'))
-            ) {
-                playUiClickDomandeSfx();
-                return;
-            }
-
-            let btn = raw.closest('button');
-            const summ = !btn ? raw.closest('summary') : null;
-            const roleBtn = !btn && !summ ? raw.closest('[role="button"]') : null;
-            let activator = btn || summ || roleBtn;
-            if (!activator) {
-                const lab = raw.closest('label');
-                if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
-            }
-            if (!activator) return;
-
-            if (activator.closest('#app-splash')) {
-                if (
-                    activator.id === 'app-splash-enter-btn' ||
-                    activator.classList.contains('app-splash-enter')
-                ) {
-                    return;
-                }
-            }
-            if (activator.matches('.quiz-choice-btn')) return;
-            if (activator.id === 'quiz-microbe-unlock-ok') return;
-
-            if (activator.closest('#cf-content') || activator.closest('#mbr-content')) {
-                playUiClickDomandeSfx();
-                return;
-            }
-            playUiClickGenericoSfx();
+            if (Date.now() - quizUiClickSfxLastPointerTs < 260) return;
+            quizHandleUiClickSoundForTarget(ev.target);
         },
         false
     );
@@ -7203,6 +7280,14 @@ function quizBuildQuestionNarrationText(q) {
     return parts.join(' ');
 }
 
+/** Taglio prefisso annuncio «Domanda.» (vecchi MP3 offline o output Gemini). */
+function quizNormalizeAnnouncerText(text) {
+    return String(text || '')
+        .trim()
+        .replace(/^\s*domanda\s*[.:]?\s+/i, '')
+        .trim();
+}
+
 function quizSlugifyAudioName(txt) {
     const s = String(txt || '').toLowerCase()
         .replace(/['"`]/g, '')
@@ -7297,8 +7382,8 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         const prompt =
             'Agisci come telecronista quiz in italiano. ' +
             'Riformula in stile telecronaca coinvolgente ma chiara, max 110 parole, senza markdown. ' +
-            'Non iniziare con la parola «Domanda» né ripeterla nel testo. ' +
-            'Mantieni domanda e opzioni complete. Usa ' + styleHint + '. Testo: ' + rawText;
+            'Non usare affatto la parola «domanda» (né «Domanda», né «domande») né intro tipo «Domanda uno» o «Domanda:». ' +
+            'Inizia direttamente dal contenuto. Mantieni il testo delle opzioni completo. Usa ' + styleHint + '. Testo: ' + rawText;
         const gemUrl =
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
             encodeURIComponent(cfg.textKey);
@@ -7325,7 +7410,7 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
             ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text
         ).trim();
         if (!out) throw new Error('gemini_empty');
-        return out;
+        return quizNormalizeAnnouncerText(out);
     } catch (e) {
         if (timeoutId) {
             try { clearTimeout(timeoutId); } catch (eCt) { /* ignore */ }
@@ -7337,7 +7422,7 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         if (msg === 'gemini_timeout') {
             // Fallback morbido: evita blocco lettura quando Gemini è lento.
             quizAiLastError = 'gemini_timeout_fallback_raw_text';
-            return rawText;
+            return quizNormalizeAnnouncerText(rawText);
         }
         quizAiLastError = msg;
         throw new Error(msg);
@@ -7523,23 +7608,29 @@ function quizEnsureTopbarAudioBinding() {
     const gVol = document.getElementById('quiz-topbar-game-vol');
     if (gVol && gVol.dataset.boundGameVol !== '1') {
         gVol.dataset.boundGameVol = '1';
-        gVol.addEventListener('input', function () {
+        const onGameVol = function () {
             quizSetGameAudioVolumeLinear(Number(gVol.value) / 100);
-        });
+        };
+        gVol.addEventListener('input', onGameVol);
+        gVol.addEventListener('change', onGameVol);
     }
     const gVolIntro = document.getElementById('quiz-intro-game-vol');
     if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
         gVolIntro.dataset.boundGameVol = '1';
-        gVolIntro.addEventListener('input', function () {
+        const onGameVolIntro = function () {
             quizSetGameAudioVolumeLinear(Number(gVolIntro.value) / 100);
-        });
+        };
+        gVolIntro.addEventListener('input', onGameVolIntro);
+        gVolIntro.addEventListener('change', onGameVolIntro);
     }
     const sVol = document.getElementById('quiz-topbar-speech-vol');
     if (sVol && sVol.dataset.boundSpeechVol !== '1') {
         sVol.dataset.boundSpeechVol = '1';
-        sVol.addEventListener('input', function () {
+        const onSpeechVol = function () {
             quizSetCommentaryVolumeLinear(Number(sVol.value) / 100);
-        });
+        };
+        sVol.addEventListener('input', onSpeechVol);
+        sVol.addEventListener('change', onSpeechVol);
     }
 }
 
@@ -8268,7 +8359,7 @@ const db = {
 
 /* ========= Quiz (livelli 1–3, punteggi 5/10/15, 2 errori = fine, bonus vermi, classifica: Firestore + cache locale) ========= */
 let quizBankCache = null;
-const QUIZ_BANK_BUILD_ID = 10;
+const QUIZ_BANK_BUILD_ID = 11;
 const QUIZ_REF_SCHEMA = '3.1';
 let quizBankBuildStored = 0;
 let quizState = { queue: [], index: 0, score: 0, name: '', startLevel: 1, wrongCount: 0, avatarIndex: 0 };
@@ -9290,6 +9381,60 @@ const QUIZ_CURATED = [
     { l: 3, ref: 'Nitrificazione', q: 'Nitrificatori autotrofi vs eterotrofi sul COD: in impianto cosa implica spesso sull\'ossigeno?', ok: 'Competizione per O₂: con COD alto i eterotrofi possono «mangiare» ossigeno che servirebbe anche agli autotrofi.', w1: 'Gli autotrofi non usano mai ossigeno.', w2: 'Il COD non consuma mai ossigeno in biologia aerobia.' },
     { l: 3, ref: 'Saturatore — energia', q: 'Aria fine vs grossolana: perché in progetto si bilancia efficienza e intasamento dei diffusori?', ok: 'Bolle fini trasferiscono meglio ma possono intasare; grossolane meno intasano ma trasferiscono peggio: si sceglie un compromesso.', w1: 'Non esiste mai un compromesso: si usa sempre solo aria fine.', w2: 'Le bolle grosse trasferiscono sempre più ossigeno di quelle fini in ogni caso.' },
     { l: 3, ref: 'Monte oleoso', q: 'Oleo persistente a monte non risolto: perché «non lo recuperi» solo col biologico?', ok: 'Perché la fase oleosa può restare emulsionata/soffocante e stressare biofilm e O₂.', w1: 'Perché l\'MBBR dissolve sempre l\'olio senza chimica.', w2: 'Perché l\'olio evapora sempre prima del biologico.' }
+,
+    { l: 1, ref: "VF - OD minimo", q: "Vero o falso: nel biologico aerobico tenere OD vicino a zero per ore aumenta il rischio di instabilita del processo.", ok: "Vero.", w1: "Falso.", w2: "Dipende solo dal colore del refluo." },
+    { l: 1, ref: "VF - Carrier", q: "Vero o falso: i carrier in MBBR sono supporti mobili su cui cresce il biofilm.", ok: "Vero.", w1: "Falso.", w2: "Sono sempre membrane filtranti." },
+    { l: 1, ref: "VF - PAC e pH", q: "Vero o falso: il pH influenza la efficacia della coagulazione con PAC.", ok: "Vero.", w1: "Falso.", w2: "Conta solo la temperatura esterna." },
+    { l: 1, ref: "VF - DAF microbolle", q: "Vero o falso: senza microbolle adeguate la DAF tende a separare peggio oli e solidi fini.", ok: "Vero.", w1: "Falso.", w2: "La DAF non usa aria." },
+    { l: 1, ref: "VF - PAM funzione", q: "Vero o falso: il PAM aiuta ad aggregare i microfiocchi in fiocchi piu separabili.", ok: "Vero.", w1: "Falso.", w2: "Serve solo a disinfettare." },
+    { l: 1, ref: "VF - Griglie MBBR", q: "Vero o falso: le griglie a valle MBBR servono anche a trattenere eventuali carrier persi.", ok: "Vero.", w1: "Falso.", w2: "Servono solo a misurare pH." },
+    { l: 1, ref: "VF - Oli su carrier", q: "Vero o falso: un film oleoso sui carrier puo ridurre il contatto acqua biofilm.", ok: "Vero.", w1: "Falso.", w2: "Aumenta sempre ossigenazione." },
+    { l: 1, ref: "VF - Torbidita alta", q: "Vero o falso: una NTU alta nel chiarificato e un segnale da ignorare se MBBR e acceso.", ok: "Falso.", w1: "Vero.", w2: "E solo un effetto ottico." },
+    { l: 1, ref: "VF - Shock COD", q: "Vero o falso: un picco di COD puo aumentare rapidamente il consumo di ossigeno in biologia.", ok: "Vero.", w1: "Falso.", w2: "Riduce sempre il fabbisogno di aria." },
+    { l: 1, ref: "VF - Saturatore", q: "Vero o falso: il saturatore serve a dissolvere aria in acqua a pressione.", ok: "Vero.", w1: "Falso.", w2: "Serve solo a riscaldare il refluo." },
+    { l: 1, ref: "VF - Raschiatori", q: "Vero o falso: raschiatori fermi possono peggiorare il trascinamento verso valle.", ok: "Vero.", w1: "Falso.", w2: "Migliorano sempre la separazione." },
+    { l: 1, ref: "VF - Nutrienti", q: "Vero o falso: in reflui industriali carenti puo servire integrare nutrienti N e P per stabilizzare la biomassa.", ok: "Vero.", w1: "Falso.", w2: "I nutrienti non servono mai." },
+    { l: 1, ref: "VF - Temperatura", q: "Vero o falso: temperatura molto fuori range puo alterare le cinetiche biologiche.", ok: "Vero.", w1: "Falso.", w2: "Conta solo il livello vasca." },
+    { l: 1, ref: "VF - PAC prima PAM", q: "Vero o falso: in molte linee chimico fisiche il PAC viene dosato prima del PAM.", ok: "Vero.", w1: "Falso.", w2: "Ordine dosaggio non conta mai." },
+    { l: 1, ref: "VF - Schiuma leggera", q: "Vero o falso: una schiuma leggera su MBBR puo essere fisiologica se il resto e stabile.", ok: "Vero.", w1: "Falso.", w2: "Indica sempre collasso biologico." },
+    { l: 1, ref: "VF - Cono", q: "Vero o falso: il cono puo dare indicazioni utili su sedimentabilita e concentrazione fango.", ok: "Vero.", w1: "Falso.", w2: "Misura la pressione compressore." },
+    { l: 1, ref: "VF - Coagulazione", q: "Vero o falso: tempi di reazione troppo corti dopo dosaggio chimico possono ridurre la separazione.", ok: "Vero.", w1: "Falso.", w2: "Migliorano sempre il chiarificato." },
+    { l: 1, ref: "VF - Pretrattamento", q: "Vero o falso: proteggere il biologico a monte riducendo oli e solidi e una priorita operativa.", ok: "Vero.", w1: "Falso.", w2: "Conta solo classifica quiz." },
+    { l: 1, ref: "VF - DAF e pressione", q: "Vero o falso: pressione saturatore troppo bassa puo ridurre produzione di microbolle efficaci.", ok: "Vero.", w1: "Falso.", w2: "Pressione non c entra con DAF." },
+    { l: 1, ref: "VF - O2 notte", q: "Vero o falso: ridurre troppo aria di notte puo portare a crolli OD e instabilita.", ok: "Vero.", w1: "Falso.", w2: "Di notte il biologico non consuma ossigeno." },
+
+    { l: 3, ref: "Biofilm diffusione O2", q: "In MBBR ad alto carico quale meccanismo limita spesso resa quando biofilm ispessisce?", ok: "Limitazione diffusiva di ossigeno e substrato negli strati interni del biofilm.", w1: "Aumento automatico efficienza per maggiore volume film.", w2: "Eliminazione completa gradienti concentrazione." },
+    { l: 3, ref: "Nitrificazione competizione", q: "Con COD elevato e OD borderline perche nitrificazione puo crollare prima di rimozione carboniosa?", ok: "Gli eterotrofi competono con nitrificanti per ossigeno e spazio biofilm penalizzando nitrificazione.", w1: "I nitrificanti non richiedono ossigeno in fase aerobica.", w2: "Il COD alto accelera sempre nitrificazione." },
+    { l: 3, ref: "DAF zeta potential", q: "Quale e il razionale tecnico del controllo pH dose in coagulazione prima DAF?", ok: "Ottimizzare neutralizzazione cariche e formazione fiocchi robusti per aggancio microbolle particella.", w1: "Massimizzare solo conducibilita elettrica senza impatto fiocchi.", w2: "Ridurre densita aria nel saturatore." },
+    { l: 3, ref: "SRT biofilm", q: "Perche un MBBR tollera meglio alcune variazioni carico rispetto a processo solo sospeso?", ok: "Biomassa aderita sui carrier aumenta tempo ritenzione microrganismi e resilienza.", w1: "In MBBR non esistono perdite biomassa.", w2: "Il biofilm elimina bisogno ossigenazione." },
+    { l: 3, ref: "Shock tossico", q: "In caso di sospetto shock tossico quale combinazione e piu prudente nel breve?", ok: "Ridurre carico in ingresso aumentare monitoraggio OD pH e usare adsorbimento emergenza se previsto.", w1: "Aumentare indiscriminatamente tutti dosaggi chimici senza verifica.", w2: "Spegnere aerazione per stabilizzare batteri." },
+    { l: 3, ref: "DAF ricircolo", q: "Che effetto ha ricircolo DAF troppo basso rispetto a progetto a parita di resto?", ok: "Riduzione flusso pressurizzato e disponibilita microbolle efficaci in vasca.", w1: "Aumento automatico flottazione per bolle piu grandi.", w2: "Nessun effetto se pH e neutro." },
+    { l: 3, ref: "Shear flocculazione", q: "Perche eccesso shear tra flocculazione e DAF puo peggiorare chiarificato?", ok: "Frammenta fiocchi riduce robustezza e aumenta trascinamento fini.", w1: "Rende fiocchi sempre piu compatti e separabili.", w2: "Agisce solo sul colore non su solidi." },
+    { l: 3, ref: "OD setpoint", q: "Impostare OD troppo alto in continuo quale rischio pratico porta?", ok: "Consumo energetico eccessivo e possibile stress idraulico senza beneficio proporzionale.", w1: "Migliora sempre linearmente ogni parametro.", w2: "Riduce distacco biofilm a zero." },
+    { l: 3, ref: "Nutrienti residui", q: "Perche in esercizio reale si usano anche residui N P oltre rapporti teorici C N P?", ok: "I rapporti teorici non coprono tutte dinamiche reali i residui verificano disponibilita effettiva nutrienti.", w1: "C N P e inutile in qualunque impianto.", w2: "Residui sostituiscono monitoraggio COD." },
+    { l: 3, ref: "Emulsioni oleose", q: "Perche molte emulsioni oleose non si separano bene in DAF senza adeguata chimica?", ok: "Le gocce emulsionate sono stabilizzate da cariche e surfattanti servono destabilizzazione e flocculazione.", w1: "Aria disciolta dissolve sempre olio senza reagenti.", w2: "Olio precipita spontaneamente in pochi secondi." },
+    { l: 3, ref: "Biofilm turnover", q: "Quale e lettura tecnica corretta di moderato distacco periodico biofilm in MBBR?", ok: "Fenomeno di turnover fisiologico se controllato utile a rinnovo biomassa attiva.", w1: "E sempre sintomo di collasso irreversibile.", w2: "Indica assenza totale attivita biologica." },
+    { l: 3, ref: "DAF bolle fini", q: "Perche bolle troppo grandi riducono spesso efficienza rispetto a microbolle?", ok: "Hanno minore superficie specifica e minore probabilita di collisione adesione con particelle fini.", w1: "Aumentano sempre aggancio ai colloidi stabili.", w2: "Sono irrilevanti conta solo temperatura." },
+    { l: 3, ref: "Anossia locale", q: "In un biofilm spesso quale conseguenza di OD basso e piu plausibile negli strati interni?", ok: "Formazione zone a limitata ossigenazione con calo resa aerobica e maggiore instabilita distacco.", w1: "Aumento omogeneo nitrificazione interna.", w2: "Eliminazione gradienti substrato." },
+    { l: 3, ref: "Shock idraulico", q: "Un forte aumento istantaneo di portata sul chimico fisico puo causare cosa?", ok: "Riduzione tempi contatto reazione e maggiore rischio trascinamento solidi e oli verso valle.", w1: "Miglioramento garantito separazione.", w2: "Nessun effetto finche raschiatori ruotano." },
+    { l: 3, ref: "PAC sovradosaggio", q: "Quale effetto da sovradosaggio PAC e tecnicamente plausibile?", ok: "Restabilizzazione colloidale o fiocchi fragili con peggioramento torbidita in uscita.", w1: "Coagulazione sempre migliore aumentando dose senza limite.", w2: "Elimina bisogno controllo pH." },
+    { l: 3, ref: "PAM preparazione", q: "Perche corretta maturazione preparazione PAM e critica?", ok: "Influenza apertura catene polimeriche e capacita bridging errore riduce efficacia flocculante.", w1: "Conta solo volume dosato non preparazione.", w2: "PAM agisce come ossidante COD." },
+    { l: 3, ref: "DO e temperatura", q: "Perche binomio alta temperatura piu carico alto e delicato in aerobico?", ok: "Solubilita ossigeno cala con temperatura mentre fabbisogno biologico resta elevato.", w1: "OD disponibile aumenta sempre con temperatura.", w2: "Temperatura non influenza trasferimento O2." },
+    { l: 3, ref: "Filamentosi", q: "Quale quadro puo favorire instabilita con filamentosi o fango poco compatto?", ok: "Squilibri nutrienti OD e stress processo protratti con selezione microbica sfavorevole.", w1: "Qualunque aumento temporaneo ricircolo DAF.", w2: "Solo colore chiarificato in ingresso." },
+    { l: 3, ref: "MBR a valle", q: "Perche proteggere eventuale MBR a valle da oli e solidi fini e cruciale?", ok: "Per limitare fouling rapido perdita permeabilita e incremento lavaggi chimici.", w1: "Membrane richiedono oli per funzionare.", w2: "Fouling dipende solo da durezza." },
+    { l: 3, ref: "Bilancio aria", q: "Quale approccio e migliore quando OD oscilla molto tra giorno e notte?", ok: "Regolazione dinamica aria basata su trend carico OD e non solo su setpoint fisso.", w1: "Tenere sempre stesso valore blower indipendente da carico.", w2: "Spegnere periodicamente tutte soffianti." },
+    { l: 3, ref: "Controllo processo", q: "Perche variare simultaneamente molti parametri in crisi e rischioso?", ok: "Rende difficile isolare causa effetto e puo amplificare instabilita operative.", w1: "Accelera sempre convergenza al setpoint ottimo.", w2: "E irrilevante se pH e corretto." },
+    { l: 3, ref: "Saturatore fouling", q: "Quale effetto puo avere fouling nel circuito pressurizzato DAF?", ok: "Riduzione efficienza dissoluzione rilascio aria e peggioramento costante flottazione.", w1: "Aumento naturale microbolle efficaci.", w2: "Solo variazione estetica senza impatto processo." },
+    { l: 3, ref: "Transiente startup", q: "Dopo fermata prolungata perche riavvio biologico richiede prudenza sul carico?", ok: "Biomassa puo essere ridotta o stressata carico pieno immediato aumenta rischio fuori specifica.", w1: "Biofilm riparte sempre al cento per cento in pochi minuti.", w2: "Carico iniziale non influenza OD." },
+    { l: 3, ref: "pH biologico", q: "Perche estremi pH nel biologico sono critici anche con OD corretto?", ok: "Inibiscono attivita enzimatica e metabolismo microbico riducendo resa.", w1: "pH non influenza mai cinetica batterica.", w2: "Conta solo pressione saturatore." },
+    { l: 3, ref: "Ritenzione idraulica", q: "Ridurre troppo tempi contatto nel chimico fisico quale effetto tipico produce?", ok: "Flocculazione incompleta e aumento solidi torbidita nel chiarificato.", w1: "Rimozione oli migliorata automaticamente.", w2: "Nessun impatto su qualita uscita." },
+    { l: 3, ref: "Biofilm e shear", q: "Perche turbolenza moderata ma uniforme e preferibile in MBBR?", ok: "Mantiene carrier in movimento omogeneo e controlla spessore biofilm senza zone morte estese.", w1: "Carrier devono restare fermi per nitrificare.", w2: "Shear deve essere massimo ovunque." },
+    { l: 3, ref: "Nutrient overfeed", q: "Quale rischio c e nel sovradosare nutrienti senza controllo residui?", ok: "Sprechi possibili squilibri biologici e peggioramento qualita scarico.", w1: "Aumento sempre lineare resa depurativa.", w2: "Nessun rischio perche nutrienti evaporano." },
+    { l: 3, ref: "Chimico biologico interazione", q: "Perche una crisi chimico fisico puo riflettersi con ritardo sul biologico?", ok: "Il carico anomalo trascinato altera progressivamente biofilm e ossigenazione con effetto pieno dopo ore.", w1: "I due reparti sono sempre indipendenti.", w2: "Biologico filtra istantaneamente ogni shock." },
+    { l: 3, ref: "DO sensorica", q: "Perche validazione periodica sonda OD e operativamente critica?", ok: "Un drift strumentale porta a regolazioni aria errate e decisioni sbagliate.", w1: "Sonda OD serve solo reportistica estetica.", w2: "Con schiuma bassa OD e sempre corretto." },
+    { l: 3, ref: "Strategia emergenza oli", q: "Con passaggio oli a valle quale strategia e piu robusta?", ok: "Correggere subito a monte coagulazione flottazione raschiatura e proteggere biologico nel transitorio.", w1: "Aumentare solo aria in MBBR ignorando pretrattamento.", w2: "Spegnere ricircolo DAF per ridurre microbolle." }
+
+
 ];
 
 /** Etichetta lunga per il box riferimento (chiarisce PAC vs ferro, acronimi, ecc.). */
@@ -12272,16 +12417,9 @@ window.addEventListener('load', function initQuizProtection() {
                     sessionStorage.removeItem(QUIZ_SS_REOPEN_SETTINGS);
                 }
             } catch (eRs) { /* ignore */ }
-            if (quizFeatureEnabled && quizShouldRestorePanelOpen()) {
-                requestAnimationFrame(function () {
-                    openQuiz();
-                    if (reopenSettings) {
-                        requestAnimationFrame(function () {
-                            showQuizSettingsModal();
-                        });
-                    }
-                });
-            } else if (reopenSettings) {
+            // Sequenza fissa: il quiz si apre solo da pulsante "Quiz".
+            try { quizSavePanelOpen(false); } catch (eQp) { /* ignore */ }
+            if (reopenSettings) {
                 requestAnimationFrame(function () {
                     showQuizSettingsModal();
                 });

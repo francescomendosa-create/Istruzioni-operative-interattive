@@ -28,7 +28,7 @@ const OUT_BASE = path.join(ROOT, 'assets', 'quiz-audio');
 /** Deve coincidere con QUIZ_LOCAL_INTRO_FILENAME + flusso `quizPlayOfflineSessionIntroThenQuestion` in index.html */
 const QUIZ_SESSION_INTRO_FILE = 'quiz-session-intro.mp3';
 const QUIZ_SESSION_INTRO_TEXT =
-    'Salve a tutti e benvenuti, al quiz di istruzioni operative interattive, cominciamo subito con la prima domanda:';
+    'Salve e benvenuti al quiz di istruzioni operative interattive. Iniziamo.';
 
 function slugifyAudioName(txt) {
     const s = String(txt || '')
