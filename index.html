@@ -6109,7 +6109,7 @@ function dismissAppSplash() {
                         <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
                     </div>
                 </div>
-                <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
+                <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSpeechSettingsFromQuizTopbar()" aria-label="Impostazioni Quiz" title="Impostazioni Quiz">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                     </svg>
@@ -6341,7 +6341,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507p</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507q</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6413,7 +6413,7 @@ function dismissAppSplash() {
                 <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità telecronaca online attiva.</p>
             </div>
             <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
+                <button type="button" class="btn-side btn-reset" id="quiz-speech-settings-footer-btn" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
             </div>
         </div>
     </div>
@@ -6485,7 +6485,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507p';
+const APP_BUILD = '20260507q';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8947,12 +8947,47 @@ function quizSetMuteState(muted) {
     }
 }
 
+/** 'main' = da menu Impostazioni generali (Torna); 'quiz-only' = da barra modalità Quiz (Chiudi). */
+let quizSpeechSettingsReturnTarget = 'main';
+
+function showQuizSpeechSettingsFromQuizTopbar() {
+    quizSpeechSettingsReturnTarget = 'quiz-only';
+    try {
+        document.body.classList.add('settings-open');
+    } catch (eB) { /* ignore */ }
+    showQuizSpeechSettingsModal();
+}
+
+function quizSpeechSettingsSyncFooterButton() {
+    const btn = document.getElementById('quiz-speech-settings-footer-btn');
+    if (!btn) return;
+    if (quizSpeechSettingsReturnTarget === 'quiz-only') {
+        btn.textContent = 'Chiudi';
+        btn.setAttribute('aria-label', 'Chiudi impostazioni Quiz');
+        btn.setAttribute('title', 'Chiudi');
+        btn.onclick = function () {
+            quizSpeechSettingsCloseFromQuizPanel();
+        };
+    } else {
+        btn.textContent = 'Torna';
+        btn.setAttribute('aria-label', 'Torna alle impostazioni');
+        btn.setAttribute('title', 'Torna');
+        btn.onclick = function () {
+            quizSpeechSettingsBackToSettings();
+        };
+    }
+}
+
 function showQuizSpeechSettingsModal() {
     const overlay = document.getElementById('quiz-speech-settings-overlay');
     const settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
+    if (quizSpeechSettingsReturnTarget !== 'quiz-only') {
+        quizSpeechSettingsReturnTarget = 'main';
+    }
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
     quizSyncSpeechUi();
+    quizSpeechSettingsSyncFooterButton();
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     requestAnimationFrame(function () {
@@ -8965,8 +9000,20 @@ function showQuizSpeechSettingsModal() {
 function hideQuizSpeechSettingsModal() {
     const overlay = document.getElementById('quiz-speech-settings-overlay');
     if (!overlay) return;
+    const wasQuizOnly = quizSpeechSettingsReturnTarget === 'quiz-only';
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
+    if (wasQuizOnly) {
+        try {
+            document.body.classList.remove('settings-open');
+        } catch (eB) { /* ignore */ }
+    }
+    quizSpeechSettingsReturnTarget = 'main';
+}
+
+function quizSpeechSettingsCloseFromQuizPanel() {
+    quizSaveAiVoiceConfig();
+    hideQuizSpeechSettingsModal();
 }
 
 function quizSpeechSettingsSetRate(val) {
