@@ -2765,6 +2765,154 @@
             }
         }
 
+        /* Vero o falso (dopo bonus): timer 10 s, musica dedicata */
+        .quiz-vf-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10078;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(6, 17, 31, 0.76);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-vf-modal.quiz-vf-modal--open {
+            display: flex;
+        }
+        .quiz-vf-modal__box {
+            width: min(96vw, 640px);
+            max-height: min(88vh, 720px);
+            overflow: auto;
+            border-radius: 16px;
+            padding: 18px;
+            background: linear-gradient(180deg, #f6f9fd 0%, #eef4fb 100%);
+            border: 1px solid rgba(26, 53, 84, 0.18);
+            box-shadow: 0 16px 45px rgba(7, 26, 47, 0.42);
+        }
+        .quiz-vf-modal__title {
+            margin: 0 0 4px;
+            color: #143254;
+            font-size: 1.08rem;
+        }
+        .quiz-vf-modal__subtitle {
+            margin: 0 0 14px;
+            color: #2b4f73;
+            font-size: 0.88rem;
+        }
+        .quiz-vf-timer-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .quiz-vf-timer-track {
+            flex: 1;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(22, 53, 86, 0.12);
+            overflow: hidden;
+        }
+        .quiz-vf-timer-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #2f7d4a 0%, #c43333 100%);
+            transform-origin: left center;
+            transition: width 0.08s linear;
+        }
+        .quiz-vf-timer-sec {
+            min-width: 2ch;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: #123759;
+            font-size: 1.05rem;
+        }
+        .quiz-vf-statement {
+            margin: 0 0 18px;
+            color: #102a45;
+            font-size: 1.02rem;
+            line-height: 1.45;
+        }
+        .quiz-vf-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .quiz-vf-btn {
+            flex: 1;
+            min-width: 120px;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #fff;
+        }
+        .quiz-vf-btn--true {
+            background: linear-gradient(180deg, #2a8f52 0%, #1d6a3b 100%);
+        }
+        .quiz-vf-btn--false {
+            background: linear-gradient(180deg, #c43d3d 0%, #8f2828 100%);
+        }
+        .quiz-vf-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .quiz-vf-intro-layer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10079;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            background: rgba(4, 12, 24, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .quiz-vf-intro-layer.quiz-vf-intro-layer--open {
+            display: flex;
+        }
+        .quiz-vf-intro-layer__box {
+            width: min(96vw, 920px);
+            max-height: min(90vh, 88vh);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .quiz-vf-intro-video {
+            width: 100%;
+            max-height: min(78vh, 720px);
+            border-radius: 12px;
+            background: #000;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        }
+        .quiz-vf-intro-skip {
+            align-self: flex-end;
+            min-width: 120px;
+        }
+        @media (max-width: 640px) and (orientation: portrait) {
+            .quiz-vf-modal__box {
+                padding: 14px;
+                border-radius: 12px;
+            }
+            .quiz-vf-statement {
+                font-size: 0.92rem;
+            }
+            .quiz-vf-btn {
+                padding: 12px 14px;
+                font-size: 0.88rem;
+            }
+            .quiz-vf-intro-video {
+                max-height: min(70vh, 560px);
+            }
+        }
+
         /* Modale nome per ingresso in classifica (primi 10) */
         .quiz-top10-name-modal {
             display: none;
@@ -6329,6 +6477,29 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
+        <div id="quiz-vf-modal" class="quiz-vf-modal" aria-hidden="true" aria-labelledby="quiz-vf-title">
+            <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <h3 id="quiz-vf-title" class="quiz-vf-modal__title">Vero o falso</h3>
+                <p id="quiz-vf-subtitle" class="quiz-vf-modal__subtitle"></p>
+                <div class="quiz-vf-timer-wrap">
+                    <div id="quiz-vf-timer-track" class="quiz-vf-timer-track" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10">
+                        <div id="quiz-vf-timer-fill" class="quiz-vf-timer-fill"></div>
+                    </div>
+                    <span id="quiz-vf-timer-sec" class="quiz-vf-timer-sec" aria-live="polite">10</span>
+                </div>
+                <p id="quiz-vf-statement" class="quiz-vf-statement"></p>
+                <div class="quiz-vf-actions">
+                    <button type="button" class="quiz-vf-btn quiz-vf-btn--true" id="quiz-vf-btn-true" onclick="quizVfAnswer(true)">VERO</button>
+                    <button type="button" class="quiz-vf-btn quiz-vf-btn--false" id="quiz-vf-btn-false" onclick="quizVfAnswer(false)">FALSO</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-vf-intro-layer" class="quiz-vf-intro-layer" aria-hidden="true">
+            <div class="quiz-vf-intro-layer__box">
+                <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline preload="metadata"></video>
+                <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
+            </div>
+        </div>
 
     </div>
 
@@ -6349,7 +6520,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507r</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507u</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6493,7 +6664,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507r';
+const APP_BUILD = '20260507u';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6523,6 +6694,13 @@ const QUIZ_SUSPENSE_AUDIO_1 = 'assets/quiz-suspense/durente-quiz-suspance.mp3';
 const QUIZ_SUSPENSE_AUDIO_2 = 'assets/quiz-suspense/durante-quiz-suspance-2.mp3';
 /** Strato aggiuntivo: suona sempre in loop insieme al brano principale (volume basso). */
 const QUIZ_SUSPENSE_AUDIO_LAYER = 'assets/quiz-suspense/suspance-3.mp3';
+/** Musica loop solo durante la modalità Vero o falso (dopo ogni bonus). */
+const QUIZ_VF_BGM = 'assets/quiz-suspense/vf-mode-suspance-3.mp3';
+/** Presentazione video all’ingresso della modalità Vero o falso (prima delle 5 domande). */
+const QUIZ_VF_INTRO_VIDEO = 'assets/quiz-vf/intro-vero-o-falso.mp4';
+const QUIZ_VF_BGM_VOLUME = 0.38;
+const QUIZ_VF_SECONDS = 10;
+const QUIZ_VF_POINTS_CORRECT = 1;
 const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
 const QUIZ_SUSPENSE_BGM_VOLUME_MAIN = 0.17;
 const QUIZ_SUSPENSE_BGM_VOLUME_LAYER = 0.07;
@@ -6559,6 +6737,43 @@ const QUIZ_BONUS_ASSET_CARBONE = 'assets/quiz-bonus/carbone.png';
 const QUIZ_BONUS_ASSET_OSSIGENO = 'assets/quiz-bonus/ossigeno.png';
 const QUIZ_BONUS_ASSET_VITA = 'assets/quiz-bonus/bonus_vita.png';
 const QUIZ_BONUS_ASSET_FANGO = 'assets/quiz-bonus/fango_morto.png';
+/**
+ * Vero o falso dopo ogni bonus: 25 affermazioni in 5 blocchi da 5.
+ * Blocco usato = quizVfBlockRound % 5 (avanza dopo ogni sessione da 5 domande).
+ * Telecronaca offline: assets/quiz-audio/{voce}/vf-XXX.mp3 (testo «Vero o falso. …»).
+ */
+const QUIZ_VF_BANK = [
+    /* Blocco 1 — MBBR / biofilm */
+    { ref: 'vf-001', statement: 'Nei processi MBBR i carrier sono supporti inerti colonizzati dal biofilm.', answer: true },
+    { ref: 'vf-002', statement: 'Nel biologico aerobico l\'ossigeno disciolto è irrilevante per l\'attività microbica.', answer: false },
+    { ref: 'vf-003', statement: 'La nitrificazione richiede condizioni aerobiche e tempi di solido residuo adeguati.', answer: true },
+    { ref: 'vf-004', statement: 'Un biofilm troppo spesso può limitare il trasporto di substrato e ossigeno verso gli strati profondi.', answer: true },
+    { ref: 'vf-005', statement: 'Nei sistemi MBBR il ricircolo interno dei fanghi è sempre identico a quello di un impianto a fanghi attivi classico.', answer: false },
+    /* Blocco 2 — DAF / sediflottatori */
+    { ref: 'vf-006', statement: 'In una DAF le microbolle favoriscono il trasporto verso superficie di particelle e aggregati.', answer: true },
+    { ref: 'vf-007', statement: 'Il saturatore ha il ruolo di creare acqua con aria disciolta da immettere nella vasca di flottazione.', answer: true },
+    { ref: 'vf-008', statement: 'I raschiatori delle superfici di flottazione servono a rimuovere il materiale accumulato in superficie.', answer: true },
+    { ref: 'vf-009', statement: 'In DAF una turbolenza eccessiva in vasca migliora sempre la qualità del separato.', answer: false },
+    { ref: 'vf-010', statement: 'Mettere in serie più sediflottatori senza motivazione di processo può introdurre shear e mixing non utili.', answer: true },
+    /* Blocco 3 — Chimico-fisico / PAC-PAM / chiarificazione */
+    { ref: 'vf-011', statement: 'Il PAC ha tipicamente ruolo di coagulante; il PAM agisce spesso come polielettrolita di flocculazione.', answer: true },
+    { ref: 'vf-012', statement: 'Di norma si dosano prima coagulante e poi, a valle e con tempi adeguati, il polielettrolita.', answer: true },
+    { ref: 'vf-013', statement: 'Il pH della zona di coagulazione influenza molto l\'efficacia delle reazioni e la carica delle particelle.', answer: true },
+    { ref: 'vf-014', statement: 'Un mixer di coagulazione spento mentre si dosano chimici non può mai creare problemi di distribuzione.', answer: false },
+    { ref: 'vf-015', statement: 'La torbidità del chiarificato si esprime spesso in NTU.', answer: true },
+    /* Blocco 4 — Parametri / strumentazione */
+    { ref: 'vf-016', statement: 'Il COD misura direttamente l\'ossigeno disciolto nel refluo.', answer: false },
+    { ref: 'vf-017', statement: 'Il BOD5 è legato al fabbisogno biochimico di ossigeno in condizioni standardizzate.', answer: true },
+    { ref: 'vf-018', statement: 'Valori NTU più alti indicano in genere maggiore torbidità.', answer: true },
+    { ref: 'vf-019', statement: 'Il cono Imhoff è usato in laboratorio per valutare la sedimentabilità del fango.', answer: true },
+    { ref: 'vf-020', statement: 'Il sensore di ossigeno disciolto in fondo vasca non fornisce alcuna informazione utile sull\'aerazione.', answer: false },
+    /* Blocco 5 — Stress / nutrienti / esercizio */
+    { ref: 'vf-021', statement: 'Gli autotrofi nitrificanti sono generalmente più sensibili agli shock di carico degli eterotrofi.', answer: true },
+    { ref: 'vf-022', statement: 'Squilibri marcati tra azoto e fosforo possono penalizzare la rimozione biologica dei nutrienti.', answer: true },
+    { ref: 'vf-023', statement: 'L\'urea può contribuire all\'azoto amoniacale disponibile nel biologico.', answer: true },
+    { ref: 'vf-024', statement: 'Un picco improvviso di carico organico può destabilizzare il biologico prima che la popolazione si adatti.', answer: true },
+    { ref: 'vf-025', statement: 'In crisi conviene sempre aumentare contemporaneamente tutti i dosaggi chimici al massimo senza diagnosi.', answer: false }
+];
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
@@ -6597,6 +6812,16 @@ let quizIntroAudioEl = null;
 let quizSuspenseSessionTrack = null;
 let quizSuspenseAudioEl = null;
 let quizSuspenseLayerAudioEl = null;
+/** Modalità Vero o falso post-bonus: musica dedicata, timer 10 s, 5 domande per sessione. */
+let quizVfBgmAudioEl = null;
+let quizVfActive = false;
+let quizVfBlockRound = 0;
+let quizVfIdxInBlock = 0;
+let quizVfTimerRaf = null;
+let quizVfDeadline = null;
+let quizVfChoiceBusy = false;
+let quizVfSessionContinuation = null;
+let quizVfIntroCompletionLock = false;
 let quizAiLastError = '';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
@@ -7381,10 +7606,13 @@ function quizLoadStoredPreference() {
         if (isFinite(sr)) {
             quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
         }
-        const sm = localStorage.getItem(QUIZ_LS_SPEECH_MUTED);
-        quizSpeechMutedTopbar = sm === '1';
-        const gm = localStorage.getItem(QUIZ_LS_GAMEAUDIO_MUTED);
-        quizGameAudioMuted = gm === '1';
+        /* Ogni apertura app: audio musica/effetti e telecronaca sempre attivi (non silenziati); l’utente può silenziare dopo. */
+        quizSpeechMutedTopbar = false;
+        quizGameAudioMuted = false;
+        try {
+            localStorage.setItem(QUIZ_LS_SPEECH_MUTED, '0');
+            localStorage.setItem(QUIZ_LS_GAMEAUDIO_MUTED, '0');
+        } catch (eMuteOpen) { /* ignore */ }
         try {
             const cvl = localStorage.getItem(QUIZ_LS_COMMENTARY_VOL);
             if (cvl != null && cvl !== '') {
@@ -7623,6 +7851,15 @@ function quizRefreshLiveAudioVolumes() {
     quizApplySuspenseVolumes();
     try {
         const gv = quizGetGameAudioLinearVolume();
+        if (quizVfBgmAudioEl) quizVfBgmAudioEl.volume = QUIZ_VF_BGM_VOLUME * gv;
+        const introLayer = document.getElementById('quiz-vf-intro-layer');
+        const introV = document.getElementById('quiz-vf-intro-video');
+        if (introLayer && introLayer.classList.contains('quiz-vf-intro-layer--open') && introV) {
+            introV.volume = gv;
+        }
+    } catch (eVf) { /* ignore */ }
+    try {
+        const gv = quizGetGameAudioLinearVolume();
         if (quizIntroAudioEl) quizIntroAudioEl.volume = QUIZ_INTRO_BASE_VOL * gv;
     } catch (eI) { /* ignore */ }
     try {
@@ -7823,11 +8060,366 @@ function quizStopSuspenseMusic() {
 function quizStopQuizAmbientMusic() {
     quizStopIntroMusic();
     quizStopSuspenseMusic();
+    quizStopVfModeMusic();
+    try {
+        quizVfStopIntroVideo();
+    } catch (eVi) { /* ignore */ }
+}
+
+function quizStopVfModeMusic() {
+    try {
+        if (quizVfBgmAudioEl) {
+            quizVfBgmAudioEl.pause();
+            quizVfBgmAudioEl.src = '';
+            quizVfBgmAudioEl = null;
+        }
+    } catch (eV) { /* ignore */ }
+}
+
+function quizPlayVfModeMusic() {
+    quizStopVfModeMusic();
+    const play = document.getElementById('quiz-screen-play');
+    if (!play || play.style.display === 'none') return;
+    if (quizGetGameAudioLinearVolume() <= 0) return;
+    try {
+        const a = new Audio(quizResolveMediaUrl(QUIZ_VF_BGM));
+        a.loop = true;
+        quizVfBgmAudioEl = a;
+        a.volume = QUIZ_VF_BGM_VOLUME * quizGetGameAudioLinearVolume();
+        a.play().catch(function () { /* autoplay */ });
+    } catch (eP) { /* ignore */ }
+}
+
+function quizBuildVfNarrationText(vf) {
+    return 'Vero o falso. ' + String((vf && vf.statement) || '');
+}
+
+async function quizSpeakLocalVfFileIfAvailable(vf, runId) {
+    try {
+        if (!vf || !vf.ref) return { ok: false, error: 'vf_missing' };
+        const refFile = String(vf.ref).trim() + '.mp3';
+        const pv = String(quizPiperVoice || 'naturale').trim().toLowerCase();
+        const candidates = [];
+        const rm = String(quizReadMode || 'qa').toLowerCase();
+        const bases = rm === 'q' ? [QUIZ_LOCAL_AUDIO_BASE_Q, QUIZ_LOCAL_AUDIO_BASE] : [QUIZ_LOCAL_AUDIO_BASE, QUIZ_LOCAL_AUDIO_BASE_Q];
+        bases.forEach(function (base) {
+            if (/^(naturale|telecronaca|chiara|profonda)$/.test(pv)) {
+                candidates.push(base + '/' + pv + '/' + refFile);
+                if (pv !== 'naturale') candidates.push(base + '/naturale/' + refFile);
+            } else {
+                candidates.push(base + '/naturale/' + refFile);
+            }
+        });
+        const chosenUrl = await quizResolveFirstExistingMediaUrl(candidates);
+        if (!chosenUrl) return { ok: false, error: 'local_vf_not_found' };
+        if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+        quizSuspenseDuckVolumes();
+        const a = new Audio(chosenUrl);
+        try {
+            a.volume = quizGetCommentaryLinearVolume();
+        } catch (eVol) { /* ignore */ }
+        a.playbackRate = Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1));
+        a.onended = function () { quizSuspenseUnduckVolumes(); };
+        a.onerror = function () { quizSuspenseUnduckVolumes(); };
+        quizAiAudioEl = a;
+        try {
+            await a.play();
+        } catch (ePl) {
+            quizSuspenseUnduckVolumes();
+            throw ePl;
+        }
+        return { ok: true, mode: 'local_vf', url: chosenUrl };
+    } catch (e) {
+        return { ok: false, error: 'local_vf_error' };
+    }
+}
+
+async function quizSpeakVfStatement(vf) {
+    if (quizSpeechMutedTopbar || !quizVfActive || !quizIsPlayScreenActive()) return;
+    quizStopSpeech();
+    const runId = quizSpeechRunId;
+    const plain = quizBuildVfNarrationText(vf);
+    const qObj = { ref: vf.ref, q: plain, options: [] };
+    const loc = await quizSpeakLocalVfFileIfAvailable(vf, runId);
+    if (loc && loc.ok) return;
+    await quizSpeakUsingConfiguredEngine(plain, runId, qObj);
+}
+
+function quizVfModalHide() {
+    const modal = document.getElementById('quiz-vf-modal');
+    if (modal) {
+        modal.classList.remove('quiz-vf-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizVfModalShow() {
+    const modal = document.getElementById('quiz-vf-modal');
+    if (modal) {
+        modal.classList.add('quiz-vf-modal--open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+}
+
+function quizVfStopIntroVideo() {
+    const v = document.getElementById('quiz-vf-intro-video');
+    const layer = document.getElementById('quiz-vf-intro-layer');
+    try {
+        if (v) {
+            v.onended = null;
+            v.onerror = null;
+            v.pause();
+            v.removeAttribute('src');
+            v.load();
+        }
+    } catch (eV) { /* ignore */ }
+    if (layer) {
+        layer.classList.remove('quiz-vf-intro-layer--open');
+        layer.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizVfIntroCompleteGoToQuestions() {
+    if (quizVfIntroCompletionLock) return;
+    quizVfIntroCompletionLock = true;
+    quizVfStopIntroVideo();
+    if (!quizVfActive) {
+        quizVfIntroCompletionLock = false;
+        return;
+    }
+    quizVfModalShow();
+    quizPlayVfModeMusic();
+    quizVfRunSingleStep();
+}
+
+function quizVfIntroSkip() {
+    if (!quizVfActive) return;
+    try {
+        const v = document.getElementById('quiz-vf-intro-video');
+        if (v) v.pause();
+    } catch (eP) { /* ignore */ }
+    quizVfIntroCompleteGoToQuestions();
+}
+
+function quizVfBeginIntroOrQuestions() {
+    const v = document.getElementById('quiz-vf-intro-video');
+    const layer = document.getElementById('quiz-vf-intro-layer');
+    quizVfIntroCompletionLock = false;
+    if (!v || !layer) {
+        quizVfModalShow();
+        quizPlayVfModeMusic();
+        quizVfRunSingleStep();
+        return;
+    }
+    const url = quizResolveMediaUrl(QUIZ_VF_INTRO_VIDEO);
+    function onIntroDone() {
+        quizVfIntroCompleteGoToQuestions();
+    }
+    v.onended = onIntroDone;
+    v.onerror = onIntroDone;
+    try {
+        v.src = url;
+        v.volume = quizGetGameAudioLinearVolume();
+    } catch (eSrc) {
+        onIntroDone();
+        return;
+    }
+    layer.classList.add('quiz-vf-intro-layer--open');
+    layer.setAttribute('aria-hidden', 'false');
+    try {
+        v.play().catch(function () {
+            onIntroDone();
+        });
+    } catch (ePl) {
+        onIntroDone();
+    }
+}
+
+function quizVfClearTimer() {
+    if (quizVfTimerRaf != null) {
+        cancelAnimationFrame(quizVfTimerRaf);
+        quizVfTimerRaf = null;
+    }
+    quizVfDeadline = null;
+}
+
+function quizVfPaintTimer(frac) {
+    const fill = document.getElementById('quiz-vf-timer-fill');
+    const secEl = document.getElementById('quiz-vf-timer-sec');
+    const track = document.getElementById('quiz-vf-timer-track');
+    if (!fill || !secEl || !track) return;
+    const p = Math.max(0, Math.min(1, frac));
+    fill.style.width = (p * 100) + '%';
+    const leftSec = quizVfDeadline ? Math.max(0, (quizVfDeadline - Date.now()) / 1000) : 0;
+    const display = Math.ceil(Math.min(QUIZ_VF_SECONDS, leftSec) - 1e-6);
+    secEl.textContent = String(Math.max(0, display));
+    track.setAttribute('aria-valuenow', String(Math.max(0, Math.min(QUIZ_VF_SECONDS, display))));
+}
+
+function quizVfTimerLoop() {
+    quizVfTimerRaf = null;
+    if (!quizVfActive || !quizVfDeadline) return;
+    const leftMs = quizVfDeadline - Date.now();
+    const frac = leftMs / (QUIZ_VF_SECONDS * 1000);
+    quizVfPaintTimer(frac);
+    if (leftMs <= 0) {
+        quizVfOnTimeout();
+        return;
+    }
+    quizVfTimerRaf = requestAnimationFrame(quizVfTimerLoop);
+}
+
+function quizVfStartTimerForCurrentStep() {
+    quizVfClearTimer();
+    quizVfDeadline = Date.now() + QUIZ_VF_SECONDS * 1000;
+    quizVfPaintTimer(1);
+    quizVfTimerRaf = requestAnimationFrame(quizVfTimerLoop);
+}
+
+function quizVfOnTimeout() {
+    if (!quizVfActive || quizVfChoiceBusy) return;
+    quizVfChoiceBusy = true;
+    quizVfClearTimer();
+    quizStopSpeech();
+    try {
+        quizPlayWrongAnswerSfx();
+    } catch (eW) { /* ignore */ }
+    window.setTimeout(function () {
+        quizVfChoiceBusy = false;
+        quizVfAdvanceAfterStep();
+    }, 220);
+}
+
+function quizVfSectionBaseIndex() {
+    const n = Math.floor(Number(quizVfBlockRound) || 0) % 5;
+    return n * 5;
+}
+
+function quizVfCurrentItem() {
+    const arr = typeof QUIZ_VF_BANK !== 'undefined' && Array.isArray(QUIZ_VF_BANK) ? QUIZ_VF_BANK : [];
+    const i = quizVfSectionBaseIndex() + quizVfIdxInBlock;
+    return arr[i] || null;
+}
+
+function quizVfAdvanceAfterStep() {
+    quizVfIdxInBlock += 1;
+    if (quizVfIdxInBlock >= 5) {
+        quizVfFinishSession();
+        return;
+    }
+    quizVfRunSingleStep();
+}
+
+function quizVfRunSingleStep() {
+    const item = quizVfCurrentItem();
+    const sub = document.getElementById('quiz-vf-subtitle');
+    const st = document.getElementById('quiz-vf-statement');
+    const bt = document.getElementById('quiz-vf-btn-true');
+    const bf = document.getElementById('quiz-vf-btn-false');
+    if (!item || !st) {
+        quizVfFinishSession();
+        return;
+    }
+    if (sub) sub.textContent = 'Domanda ' + (quizVfIdxInBlock + 1) + ' di 5 · tempo ' + QUIZ_VF_SECONDS + ' secondi';
+    st.textContent = item.statement;
+    if (bt) bt.disabled = false;
+    if (bf) bf.disabled = false;
+    quizVfChoiceBusy = false;
+    quizVfStartTimerForCurrentStep();
+    void quizSpeakVfStatement(item);
+}
+
+function quizVfFinishSession() {
+    quizVfClearTimer();
+    quizStopSpeech();
+    quizVfActive = false;
+    quizVfChoiceBusy = false;
+    quizVfIdxInBlock = 0;
+    quizVfBlockRound = (Math.floor(Number(quizVfBlockRound) || 0) + 1);
+    quizVfModalHide();
+    quizStopVfModeMusic();
+    const fn = quizVfSessionContinuation;
+    quizVfSessionContinuation = null;
+    if (typeof fn === 'function') {
+        try {
+            fn();
+        } catch (eFn) { /* ignore */ }
+    }
+}
+
+function quizVfForceEnd() {
+    quizVfClearTimer();
+    quizVfActive = false;
+    quizVfChoiceBusy = false;
+    quizVfIdxInBlock = 0;
+    quizVfSessionContinuation = null;
+    try {
+        quizVfStopIntroVideo();
+    } catch (eI) { /* ignore */ }
+    quizVfIntroCompletionLock = false;
+    quizVfModalHide();
+    quizStopVfModeMusic();
+}
+
+function quizRunVfPhaseThen(done) {
+    if (typeof done !== 'function') return;
+    if (!Array.isArray(QUIZ_VF_BANK) || QUIZ_VF_BANK.length < 25) {
+        done();
+        return;
+    }
+    quizStopSpeech();
+    quizStopSuspenseMusic();
+    quizVfSessionContinuation = done;
+    quizVfActive = true;
+    quizAnswerLocked = true;
+    quizVfIdxInBlock = 0;
+    quizVfBeginIntroOrQuestions();
+}
+
+function quizWrapBonusContinuation(inner) {
+    return function () {
+        quizRunVfPhaseThen(function () {
+            if (typeof inner === 'function') inner();
+        });
+    };
+}
+
+function quizVfAnswer(choiceTrue) {
+    if (!quizVfActive || quizVfChoiceBusy) return;
+    const item = quizVfCurrentItem();
+    if (!item) return;
+    quizVfChoiceBusy = true;
+    const bt = document.getElementById('quiz-vf-btn-true');
+    const bf = document.getElementById('quiz-vf-btn-false');
+    if (bt) bt.disabled = true;
+    if (bf) bf.disabled = true;
+    quizVfClearTimer();
+    quizStopSpeech();
+    const ok = !!item.answer === !!choiceTrue;
+    if (ok) {
+        quizState.score = (Number(quizState.score) || 0) + QUIZ_VF_POINTS_CORRECT;
+        try {
+            quizPlayCorrectAnswerSfx();
+        } catch (eC) { /* ignore */ }
+        try {
+            quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true, scoreboardScoring: true });
+        } catch (eU) { /* ignore */ }
+    } else {
+        try {
+            quizPlayWrongAnswerSfx();
+        } catch (eW) { /* ignore */ }
+    }
+    const delay = ok ? 190 : 230;
+    window.setTimeout(function () {
+        quizVfChoiceBusy = false;
+        quizVfAdvanceAfterStep();
+    }, delay);
 }
 
 function quizPlaySuspenseAlternating(opts) {
     opts = opts || {};
     const resumeOnly = !!opts.resumeOnly;
+    if (quizVfActive) return;
     const play = document.getElementById('quiz-screen-play');
     if (!play || play.style.display === 'none') return;
     if (quizGetGameAudioLinearVolume() <= 0) {
@@ -8332,6 +8924,7 @@ function quizSyncSpeechUi() {
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
+    if (quizVfActive) return;
     if (quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
     /* Telecronaca Piper + MP3 usa solo Audio HTML: non richiedere speechSynthesis (alcuni browser / contesti senza API voce). */
     if (quizVoiceEngine !== 'piper' && !quizSpeechSupported()) return;
@@ -11455,6 +12048,7 @@ function quizRenderQuestion(opts) {
 
 function quizHandleAdvanceRuntimeError(err) {
     try { console.error('[QUIZ][advance] runtime error', err); } catch (_) { /* ignore */ }
+    try { quizVfForceEnd(); } catch (_) { /* ignore */ }
     try { quizBonusPickModalHide(); } catch (_) { /* ignore */ }
     try { quizWrongModalHide(); } catch (_) { /* ignore */ }
     try {
@@ -11481,10 +12075,10 @@ function quizAdvanceCorrect() {
             quizAnswerLocked = false;
             quizFinish(true);
         } else if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
-            quizOpenBonusPickModal(function () {
+            quizOpenBonusPickModal(quizWrapBonusContinuation(function () {
                 quizAnswerLocked = false;
                 quizRenderQuestion({ instant: true });
-            });
+            }));
         } else {
             quizAnswerLocked = false;
             quizRenderQuestion({ instant: true });
@@ -11503,13 +12097,13 @@ function quizAdvanceCorrect() {
             }
             if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
                 wrap.classList.remove('quiz-fade-out');
-                quizOpenBonusPickModal(function () {
+                quizOpenBonusPickModal(quizWrapBonusContinuation(function () {
                     quizAnswerLocked = false;
                     quizRenderQuestion({ instant: true });
                     void wrap.offsetWidth;
                     wrap.classList.add('quiz-fade-in');
                     setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
-                });
+                }));
                 return;
             }
             quizAnswerLocked = false;
@@ -11543,7 +12137,7 @@ function quizAdvanceAfterWrongContinue() {
             return;
         }
         if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
-            quizOpenBonusPickModal(function () {
+            quizOpenBonusPickModal(quizWrapBonusContinuation(function () {
                 quizAnswerLocked = false;
                 quizRenderQuestion({ instant: true });
                 if (wrap) {
@@ -11551,7 +12145,7 @@ function quizAdvanceAfterWrongContinue() {
                     wrap.classList.add('quiz-fade-in');
                     setTimeout(() => wrap.classList.remove('quiz-fade-in'), 320);
                 }
-            });
+            }));
             return;
         }
         quizAnswerLocked = false;
@@ -12242,6 +12836,7 @@ function quizRunAdelfoIntro() {
 function quizFinish(completedAll, opts) {
     opts = opts || {};
     quizAdelfoCancelIntro();
+    try { quizVfForceEnd(); } catch (_) { /* ignore */ }
     quizClearQuestionTimer();
     quizAnswerLocked = false;
 
@@ -12293,6 +12888,8 @@ function quizFinish(completedAll, opts) {
 
 function quizStart() {
     quizAvatarPickerPersist();
+    try { quizVfForceEnd(); } catch (_) { /* ignore */ }
+    quizVfBlockRound = 0;
     quizAnswerLocked = false;
     quizCancelScoreAnim();
     quizWrongModalHide();
