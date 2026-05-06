@@ -624,7 +624,7 @@
             border: 2px solid #0d47a1;
             box-shadow: 0 2px 6px rgba(21, 101, 192, 0.35);
         }
-        /* Intro: solo musica accanto al titolo; telecronaca resta nella barra ma nascosta. In gioco: cluster intro nel titolo nascosto, musica a destra come prima. */
+        /* Intro: musica accanto al titolo (tranne iPhone: vedi sotto); telecronaca nascosta. In gioco: cluster intro nascosto, musica a destra. */
         .quiz-fs-topbar--intro #quiz-topbar-speech-cluster {
             display: none !important;
         }
@@ -633,6 +633,13 @@
         }
         .quiz-fs-topbar:not(.quiz-fs-topbar--intro) #quiz-intro-game-cluster {
             display: none !important;
+        }
+        /* iPhone intro: solo «Modalità quiz» al centro; icona musica a destra vicino a Impostazioni. */
+        html.ios-iphone .quiz-fs-topbar--intro #quiz-intro-game-cluster {
+            display: none !important;
+        }
+        html.ios-iphone .quiz-fs-topbar--intro #quiz-topbar-game-cluster {
+            display: flex !important;
         }
         @media (max-width: 520px) {
             .quiz-fs-topbar__end {
@@ -6434,7 +6441,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507l';
+const APP_BUILD = '20260507m';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
