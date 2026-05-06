@@ -2444,8 +2444,39 @@
             letter-spacing: 0.04em;
             font-size: 0.78rem;
             text-transform: uppercase;
+            perspective: 900px;
+            overflow: hidden;
         }
-        .quiz-bonus-pick-card.is-revealed {
+        .quiz-bonus-pick-card__inner {
+            position: relative;
+            width: 100%;
+            min-height: 128px;
+            transform-style: preserve-3d;
+            transition: transform 0.42s ease;
+        }
+        .quiz-bonus-pick-card.is-revealed .quiz-bonus-pick-card__inner {
+            transform: rotateY(180deg);
+        }
+        .quiz-bonus-pick-card__face {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 12px;
+        }
+        .quiz-bonus-pick-card__front {
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+        .quiz-bonus-pick-card__back {
+            transform: rotateY(180deg);
             background: #fff;
             color: #16385b;
             flex-direction: column;
@@ -2455,14 +2486,27 @@
             letter-spacing: normal;
             font-size: 0.72rem;
         }
-        .quiz-bonus-pick-card.is-revealed img {
-            width: min(86px, 72%);
-            height: min(86px, 66%);
+        .quiz-bonus-pick-card__back img {
+            width: calc(100% - 16px);
+            height: calc(100% - 16px);
             object-fit: contain;
             object-position: center;
             display: block;
         }
-        .quiz-bonus-pick-card__label { font-size: 0.74rem; font-weight: 700; text-align: center; padding: 6px; line-height: 1.2; }
+        .quiz-bonus-pick-card__back .quiz-bonus-pick-card__label {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            margin: 0;
+            padding: 3px 4px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.84);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.1;
+        }
         .quiz-bonus-pick-result { margin-top: 14px; display: none; border-radius: 12px; border: 1px solid rgba(22, 53, 86, 0.2); background: #fff; padding: 12px; align-items: center; gap: 12px; }
         .quiz-bonus-pick-result.quiz-bonus-pick-result--show { display: flex; }
         .quiz-bonus-pick-result__img { width: 92px; height: 92px; object-fit: contain; flex-shrink: 0; }
@@ -5814,7 +5858,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506o';
+const APP_BUILD = '20260506p';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8813,22 +8857,30 @@ function quizOpenBonusPickModal(onContinue) {
             btn.type = 'button';
             btn.className = 'quiz-bonus-pick-card';
             btn.setAttribute('aria-label', 'Casella bonus ' + (idx + 1));
-            btn.textContent = 'Casella';
+            const inner = document.createElement('span');
+            inner.className = 'quiz-bonus-pick-card__inner';
+            const front = document.createElement('span');
+            front.className = 'quiz-bonus-pick-card__face quiz-bonus-pick-card__front';
+            front.textContent = 'Carta';
+            const back = document.createElement('span');
+            back.className = 'quiz-bonus-pick-card__face quiz-bonus-pick-card__back';
+            const revealImg = document.createElement('img');
+            revealImg.src = item.img || '';
+            revealImg.alt = item.label || '';
+            revealImg.onerror = function () { this.style.display = 'none'; };
+            const revealLabel = document.createElement('span');
+            revealLabel.className = 'quiz-bonus-pick-card__label';
+            revealLabel.textContent = item.label || 'Bonus';
+            back.appendChild(revealImg);
+            back.appendChild(revealLabel);
+            inner.appendChild(front);
+            inner.appendChild(back);
+            btn.appendChild(inner);
 
             btn.addEventListener('click', function () {
                 if (quizBonusPickResolved) return;
                 quizBonusPickResolved = true;
                 btn.classList.add('is-revealed');
-                btn.innerHTML = '';
-                const revealImg = document.createElement('img');
-                revealImg.src = item.img || '';
-                revealImg.alt = item.label || '';
-                revealImg.onerror = function () { this.style.display = 'none'; };
-                const revealLabel = document.createElement('span');
-                revealLabel.className = 'quiz-bonus-pick-card__label';
-                revealLabel.textContent = item.label || 'Bonus';
-                btn.appendChild(revealImg);
-                btn.appendChild(revealLabel);
                 quizBonusApplyOutcome(item);
                 resultImg.src = item.img || '';
                 resultImg.alt = item.label || '';
