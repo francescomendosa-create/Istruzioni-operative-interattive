@@ -2448,7 +2448,14 @@
         .quiz-bonus-pick-card.is-revealed {
             background: #fff;
             color: #16385b;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px;
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.72rem;
         }
+        .quiz-bonus-pick-card.is-revealed img { width: 46px; height: 46px; object-fit: contain; }
         .quiz-bonus-pick-card__label { font-size: 0.74rem; font-weight: 700; text-align: center; padding: 6px; line-height: 1.2; }
         .quiz-bonus-pick-result { margin-top: 14px; display: none; border-radius: 12px; border: 1px solid rgba(22, 53, 86, 0.2); background: #fff; padding: 12px; align-items: center; gap: 12px; }
         .quiz-bonus-pick-result.quiz-bonus-pick-result--show { display: flex; }
@@ -5801,7 +5808,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506l';
+const APP_BUILD = '20260506n';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5850,13 +5857,13 @@ const QUIZ_BONUS_TRIGGER_START = 3;
 const QUIZ_BONUS_TRIGGER_STEP = 5;
 const QUIZ_BONUS_CARD_TOTAL = 12;
 const QUIZ_BONUS_FANGO_POINTS = -20;
-const QUIZ_BONUS_ASSET_UREA = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_glicole-04edee96-1cad-450c-9b18-98b490cde109.png';
-const QUIZ_BONUS_ASSET_CONO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_cono-3531c9f3-8242-4188-9a42-09aac697088a.png';
-const QUIZ_BONUS_ASSET_GLICOLE = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_glicole-04edee96-1cad-450c-9b18-98b490cde109.png';
-const QUIZ_BONUS_ASSET_CARBONE = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_carbone-58e61920-e22c-4cb2-874a-3562b951a472.png';
-const QUIZ_BONUS_ASSET_OSSIGENO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_ossigeno-01c5c928-e79d-479a-9e17-62ad2d966c33.png';
-const QUIZ_BONUS_ASSET_VITA = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_bonus_vita-d47028bb-e416-4b62-9f94-b055a158fc1b.png';
-const QUIZ_BONUS_ASSET_FANGO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_fango_morto-d31a4260-5107-46a1-b02f-6bcabcfcdd2d.png';
+const QUIZ_BONUS_ASSET_UREA = 'assets/quiz-bonus/urea.png';
+const QUIZ_BONUS_ASSET_CONO = 'assets/quiz-bonus/cono.png';
+const QUIZ_BONUS_ASSET_GLICOLE = 'assets/quiz-bonus/glicole.png';
+const QUIZ_BONUS_ASSET_CARBONE = 'assets/quiz-bonus/carbone.png';
+const QUIZ_BONUS_ASSET_OSSIGENO = 'assets/quiz-bonus/ossigeno.png';
+const QUIZ_BONUS_ASSET_VITA = 'assets/quiz-bonus/bonus_vita.png';
+const QUIZ_BONUS_ASSET_FANGO = 'assets/quiz-bonus/fango_morto.png';
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
@@ -8806,15 +8813,24 @@ function quizOpenBonusPickModal(onContinue) {
                 if (quizBonusPickResolved) return;
                 quizBonusPickResolved = true;
                 btn.classList.add('is-revealed');
-                btn.textContent = item.label || 'Bonus';
+                btn.innerHTML = '';
+                const revealImg = document.createElement('img');
+                revealImg.src = item.img || '';
+                revealImg.alt = item.label || '';
+                revealImg.onerror = function () { this.style.display = 'none'; };
+                const revealLabel = document.createElement('span');
+                revealLabel.className = 'quiz-bonus-pick-card__label';
+                revealLabel.textContent = item.label || 'Bonus';
+                btn.appendChild(revealImg);
+                btn.appendChild(revealLabel);
                 quizBonusApplyOutcome(item);
-                setTimeout(function () {
-                    resultImg.src = item.img || '';
-                    resultImg.alt = item.label || '';
-                    resultTitle.textContent = item.title || 'Bonus';
-                    resultDesc.textContent = quizBonusDescribe(item);
-                    result.classList.add('quiz-bonus-pick-result--show');
-                }, 260);
+                resultImg.src = item.img || '';
+                resultImg.alt = item.label || '';
+                resultTitle.textContent = item.title || 'Bonus';
+                resultDesc.textContent = quizBonusDescribe(item);
+                result.style.display = 'flex';
+                result.classList.add('quiz-bonus-pick-result--show');
+                try { result.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) { /* ignore */ }
             });
             grid.appendChild(btn);
         } catch (eCard) {
