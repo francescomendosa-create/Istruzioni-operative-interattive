@@ -8708,6 +8708,7 @@ function quizWrongModalOk() {
         return;
     }
     quizFinish(false, opts);
+}
 
 function quizShouldOpenBonusForCompletedIndex(completedIdx) {
     const qNum = Number(completedIdx) + 1;
@@ -8802,8 +8803,6 @@ function quizOpenBonusPickModal(onContinue) {
     modal.classList.add('quiz-bonus-pick-modal--open');
     modal.setAttribute('aria-hidden', 'false');
     if (!quizBonusPickKeydownBound) { document.addEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = true; }
-}
-
 }
 
 function quizClearQuestionTimer() {
