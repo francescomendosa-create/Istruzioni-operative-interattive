@@ -5844,7 +5844,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506s';
+const APP_BUILD = '20260506t';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7129,33 +7129,85 @@ function quizPlayMicrobeUnlockOkClickSfx() {
 }
 
 function quizPlayBonusOkSfx() {
+    quizPlayUiSfxFast(QUIZ_SFX_BONUS_OK, 0.95);
+}
+
+const quizUiSfxPool = Object.create(null);
+let quizUiSfxUnlocked = false;
+let quizUiSfxLastPointerAt = 0;
+let quizUiSfxLastPointerTarget = null;
+
+function quizGetUiSfxVoices(relPath) {
+    const key = String(relPath || '');
+    if (!key) return [];
+    if (quizUiSfxPool[key]) return quizUiSfxPool[key];
+    const url = quizResolveMediaUrl(key);
+    const voices = [];
+    for (let i = 0; i < 6; i++) {
+        try {
+            const a = new Audio(url);
+            a.preload = 'auto';
+            try { a.load(); } catch (eL) { /* ignore */ }
+            voices.push(a);
+        } catch (eA) { /* ignore */ }
+    }
+    quizUiSfxPool[key] = voices;
+    return voices;
+}
+
+function quizPrimeUiSfxPool() {
+    quizGetUiSfxVoices(UI_SFX_CLICK_DOMANDE);
+    quizGetUiSfxVoices(UI_SFX_CLICK_UI);
+    quizGetUiSfxVoices(QUIZ_SFX_BONUS_OK);
+}
+
+function quizUnlockUiSfxOnce() {
+    if (quizUiSfxUnlocked) return;
+    quizUiSfxUnlocked = true;
     try {
-        const gv = quizGetGameAudioLinearVolume();
+        Object.keys(quizUiSfxPool).forEach(function (k) {
+            (quizUiSfxPool[k] || []).forEach(function (a) {
+                try {
+                    a.volume = 0.0001;
+                    a.currentTime = 0;
+                    const p = a.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(function () {
+                            try { a.pause(); a.currentTime = 0; } catch (eR) { /* ignore */ }
+                        }).catch(function () { /* ignore */ });
+                    } else {
+                        try { a.pause(); a.currentTime = 0; } catch (eR2) { /* ignore */ }
+                    }
+                } catch (eU) { /* ignore */ }
+            });
+        });
+    } catch (eAll) { /* ignore */ }
+}
+
+function quizPlayUiSfxFast(relPath, gain) {
+    try {
+        const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
         if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_BONUS_OK));
-        a.volume = 0.95 * gv;
-        a.play().catch(function () { /* autoplay */ });
-    } catch (eOkB) { /* ignore */ }
+        const voices = quizGetUiSfxVoices(relPath);
+        if (!voices.length) return;
+        let chosen = null;
+        for (let i = 0; i < voices.length; i++) {
+            const a = voices[i];
+            if (a.paused || a.ended) { chosen = a; break; }
+        }
+        if (!chosen) chosen = voices[0];
+        try { chosen.pause(); chosen.currentTime = 0; } catch (eT) { /* ignore */ }
+        chosen.volume = Math.max(0, Math.min(1, (Number(gain) || 1) * gv));
+        chosen.play().catch(function () { /* autoplay */ });
+    } catch (eP) { /* ignore */ }
 }
 
 function playUiClickDomandeSfx() {
-    try {
-        const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
-        if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_DOMANDE));
-        a.volume = 0.82 * gv;
-        a.play().catch(function () { /* autoplay */ });
-    } catch (eU1) { /* ignore */ }
+    quizPlayUiSfxFast(UI_SFX_CLICK_DOMANDE, 0.82);
 }
 
 function playUiClickGenericoSfx() {
-    try {
-        const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
-        if (gv <= 0) return;
-        const a = new Audio(quizResolveMediaUrl(UI_SFX_CLICK_UI));
-        a.volume = 0.78 * gv;
-        a.play().catch(function () { /* autoplay */ });
-    } catch (eU2) { /* ignore */ }
+    quizPlayUiSfxFast(UI_SFX_CLICK_UI, 0.78);
 }
 
 /**
@@ -7165,15 +7217,19 @@ function playUiClickGenericoSfx() {
 function initIstruzioniUiClickSounds() {
     if (initIstruzioniUiClickSounds._done) return;
     initIstruzioniUiClickSounds._done = true;
-    document.addEventListener(
-        'click',
-        function (ev) {
+    const handleClickLike = function (ev, fromPointerDown) {
             const raw = ev.target;
             if (!raw || raw.nodeType !== 1) return;
             if (typeof raw.closest !== 'function') return;
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            if (!fromPointerDown) {
+                const now = Date.now();
+                if (quizUiSfxLastPointerTarget && raw === quizUiSfxLastPointerTarget && (now - quizUiSfxLastPointerAt) < 480) {
+                    return;
+                }
+            }
 
             const colBox = raw.closest('.col-box');
             if (
@@ -7210,9 +7266,21 @@ function initIstruzioniUiClickSounds() {
                 return;
             }
             playUiClickGenericoSfx();
-        },
-        false
-    );
+    };
+
+    quizPrimeUiSfxPool();
+    document.addEventListener('pointerdown', function (ev) {
+        quizUiSfxLastPointerAt = Date.now();
+        quizUiSfxLastPointerTarget = ev.target && ev.target.nodeType === 1 ? ev.target : null;
+        quizUnlockUiSfxOnce();
+        handleClickLike(ev, true);
+    }, { capture: true, passive: true });
+    document.addEventListener('click', function (ev) {
+        handleClickLike(ev, false);
+    }, false);
+    document.addEventListener('keydown', function () {
+        quizUnlockUiSfxOnce();
+    }, { capture: true, passive: true });
 }
 
 function quizStopSpeech() {
