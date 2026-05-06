@@ -5872,7 +5872,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506w';
+const APP_BUILD = '20260506x';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7165,6 +7165,8 @@ let quizUiSfxUnlocked = false;
 let quizUiSfxLastPointerAt = 0;
 let quizUiSfxLastActivator = null;
 let quizUiSfxLastPressTs = 0;
+let quizUiSfxLastPlayAt = 0;
+let quizUiSfxLastInteractionAt = 0;
 
 function quizGetUiSfxVoices(relPath) {
     const key = String(relPath || '');
@@ -7247,18 +7249,25 @@ function initIstruzioniUiClickSounds() {
     if (initIstruzioniUiClickSounds._done) return;
     initIstruzioniUiClickSounds._done = true;
     const handleClickLike = function (ev, fromPressStart) {
+            if (!ev || ev.isTrusted === false) return;
             const raw = ev.target;
             if (!raw || raw.nodeType !== 1) return;
             if (typeof raw.closest !== 'function') return;
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            const now = Date.now();
+            if (!fromPressStart) {
+                if ((now - quizUiSfxLastInteractionAt) < 700) return;
+            }
+            if ((now - quizUiSfxLastPlayAt) < 110) return;
 
             const colBox = raw.closest('.col-box');
             if (
                 colBox &&
                 (colBox.closest('#cf-content') || colBox.closest('#mbr-content'))
             ) {
+                quizUiSfxLastPlayAt = now;
                 playUiClickDomandeSfx();
                 return;
             }
@@ -7276,8 +7285,8 @@ function initIstruzioniUiClickSounds() {
                 if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
             }
             if (!activator) return;
+            if (activator.closest('#quiz-panel')) return;
             if (!fromPressStart) {
-                const now = Date.now();
                 if (quizUiSfxLastActivator && activator === quizUiSfxLastActivator && (now - quizUiSfxLastPointerAt) < 520) {
                     return;
                 }
@@ -7295,9 +7304,11 @@ function initIstruzioniUiClickSounds() {
             if (activator.id === 'quiz-microbe-unlock-ok') return;
 
             if (activator.closest('#cf-content') || activator.closest('#mbr-content')) {
+                quizUiSfxLastPlayAt = now;
                 playUiClickDomandeSfx();
                 return;
             }
+            quizUiSfxLastPlayAt = now;
             playUiClickGenericoSfx();
     };
 
@@ -7306,6 +7317,7 @@ function initIstruzioniUiClickSounds() {
         const now = Date.now();
         if ((now - quizUiSfxLastPressTs) < 28) return;
         quizUiSfxLastPressTs = now;
+        quizUiSfxLastInteractionAt = now;
         quizUiSfxLastPointerAt = now;
         const raw = ev.target;
         if (raw && raw.nodeType === 1 && typeof raw.closest === 'function') {
