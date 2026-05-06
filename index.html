@@ -6050,7 +6050,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zl';
+const APP_BUILD = '20260506zm';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7910,10 +7910,12 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
 
 async function quizSpeakUsingConfiguredEngine(plainText, runId, qObj) {
     try {
-        const canUseOfflineQuestionFile = (quizReadMode === 'qa');
+        const rm = String(quizReadMode || 'qa').toLowerCase();
+        /** qa → assets/quiz-audio/… ; q (solo domanda) → assets/quiz-audio-q/… (vedi quizSpeakLocalFileIfAvailable). */
+        const canUseOfflineQuestionFile = rm === 'qa' || rm === 'q';
         const localRes = canUseOfflineQuestionFile
             ? await quizSpeakLocalFileIfAvailable(qObj, runId)
-            : { ok: false, error: 'read_mode_q_skip_local_file' };
+            : { ok: false, error: 'read_mode_skip_local_file' };
         if (quizVoiceEngine === 'piper') {
             if (canUseOfflineQuestionFile && localRes && localRes.ok) return localRes;
             const pRes = await quizSpeakWithPiper(plainText, runId);
