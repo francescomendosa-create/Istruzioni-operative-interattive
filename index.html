@@ -5787,7 +5787,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506j';
+const APP_BUILD = '20260506k';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8781,25 +8781,67 @@ function quizOpenBonusPickModal(onContinue) {
     while (deck.length < QUIZ_BONUS_CARD_TOTAL) deck.push(quizBonusFangoItem());
     const shuffled = quizBonusShuffle(deck);
     shuffled.forEach(function (item, idx) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'quiz-bonus-pick-card';
-        btn.setAttribute('aria-label', 'Casella bonus ' + (idx + 1));
-        btn.innerHTML = '<span class="quiz-bonus-pick-card__inner"><span class="quiz-bonus-pick-card__face quiz-bonus-pick-card__front">?</span><span class="quiz-bonus-pick-card__face quiz-bonus-pick-card__back"><img src="' + item.img + '" alt=""><span class="quiz-bonus-pick-card__label">' + item.label + '</span></span></span>';
-        btn.addEventListener('click', function () {
-            if (quizBonusPickResolved) return;
-            quizBonusPickResolved = true;
-            btn.classList.add('is-revealed');
-            quizBonusApplyOutcome(item);
-            setTimeout(function () {
-                resultImg.src = item.img; resultImg.alt = item.label;
-                resultTitle.textContent = item.title;
-                resultDesc.textContent = quizBonusDescribe(item);
-                result.classList.add('quiz-bonus-pick-result--show');
-            }, 260);
-        });
-        grid.appendChild(btn);
+        try {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'quiz-bonus-pick-card';
+            btn.setAttribute('aria-label', 'Casella bonus ' + (idx + 1));
+
+            const inner = document.createElement('span');
+            inner.className = 'quiz-bonus-pick-card__inner';
+
+            const front = document.createElement('span');
+            front.className = 'quiz-bonus-pick-card__face quiz-bonus-pick-card__front';
+            front.textContent = '?';
+
+            const back = document.createElement('span');
+            back.className = 'quiz-bonus-pick-card__face quiz-bonus-pick-card__back';
+
+            const img = document.createElement('img');
+            img.src = item.img || '';
+            img.alt = item.label || '';
+            img.onerror = function () {
+                this.style.display = 'none';
+            };
+
+            const label = document.createElement('span');
+            label.className = 'quiz-bonus-pick-card__label';
+            label.textContent = item.label || 'Bonus';
+
+            back.appendChild(img);
+            back.appendChild(label);
+            inner.appendChild(front);
+            inner.appendChild(back);
+            btn.appendChild(inner);
+
+            btn.addEventListener('click', function () {
+                if (quizBonusPickResolved) return;
+                quizBonusPickResolved = true;
+                btn.classList.add('is-revealed');
+                quizBonusApplyOutcome(item);
+                setTimeout(function () {
+                    resultImg.src = item.img || '';
+                    resultImg.alt = item.label || '';
+                    resultTitle.textContent = item.title || 'Bonus';
+                    resultDesc.textContent = quizBonusDescribe(item);
+                    result.classList.add('quiz-bonus-pick-result--show');
+                }, 260);
+            });
+            grid.appendChild(btn);
+        } catch (eCard) {
+            try { console.error('[QUIZ][bonus] card build error', eCard); } catch (_) { /* ignore */ }
+        }
     });
+    if (!grid.children.length) {
+        for (let i = 0; i < QUIZ_BONUS_CARD_TOTAL; i++) {
+            const fallbackBtn = document.createElement('button');
+            fallbackBtn.type = 'button';
+            fallbackBtn.className = 'quiz-bonus-pick-card';
+            fallbackBtn.textContent = '?';
+            fallbackBtn.disabled = true;
+            grid.appendChild(fallbackBtn);
+        }
+    }
     modal.classList.add('quiz-bonus-pick-modal--open');
     modal.setAttribute('aria-hidden', 'false');
     if (!quizBonusPickKeydownBound) { document.addEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = true; }
