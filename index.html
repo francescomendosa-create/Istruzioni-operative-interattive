@@ -5787,7 +5787,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506i';
+const APP_BUILD = '20260506j';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -10057,6 +10057,25 @@ function quizRenderQuestion(opts) {
     }
 }
 
+function quizHandleAdvanceRuntimeError(err) {
+    try { console.error('[QUIZ][advance] runtime error', err); } catch (_) { /* ignore */ }
+    try { quizBonusPickModalHide(); } catch (_) { /* ignore */ }
+    try { quizWrongModalHide(); } catch (_) { /* ignore */ }
+    try {
+        const wrap = document.getElementById('quiz-play-body');
+        if (wrap) {
+            wrap.classList.remove('quiz-fade-out');
+            wrap.classList.remove('quiz-fade-in');
+        }
+    } catch (_) { /* ignore */ }
+    quizAnswerLocked = false;
+    if (quizState.index >= quizState.queue.length) {
+        quizFinish(true);
+        return;
+    }
+    quizRenderQuestion({ instant: true });
+}
+
 function quizAdvanceCorrect() {
     const completedIdx = quizState.index;
     const wrap = document.getElementById('quiz-play-body');
@@ -10078,30 +10097,34 @@ function quizAdvanceCorrect() {
     }
     wrap.classList.add('quiz-fade-out');
     setTimeout(() => {
-        quizState.index += 1;
-        if (quizState.index >= quizState.queue.length) {
-            wrap.classList.remove('quiz-fade-out');
-            quizAnswerLocked = false;
-            quizFinish(true);
-            return;
-        }
-        if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
-            wrap.classList.remove('quiz-fade-out');
-            quizOpenBonusPickModal(function () {
+        try {
+            quizState.index += 1;
+            if (quizState.index >= quizState.queue.length) {
+                wrap.classList.remove('quiz-fade-out');
                 quizAnswerLocked = false;
-                quizRenderQuestion({ instant: true });
-                void wrap.offsetWidth;
-                wrap.classList.add('quiz-fade-in');
-                setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
-            });
-            return;
+                quizFinish(true);
+                return;
+            }
+            if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+                wrap.classList.remove('quiz-fade-out');
+                quizOpenBonusPickModal(function () {
+                    quizAnswerLocked = false;
+                    quizRenderQuestion({ instant: true });
+                    void wrap.offsetWidth;
+                    wrap.classList.add('quiz-fade-in');
+                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+                });
+                return;
+            }
+            quizAnswerLocked = false;
+            quizRenderQuestion({ instant: true });
+            wrap.classList.remove('quiz-fade-out');
+            void wrap.offsetWidth;
+            wrap.classList.add('quiz-fade-in');
+            setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+        } catch (err) {
+            quizHandleAdvanceRuntimeError(err);
         }
-        quizAnswerLocked = false;
-        quizRenderQuestion({ instant: true });
-        wrap.classList.remove('quiz-fade-out');
-        void wrap.offsetWidth;
-        wrap.classList.add('quiz-fade-in');
-        setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
     }, 280);
 }
 
@@ -10141,16 +10164,24 @@ function quizAdvanceAfterWrongContinue() {
     if (wrap) {
         wrap.classList.add('quiz-fade-out');
         setTimeout(() => {
-            step();
-            wrap.classList.remove('quiz-fade-out');
-            if (!quizShouldOpenBonusForCompletedIndex(completedIdx)) {
-                void wrap.offsetWidth;
-                wrap.classList.add('quiz-fade-in');
-                setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+            try {
+                step();
+                wrap.classList.remove('quiz-fade-out');
+                if (!quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+                    void wrap.offsetWidth;
+                    wrap.classList.add('quiz-fade-in');
+                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+                }
+            } catch (err) {
+                quizHandleAdvanceRuntimeError(err);
             }
         }, 280);
     } else {
-        step();
+        try {
+            step();
+        } catch (err) {
+            quizHandleAdvanceRuntimeError(err);
+        }
     }
 }
 
