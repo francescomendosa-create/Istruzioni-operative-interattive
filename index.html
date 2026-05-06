@@ -5872,7 +5872,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506y';
+const APP_BUILD = '20260506z';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7167,6 +7167,61 @@ let quizUiSfxLastActivator = null;
 let quizUiSfxLastPressTs = 0;
 let quizUiSfxLastPlayAt = 0;
 let quizUiSfxLastInteractionAt = 0;
+let quizUiSfxLastStartTarget = null;
+let quizUiSfxLastStartAt = 0;
+let quizUiSfxCtx = null;
+const quizUiSfxBuffers = Object.create(null);
+const quizUiSfxBufferLoading = Object.create(null);
+
+function quizEnsureUiSfxCtx() {
+    if (quizUiSfxCtx) return quizUiSfxCtx;
+    try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        quizUiSfxCtx = new Ctx({ latencyHint: 'interactive' });
+    } catch (eCtx) {
+        quizUiSfxCtx = null;
+    }
+    return quizUiSfxCtx;
+}
+
+function quizLoadUiSfxBuffer(relPath) {
+    const key = String(relPath || '');
+    if (!key) return;
+    if (quizUiSfxBuffers[key] || quizUiSfxBufferLoading[key]) return;
+    const ctx = quizEnsureUiSfxCtx();
+    if (!ctx) return;
+    quizUiSfxBufferLoading[key] = true;
+    fetch(quizResolveMediaUrl(key), { cache: 'force-cache' })
+        .then(function (r) { return r.arrayBuffer(); })
+        .then(function (ab) { return ctx.decodeAudioData(ab.slice(0)); })
+        .then(function (buf) { quizUiSfxBuffers[key] = buf; })
+        .catch(function () { /* fallback su HTMLAudio */ })
+        .finally(function () { quizUiSfxBufferLoading[key] = false; });
+}
+
+function quizTryPlayUiSfxBuffer(relPath, gain) {
+    try {
+        const key = String(relPath || '');
+        const buf = quizUiSfxBuffers[key];
+        const ctx = quizEnsureUiSfxCtx();
+        if (!ctx || !buf) return false;
+        if (ctx.state === 'suspended') {
+            try { ctx.resume(); } catch (eRs) { /* ignore */ }
+            if (ctx.state === 'suspended') return false;
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const g = ctx.createGain();
+        g.gain.value = Math.max(0, Math.min(1, Number(gain) || 1));
+        src.connect(g);
+        g.connect(ctx.destination);
+        src.start(0);
+        return true;
+    } catch (eB) {
+        return false;
+    }
+}
 
 function quizGetUiSfxVoices(relPath) {
     const key = String(relPath || '');
@@ -7190,11 +7245,18 @@ function quizPrimeUiSfxPool() {
     quizGetUiSfxVoices(UI_SFX_CLICK_DOMANDE);
     quizGetUiSfxVoices(UI_SFX_CLICK_UI);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_OK);
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
 }
 
 function quizUnlockUiSfxOnce() {
     if (quizUiSfxUnlocked) return;
     quizUiSfxUnlocked = true;
+    const ctx = quizEnsureUiSfxCtx();
+    if (ctx && ctx.state === 'suspended') {
+        try { ctx.resume(); } catch (eR) { /* ignore */ }
+    }
     try {
         Object.keys(quizUiSfxPool).forEach(function (k) {
             (quizUiSfxPool[k] || []).forEach(function (a) {
@@ -7207,12 +7269,17 @@ function quizUnlockUiSfxOnce() {
             });
         });
     } catch (eAll) { /* ignore */ }
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
 }
 
 function quizPlayUiSfxFast(relPath, gain) {
     try {
         const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
         if (gv <= 0) return;
+        const outGain = Math.max(0, Math.min(1, (Number(gain) || 1) * gv));
+        if (quizTryPlayUiSfxBuffer(relPath, outGain)) return;
         const voices = quizGetUiSfxVoices(relPath);
         if (!voices.length) return;
         let chosen = null;
@@ -7222,7 +7289,7 @@ function quizPlayUiSfxFast(relPath, gain) {
         }
         if (!chosen) chosen = voices[0];
         try { chosen.pause(); chosen.currentTime = 0; } catch (eT) { /* ignore */ }
-        chosen.volume = Math.max(0, Math.min(1, (Number(gain) || 1) * gv));
+        chosen.volume = outGain;
         chosen.play().catch(function () { /* autoplay */ });
     } catch (eP) { /* ignore */ }
 }
@@ -7244,7 +7311,8 @@ function initIstruzioniUiClickSounds() {
     initIstruzioniUiClickSounds._done = true;
     const handleClickLike = function (ev, fromPressStart) {
             if (!ev || ev.isTrusted === false) return;
-            const raw = ev.target;
+            let raw = ev.target;
+            if (raw && raw.nodeType === 3) raw = raw.parentElement;
             if (!raw || raw.nodeType !== 1) return;
             if (typeof raw.closest !== 'function') return;
             if (raw.closest('[data-ui-click-off]')) return;
@@ -7306,11 +7374,15 @@ function initIstruzioniUiClickSounds() {
     quizPrimeUiSfxPool();
     const onPressStart = function (ev) {
         const now = Date.now();
+        let raw = ev.target;
+        if (raw && raw.nodeType === 3) raw = raw.parentElement;
         if ((now - quizUiSfxLastPressTs) < 28) return;
+        if (raw && raw === quizUiSfxLastStartTarget && (now - quizUiSfxLastStartAt) < 130) return;
         quizUiSfxLastPressTs = now;
+        quizUiSfxLastStartTarget = raw && raw.nodeType === 1 ? raw : null;
+        quizUiSfxLastStartAt = now;
         quizUiSfxLastInteractionAt = now;
         quizUiSfxLastPointerAt = now;
-        const raw = ev.target;
         if (raw && raw.nodeType === 1 && typeof raw.closest === 'function') {
             quizUiSfxLastActivator =
                 raw.closest('button') ||
@@ -7324,12 +7396,9 @@ function initIstruzioniUiClickSounds() {
         quizUnlockUiSfxOnce();
         handleClickLike(ev, true);
     };
-    if (window.PointerEvent) {
-        document.addEventListener('pointerdown', onPressStart, { capture: true, passive: true });
-    } else {
-        document.addEventListener('touchstart', onPressStart, { capture: true, passive: true });
-        document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
-    }
+    document.addEventListener('pointerdown', onPressStart, { capture: true, passive: true });
+    document.addEventListener('touchstart', onPressStart, { capture: true, passive: true });
+    document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
     document.addEventListener('click', function (ev) {
         handleClickLike(ev, false);
     }, false);
