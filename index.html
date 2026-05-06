@@ -5926,7 +5926,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506ze';
+const APP_BUILD = '20260506zf';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7744,12 +7744,20 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
 
 async function quizSpeakUsingConfiguredEngine(plainText, runId, qObj) {
     try {
-        const localRes = await quizSpeakLocalFileIfAvailable(qObj, runId);
+        const canUseOfflineQuestionFile = (quizReadMode === 'qa');
+        const localRes = canUseOfflineQuestionFile
+            ? await quizSpeakLocalFileIfAvailable(qObj, runId)
+            : { ok: false, error: 'read_mode_q_skip_local_file' };
         if (quizVoiceEngine === 'piper') {
-            if (localRes && localRes.ok) return localRes;
-            return { ok: false, error: (localRes && localRes.error) || 'local_audio_not_found' };
+            if (canUseOfflineQuestionFile && localRes && localRes.ok) return localRes;
+            const pRes = await quizSpeakWithPiper(plainText, runId);
+            if (pRes && pRes.ok) return pRes;
+            if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
+            /* Fallback robusto: mantiene la lettura anche se Piper non risponde. */
+            quizSpeakWithLocalTts(plainText, runId);
+            return { ok: true, mode: 'local_tts_fallback', warn: (pRes && pRes.error) || 'piper_error' };
         }
-        if (localRes && localRes.ok) return localRes;
+        if (canUseOfflineQuestionFile && localRes && localRes.ok) return localRes;
         const textToSpeak = await quizBuildGeminiCommentaryText(plainText, runId);
         if (runId !== quizSpeechRunId) return { ok: false, error: 'cancelled' };
         quizSpeakWithLocalTts(textToSpeak, runId);
