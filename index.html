@@ -5926,7 +5926,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zc';
+const APP_BUILD = '20260506ze';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5970,6 +5970,10 @@ const QUIZ_SFX_APPLAUSE = 'assets/quiz-sfx/applausi.mp3';
 const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
 /** Flip carta bonus + conferma popup bonus. */
 const QUIZ_SFX_BONUS_OK = 'assets/quiz-sfx/effetto-ok.mp3';
+/** Bonus game: apertura popup, premio, penalita fango. */
+const QUIZ_SFX_BONUS_POPUP = 'assets/quiz-sfx/bonus-popup.mp3';
+const QUIZ_SFX_BONUS_WIN = 'assets/quiz-sfx/bonus-win.mp3';
+const QUIZ_SFX_BONUS_FANGO = 'assets/quiz-sfx/bonus-fango.mp3';
 /** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
 const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
 const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
@@ -6821,6 +6825,15 @@ function quizProbeMp3UrlResolvable(absUrl) {
  */
 async function quizResolveFirstExistingMediaUrl(relPaths) {
     if (!relPaths || !relPaths.length) return '';
+    try {
+        const allLocalQuizAudio = relPaths.every(function (p) {
+            const s = String(p || '');
+            return s.indexOf(QUIZ_LOCAL_AUDIO_BASE + '/') === 0;
+        });
+        if (allLocalQuizAudio) {
+            return quizResolveMediaUrl(relPaths[0]);
+        }
+    } catch (eFast) { /* ignore */ }
     const timeoutMs = 1800;
     for (let i = 0; i < relPaths.length; i += 1) {
         const absUrl = quizResolveMediaUrl(relPaths[i]);
@@ -7214,6 +7227,18 @@ function quizPlayBonusOkSfx() {
     quizPlayUiSfxFast(QUIZ_SFX_BONUS_OK, 0.95);
 }
 
+function quizPlayBonusPopupSfx() {
+    quizPlayUiSfxFast(QUIZ_SFX_BONUS_POPUP, 0.92);
+}
+
+function quizPlayBonusOutcomeSfx(item) {
+    if (item && item.kind === 'fango') {
+        quizPlayUiSfxFast(QUIZ_SFX_BONUS_FANGO, 0.96);
+        return;
+    }
+    quizPlayUiSfxFast(QUIZ_SFX_BONUS_WIN, 0.94);
+}
+
 const quizUiSfxPool = Object.create(null);
 let quizUiSfxUnlocked = false;
 let quizUiSfxLastPointerAt = 0;
@@ -7299,9 +7324,15 @@ function quizPrimeUiSfxPool() {
     quizGetUiSfxVoices(UI_SFX_CLICK_DOMANDE);
     quizGetUiSfxVoices(UI_SFX_CLICK_UI);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_OK);
+    quizGetUiSfxVoices(QUIZ_SFX_BONUS_POPUP);
+    quizGetUiSfxVoices(QUIZ_SFX_BONUS_WIN);
+    quizGetUiSfxVoices(QUIZ_SFX_BONUS_FANGO);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_POPUP);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
 }
 
 function quizUnlockUiSfxOnce() {
@@ -7326,6 +7357,9 @@ function quizUnlockUiSfxOnce() {
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_POPUP);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
+    quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
 }
 
 function quizPlayUiSfxFast(relPath, gain) {
@@ -9222,6 +9256,7 @@ function quizOpenBonusPickModal(onContinue) {
                     resultImg.alt = item.label || '';
                     resultTitle.textContent = item.title || 'Bonus';
                     resultDesc.textContent = quizBonusDescribe(item);
+                    quizPlayBonusOutcomeSfx(item);
                     result.classList.add('quiz-bonus-pick-result--show');
                     try { result.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) { /* ignore */ }
                 }, 320);
@@ -9243,6 +9278,7 @@ function quizOpenBonusPickModal(onContinue) {
     }
     modal.classList.add('quiz-bonus-pick-modal--open');
     modal.setAttribute('aria-hidden', 'false');
+    quizPlayBonusPopupSfx();
     if (!quizBonusPickKeydownBound) { document.addEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = true; }
 }
 
