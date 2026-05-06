@@ -6215,7 +6215,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260506zw';
+const APP_BUILD = '20260506zx';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9232,7 +9232,7 @@ const QUIZ_RULE_MAX_ERRORS = 2;
 const QUIZ_WORMS_LOST_PER_ERROR = 2;
 /** Vermi iniziali in vasca all’avvio (0 = partenza senza vermi; con vasca vuota un solo errore termina subito). */
 const QUIZ_START_WORM_COUNT = 0;
-/** Vasca: milestone Q1 Demolitori, Q5 Sottili, Q15 Filamentosi, Q20 Settici, Q25 Predatori; fasi casuali tra gli unlock. Bootstrap (-1) = verme generico. */
+/** Vasca: milestone Q1…Q25 sbloccano tipi 0–4; ogni nuovo verme è casuale tra i tipi già sbloccati. Bootstrap (-1) = verme generico. */
 /** Punti bonus fine partita per verme splash (indice gruppo = splash data-worm). Generico = come Demolitori. */
 const QUIZ_WORM_BONUS_BY_VARIANT = {
     0: 2,
@@ -10110,14 +10110,24 @@ function quizBioAppendSplashWormVariant(gRoot, variantIndex, i, opts) {
     quizBioRunWormDropEntry(gPos, gShift, gBody, wx, wy, gDrift);
 }
 
-/** completedQuestionIndex = indice domanda appena risposta correttamente (prima dell’avanzamento).
- * Q1–4 → Demolitori; Q5 → Sottili; Q6–14 → casuale Demolitori/Sottili; Q15 → Filamentosi; Q16–19 → D/S/Fil a caso;
- * Q20 → Settici; Q21–24 → D/S/Fil/Set a caso; Q25 → Predatori; da Q26 tutti e 5 a caso. -1 = bootstrap (verme generico). */
-function quizBioRandomSplashFrom(choices) {
-    const c = choices;
-    return c[Math.floor(Math.random() * c.length)];
+/** Indici splash (0–4) sbloccati dopo aver superato Q1, Q5, Q15, Q20, Q25 (indici domanda 0,4,14,19,24). */
+function quizBioUnlockedSplashVariantIndices(completedQuestionIndex) {
+    const qIdx = typeof completedQuestionIndex === 'number' ? completedQuestionIndex : -1;
+    if (qIdx < 0) return [];
+    const out = [];
+    if (qIdx >= 0) out.push(0);
+    if (qIdx >= 4) out.push(1);
+    if (qIdx >= 14) out.push(2);
+    if (qIdx >= 19) out.push(3);
+    if (qIdx >= 24) out.push(4);
+    return out;
 }
 
+/**
+ * Ogni verme aggiunto in vasca: tipo scelto a caso tra quelli già «ottenuti» (sbloccati) fino a questa domanda,
+ * non un tipo fisso per fascia — così la successione non ripete sempre lo stesso schema.
+ * completedQuestionIndex = indice domanda appena indovinata (0-based). -1 = bootstrap → verme generico.
+ */
 function quizBioVatOnCorrectAnswer(completedQuestionIndex, opts) {
     opts = opts || {};
     quizBioWormCount += 1;
@@ -10126,28 +10136,13 @@ function quizBioVatOnCorrectAnswer(completedQuestionIndex, opts) {
     const slotIdx = quizBioWormCount - 1;
     const qIdx = typeof completedQuestionIndex === 'number' ? completedQuestionIndex : -1;
     let splashVariant = null;
-    if (qIdx < 0) {
-        splashVariant = null;
-    } else if (qIdx <= 3) {
-        splashVariant = 0;
-    } else if (qIdx === 4) {
-        splashVariant = 1;
-    } else if (qIdx >= 5 && qIdx <= 13) {
-        splashVariant = quizBioRandomSplashFrom([0, 1]);
-    } else if (qIdx === 14) {
-        splashVariant = 2;
-    } else if (qIdx >= 15 && qIdx <= 18) {
-        splashVariant = quizBioRandomSplashFrom([0, 1, 2]);
-    } else if (qIdx === 19) {
-        splashVariant = 3;
-    } else if (qIdx >= 20 && qIdx <= 23) {
-        splashVariant = quizBioRandomSplashFrom([0, 1, 2, 3]);
-    } else if (qIdx === 24) {
-        splashVariant = 4;
-    } else {
-        splashVariant = quizBioRandomSplashFrom([0, 1, 2, 3, 4]);
+    if (qIdx >= 0) {
+        const unlocked = quizBioUnlockedSplashVariantIndices(qIdx);
+        if (unlocked.length > 0) {
+            splashVariant = unlocked[Math.floor(Math.random() * unlocked.length)];
+        }
     }
-    if (splashVariant !== null) {
+    if (splashVariant !== null && splashVariant !== undefined) {
         quizBioAppendSplashWormVariant(gRoot, splashVariant, slotIdx, opts);
     } else {
         quizBioAppendGenericWorm(gRoot, slotIdx, opts);
