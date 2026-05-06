@@ -500,12 +500,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0;
-            flex-shrink: 0;
+            gap: 4px;
+            flex-shrink: 1;
             min-width: 0;
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
+        }
+        /* Smartphone (stretti): solo icone mute in barra — slider nascosti (PC/tablet ≥640px li rivedono). */
+        @media (max-width: 639px) {
+            #quiz-fs-topbar .quiz-fs-vol-slot {
+                display: none !important;
+            }
+            #quiz-fs-topbar .quiz-fs-topbar-audio-cluster {
+                gap: 0;
+                flex-shrink: 0;
+            }
         }
         /* Slot per range in modale (es. velocità telecronaca): touchpad ampio; su iOS il range nativo spesso non riceve il drag. */
         .quiz-fs-vol-slot {
@@ -648,6 +658,13 @@
                 row-gap: 6px;
                 column-gap: 6px;
             }
+            .quiz-fs-vol-slot {
+                width: clamp(72px, 34vw, 128px);
+            }
+            .quiz-fs-vol-slider {
+                width: 100%;
+                min-height: 40px;
+            }
             .quiz-fs-audio {
                 width: 40px;
                 height: 40px;
@@ -675,6 +692,9 @@
             min-width: 44px;
             min-height: 44px;
             box-sizing: border-box;
+        }
+        html.ios-iphone #quiz-fs-topbar .quiz-fs-vol-slot {
+            min-height: 48px;
         }
         /* Impostazioni → riga che apre telecronaca / suono quiz */
         html.ios-iphone #quiz-settings-quiz-speech-btn.quiz-settings-row {
@@ -5729,6 +5749,13 @@ function splashGetHomeMusicLinearVol() {
     } catch (e0) { /* ignore */ }
     var v = 1;
     try {
+        var raw = localStorage.getItem('io-quiz-gameaudio-vol');
+        if (raw != null && raw !== '') {
+            var g = parseFloat(raw);
+            if (isFinite(g) && g >= 0 && g <= 1) v = g;
+        }
+    } catch (eG) { /* ignore */ }
+    try {
         if (window.__IO_QUIZ_SETTINGS_VOICE_TEST) {
             var bm = 0.16;
             try {
@@ -6056,6 +6083,10 @@ function dismissAppSplash() {
                         <button type="button" class="quiz-fs-audio" id="quiz-intro-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
                             <span id="quiz-intro-game-icon" aria-hidden="true">🎵</span>
                         </button>
+                        <div class="quiz-fs-vol-slot">
+                            <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                            <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -6064,11 +6095,19 @@ function dismissAppSplash() {
                     <button type="button" class="quiz-fs-audio" id="quiz-topbar-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
                         <span id="quiz-topbar-game-icon" aria-hidden="true">🎵</span>
                     </button>
+                    <div class="quiz-fs-vol-slot">
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica ed effetti" title="Volume musica ed effetti">
+                        <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                    </div>
                 </div>
                 <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-speech-cluster" aria-label="Telecronaca">
                     <button type="button" class="quiz-fs-audio" id="quiz-topbar-speech-audio" aria-label="Silenzia telecronaca" title="Silenzia telecronaca">
                         <span id="quiz-topbar-speech-icon" aria-hidden="true">🎙️</span>
                     </button>
+                    <div class="quiz-fs-vol-slot">
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="100" aria-label="Volume telecronaca" title="Volume telecronaca">
+                        <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
+                    </div>
                 </div>
                 <button type="button" class="quiz-fs-settings quiz-fs-settings--top-end" onclick="showQuizSettingsModal()" aria-label="Impostazioni" title="Impostazioni">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -6302,7 +6341,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507o</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260507p</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -6446,7 +6485,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507o';
+const APP_BUILD = '20260507p';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6455,6 +6494,8 @@ const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_SPEECH_MUTED = 'io-quiz-speech-muted';
 const QUIZ_LS_GAMEAUDIO_MUTED = 'io-quiz-gameaudio-muted';
+const QUIZ_LS_COMMENTARY_VOL = 'io-quiz-commentary-vol';
+const QUIZ_LS_GAMEAUDIO_VOL = 'io-quiz-gameaudio-vol';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
 const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
 const QUIZ_LS_PIPER_VOICE = 'io-quiz-piper-voice';
@@ -7336,8 +7377,20 @@ function quizLoadStoredPreference() {
         quizSpeechMutedTopbar = sm === '1';
         const gm = localStorage.getItem(QUIZ_LS_GAMEAUDIO_MUTED);
         quizGameAudioMuted = gm === '1';
-        quizCommentaryVolume = 1;
-        quizGameAudioVolume = 1;
+        try {
+            const cvl = localStorage.getItem(QUIZ_LS_COMMENTARY_VOL);
+            if (cvl != null && cvl !== '') {
+                const c = Number(cvl);
+                if (isFinite(c) && c >= 0 && c <= 1) quizCommentaryVolume = c;
+            }
+        } catch (eCv) { /* ignore */ }
+        try {
+            const gvl = localStorage.getItem(QUIZ_LS_GAMEAUDIO_VOL);
+            if (gvl != null && gvl !== '') {
+                const g = Number(gvl);
+                if (isFinite(g) && g >= 0 && g <= 1) quizGameAudioVolume = g;
+            }
+        } catch (eGv) { /* ignore */ }
         quizGeminiApiKey = String(localStorage.getItem(QUIZ_LS_GEMINI_KEY) || '').trim();
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || QUIZ_DEFAULT_VOICE_ENGINE);
         if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = QUIZ_DEFAULT_VOICE_ENGINE;
@@ -7528,6 +7581,24 @@ function quizGetCommentaryLinearVolume() {
     const v = Number(quizCommentaryVolume);
     if (!(v >= 0) || v > 1) return 1;
     return Math.max(0, Math.min(1, v));
+}
+
+function quizSetCommentaryVolumeLinear(linear) {
+    quizCommentaryVolume = Math.max(0, Math.min(1, Number(linear) || 0));
+    try {
+        localStorage.setItem(QUIZ_LS_COMMENTARY_VOL, String(quizCommentaryVolume));
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
+}
+
+function quizSetGameAudioVolumeLinear(linear) {
+    quizGameAudioVolume = Math.max(0, Math.min(1, Number(linear) || 0));
+    try {
+        localStorage.setItem(QUIZ_LS_GAMEAUDIO_VOL, String(quizGameAudioVolume));
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
 }
 
 function quizApplySuspenseVolumes() {
@@ -8208,6 +8279,19 @@ function quizSyncSpeechUi() {
         sBtn.setAttribute('aria-label', sl);
         sBtn.setAttribute('title', sl);
     }
+    const gvSl = document.getElementById('quiz-topbar-game-vol');
+    const gvSlIntro = document.getElementById('quiz-intro-game-vol');
+    const gvPct = String(Math.max(0, Math.min(100, Math.round(Number(quizGameAudioVolume) * 100))));
+    if (gvSl && document.activeElement !== gvSl) {
+        gvSl.value = gvPct;
+    }
+    if (gvSlIntro && document.activeElement !== gvSlIntro) {
+        gvSlIntro.value = gvPct;
+    }
+    const svSl = document.getElementById('quiz-topbar-speech-vol');
+    if (svSl && document.activeElement !== svSl) {
+        svSl.value = String(Math.max(0, Math.min(100, Math.round(Number(quizCommentaryVolume) * 100))));
+    }
     const slider = document.getElementById('quiz-speech-rate-slider');
     if (slider) slider.value = String(Math.max(0.7, Math.min(1.4, Number(quizSpeechRate) || 1)));
     const rateLabel = document.getElementById('quiz-speech-rate-label');
@@ -8795,6 +8879,36 @@ function quizEnsureTopbarAudioBinding() {
         quizBindIosFriendlyAudioButton(sBtn, function () {
             quizSetMuteState(!quizSpeechMutedTopbar);
         });
+    }
+    const gVol = document.getElementById('quiz-topbar-game-vol');
+    if (gVol && gVol.dataset.boundGameVol !== '1') {
+        gVol.dataset.boundGameVol = '1';
+        const onGameVol = function () {
+            quizSetGameAudioVolumeLinear(Number(gVol.value) / 100);
+        };
+        gVol.addEventListener('input', onGameVol);
+        gVol.addEventListener('change', onGameVol);
+        quizBindRangeTouchBridge(gVol, onGameVol);
+    }
+    const gVolIntro = document.getElementById('quiz-intro-game-vol');
+    if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
+        gVolIntro.dataset.boundGameVol = '1';
+        const onGameVolIntro = function () {
+            quizSetGameAudioVolumeLinear(Number(gVolIntro.value) / 100);
+        };
+        gVolIntro.addEventListener('input', onGameVolIntro);
+        gVolIntro.addEventListener('change', onGameVolIntro);
+        quizBindRangeTouchBridge(gVolIntro, onGameVolIntro);
+    }
+    const sVol = document.getElementById('quiz-topbar-speech-vol');
+    if (sVol && sVol.dataset.boundSpeechVol !== '1') {
+        sVol.dataset.boundSpeechVol = '1';
+        const onSpeechVol = function () {
+            quizSetCommentaryVolumeLinear(Number(sVol.value) / 100);
+        };
+        sVol.addEventListener('input', onSpeechVol);
+        sVol.addEventListener('change', onSpeechVol);
+        quizBindRangeTouchBridge(sVol, onSpeechVol);
     }
 }
 
