@@ -492,7 +492,10 @@
             appearance: none;
             background: transparent;
             cursor: pointer;
-            touch-action: manipulation;
+            touch-action: auto;
+            pointer-events: auto;
+            position: relative;
+            z-index: 5;
             flex-shrink: 1;
         }
         .quiz-fs-vol-slider::-webkit-slider-runnable-track {
@@ -2399,6 +2402,47 @@
         #quiz-microbe-unlock-modal .quiz-vat-worm-graphic {
             display: block !important;
         }
+        .quiz-bonus-pick-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10070;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(6, 17, 31, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-bonus-pick-modal.quiz-bonus-pick-modal--open { display: flex; }
+        .quiz-bonus-pick-modal__box {
+            width: min(96vw, 760px);
+            max-height: min(90vh, 880px);
+            overflow: auto;
+            border-radius: 16px;
+            padding: 16px;
+            background: linear-gradient(180deg, #f6f9fd 0%, #eef4fb 100%);
+            border: 1px solid rgba(26, 53, 84, 0.18);
+            box-shadow: 0 16px 45px rgba(7, 26, 47, 0.42);
+        }
+        .quiz-bonus-pick-modal__title { margin: 0 0 6px; color: #143254; font-size: 1.05rem; }
+        .quiz-bonus-pick-modal__lead { margin: 0 0 12px; color: #2b4f73; font-size: 0.9rem; }
+        .quiz-bonus-pick-grid { display: grid; grid-template-columns: repeat(4, minmax(62px, 1fr)); gap: 10px; }
+        .quiz-bonus-pick-card { perspective: 700px; border: 0; background: transparent; padding: 0; cursor: pointer; min-height: 86px; }
+        .quiz-bonus-pick-card__inner { position: relative; width: 100%; height: 100%; min-height: 86px; transition: transform 0.44s ease; transform-style: preserve-3d; }
+        .quiz-bonus-pick-card.is-revealed .quiz-bonus-pick-card__inner { transform: rotateY(180deg); }
+        .quiz-bonus-pick-card__face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 1px solid rgba(22, 53, 86, 0.22); }
+        .quiz-bonus-pick-card__front { background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%); color: #fff; font-weight: 800; letter-spacing: 0.07em; font-size: 0.78rem; text-transform: uppercase; }
+        .quiz-bonus-pick-card__back { transform: rotateY(180deg); background: #fff; flex-direction: column; gap: 4px; padding: 6px; }
+        .quiz-bonus-pick-card__back img { width: 48px; height: 48px; object-fit: contain; }
+        .quiz-bonus-pick-card__label { font-size: 0.7rem; font-weight: 700; color: #16385b; text-align: center; }
+        .quiz-bonus-pick-result { margin-top: 14px; display: none; border-radius: 12px; border: 1px solid rgba(22, 53, 86, 0.2); background: #fff; padding: 12px; align-items: center; gap: 12px; }
+        .quiz-bonus-pick-result.quiz-bonus-pick-result--show { display: flex; }
+        .quiz-bonus-pick-result__img { width: 68px; height: 68px; object-fit: contain; flex-shrink: 0; }
+        .quiz-bonus-pick-result__text h4 { margin: 0 0 5px; color: #123759; font-size: 0.98rem; }
+        .quiz-bonus-pick-result__text p { margin: 0; color: #2d4f70; font-size: 0.88rem; }
+        .quiz-bonus-pick-result__actions { margin-left: auto; align-self: flex-end; }
+
         /* Modale nome per ingresso in classifica (primi 10) */
         .quiz-top10-name-modal {
             display: none;
@@ -5564,6 +5608,24 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
+        <div id="quiz-bonus-pick-modal" class="quiz-bonus-pick-modal" aria-hidden="true" aria-labelledby="quiz-bonus-pick-title">
+            <div class="quiz-bonus-pick-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <h3 id="quiz-bonus-pick-title" class="quiz-bonus-pick-modal__title">Bonus domanda</h3>
+                <p class="quiz-bonus-pick-modal__lead">Scegli una casella: puoi ottenere punti bonus oppure una penalita.</p>
+                <div id="quiz-bonus-pick-grid" class="quiz-bonus-pick-grid" aria-live="polite"></div>
+                <div id="quiz-bonus-pick-result" class="quiz-bonus-pick-result">
+                    <img id="quiz-bonus-pick-result-img" class="quiz-bonus-pick-result__img" alt="">
+                    <div class="quiz-bonus-pick-result__text">
+                        <h4 id="quiz-bonus-pick-result-title"></h4>
+                        <p id="quiz-bonus-pick-result-desc"></p>
+                    </div>
+                    <div class="quiz-bonus-pick-result__actions">
+                        <button type="button" class="btn-side btn-report" id="quiz-bonus-pick-continue" onclick="quizBonusContinue()">Continua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div id="quiz-settings-overlay" class="quiz-settings-overlay" aria-hidden="true">
@@ -5725,7 +5787,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506b';
+const APP_BUILD = '20260506i';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -5770,6 +5832,17 @@ const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
 /** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
 const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
 const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
+const QUIZ_BONUS_TRIGGER_START = 3;
+const QUIZ_BONUS_TRIGGER_STEP = 5;
+const QUIZ_BONUS_CARD_TOTAL = 12;
+const QUIZ_BONUS_FANGO_POINTS = -20;
+const QUIZ_BONUS_ASSET_UREA = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_glicole-04edee96-1cad-450c-9b18-98b490cde109.png';
+const QUIZ_BONUS_ASSET_CONO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_cono-3531c9f3-8242-4188-9a42-09aac697088a.png';
+const QUIZ_BONUS_ASSET_GLICOLE = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_glicole-04edee96-1cad-450c-9b18-98b490cde109.png';
+const QUIZ_BONUS_ASSET_CARBONE = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_carbone-58e61920-e22c-4cb2-874a-3562b951a472.png';
+const QUIZ_BONUS_ASSET_OSSIGENO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_ossigeno-01c5c928-e79d-479a-9e17-62ad2d966c33.png';
+const QUIZ_BONUS_ASSET_VITA = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_bonus_vita-d47028bb-e416-4b62-9f94-b055a158fc1b.png';
+const QUIZ_BONUS_ASSET_FANGO = 'assets/c__Users_franc_AppData_Roaming_Cursor_User_workspaceStorage_3b54a0c14bdad611c35dbc14210256c4_images_fango_morto-d31a4260-5107-46a1-b02f-6bcabcfcdd2d.png';
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
@@ -5795,6 +5868,9 @@ let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
 /** Effetto risposta sbagliata: un solo elemento Audio precaricato per partenza immediata. */
 let quizWrongSfxAudio = null;
+let quizBonusPickContinuation = null;
+let quizBonusPickResolved = false;
+let quizBonusPickKeydownBound = false;
 /** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
 let quizIntroSessionTrack = null;
 let quizIntroAudioEl = null;
@@ -6772,6 +6848,21 @@ function quizEnsureIntroMusicPlaying() {
     } catch (eEns) { /* ignore */ }
 }
 
+
+/** Riprende il sottofondo partita se era attivo prima del background. */
+function quizEnsurePlayMusicPlaying() {
+    try {
+        if (!quizIsPlayScreenActive()) return;
+        if (quizGetGameAudioLinearVolume() <= 0) return;
+        if (quizSuspenseAudioEl && quizSuspenseAudioEl.src) {
+            try {
+                if (!quizSuspenseAudioEl.paused && !quizSuspenseAudioEl.ended) return;
+            } catch (eCh) { /* ignore */ }
+        }
+        quizPlaySuspenseAlternating({ resumeOnly: true });
+    } catch (eEns) { /* ignore */ }
+}
+
 let quizIntroMusicResumeGesturesBound = false;
 
 /** Registra una tantum: dopo interazione utente riprova la musica intro se serve (policy autoplay). */
@@ -6791,17 +6882,32 @@ function quizInstallIntroMusicLifecycleHooks() {
     window.addEventListener(
         'pageshow',
         function () {
-            requestAnimationFrame(quizEnsureIntroMusicPlaying);
+            requestAnimationFrame(function () {
+                quizEnsureIntroMusicPlaying();
+                quizEnsurePlayMusicPlaying();
+            });
         },
         { passive: true }
     );
     document.addEventListener(
         'visibilitychange',
         function () {
-            if (document.visibilityState === 'visible') quizEnsureIntroMusicPlaying();
+            if (document.visibilityState === 'visible') {
+                quizEnsureIntroMusicPlaying();
+                quizEnsurePlayMusicPlaying();
+            } else {
+                quizStopQuizAmbientMusic();
+            }
         },
         { passive: true }
     );
+    window.addEventListener('blur', function () {
+        quizStopQuizAmbientMusic();
+    }, { passive: true });
+    window.addEventListener('focus', function () {
+        quizEnsureIntroMusicPlaying();
+        quizEnsurePlayMusicPlaying();
+    }, { passive: true });
 }
 
 function quizSuspenseUnduckVolumes() {
@@ -7523,23 +7629,29 @@ function quizEnsureTopbarAudioBinding() {
     const gVol = document.getElementById('quiz-topbar-game-vol');
     if (gVol && gVol.dataset.boundGameVol !== '1') {
         gVol.dataset.boundGameVol = '1';
-        gVol.addEventListener('input', function () {
+        const onGameVol = function () {
             quizSetGameAudioVolumeLinear(Number(gVol.value) / 100);
-        });
+        };
+        gVol.addEventListener('input', onGameVol);
+        gVol.addEventListener('change', onGameVol);
     }
     const gVolIntro = document.getElementById('quiz-intro-game-vol');
     if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
         gVolIntro.dataset.boundGameVol = '1';
-        gVolIntro.addEventListener('input', function () {
+        const onGameVolIntro = function () {
             quizSetGameAudioVolumeLinear(Number(gVolIntro.value) / 100);
-        });
+        };
+        gVolIntro.addEventListener('input', onGameVolIntro);
+        gVolIntro.addEventListener('change', onGameVolIntro);
     }
     const sVol = document.getElementById('quiz-topbar-speech-vol');
     if (sVol && sVol.dataset.boundSpeechVol !== '1') {
         sVol.dataset.boundSpeechVol = '1';
-        sVol.addEventListener('input', function () {
+        const onSpeechVol = function () {
             quizSetCommentaryVolumeLinear(Number(sVol.value) / 100);
-        });
+        };
+        sVol.addEventListener('input', onSpeechVol);
+        sVol.addEventListener('change', onSpeechVol);
     }
 }
 
@@ -8596,6 +8708,102 @@ function quizWrongModalOk() {
         return;
     }
     quizFinish(false, opts);
+
+function quizShouldOpenBonusForCompletedIndex(completedIdx) {
+    const qNum = Number(completedIdx) + 1;
+    if (!(qNum >= QUIZ_BONUS_TRIGGER_START)) return false;
+    return ((qNum - QUIZ_BONUS_TRIGGER_START) % QUIZ_BONUS_TRIGGER_STEP) === 0;
+}
+function quizBonusShuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+}
+function quizBonusDeckTemplate() {
+    return [
+        { id: 'urea', label: 'Urea', img: QUIZ_BONUS_ASSET_UREA, kind: 'points', value: 15, title: 'Bonus urea +15 punti' },
+        { id: 'cono', label: 'Cono', img: QUIZ_BONUS_ASSET_CONO, kind: 'points', value: 10, title: 'Bonus cono +10 punti' },
+        { id: 'glicole', label: 'Glicole', img: QUIZ_BONUS_ASSET_GLICOLE, kind: 'points', value: 5, title: 'Bonus glicole +5 punti' },
+        { id: 'carbone', label: 'Carbone', img: QUIZ_BONUS_ASSET_CARBONE, kind: 'points', value: 20, title: 'Bonus carbone +20 punti' },
+        { id: 'ossigeno', label: 'Ossigeno', img: QUIZ_BONUS_ASSET_OSSIGENO, kind: 'points', value: 25, title: 'Bonus ossigeno +25 punti' },
+        { id: 'vita', label: 'Bonus vita', img: QUIZ_BONUS_ASSET_VITA, kind: 'life', value: 1, title: 'Bonus vita +1' }
+    ];
+}
+function quizBonusFangoItem() {
+    return { id: 'fango-morto', label: 'Fango morto', img: QUIZ_BONUS_ASSET_FANGO, kind: 'fango', value: QUIZ_BONUS_FANGO_POINTS, title: 'Pericolo -20 punti' };
+}
+function quizBonusPickModalHide() {
+    const modal = document.getElementById('quiz-bonus-pick-modal');
+    if (modal) { modal.classList.remove('quiz-bonus-pick-modal--open'); modal.setAttribute('aria-hidden', 'true'); }
+    if (quizBonusPickKeydownBound) { document.removeEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = false; }
+}
+function quizBonusPickModalKeydown(ev) {
+    const modal = document.getElementById('quiz-bonus-pick-modal');
+    if (!modal || !modal.classList.contains('quiz-bonus-pick-modal--open')) return;
+    if (ev.key === 'Enter' && quizBonusPickResolved) { ev.preventDefault(); quizBonusContinue(); }
+}
+function quizBonusApplyOutcome(item) {
+    if (!item) return;
+    if (item.kind === 'points') quizState.score += Number(item.value) || 0;
+    else if (item.kind === 'fango') quizState.score += Number(item.value) || QUIZ_BONUS_FANGO_POINTS;
+    else if (item.kind === 'life') quizState.wrongCount = Math.max(0, (Number(quizState.wrongCount) || 0) - 1);
+    quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true, scoreboardScoring: true });
+}
+function quizBonusDescribe(item) {
+    if (!item) return '';
+    if (item.kind === 'points') return 'Hai guadagnato ' + item.value + ' punti bonus.';
+    if (item.kind === 'life') return 'Recuperi una vita: puoi commettere un errore in piu.';
+    return 'Pericolo: perdi 20 punti.';
+}
+function quizBonusContinue() {
+    const fn = quizBonusPickContinuation;
+    quizBonusPickContinuation = null; quizBonusPickResolved = false;
+    quizBonusPickModalHide();
+    if (typeof fn === 'function') fn();
+}
+function quizOpenBonusPickModal(onContinue) {
+    const modal = document.getElementById('quiz-bonus-pick-modal');
+    const grid = document.getElementById('quiz-bonus-pick-grid');
+    const result = document.getElementById('quiz-bonus-pick-result');
+    const resultImg = document.getElementById('quiz-bonus-pick-result-img');
+    const resultTitle = document.getElementById('quiz-bonus-pick-result-title');
+    const resultDesc = document.getElementById('quiz-bonus-pick-result-desc');
+    if (!modal || !grid || !result || !resultImg || !resultTitle || !resultDesc) { if (typeof onContinue === 'function') onContinue(); return; }
+    quizBonusPickContinuation = typeof onContinue === 'function' ? onContinue : null;
+    quizBonusPickResolved = false;
+    grid.innerHTML = '';
+    result.classList.remove('quiz-bonus-pick-result--show');
+    const deck = quizBonusDeckTemplate();
+    while (deck.length < QUIZ_BONUS_CARD_TOTAL) deck.push(quizBonusFangoItem());
+    const shuffled = quizBonusShuffle(deck);
+    shuffled.forEach(function (item, idx) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quiz-bonus-pick-card';
+        btn.setAttribute('aria-label', 'Casella bonus ' + (idx + 1));
+        btn.innerHTML = '<span class="quiz-bonus-pick-card__inner"><span class="quiz-bonus-pick-card__face quiz-bonus-pick-card__front">?</span><span class="quiz-bonus-pick-card__face quiz-bonus-pick-card__back"><img src="' + item.img + '" alt=""><span class="quiz-bonus-pick-card__label">' + item.label + '</span></span></span>';
+        btn.addEventListener('click', function () {
+            if (quizBonusPickResolved) return;
+            quizBonusPickResolved = true;
+            btn.classList.add('is-revealed');
+            quizBonusApplyOutcome(item);
+            setTimeout(function () {
+                resultImg.src = item.img; resultImg.alt = item.label;
+                resultTitle.textContent = item.title;
+                resultDesc.textContent = quizBonusDescribe(item);
+                result.classList.add('quiz-bonus-pick-result--show');
+            }, 260);
+        });
+        grid.appendChild(btn);
+    });
+    modal.classList.add('quiz-bonus-pick-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    if (!quizBonusPickKeydownBound) { document.addEventListener('keydown', quizBonusPickModalKeydown, true); quizBonusPickKeydownBound = true; }
+}
+
 }
 
 function quizClearQuestionTimer() {
@@ -9851,12 +10059,18 @@ function quizRenderQuestion(opts) {
 }
 
 function quizAdvanceCorrect() {
+    const completedIdx = quizState.index;
     const wrap = document.getElementById('quiz-play-body');
     if (!wrap) {
         quizState.index += 1;
         if (quizState.index >= quizState.queue.length) {
             quizAnswerLocked = false;
             quizFinish(true);
+        } else if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+            quizOpenBonusPickModal(function () {
+                quizAnswerLocked = false;
+                quizRenderQuestion({ instant: true });
+            });
         } else {
             quizAnswerLocked = false;
             quizRenderQuestion({ instant: true });
@@ -9872,18 +10086,28 @@ function quizAdvanceCorrect() {
             quizFinish(true);
             return;
         }
+        if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+            wrap.classList.remove('quiz-fade-out');
+            quizOpenBonusPickModal(function () {
+                quizAnswerLocked = false;
+                quizRenderQuestion({ instant: true });
+                void wrap.offsetWidth;
+                wrap.classList.add('quiz-fade-in');
+                setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+            });
+            return;
+        }
         quizAnswerLocked = false;
         quizRenderQuestion({ instant: true });
         wrap.classList.remove('quiz-fade-out');
         void wrap.offsetWidth;
         wrap.classList.add('quiz-fade-in');
-        setTimeout(() => {
-            wrap.classList.remove('quiz-fade-in');
-        }, 420);
+        setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
     }, 280);
 }
 
 function quizAdvanceAfterWrongContinue() {
+    const completedIdx = quizState.index;
     quizClearQuestionTimer();
     quizBioVatClearAllMenaceMarks();
     const fb = document.getElementById('quiz-feedback');
@@ -9900,6 +10124,18 @@ function quizAdvanceAfterWrongContinue() {
             quizFinish(false, { seenAllQuestions: true });
             return;
         }
+        if (quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+            quizOpenBonusPickModal(function () {
+                quizAnswerLocked = false;
+                quizRenderQuestion({ instant: true });
+                if (wrap) {
+                    void wrap.offsetWidth;
+                    wrap.classList.add('quiz-fade-in');
+                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+                }
+            });
+            return;
+        }
         quizAnswerLocked = false;
         quizRenderQuestion({ instant: true });
     };
@@ -9908,9 +10144,11 @@ function quizAdvanceAfterWrongContinue() {
         setTimeout(() => {
             step();
             wrap.classList.remove('quiz-fade-out');
-            void wrap.offsetWidth;
-            wrap.classList.add('quiz-fade-in');
-            setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+            if (!quizShouldOpenBonusForCompletedIndex(completedIdx)) {
+                void wrap.offsetWidth;
+                wrap.classList.add('quiz-fade-in');
+                setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+            }
         }, 280);
     } else {
         step();
