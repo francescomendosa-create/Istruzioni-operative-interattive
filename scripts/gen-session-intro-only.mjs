@@ -11,7 +11,7 @@ const ROOT = path.resolve(__dirname, '..');
 const OUT_BASE = path.join(ROOT, 'assets', 'quiz-audio');
 const FILE = 'quiz-session-intro.mp3';
 const TEXT =
-  'Salve e benvenuti al quiz di istruzioni operative interattive. Iniziamo.';
+  'Salve, cominciamo subito con la prima domanda.';
 
 const VOICES = ['naturale', 'chiara', 'profonda', 'telecronaca'];
 

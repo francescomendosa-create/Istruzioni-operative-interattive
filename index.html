@@ -492,7 +492,7 @@
             appearance: none;
             background: transparent;
             cursor: pointer;
-            touch-action: auto;
+            touch-action: none;
             pointer-events: auto;
             position: relative;
             z-index: 5;
@@ -5848,7 +5848,7 @@ function dismissAppSplash() {
                 </div>
                 <div class="quiz-settings-row-title" style="margin-top:8px;font-weight:700;color:#1a237e;">Modalità telecronaca</div>
                 <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-                    <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione AI</button>
+                    <button type="button" class="btn-side btn-report" onclick="quizSaveAiVoiceConfig()">Salva configurazione</button>
                     <button type="button" class="btn-side btn-reset" onclick="quizTestAiVoice()">Test voce</button>
                 </div>
                 <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità telecronaca online attiva.</p>
@@ -5926,7 +5926,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506za';
+const APP_BUILD = '20260506zc';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7926,6 +7926,45 @@ function quizSettingsSetGameMute(on) {
 }
 
 function quizEnsureTopbarAudioBinding() {
+    function bindRangeTouchBridge(slider, onApply) {
+        if (!slider || slider.dataset.boundTouchBridge === '1') return;
+        slider.dataset.boundTouchBridge = '1';
+        const applyFromClientX = function (clientX) {
+            try {
+                const min = Number(slider.min || 0);
+                const max = Number(slider.max || 100);
+                const rect = slider.getBoundingClientRect();
+                if (!rect || rect.width <= 1) return;
+                const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                const v = min + ratio * (max - min);
+                slider.value = String(Math.round(v));
+                onApply();
+            } catch (eR) { /* ignore */ }
+        };
+        const onTouchStart = function (ev) {
+            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+            const t = ev.touches && ev.touches[0];
+            if (!t) return;
+            applyFromClientX(t.clientX);
+        };
+        const onTouchMove = function (ev) {
+            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+            const t = ev.touches && ev.touches[0];
+            if (!t) return;
+            applyFromClientX(t.clientX);
+        };
+        const onPointer = function (ev) {
+            if (!ev || typeof ev.clientX !== 'number') return;
+            applyFromClientX(ev.clientX);
+        };
+        slider.addEventListener('touchstart', onTouchStart, { passive: false });
+        slider.addEventListener('touchmove', onTouchMove, { passive: false });
+        slider.addEventListener('pointerdown', onPointer, { passive: true });
+        slider.addEventListener('pointermove', function (ev) {
+            if (ev && ev.buttons) onPointer(ev);
+        }, { passive: true });
+    }
+
     const gBtn = document.getElementById('quiz-topbar-game-audio');
     if (gBtn && gBtn.dataset.boundGameMute !== '1') {
         gBtn.dataset.boundGameMute = '1';
@@ -7973,6 +8012,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         gVol.addEventListener('input', onGameVol);
         gVol.addEventListener('change', onGameVol);
+        bindRangeTouchBridge(gVol, onGameVol);
     }
     const gVolIntro = document.getElementById('quiz-intro-game-vol');
     if (gVolIntro && gVolIntro.dataset.boundGameVol !== '1') {
@@ -7982,6 +8022,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         gVolIntro.addEventListener('input', onGameVolIntro);
         gVolIntro.addEventListener('change', onGameVolIntro);
+        bindRangeTouchBridge(gVolIntro, onGameVolIntro);
     }
     const sVol = document.getElementById('quiz-topbar-speech-vol');
     if (sVol && sVol.dataset.boundSpeechVol !== '1') {
@@ -7991,6 +8032,7 @@ function quizEnsureTopbarAudioBinding() {
         };
         sVol.addEventListener('input', onSpeechVol);
         sVol.addEventListener('change', onSpeechVol);
+        bindRangeTouchBridge(sVol, onSpeechVol);
     }
 }
 
