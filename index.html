@@ -5872,7 +5872,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506v';
+const APP_BUILD = '20260506w';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7163,7 +7163,7 @@ function quizPlayBonusOkSfx() {
 const quizUiSfxPool = Object.create(null);
 let quizUiSfxUnlocked = false;
 let quizUiSfxLastPointerAt = 0;
-let quizUiSfxLastPointerTarget = null;
+let quizUiSfxLastActivator = null;
 let quizUiSfxLastPressTs = 0;
 
 function quizGetUiSfxVoices(relPath) {
@@ -7253,12 +7253,6 @@ function initIstruzioniUiClickSounds() {
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-            if (!fromPressStart) {
-                const now = Date.now();
-                if (quizUiSfxLastPointerTarget && raw === quizUiSfxLastPointerTarget && (now - quizUiSfxLastPointerAt) < 480) {
-                    return;
-                }
-            }
 
             const colBox = raw.closest('.col-box');
             if (
@@ -7282,6 +7276,12 @@ function initIstruzioniUiClickSounds() {
                 if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
             }
             if (!activator) return;
+            if (!fromPressStart) {
+                const now = Date.now();
+                if (quizUiSfxLastActivator && activator === quizUiSfxLastActivator && (now - quizUiSfxLastPointerAt) < 520) {
+                    return;
+                }
+            }
 
             if (activator.closest('#app-splash')) {
                 if (
@@ -7307,13 +7307,26 @@ function initIstruzioniUiClickSounds() {
         if ((now - quizUiSfxLastPressTs) < 28) return;
         quizUiSfxLastPressTs = now;
         quizUiSfxLastPointerAt = now;
-        quizUiSfxLastPointerTarget = ev.target && ev.target.nodeType === 1 ? ev.target : null;
+        const raw = ev.target;
+        if (raw && raw.nodeType === 1 && typeof raw.closest === 'function') {
+            quizUiSfxLastActivator =
+                raw.closest('button') ||
+                raw.closest('summary') ||
+                raw.closest('[role="button"]') ||
+                raw.closest('[onclick]') ||
+                raw.closest('label');
+        } else {
+            quizUiSfxLastActivator = null;
+        }
         quizUnlockUiSfxOnce();
         handleClickLike(ev, true);
     };
-    document.addEventListener('pointerdown', onPressStart, { capture: true, passive: true });
-    document.addEventListener('touchstart', onPressStart, { capture: true, passive: true });
-    document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
+    if (window.PointerEvent) {
+        document.addEventListener('pointerdown', onPressStart, { capture: true, passive: true });
+    } else {
+        document.addEventListener('touchstart', onPressStart, { capture: true, passive: true });
+        document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
+    }
     document.addEventListener('click', function (ev) {
         handleClickLike(ev, false);
     }, false);
