@@ -482,6 +482,9 @@
             gap: 4px;
             flex-shrink: 1;
             min-width: 0;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .quiz-fs-vol-slider {
             width: clamp(52px, 18vw, 108px);
@@ -497,6 +500,7 @@
             position: relative;
             z-index: 5;
             flex-shrink: 1;
+            -webkit-tap-highlight-color: transparent;
         }
         .quiz-fs-vol-slider::-webkit-slider-runnable-track {
             height: 10px;
@@ -3562,7 +3566,7 @@
         }
         .quiz-rank-rest-head {
             display: grid;
-            grid-template-columns: 58px 1fr 88px;
+            grid-template-columns: 92px 1fr 88px;
             gap: 10px;
             align-items: center;
             padding: 10px 14px;
@@ -3578,7 +3582,7 @@
         .quiz-rank-rest-head span:last-child { text-align: right; }
         .quiz-rank-rest-row {
             display: grid;
-            grid-template-columns: 58px 1fr 88px;
+            grid-template-columns: 92px 1fr 88px;
             gap: 10px;
             align-items: center;
             padding: 12px 14px;
@@ -3613,6 +3617,17 @@
             font-weight: 800;
             color: #1565c0;
             margin-left: 1px;
+        }
+        .quiz-rank-rest-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-left: 5px;
+            border: 2px solid rgba(21, 101, 192, 0.32);
+            box-shadow: 0 1px 4px rgba(13, 71, 161, 0.18);
+            background: #e3f2fd;
         }
         .quiz-rank-nm { min-width: 0; }
         .quiz-rank-nm-inner {
@@ -4143,10 +4158,15 @@
             }
             .quiz-rank-rest-head,
             .quiz-rank-rest-row {
-                grid-template-columns: 54px 1fr 74px;
+                grid-template-columns: 82px 1fr 74px;
                 gap: 8px;
                 padding-left: 10px;
                 padding-right: 10px;
+            }
+            .quiz-rank-rest-avatar {
+                width: 22px;
+                height: 22px;
+                margin-left: 4px;
             }
             .quiz-rank-score-pill {
                 min-width: 2.7rem;
@@ -6050,7 +6070,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506zm';
+const APP_BUILD = '20260506zp';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7330,6 +7350,9 @@ function quizPlayWrongAnswerSfx() {
             /* ignore */
         }
         a.volume = 0.88 * gv;
+        try {
+            a.playbackRate = 1.42;
+        } catch (eR) { /* ignore */ }
         a.play().catch(function () { /* autoplay */ });
     } catch (eW) { /* ignore */ }
 }
@@ -8135,6 +8158,17 @@ function quizSettingsSetGameMute(on) {
     quizSetGameAudioMuteState(!!on);
 }
 
+/** iOS Safari: pointer drag su <input type="range"> spesso non aggiorna; usiamo touch dedicato. */
+function quizPreferTouchSliderBridge() {
+    try {
+        const ua = navigator.userAgent || '';
+        if (/iPhone|iPod/i.test(ua)) return true;
+        if (/iPad/i.test(ua)) return true;
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+    } catch (e) { /* ignore */ }
+    return false;
+}
+
 function quizEnsureTopbarAudioBinding() {
     function bindRangeTouchBridge(slider, onApply) {
         if (!slider || slider.dataset.boundTouchBridge === '1') return;
@@ -8147,32 +8181,71 @@ function quizEnsureTopbarAudioBinding() {
                 if (!rect || rect.width <= 1) return;
                 const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
                 const v = min + ratio * (max - min);
-                slider.value = String(Math.round(v));
+                const rounded = Math.round(v);
+                if (Number(slider.value) !== rounded) {
+                    slider.value = String(rounded);
+                }
                 onApply();
             } catch (eR) { /* ignore */ }
         };
+        let touchActive = false;
+        const endTouchDrag = function () {
+            touchActive = false;
+        };
         const onTouchStart = function (ev) {
+            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
             try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+            touchActive = true;
             const t = ev.touches && ev.touches[0];
-            if (!t) return;
-            applyFromClientX(t.clientX);
+            if (t) applyFromClientX(t.clientX);
         };
         const onTouchMove = function (ev) {
+            if (!touchActive) return;
+            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
             try { ev.preventDefault(); } catch (eP) { /* ignore */ }
             const t = ev.touches && ev.touches[0];
-            if (!t) return;
-            applyFromClientX(t.clientX);
+            if (t) applyFromClientX(t.clientX);
         };
-        const onPointer = function (ev) {
-            if (!ev || typeof ev.clientX !== 'number') return;
+        let ptrId = null;
+        const onPtrDown = function (ev) {
+            if (!ev) return;
+            if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+            try { ev.stopPropagation(); } catch (eS) { /* ignore */ }
+            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+            ptrId = ev.pointerId;
+            try {
+                slider.setPointerCapture(ptrId);
+            } catch (eCap) { /* ignore */ }
             applyFromClientX(ev.clientX);
         };
-        slider.addEventListener('touchstart', onTouchStart, { passive: false });
-        slider.addEventListener('touchmove', onTouchMove, { passive: false });
-        slider.addEventListener('pointerdown', onPointer, { passive: true });
-        slider.addEventListener('pointermove', function (ev) {
-            if (ev && ev.buttons) onPointer(ev);
-        }, { passive: true });
+        const onPtrMove = function (ev) {
+            if (ptrId == null || !ev || ev.pointerId !== ptrId) return;
+            try { ev.preventDefault(); } catch (eP) { /* ignore */ }
+            applyFromClientX(ev.clientX);
+        };
+        const onPtrUp = function (ev) {
+            if (ev && ptrId != null && ev.pointerId === ptrId) {
+                ptrId = null;
+                try {
+                    slider.releasePointerCapture(ev.pointerId);
+                } catch (eR) { /* ignore */ }
+            }
+        };
+        const usePointer = typeof window.PointerEvent !== 'undefined' && !quizPreferTouchSliderBridge();
+        if (usePointer) {
+            slider.addEventListener('pointerdown', onPtrDown, { passive: false, capture: true });
+            slider.addEventListener('pointermove', onPtrMove, { passive: false });
+            slider.addEventListener('pointerup', onPtrUp, { passive: true });
+            slider.addEventListener('pointercancel', onPtrUp, { passive: true });
+            slider.addEventListener('lostpointercapture', function () {
+                ptrId = null;
+            }, { passive: true });
+        } else {
+            slider.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+            slider.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+            slider.addEventListener('touchend', endTouchDrag, { passive: true, capture: true });
+            slider.addEventListener('touchcancel', endTouchDrag, { passive: true, capture: true });
+        }
     }
 
     const gBtn = document.getElementById('quiz-topbar-game-audio');
@@ -9549,7 +9622,7 @@ function quizBioWrongPenaltyMenaceThen(done) {
             g.classList.add('quiz-worm--menace');
         } catch (e) { /* ignore */ }
     });
-    const holdMs = quizPrefersReducedMotion() ? 90 : 750;
+    const holdMs = quizPrefersReducedMotion() ? 60 : 280;
     window.setTimeout(done, holdMs);
 }
 
@@ -10373,7 +10446,12 @@ function quizRenderLeaderboard() {
         for (let i = 3; i < display.length; i++) {
             const r = display[i];
             const rank = i + 1;
-            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span></span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
+            const av = Number(r.avatar);
+            const useAvatar = Number.isFinite(av) && av >= 0 && av < QUIZ_AVATAR_COUNT;
+            const avHtml = useAvatar
+                ? `<img class="quiz-rank-rest-avatar" src="${escapeQuizHtml(quizAvatarUrl(av))}" alt="" decoding="async" draggable="false">`
+                : '';
+            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span>${avHtml}</span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
         }
         restSection = `<div class="quiz-rank-rest-wrap"><div class="quiz-rank-rest-title">Dal 4\u00B0 posto in gi\u00F9</div>${rest}</div>`;
     }
@@ -10808,7 +10886,7 @@ function quizAdvanceAfterWrongContinue() {
                 if (wrap) {
                     void wrap.offsetWidth;
                     wrap.classList.add('quiz-fade-in');
-                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 320);
                 }
             });
             return;
@@ -10825,12 +10903,12 @@ function quizAdvanceAfterWrongContinue() {
                 if (!quizShouldOpenBonusForCompletedIndex(completedIdx)) {
                     void wrap.offsetWidth;
                     wrap.classList.add('quiz-fade-in');
-                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 420);
+                    setTimeout(() => wrap.classList.remove('quiz-fade-in'), 320);
                 }
             } catch (err) {
                 quizHandleAdvanceRuntimeError(err);
             }
-        }, 280);
+        }, 180);
     } else {
         try {
             step();
@@ -10966,7 +11044,7 @@ function quizAnswer(idx) {
             quizBioVatSink();
             setTimeout(() => {
                 quizOpenWrongExplainModal('wrong', q, { continuePlay: false, fatalNoWorms: true });
-            }, 420);
+            }, 200);
         } else {
             quizBioWrongPenaltyMenaceThen(() => {
                 quizBioVatClearAllMenaceMarks();
@@ -10978,7 +11056,7 @@ function quizAnswer(idx) {
                 if (!continuePlay) {
                     quizBioVatSink();
                 }
-                const modalDelay = quizPrefersReducedMotion() ? 140 : 400;
+                const modalDelay = quizPrefersReducedMotion() ? 70 : 140;
                 setTimeout(() => {
                     quizOpenWrongExplainModal('wrong', q, { continuePlay: continuePlay, fatalNoWorms: false });
                 }, modalDelay);
@@ -13058,6 +13136,13 @@ function openQuiz() {
     });
     requestAnimationFrame(function () {
         requestAnimationFrame(quizEnsureIntroMusicPlaying);
+    });
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            try {
+                quizEnsureTopbarAudioBinding();
+            } catch (eTb) { /* ignore */ }
+        });
     });
 }
 
