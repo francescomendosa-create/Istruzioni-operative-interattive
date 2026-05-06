@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="pwa-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="pwa-512.png">
-    <link rel="manifest" href="manifest.json?v=20260505e">
+    <link rel="manifest" href="manifest.json?v=20260505f">
     <meta name="theme-color" content="#1f3f68">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -5584,7 +5584,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app dalla rete">
                 <div>
                     <div class="quiz-settings-row-title">Aggiorna</div>
-                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505e</span> · controlla aggiornamenti dal server</div>
+                    <div class="quiz-settings-row-sub" id="quiz-settings-refresh-sub">Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">20260505f</span> · controlla aggiornamenti dal server</div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">↻</span>
             </button>
@@ -5665,7 +5665,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi il software, i testi, le grafiche e il codice sorgente, è di proprietà esclusiva di <strong>Francesco Mellea</strong> ed è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il progetto è affidato in via esclusiva al reparto Servizi di <strong>Sasol Italy S.p.A.</strong> e il suo impiego ha <strong>unica finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260505e</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">20260505f</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -5725,7 +5725,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Allinea a sw.js (commento build: …) dopo ogni deploy importante. */
-const APP_BUILD = '20260506a';
+const APP_BUILD = '20260506b';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -6545,8 +6545,62 @@ function quizResolveMediaUrl(relPath) {
 }
 
 /**
- * Primo path relativo che esiste sul server. Prima HEAD (leggero); se non supportato o fallisce,
- * prova GET con Range 1 byte — molti host statici / CDN non rispondono 200 a HEAD sui .mp3.
+ * Quando HEAD/fetch falliscono (policy host, SW, CORS su probe fetch):
+ * prova come il riproduttore HTML; stesso meccanismo di riproduzione in partita.
+ */
+function quizProbeMp3UrlResolvable(absUrl) {
+    return new Promise(function (resolve) {
+        const a = new Audio();
+        let done = false;
+        function finish(ok) {
+            if (done) return;
+            done = true;
+            try {
+                clearTimeout(timer);
+            } catch (eCt) {
+                /* ignore */
+            }
+            try {
+                a.removeAttribute('src');
+                a.load();
+            } catch (eL) {
+                /* ignore */
+            }
+            resolve(!!ok);
+        }
+        const timer = setTimeout(function () {
+            finish(false);
+        }, 2800);
+        a.addEventListener(
+            'canplay',
+            function () {
+                finish(true);
+            },
+            { once: true }
+        );
+        a.addEventListener(
+            'error',
+            function () {
+                finish(false);
+            },
+            { once: true }
+        );
+        try {
+            a.preload = 'metadata';
+            a.src = absUrl;
+            try {
+                a.load();
+            } catch (eLd) {
+                /* ignore */
+            }
+        } catch (eSet) {
+            finish(false);
+        }
+    });
+}
+
+/**
+ * Primo path relativo utilizzabile: HEAD → GET range → probe Audio (compatibile con più hosting).
  */
 async function quizResolveFirstExistingMediaUrl(relPaths) {
     if (!relPaths || !relPaths.length) return '';
@@ -6582,6 +6636,9 @@ async function quizResolveFirstExistingMediaUrl(relPaths) {
             found = false;
         } finally {
             clearTimeout(timer);
+        }
+        if (!found) {
+            found = await quizProbeMp3UrlResolvable(absUrl);
         }
         if (found) return absUrl;
     }
@@ -7062,7 +7119,9 @@ function quizSyncSpeechUi() {
 }
 
 function quizSpeakCurrentQuestionAndChoices() {
-    if (!quizSpeechSupported() || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
+    if (quizSpeechMutedTopbar || !quizIsPlayScreenActive()) return;
+    /* Telecronaca Piper + MP3 usa solo Audio HTML: non richiedere speechSynthesis (alcuni browser / contesti senza API voce). */
+    if (quizVoiceEngine !== 'piper' && !quizSpeechSupported()) return;
     const q = quizState.queue && quizState.queue[quizState.index];
     if (!q || !Array.isArray(q.options)) return;
     quizStopSpeech();
@@ -7076,7 +7135,8 @@ function quizSpeakCurrentQuestionAndChoices() {
  * lo riproduce prima della telecronaca della prima domanda.
  */
 async function quizPlayOfflineSessionIntroThenQuestion() {
-    if (!quizSpeechSupported() || quizSpeechMutedTopbar || !quizIsPlayScreenActive()) {
+    /* L’intro è un MP3: non dipende da speechSynthesis (prima veniva bloccata del tutto senza API voce). */
+    if (quizSpeechMutedTopbar || !quizIsPlayScreenActive()) {
         quizSpeakCurrentQuestionAndChoices();
         return;
     }
@@ -7237,6 +7297,7 @@ async function quizBuildGeminiCommentaryText(rawText, runId) {
         const prompt =
             'Agisci come telecronista quiz in italiano. ' +
             'Riformula in stile telecronaca coinvolgente ma chiara, max 110 parole, senza markdown. ' +
+            'Non iniziare con la parola «Domanda» né ripeterla nel testo. ' +
             'Mantieni domanda e opzioni complete. Usa ' + styleHint + '. Testo: ' + rawText;
         const gemUrl =
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
