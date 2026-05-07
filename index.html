@@ -220,6 +220,25 @@
         .btn-header-icon:hover { filter: brightness(1.1); }
         .btn-header-icon:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.18); }
         .btn-header-icon svg { display: block; }
+        .btn-header-icon.quiz-update-available {
+            animation: quizUpdateNudge 1.15s ease-in-out infinite;
+        }
+        .btn-header-icon.quiz-update-available::after {
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: -2px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff1744;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px rgba(255, 23, 68, 0.28);
+        }
+        @keyframes quizUpdateNudge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-1px); }
+        }
 
         .btn-quiz {
             box-sizing: border-box;
@@ -5177,6 +5196,20 @@
             color: #e8f5e9;
             font-weight: 800;
         }
+        #quiz-settings-refresh-btn.quiz-update-available {
+            animation: quizUpdatePulse 1.1s ease-in-out infinite;
+        }
+        #quiz-settings-refresh-btn .quiz-settings-build-label--blink {
+            animation: quizUpdateBlink 0.9s steps(1, end) infinite;
+        }
+        @keyframes quizUpdatePulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.12); }
+        }
+        @keyframes quizUpdateBlink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.56; }
+        }
         #quiz-settings-refresh-btn .quiz-settings-refresh-icon {
             display: inline-block;
             font-size: 1.22rem;
@@ -7834,7 +7867,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509ak';
+const APP_BUILD = '20260510a';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -11401,66 +11434,31 @@ function quizParseSwBuildFromText(swText) {
     }
 }
 
-function quizUpdateBannerEnsure() {
-    let el = document.getElementById('quiz-update-banner');
-    if (el) return el;
-    el = document.createElement('div');
-    el.id = 'quiz-update-banner';
-    el.setAttribute('role', 'status');
-    el.setAttribute('aria-live', 'polite');
-    el.style.cssText = [
-        'position:fixed',
-        'left:50%',
-        'bottom:14px',
-        'transform:translateX(-50%)',
-        'z-index:10080',
-        'display:none',
-        'align-items:center',
-        'gap:8px',
-        'max-width:min(96vw,560px)',
-        'padding:10px 12px',
-        'border-radius:12px',
-        'background:linear-gradient(180deg,#1e3a8a 0%,#0f2f53 100%)',
-        'color:#fff',
-        'box-shadow:0 12px 28px rgba(15,23,42,.35)',
-        'font-size:0.85rem',
-        'font-weight:700'
-    ].join(';');
-    el.innerHTML =
-        '<span id="quiz-update-banner-msg">Aggiornamento disponibile.</span>' +
-        '<button id="quiz-update-banner-refresh" type="button" class="btn-side btn-report" style="min-width:auto;padding:6px 10px;font-size:0.74rem;">Aggiorna ora</button>' +
-        '<button id="quiz-update-banner-close" type="button" class="btn-side btn-reset" style="min-width:auto;padding:6px 10px;font-size:0.74rem;">Chiudi</button>';
-    document.body.appendChild(el);
-    const refreshBtn = document.getElementById('quiz-update-banner-refresh');
+let quizPendingRemoteBuild = '';
+
+function quizApplyUpdateAvailabilityUi() {
+    const headerSettingsBtn = document.querySelector('button[onclick="showQuizSettingsModal()"]');
+    const refreshBtn = document.getElementById('quiz-settings-refresh-btn');
+    const hasUpdate = !!quizPendingRemoteBuild;
+    if (headerSettingsBtn) {
+        headerSettingsBtn.classList.toggle('quiz-update-available', hasUpdate);
+        if (hasUpdate) {
+            headerSettingsBtn.setAttribute('title', 'Impostazioni · Aggiornamento disponibile');
+            headerSettingsBtn.setAttribute('aria-label', 'Impostazioni. Aggiornamento disponibile');
+        } else {
+            headerSettingsBtn.setAttribute('title', 'Impostazioni');
+            headerSettingsBtn.setAttribute('aria-label', 'Impostazioni');
+        }
+    }
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', function () {
-            try {
-                const u = new URL(window.location.href);
-                u.searchParams.set('v', String(Date.now()));
-                window.location.replace(u.toString());
-            } catch (e) {
-                location.reload();
-            }
-        });
+        refreshBtn.classList.toggle('quiz-update-available', hasUpdate);
     }
-    const closeBtn = document.getElementById('quiz-update-banner-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-            el.style.display = 'none';
-        });
-    }
-    return el;
 }
 
-function quizShowUpdateBanner(remoteBuild) {
-    const b = String(remoteBuild || '').trim();
-    if (!b) return;
-    const el = quizUpdateBannerEnsure();
-    if (!el) return;
-    el.setAttribute('data-remote-build', b);
-    const msg = document.getElementById('quiz-update-banner-msg');
-    if (msg) msg.textContent = 'Aggiornamento disponibile (build ' + b + ').';
-    el.style.display = 'flex';
+function quizSetUpdateAvailable(remoteBuild) {
+    quizPendingRemoteBuild = String(remoteBuild || '').trim();
+    quizApplyUpdateAvailabilityUi();
+    quizSettingsRefreshLineReset();
 }
 
 async function quizCheckUpdateAvailableSilently() {
@@ -11471,8 +11469,11 @@ async function quizCheckUpdateAvailableSilently() {
         if (!resp || !resp.ok) return;
         const remoteBuild = quizParseSwBuildFromText(await resp.text());
         const localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
-        if (!remoteBuild || !localBuild || remoteBuild === localBuild) return;
-        quizShowUpdateBanner(remoteBuild);
+        if (!remoteBuild || !localBuild || remoteBuild === localBuild) {
+            quizSetUpdateAvailable('');
+            return;
+        }
+        quizSetUpdateAvailable(remoteBuild);
     } catch (e) { /* ignore */ }
 }
 
@@ -11499,14 +11500,23 @@ function quizSettingsRefreshLineReset() {
     var line = document.getElementById('quiz-settings-refresh-line');
     if (!line) return;
     var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    var hl = quizSettingsBuildHighlightGet();
-    var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '');
-    line.innerHTML =
-        'Aggiorna · Build <span id="quiz-settings-build-label" class="' +
-        spanCls +
-        '">' +
-        b +
-        '</span>';
+    var hasUpdate = !!quizPendingRemoteBuild;
+    var hl = quizSettingsBuildHighlightGet() || hasUpdate;
+    var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '') + (hasUpdate ? ' quiz-settings-build-label--blink' : '');
+    if (hasUpdate) {
+        var rb = String(quizPendingRemoteBuild).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        line.innerHTML =
+            'Aggiornamento disponibile · Build <span id="quiz-settings-build-label" class="' +
+            spanCls +
+            '">' + rb + '</span>';
+    } else {
+        line.innerHTML =
+            'Aggiorna · Build <span id="quiz-settings-build-label" class="' +
+            spanCls +
+            '">' +
+            b +
+            '</span>';
+    }
 }
 
 function showQuizSettingsModal() {
@@ -16829,7 +16839,7 @@ document.addEventListener('toggle', function (ev) {
     } else {
         setTimeout(runCheck, 1400);
     }
-    setInterval(runCheck, 5 * 60 * 1000);
+    setInterval(runCheck, 2 * 60 * 1000);
 })();
 
 window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
