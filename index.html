@@ -116,27 +116,29 @@
             height: 18px;
         }
 
-        /* Presenza utenti: pill affianco al tasto Home (titolo resta centrato nella colonna centrale) */
-        .header-title-bar__start {
+        /* Presenza utenti: nel modale Impostazioni, a destra del titolo */
+        .quiz-settings-heading-row {
             display: flex;
             align-items: center;
-            gap: 7px;
-            flex-shrink: 0;
-            min-width: 0;
+            justify-content: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 0 0 14px;
         }
-        .header-presence-badge {
+        .quiz-settings-heading-row h4 {
+            margin: 0;
+        }
+        .quiz-settings-presence-badge {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 5px 12px 5px 9px;
+            gap: 6px;
+            padding: 5px 11px 5px 8px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.42);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: linear-gradient(180deg, #e8f4fc 0%, #d6ebfa 100%);
+            border: 1px solid #64b5f6;
+            box-shadow: 0 2px 6px rgba(21, 101, 192, 0.12);
         }
-        .header-presence-badge--btn {
+        .quiz-settings-presence-badge--btn {
             margin: 0;
             font: inherit;
             color: inherit;
@@ -144,28 +146,27 @@
             -webkit-tap-highlight-color: transparent;
             transition: filter 0.12s ease, transform 0.08s ease;
         }
-        .header-presence-badge--btn:hover {
-            filter: brightness(1.06);
+        .quiz-settings-presence-badge--btn:hover {
+            filter: brightness(1.03);
         }
-        .header-presence-badge--btn:active {
+        .quiz-settings-presence-badge--btn:active {
             transform: scale(0.98);
         }
-        .header-presence-badge--btn:focus-visible {
-            outline: 2px solid rgba(255, 255, 255, 0.85);
+        .quiz-settings-presence-badge--btn:focus-visible {
+            outline: 2px solid #1565c0;
             outline-offset: 2px;
         }
-        .header-presence-icon {
+        .quiz-settings-presence-badge .header-presence-icon {
             font-size: 1.05rem;
             line-height: 1;
             opacity: 0.95;
             flex-shrink: 0;
         }
-        .header-presence-num {
-            font-size: 0.95rem;
+        .quiz-settings-presence-badge .header-presence-num {
+            font-size: 0.92rem;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+            color: #0d47a1;
             min-width: 1ch;
         }
 
@@ -5206,8 +5207,7 @@
             border: 1px solid #d0d7de;
             box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
         }
-        .quiz-settings-box > h4 {
-            margin: 0 0 14px;
+        .quiz-settings-heading-row h4 {
             color: #1a237e;
             font-size: 1.05rem;
             font-weight: 800;
@@ -7414,15 +7414,9 @@ function dismissAppSplash() {
 
 <div class="fixed-header">
     <div class="header-title-bar">
-        <div class="header-title-bar__start">
-            <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-            <button type="button" id="header-presence-btn" class="header-presence-badge header-presence-badge--btn" hidden onclick="quizPresenceManualRefresh()" title="Utenti online nell’app (Firebase, ultimi ~90 s). Clic per aggiornare." aria-label="Utenti online: aggiorna conteggio">
-                <span class="header-presence-icon" aria-hidden="true">👤</span>
-                <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
-            </button>
-        </div>
+        <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
         <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -7911,7 +7905,13 @@ function dismissAppSplash() {
 
     <div id="quiz-settings-overlay" class="quiz-settings-overlay" aria-hidden="true">
         <div class="quiz-settings-box" role="dialog" aria-modal="true" aria-labelledby="quiz-settings-title">
-            <h4 id="quiz-settings-title">Impostazioni</h4>
+            <div class="quiz-settings-heading-row">
+                <h4 id="quiz-settings-title">Impostazioni</h4>
+                <button type="button" id="header-presence-btn" class="quiz-settings-presence-badge quiz-settings-presence-badge--btn" hidden onclick="quizPresenceManualRefresh()" title="Utenti online nell’app (Firebase, ultimi ~90 s). Clic per aggiornare." aria-label="Utenti online: aggiorna conteggio">
+                    <span class="header-presence-icon" aria-hidden="true">👤</span>
+                    <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
+                </button>
+            </div>
             <label class="quiz-settings-row quiz-settings-row--toggle">
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
@@ -8100,7 +8100,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511d';
+const APP_BUILD = '20260511e';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
