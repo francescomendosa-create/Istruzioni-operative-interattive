@@ -8238,7 +8238,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511i';
+const APP_BUILD = '20260511j';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8468,6 +8468,12 @@ let quizPresenceLatestSnap = null;
 let quizPresenceRealtimeUnsub = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
 let quizPresenceStaleTickerId = null;
+/** Ultimo errore lettura presenza (tooltip). */
+let quizPresenceLastFetchError = '';
+/** Lettura differita se il listener riceve solo snapshot cache. */
+let quizPresenceDeferredReadTimer = null;
+/** Riprovare iscrizione listener dopo errore. */
+let quizPresenceSubscribeRetryTimer = null;
 
 function quizInitLeaderboardSourceState() {
     quizLeaderboardHydrated = !quizFirestoreConfigured();
@@ -8769,13 +8775,8 @@ function quizPresenceOpenConnectedModal() {
     var overlay = document.getElementById('quiz-presence-connected-overlay');
     if (!overlay) return;
     quizPresencePing();
-    quizEnsureFirebase()
+    quizPresenceReadCollectionRobust()
         .then(function () {
-            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
-        })
-        .then(function (snap) {
-            quizPresenceLatestSnap = snap;
-            quizPresenceUpdatePresenceUi();
             quizPresenceFillConnectedList();
             overlay.classList.add('visible');
             overlay.setAttribute('aria-hidden', 'false');
@@ -8827,6 +8828,64 @@ function quizPresenceDebugLog() {
     }
 }
 
+/** Lettura collezione: prima server, poi fallback cache/rete mista (evita «?» se solo il server non risponde). */
+function quizPresenceReadCollectionRobust() {
+    if (!quizFirestoreConfigured()) return Promise.resolve(null);
+    return quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
+        })
+        .catch(function (eSrv) {
+            try {
+                console.warn('[presenza] get(server) non riuscita, fallback:', quizFormatSyncError(eSrv));
+            } catch (eL) { /* ignore */ }
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get();
+        })
+        .then(function (snap) {
+            if (snap) {
+                quizPresenceLatestSnap = snap;
+                quizPresenceLastFetchError = '';
+                quizPresenceUpdatePresenceUi();
+                var btn = document.getElementById('header-presence-btn');
+                if (btn) btn.hidden = false;
+            }
+            return snap;
+        })
+        .catch(function (eAll) {
+            try {
+                console.warn('[presenza] lettura collezione fallita:', quizFormatSyncError(eAll));
+            } catch (eL2) { /* ignore */ }
+            quizPresenceLastFetchError = quizFormatSyncError(eAll);
+            var h = document.getElementById('header-presence-count');
+            var btn = document.getElementById('header-presence-btn');
+            if (!quizPresenceLatestSnap && h) h.textContent = '…';
+            else quizPresenceUpdatePresenceUi();
+            var tip =
+                'Presenza: errore di lettura. Controlla regole Firestore (quiz_presence), Auth anonimo e dominio autorizzato. ';
+            if (quizPresenceLastFetchError) tip += quizPresenceLastFetchError.slice(0, 160);
+            if (btn) btn.setAttribute('title', tip);
+            return null;
+        });
+}
+
+function quizPresenceScheduleDeferredRead() {
+    if (quizPresenceDeferredReadTimer != null) return;
+    quizPresenceDeferredReadTimer = setTimeout(function () {
+        quizPresenceDeferredReadTimer = null;
+        quizPresenceReadCollectionRobust();
+    }, 550);
+}
+
+function quizPresenceScheduleSubscribeRetry() {
+    if (quizPresenceSubscribeRetryTimer != null) return;
+    quizPresenceSubscribeRetryTimer = setTimeout(function () {
+        quizPresenceSubscribeRetryTimer = null;
+        try {
+            quizPresenceSubscribeRealtime();
+        } catch (eR) { /* ignore */ }
+    }, 4200);
+}
+
 function quizPresenceUpdatePresenceUi() {
     var snap = quizPresenceLatestSnap;
     var h = document.getElementById('header-presence-count');
@@ -8872,8 +8931,12 @@ function quizPresenceSubscribeRealtime() {
                 .collection(QUIZ_FS_PRESENCE)
                 .onSnapshot(
                     function (snap) {
-                        if (!quizPresenceSnapshotIsTrustworthy(snap)) return;
+                        if (!quizPresenceSnapshotIsTrustworthy(snap)) {
+                            quizPresenceScheduleDeferredRead();
+                            return;
+                        }
                         quizPresenceLatestSnap = snap;
+                        quizPresenceLastFetchError = '';
                         quizPresenceUpdatePresenceUi();
                         var btn = document.getElementById('header-presence-btn');
                         if (btn) btn.hidden = false;
@@ -8882,8 +8945,8 @@ function quizPresenceSubscribeRealtime() {
                         try {
                             console.warn('[presence snapshot]', err);
                         } catch (eL) { /* ignore */ }
-                        var h = document.getElementById('header-presence-count');
-                        if (h) h.textContent = '?';
+                        quizPresenceReadCollectionRobust();
+                        quizPresenceScheduleSubscribeRetry();
                         var btn = document.getElementById('header-presence-btn');
                         if (btn) btn.hidden = false;
                     }
@@ -8893,6 +8956,8 @@ function quizPresenceSubscribeRealtime() {
             try {
                 console.warn('[presence subscribe]', e);
             } catch (e2) { /* ignore */ }
+            quizPresenceReadCollectionRobust();
+            quizPresenceScheduleSubscribeRetry();
         });
 }
 
@@ -8910,7 +8975,7 @@ function quizPresencePing() {
     return quizEnsureFirebase()
         .then(function () {
             var uid = firebase.auth().currentUser && firebase.auth().currentUser.uid;
-            if (!uid) return Promise.resolve();
+            if (!uid) return quizPresenceReadCollectionRobust();
             /* Timestamp client: così il conteggio locale vede subito lastSeen (serverTimestamp spesso null nel cache locale finché non risponde il server → 0 utenti). */
             var ts =
                 firebase.firestore.Timestamp && typeof firebase.firestore.Timestamp.now === 'function'
@@ -8930,11 +8995,7 @@ function quizPresencePing() {
                     { merge: true }
                 )
                 .then(function () {
-                    return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
-                })
-                .then(function (snap) {
-                    quizPresenceLatestSnap = snap;
-                    quizPresenceUpdatePresenceUi();
+                    return quizPresenceReadCollectionRobust();
                 });
         })
         .catch(function (e) {
@@ -8944,24 +9005,11 @@ function quizPresencePing() {
         });
 }
 
-/** Clic sul badge header: ping immediato + lettura fresca da Firestore. */
+/** Aggiornamento manuale / apertura Impostazioni: ping + lettura robusta. */
 function quizPresenceManualRefresh() {
     if (!quizFirestoreConfigured()) return;
     quizPresencePing();
-    quizEnsureFirebase()
-        .then(function () {
-            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
-        })
-        .then(function (snap) {
-            quizPresenceLatestSnap = snap;
-            quizPresenceUpdatePresenceUi();
-            var btn = document.getElementById('header-presence-btn');
-            if (btn) btn.hidden = false;
-        })
-        .catch(function () {
-            var h = document.getElementById('header-presence-count');
-            if (h) h.textContent = '?';
-        });
+    quizPresenceReadCollectionRobust();
 }
 
 function quizPresenceAttachLifecycleOnce() {
@@ -9018,13 +9066,7 @@ function quizProducerRefreshPresence() {
         return;
     }
     if (el) el.textContent = '…';
-    quizPresenceCountOnline()
-        .then(function () {
-            quizPresenceUpdatePresenceUi();
-        })
-        .catch(function () {
-            if (el) el.textContent = '?';
-        });
+    quizPresenceReadCollectionRobust();
 }
 
 function quizSyncPrefsToFirestoreDebounced() {
