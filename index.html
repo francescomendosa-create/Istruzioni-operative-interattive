@@ -1417,6 +1417,33 @@
             display: block;
             pointer-events: none;
         }
+        .quiz-avatar-picker__blink {
+            position: absolute;
+            left: 50%;
+            top: 42%;
+            width: 44%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.68;
+        }
+        .quiz-avatar-picker__blink-eye {
+            width: 26%;
+            aspect-ratio: 1.3 / 1;
+            border-radius: 999px;
+            background: rgba(20, 23, 28, 0.22);
+            transform-origin: center;
+            animation: quizAvatarBlink 5.8s infinite;
+        }
+        .quiz-avatar-picker__blink-eye:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+        @keyframes quizAvatarBlink {
+            0%, 44%, 46%, 100% { transform: scaleY(0.2); opacity: 0.15; }
+            45% { transform: scaleY(1); opacity: 0.55; }
+        }
         .quiz-avatar-picker__counter {
             width: 100%;
             flex-basis: 100%;
@@ -3807,6 +3834,94 @@
             display: flex;
             justify-content: center;
         }
+        .quiz-rank-detail-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10063;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.62);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-rank-detail-modal.quiz-rank-detail-modal--open { display: flex; }
+        .quiz-rank-detail-modal__box {
+            width: 100%;
+            max-width: 460px;
+            border-radius: 18px;
+            padding: 20px 16px 16px;
+            background: linear-gradient(155deg, #ffffff 0%, #f8fbff 45%, #ecf5ff 100%);
+            border: 1px solid rgba(30, 58, 95, 0.15);
+            box-shadow: 0 24px 52px rgba(15, 23, 42, 0.28);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: quizRankDetailZoomIn 220ms ease forwards;
+        }
+        @keyframes quizRankDetailZoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .quiz-rank-detail-modal__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .quiz-rank-detail-modal__avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #e2e8f0;
+        }
+        .quiz-rank-detail-modal__title {
+            margin: 0 0 4px;
+            color: #0f2f53;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+        .quiz-rank-detail-modal__meta {
+            margin: 0;
+            color: #1e40af;
+            font-size: 0.86rem;
+            font-weight: 800;
+        }
+        .quiz-rank-detail-modal__worms-title {
+            margin: 8px 0 8px;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .quiz-rank-detail-modal__worms {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .quiz-rank-detail-modal__worm-item {
+            padding: 6px 4px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(51, 65, 85, 0.12);
+            text-align: center;
+        }
+        .quiz-rank-detail-modal__worm-name {
+            margin-top: 4px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #475569;
+            line-height: 1.2;
+        }
+        .quiz-rank-detail-modal__actions {
+            display: flex;
+            justify-content: center;
+        }
         /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda in poi, 25 s) */
         .quiz-play-time {
             margin-top: 5px;
@@ -4807,6 +4922,14 @@
         }
         .quiz-rank-rest-row:nth-child(even) { background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%); }
         .quiz-rank-rest-row:last-child { border-bottom: none; }
+        .quiz-rank-row-clickable {
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+        .quiz-rank-row-clickable:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+        }
         .quiz-rank-pos-wrap {
             display: inline-flex;
             align-items: center;
@@ -7147,6 +7270,10 @@ function dismissAppSplash() {
                         </button>
                         <div class="quiz-avatar-picker__stage">
                             <img id="quiz-avatar-img" class="quiz-avatar-picker__img" src="assets/avatars/avatar-01.png" alt="" decoding="async" draggable="false">
+                            <div class="quiz-avatar-picker__blink" aria-hidden="true">
+                                <span class="quiz-avatar-picker__blink-eye"></span>
+                                <span class="quiz-avatar-picker__blink-eye"></span>
+                            </div>
                         </div>
                         <button type="button" class="quiz-avatar-picker__nav" id="quiz-avatar-next" onclick="quizAvatarPickerNext()" aria-label="Personaggio successivo">
                             <span class="quiz-avatar-picker__chev" aria-hidden="true">&#9654;</span>
@@ -7300,6 +7427,22 @@ function dismissAppSplash() {
                 <p id="quiz-top3-celebration-lead" class="quiz-top3-celebration-modal__lead"></p>
                 <div class="quiz-top3-celebration-modal__actions">
                     <button type="button" class="btn-side btn-report" onclick="quizTop3CelebrationModalOk()">Continua</button>
+                </div>
+            </div>
+        </div>
+        <div id="quiz-rank-detail-modal" class="quiz-rank-detail-modal" aria-hidden="true" aria-labelledby="quiz-rank-detail-title" onclick="quizRankDetailModalBackdrop(event)">
+            <div class="quiz-rank-detail-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <div class="quiz-rank-detail-modal__head">
+                    <img id="quiz-rank-detail-avatar" class="quiz-rank-detail-modal__avatar" src="assets/avatars/avatar-01.png" alt="" decoding="async" draggable="false">
+                    <div>
+                        <h3 id="quiz-rank-detail-title" class="quiz-rank-detail-modal__title">Personaggio</h3>
+                        <p id="quiz-rank-detail-meta" class="quiz-rank-detail-modal__meta"></p>
+                    </div>
+                </div>
+                <p class="quiz-rank-detail-modal__worms-title">In vasca · vermi ottenuti</p>
+                <div id="quiz-rank-detail-worms" class="quiz-rank-detail-modal__worms"></div>
+                <div class="quiz-rank-detail-modal__actions">
+                    <button type="button" class="btn-side btn-report" onclick="quizRankDetailModalOk()">Chiudi</button>
                 </div>
             </div>
         </div>
@@ -7682,7 +7825,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zw';
+const APP_BUILD = '20260508zz';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8159,6 +8302,27 @@ function quizRemapSvgIds(root, suffix) {
 }
 
 var QUIZ_PODIUM_WORM_LABELS = ['Demolitori', 'Sottili', 'Filamentosi', 'Settici', 'Predatori'];
+let quizLeaderboardLastDisplayRows = [];
+let quizRankDetailCtx = null;
+
+function quizWormLevelFromIdx(wormIdx) {
+    const w = Number(wormIdx);
+    const map = [1, 2, 3, 5, 4];
+    if (Number.isFinite(w) && w >= 0 && w < map.length) return map[w];
+    return 1;
+}
+
+function quizWormUnlockSequenceForLevel(level) {
+    const lv = Math.max(1, Math.min(5, Number(level) || 1));
+    const seqByLevel = {
+        1: [0],
+        2: [0, 1],
+        3: [0, 1, 2],
+        4: [0, 1, 2, 4],
+        5: [0, 1, 2, 4, 3]
+    };
+    return seqByLevel[lv] || [0];
+}
 
 function quizBuildPodiumWormHtml(wormIndex) {
     var wi = Number(wormIndex);
@@ -8181,6 +8345,73 @@ function quizBuildPodiumWormHtml(wormIndex) {
         clone.outerHTML +
         '</svg>'
     );
+}
+
+function quizRankDetailModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-rank-detail-modal') {
+        quizRankDetailModalOk();
+    }
+}
+
+function quizRankDetailModalKeydown(ev) {
+    if (ev.key === 'Escape' || ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        quizRankDetailModalOk();
+    }
+}
+
+function quizRankDetailModalHide() {
+    const modal = document.getElementById('quiz-rank-detail-modal');
+    if (modal) {
+        modal.classList.remove('quiz-rank-detail-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    quizRankDetailCtx = null;
+    document.removeEventListener('keydown', quizRankDetailModalKeydown, true);
+}
+
+function quizRankDetailModalOk() {
+    quizRankDetailModalHide();
+}
+
+function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
+    const idx = Number(displayIndex);
+    if (!Number.isFinite(idx)) return;
+    const row = (quizLeaderboardLastDisplayRows || [])[idx];
+    if (!row) return;
+    const modal = document.getElementById('quiz-rank-detail-modal');
+    const titleEl = document.getElementById('quiz-rank-detail-title');
+    const metaEl = document.getElementById('quiz-rank-detail-meta');
+    const avatarEl = document.getElementById('quiz-rank-detail-avatar');
+    const wormsEl = document.getElementById('quiz-rank-detail-worms');
+    if (!modal || !titleEl || !metaEl || !wormsEl) return;
+    const rank = idx + 1;
+    const level = quizWormLevelFromIdx(row.worm);
+    const nm = row.name && String(row.name).trim() ? String(row.name).trim() : 'Operatore';
+    titleEl.textContent = nm;
+    metaEl.textContent = rank + '° posto · Livello ' + level + ' · ' + (Number(row.score) || 0) + ' pt';
+    const av = Number(row.avatar);
+    if (avatarEl) {
+        if (Number.isFinite(av) && av >= 0 && av < QUIZ_AVATAR_COUNT) {
+            avatarEl.src = quizAvatarUrl(av);
+            avatarEl.style.display = 'block';
+        } else {
+            avatarEl.style.display = 'none';
+        }
+    }
+    const seq = quizWormUnlockSequenceForLevel(level);
+    let wormsHtml = '';
+    seq.forEach(function (wi) {
+        wormsHtml += '<div class="quiz-rank-detail-modal__worm-item">' +
+            quizBuildPodiumWormHtml(wi) +
+            '<div class="quiz-rank-detail-modal__worm-name">' + escapeQuizHtml(QUIZ_PODIUM_WORM_LABELS[wi] || 'Verme') + '</div>' +
+            '</div>';
+    });
+    wormsEl.innerHTML = wormsHtml;
+    quizRankDetailCtx = { index: idx };
+    modal.classList.add('quiz-rank-detail-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizRankDetailModalKeydown, true);
 }
 
 /** Ritratto operatore sul podio (stessi file della selezione intro). */
@@ -13136,12 +13367,7 @@ function quizRenderLeaderboard() {
         return;
     }
     const display = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
-    function quizWormLevelFromIdx(wormIdx) {
-        const w = Number(wormIdx);
-        const map = [1, 2, 3, 5, 4];
-        if (Number.isFinite(w) && w >= 0 && w < map.length) return map[w];
-        return 1;
-    }
+    quizLeaderboardLastDisplayRows = display.slice();
     function rowLevel(row) {
         const w = Number(row && row.worm);
         return quizWormLevelFromIdx(w);
@@ -13174,7 +13400,7 @@ function quizRenderLeaderboard() {
         } else {
             graphicBlock = '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
         }
-        podium += `<div class="quiz-podium-slot ${cls}">${graphicBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello ${rowLevel(r)}</div></div>`;
+        podium += `<div class="quiz-podium-slot ${cls} quiz-rank-row-clickable" role="button" tabindex="0" onclick="quizOpenRankCharacterModalByDisplayIndex(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();quizOpenRankCharacterModalByDisplayIndex(${idx});}"><div>${graphicBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello ${rowLevel(r)}</div></div></div>`;
     });
     podium += '</div>';
 
@@ -13189,7 +13415,7 @@ function quizRenderLeaderboard() {
             const avHtml = useAvatar
                 ? `<img class="quiz-rank-rest-avatar" src="${escapeQuizHtml(quizAvatarUrl(av))}" alt="" decoding="async" draggable="false">`
                 : '';
-            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span>${avHtml}</span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)} · Lv ${rowLevel(r)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
+            rest += `<div class="quiz-rank-rest-row quiz-rank-row-clickable" role="button" tabindex="0" onclick="quizOpenRankCharacterModalByDisplayIndex(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();quizOpenRankCharacterModalByDisplayIndex(${i});}"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span>${avHtml}</span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)} · Lv ${rowLevel(r)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
         }
         restSection = `<div class="quiz-rank-rest-wrap"><div class="quiz-rank-rest-title">Dal 4\u00B0 posto in gi\u00F9</div>${rest}</div>`;
     }
@@ -14469,6 +14695,7 @@ function quizStart() {
     quizWrongModalFinishOpts = null;
     quizTop10NameModalHide();
     quizTop3CelebrationModalHide();
+    quizRankDetailModalHide();
     quizMicrobeUnlockModalForceClose();
     quizClearQuestionTimer();
     quizOverArcadeClearTimers();
@@ -14730,7 +14957,7 @@ function quizMicrobeUnlockModalFill(wormIdx) {
     const sum = document.getElementById('quiz-microbe-unlock-details-summary');
     const ul = document.getElementById('quiz-microbe-unlock-details-list');
     const okBtn = document.getElementById('quiz-microbe-unlock-ok');
-    if (kicker) kicker.textContent = copy.kicker + ' · Livello corrente ' + quizMicrobeUnlockLevelNumber(w);
+    if (kicker) kicker.textContent = copy.kicker + ' · Livello ' + quizMicrobeUnlockLevelNumber(w);
     if (title) title.textContent = copy.title;
     if (subtitle) subtitle.textContent = quizMicrobeUnlockLevelLabel(w) + ' · ' + copy.subtitle;
     if (lead) lead.innerHTML = copy.lead;
@@ -14838,6 +15065,11 @@ function quizOpenMicrobeUnlockModal(wormIdx, onContinue) {
 
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
+    const rankDetail = document.getElementById('quiz-rank-detail-modal');
+    if (rankDetail && rankDetail.classList.contains('quiz-rank-detail-modal--open')) {
+        quizRankDetailModalOk();
+        return;
+    }
     const top3m = document.getElementById('quiz-top3-celebration-modal');
     if (top3m && top3m.classList.contains('quiz-top3-celebration-modal--open')) {
         quizTop3CelebrationModalOk();
@@ -16016,6 +16248,11 @@ function closeQuiz() {
     const top3m = document.getElementById('quiz-top3-celebration-modal');
     if (top3m && top3m.classList.contains('quiz-top3-celebration-modal--open')) {
         quizTop3CelebrationModalOk();
+        return;
+    }
+    const rankDetail = document.getElementById('quiz-rank-detail-modal');
+    if (rankDetail && rankDetail.classList.contains('quiz-rank-detail-modal--open')) {
+        quizRankDetailModalOk();
         return;
     }
     const mum = document.getElementById('quiz-microbe-unlock-modal');
