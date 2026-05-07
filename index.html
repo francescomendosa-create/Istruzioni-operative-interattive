@@ -4320,6 +4320,8 @@
                 transform: translateY(8px);
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
+                width: 108%;
+                max-width: 108%;
                 max-height: 150px;
                 min-height: 48px;
             }
@@ -4351,6 +4353,8 @@
                 transform: translateY(6px);
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
+                width: 108%;
+                max-width: 108%;
                 max-height: 142px;
                 min-height: 48px;
             }
@@ -7515,7 +7519,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zh';
+const APP_BUILD = '20260508zj';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7565,8 +7569,8 @@ const QUIZ_VF_O2_MAX = 4.5;
 const QUIZ_VF_O2_START = 2.5;
 /** mg/L al secondo (scala qualitativa): 2,5 → 0 in 25 s. */
 const QUIZ_VF_O2_DECAY_PER_SEC = 0.10;
-/** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 3 s → +0,75 mg/L). */
-const QUIZ_VF_O2_GAIN_EQUIV_SEC = 3;
+/** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 4 s → +0,40 mg/L). */
+const QUIZ_VF_O2_GAIN_EQUIV_SEC = 4;
 /** Risposta sbagliata: mg/L persi = decadimento × questi secondi equivalenti (default 1 s → −0,25 mg/L). */
 const QUIZ_VF_O2_LOSS_EQUIV_SEC = 1;
 const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
