@@ -2830,7 +2830,6 @@
             transform: translateX(-50%);
         }
         .quiz-vf-o2-meter__tick--0 { left: 0%; transform: translateX(0); }
-        .quiz-vf-o2-meter__tick--mid { left: 55.555555%; }
         .quiz-vf-o2-meter__tick--max { left: 100%; transform: translateX(-100%); }
         .quiz-vf-o2-meter__fill {
             position: absolute;
@@ -2885,15 +2884,33 @@
             max-height: min(88vh, 640px);
             overflow: auto;
             border-radius: 14px;
-            padding: 18px;
+            padding: 20px 20px 18px;
             background: linear-gradient(180deg, #f5f9fc 0%, #e8f1f9 100%);
             border: 1px solid rgba(26, 53, 84, 0.18);
             box-shadow: 0 18px 44px rgba(5, 22, 40, 0.45);
         }
-        .quiz-vf-rules-modal__title {
-            margin: 0 0 10px;
+        .quiz-vf-rules-modal__header {
+            margin: 0 0 14px;
+            padding: 14px 14px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(21, 101, 192, 0.09) 0%, rgba(13, 71, 120, 0.06) 100%);
+            border: 1px solid rgba(26, 53, 84, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        }
+        .quiz-vf-rules-modal__kicker {
+            margin: 0 0 6px;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #1565c0;
+            font-weight: 800;
+        }
+        .quiz-vf-rules-modal__subtitle {
+            margin: 0;
             color: #0f3558;
-            font-size: 1.12rem;
+            font-size: 1.08rem;
+            line-height: 1.28;
+            font-weight: 700;
         }
         .quiz-vf-rules-modal__lead {
             margin: 0 0 10px;
@@ -2933,15 +2950,30 @@
         .quiz-vf-outcome-modal__box {
             width: min(94vw, 520px);
             border-radius: 14px;
-            padding: 18px;
-            background: #fff;
+            padding: 20px 20px 18px;
+            background: linear-gradient(180deg, #fafcfe 0%, #ffffff 42%);
             border: 1px solid rgba(22, 53, 86, 0.16);
             box-shadow: 0 18px 46px rgba(5, 18, 34, 0.42);
         }
-        .quiz-vf-outcome-modal__box h3 {
-            margin: 0 0 8px;
+        .quiz-vf-outcome-modal__header {
+            margin: 0 0 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(22, 53, 86, 0.12);
+        }
+        .quiz-vf-outcome-modal__kicker {
+            margin: 0 0 6px;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #546e7a;
+            font-weight: 700;
+        }
+        .quiz-vf-outcome-modal__title {
+            margin: 0;
             color: #102a45;
-            font-size: 1.05rem;
+            font-size: 1.08rem;
+            line-height: 1.25;
+            font-weight: 700;
         }
         .quiz-vf-outcome-modal__lead {
             margin: 0 0 10px;
@@ -6769,7 +6801,6 @@ function dismissAppSplash() {
                     <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
                         <div class="quiz-vf-o2-meter__rail">
                             <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--0">0</span>
-                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--mid">2,5</span>
                             <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--max">4,5</span>
                             <div id="quiz-vf-o2-meter-fill" class="quiz-vf-o2-meter__fill"></div>
                             <div id="quiz-vf-o2-meter-needle" class="quiz-vf-o2-meter__needle" aria-hidden="true"></div>
@@ -6793,10 +6824,13 @@ function dismissAppSplash() {
                 <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
             </div>
         </div>
-        <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-title">
-            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__title">Mantieni l'ossigenazione ottimale</h3>
-                <p class="quiz-vf-rules-modal__lead">
+        <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
+            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-lead" onclick="event.stopPropagation()">
+                <header class="quiz-vf-rules-modal__header">
+                    <p id="quiz-vf-rules-kicker" class="quiz-vf-rules-modal__kicker">Spiegazioni del gioco</p>
+                    <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__subtitle">Mantieni l'ossigenazione ottimale</h3>
+                </header>
+                <p id="quiz-vf-rules-lead" class="quiz-vf-rules-modal__lead">
                     Il misuratore simula l’ossigeno disciolto (0–4,5 mg/L): parti da <strong>2,5</strong> e la barra cala con il tempo.
                     Risposta <strong>giusta</strong>: recuperi circa un secondo di ossigeno; <strong>sbagliata</strong>: ne perdi circa uno.
                     Se l’ossigeno arriva a <strong>zero</strong>, la modalità termina: resta un solo microbo in vasca.
@@ -6813,9 +6847,12 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
-        <div id="quiz-vf-outcome-modal" class="quiz-vf-outcome-modal" aria-hidden="true" aria-labelledby="quiz-vf-outcome-title">
+        <div id="quiz-vf-outcome-modal" class="quiz-vf-outcome-modal" aria-hidden="true" aria-labelledby="quiz-vf-outcome-kicker quiz-vf-outcome-title">
             <div class="quiz-vf-outcome-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <h3 id="quiz-vf-outcome-title"></h3>
+                <header class="quiz-vf-outcome-modal__header">
+                    <p id="quiz-vf-outcome-kicker" class="quiz-vf-outcome-modal__kicker">Esito della partita</p>
+                    <h3 id="quiz-vf-outcome-title" class="quiz-vf-outcome-modal__title"></h3>
+                </header>
                 <p id="quiz-vf-outcome-lead" class="quiz-vf-outcome-modal__lead"></p>
                 <p id="quiz-vf-outcome-o2" class="quiz-vf-outcome-modal__o2"></p>
                 <div id="quiz-vf-outcome-worms" class="quiz-vf-outcome-worms"></div>
@@ -6988,7 +7025,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260507z';
+const APP_BUILD = '20260508a';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8612,6 +8649,9 @@ function quizVfRulesModalHide() {
 }
 
 function quizVfRulesModalOk() {
+    try {
+        quizPlayBonusOkSfx();
+    } catch (eS) { /* ignore */ }
     quizVfRulesModalHide();
     quizVfIntroCompletionLock = false;
     if (!quizVfActive) return;
@@ -8637,6 +8677,9 @@ function quizVfOutcomeModalHide() {
 }
 
 function quizVfOutcomeModalOk() {
+    try {
+        quizPlayBonusOkSfx();
+    } catch (eS) { /* ignore */ }
     quizVfOutcomeModalHide();
     quizVfFinishSessionCore();
 }
@@ -8656,7 +8699,7 @@ function quizVfPaintOxygenMeter() {
     if (fill) fill.style.width = pct + '%';
     if (needle) needle.style.left = pct + '%';
     if (readout) readout.textContent = quizVfFormatO2(o2);
-    if (meter) meter.setAttribute('aria-valuenow', o2.toFixed(2).replace('.', ','));
+    if (meter) meter.setAttribute('aria-valuenow', String(Number(o2.toFixed(2))));
 }
 
 function quizVfStopOxygenDecay() {
@@ -8689,11 +8732,6 @@ function quizVfOxygenLoop() {
     if (dt > 0.12) dt = 0.12;
     quizVfOxygenLastTs = now;
     quizVfOxygen -= QUIZ_VF_O2_DECAY_PER_SEC * dt;
-    const equivSec = quizVfOxygen > 0 ? quizVfOxygen / QUIZ_VF_O2_DECAY_PER_SEC : 0;
-    if (!quizTimerTenSecCuePlayed && equivSec > 0 && Math.ceil(equivSec - 1e-9) === 10) {
-        quizTimerTenSecCuePlayed = true;
-        quizPlayTimerTenSecondCueSfx();
-    }
     if (quizVfOxygen <= 0) {
         quizVfOxygen = 0;
         quizVfPaintOxygenMeter();
@@ -13407,6 +13445,7 @@ function quizRunAdelfoIntro() {
 function quizFinish(completedAll, opts) {
     opts = opts || {};
     quizAdelfoCancelIntro();
+    try { quizStopQuizAmbientMusic(); } catch (_) { /* ignore */ }
     try { quizVfForceEnd(); } catch (_) { /* ignore */ }
     quizClearQuestionTimer();
     quizAnswerLocked = false;
