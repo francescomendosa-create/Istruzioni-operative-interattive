@@ -2792,14 +2792,15 @@
             box-shadow: 0 16px 45px rgba(7, 26, 47, 0.42);
         }
         .quiz-vf-modal__title {
-            margin: 0 0 4px;
-            color: #143254;
-            font-size: 1.08rem;
-        }
-        .quiz-vf-modal__subtitle {
             margin: 0 0 14px;
-            color: #2b4f73;
-            font-size: 0.88rem;
+            padding: 2px 4px 0;
+            color: #0a2540;
+            font-size: clamp(1.24rem, 3.2vw, 1.52rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-align: center;
+            line-height: 1.22;
+            text-wrap: balance;
         }
         .quiz-vf-o2-meter-wrap {
             margin-bottom: 14px;
@@ -2890,12 +2891,38 @@
             box-shadow: 0 18px 44px rgba(5, 22, 40, 0.45);
         }
         .quiz-vf-rules-modal__header {
-            margin: 0 0 14px;
+            margin: 0 0 16px;
             padding: 14px 14px 16px;
-            border-radius: 12px;
+            border-radius: 14px;
             background: linear-gradient(135deg, rgba(21, 101, 192, 0.09) 0%, rgba(13, 71, 120, 0.06) 100%);
             border: 1px solid rgba(26, 53, 84, 0.14);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .quiz-vf-rules-modal__o2-badge {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(165deg, #e1f5fe 0%, #b3e5fc 45%, #81d4fa 100%);
+            border: 1px solid rgba(2, 136, 209, 0.35);
+            box-shadow:
+                0 4px 14px rgba(2, 119, 189, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-vf-rules-modal__o2-badge svg {
+            width: 42px;
+            height: 42px;
+            display: block;
+        }
+        .quiz-vf-rules-modal__header-text {
+            min-width: 0;
+            text-align: left;
         }
         .quiz-vf-rules-modal__kicker {
             margin: 0 0 6px;
@@ -2913,24 +2940,87 @@
             font-weight: 700;
         }
         .quiz-vf-rules-modal__lead {
-            margin: 0 0 10px;
+            margin: 0 0 12px;
             color: #2b4f73;
-            font-size: 0.9rem;
-            line-height: 1.45;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .quiz-vf-rules-modal__lead strong {
+            color: #0d47a1;
+            font-weight: 800;
+        }
+        .quiz-vf-rules-modal__section {
+            margin: 0 0 14px;
+            padding: 12px 14px 14px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(227, 242, 253, 0.65) 0%, rgba(255, 255, 255, 0.92) 100%);
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            box-shadow: 0 2px 12px rgba(13, 71, 161, 0.06);
+            text-align: left;
+        }
+        .quiz-vf-rules-modal__section-title {
+            margin: 0 0 8px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+            color: #0277bd;
+        }
+        .quiz-vf-rules-modal__section p {
+            margin: 0;
+            color: #1c4d6e;
+            font-size: 0.88rem;
+            line-height: 1.48;
+        }
+        .quiz-vf-rules-modal__section p + p {
+            margin-top: 8px;
+        }
+        .quiz-vf-rules-modal__thresholds {
+            margin: 0 0 14px;
+            padding: 12px 14px 12px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #ffffff 0%, #f5fafc 55%, #eef6fb 100%);
+            border: 1px solid rgba(38, 70, 96, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            text-align: left;
+        }
+        .quiz-vf-rules-modal__thresholds .quiz-vf-rules-modal__section-title {
+            margin-bottom: 10px;
+            color: #1565c0;
         }
         .quiz-vf-rules-modal__list {
-            margin: 0 0 14px 18px;
+            margin: 0;
             padding: 0;
+            list-style: none;
             color: #224860;
-            font-size: 0.86rem;
-            line-height: 1.45;
+            font-size: 0.85rem;
+            line-height: 1.48;
         }
         .quiz-vf-rules-modal__list li {
-            margin: 6px 0;
+            margin: 0;
+            padding: 8px 0 8px 28px;
+            position: relative;
+            border-bottom: 1px solid rgba(144, 164, 174, 0.22);
+        }
+        .quiz-vf-rules-modal__list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .quiz-vf-rules-modal__list li::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 0.95em;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #29b6f6, #0277bd);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
         }
         .quiz-vf-rules-modal__actions {
             display: flex;
             justify-content: flex-end;
+            padding-top: 4px;
         }
         .quiz-vf-outcome-modal {
             display: none;
@@ -3263,6 +3353,34 @@
             .quiz-vf-btn {
                 padding: 12px 14px;
                 font-size: 0.88rem;
+            }
+        }
+        /* Vero/falso su PC/tablet largo: testo affissione completo senza riquadro scroll interno */
+        @media (min-width: 769px) {
+            .quiz-vf-modal {
+                align-items: flex-start;
+                justify-content: center;
+                padding: max(16px, env(safe-area-inset-top, 0px)) 18px max(20px, env(safe-area-inset-bottom, 0px));
+                overflow-y: auto;
+                overflow-x: hidden;
+                overscroll-behavior: contain;
+            }
+            .quiz-vf-modal__box {
+                max-height: none;
+                overflow: visible;
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+            .quiz-vf-o2-meter-wrap {
+                margin-bottom: 10px;
+            }
+            .quiz-vf-o2-meter-label {
+                margin-bottom: 4px;
+            }
+            .quiz-vf-statement {
+                margin: 0 0 14px;
+                font-size: clamp(0.98rem, 1.35vw, 1.08rem);
+                line-height: 1.42;
             }
         }
 
@@ -3841,7 +3959,7 @@
                 margin-bottom: 3px;
             }
         }
-        /* Quiz PC schermata domande: niente scroll esterno; vasca stessa dimensione di prima, rialzata di pochissimo */
+        /* Quiz PC schermata domande: domanda + risposte a testo pieno senza riquadro scroll interno; vasca leggermente più bassa */
         @media (min-width: 769px) {
             /* Barra blu sopra più compatta solo su PC: libera ~8–14px verticali per le domande */
             body.quiz-open .quiz-panel.visible .quiz-fs-topbar {
@@ -3880,8 +3998,9 @@
                 flex-direction: column;
                 flex: 1 1 auto;
                 min-height: 0;
-                overflow-y: hidden;
                 overflow-x: hidden;
+                overflow-y: auto;
+                overscroll-behavior: contain;
                 padding: 4px 12px 8px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play {
@@ -3890,30 +4009,35 @@
                 flex-direction: column;
                 width: 100%;
             }
+            /* Nessuno scroll separato sul blocco domanda: testo sempre “intero”; se serve, scorre solo la colonna quiz */
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-play-body {
-                flex: 1 1 auto;
+                flex: 0 1 auto;
                 min-height: 0;
                 overflow-x: hidden;
-                overflow-y: auto;
-                overscroll-behavior: contain;
+                overflow-y: visible;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
                 flex-shrink: 0;
-                margin-top: 16px;
-                margin-bottom: 6px;
+                margin-top: 8px;
+                margin-bottom: 4px;
+            }
+            body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
+                max-height: 118px;
+                min-height: 48px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
-                margin: 8px auto 18px;
-                font-size: clamp(1.18rem, 2.2vw, 1.48rem);
+                margin: 6px auto 12px;
+                font-size: clamp(1.12rem, 2.1vw, 1.4rem);
+                line-height: 1.42;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choices {
-                gap: 14px;
-                margin: 0 auto 12px;
+                gap: 10px;
+                margin: 0 auto 8px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choice-btn {
-                padding: 15px 20px 15px 22px;
-                min-height: 3.2rem;
-                line-height: 1.45;
+                padding: 12px 18px 12px 20px;
+                min-height: 2.85rem;
+                line-height: 1.42;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-feedback {
                 margin-top: 10px;
@@ -6832,8 +6956,7 @@ function dismissAppSplash() {
         </div>
         <div id="quiz-vf-modal" class="quiz-vf-modal" aria-hidden="true" aria-labelledby="quiz-vf-title">
             <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <h3 id="quiz-vf-title" class="quiz-vf-modal__title">Vero o falso</h3>
-                <p id="quiz-vf-subtitle" class="quiz-vf-modal__subtitle"></p>
+                <h3 id="quiz-vf-title" class="quiz-vf-modal__title">Domanda</h3>
                 <div class="quiz-vf-o2-meter-wrap">
                     <div class="quiz-vf-o2-meter-label">Ossigeno disciolto (mg/L · scala di gioco)</div>
                     <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
@@ -6863,24 +6986,49 @@ function dismissAppSplash() {
             </div>
         </div>
         <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
-            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-lead" onclick="event.stopPropagation()">
+            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-desc" onclick="event.stopPropagation()">
                 <header class="quiz-vf-rules-modal__header">
-                    <p id="quiz-vf-rules-kicker" class="quiz-vf-rules-modal__kicker">Spiegazioni del gioco</p>
-                    <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__subtitle">Mantieni l'ossigenazione ottimale</h3>
+                    <span class="quiz-vf-rules-modal__o2-badge" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="22" fill="url(#quizVfRulesO2Grad)" opacity="0.25"/>
+                            <circle cx="17" cy="20" r="6.5" stroke="#0277bd" stroke-width="1.8" fill="none"/>
+                            <circle cx="33" cy="26" r="4.2" fill="#4fc3f7" opacity="0.9"/>
+                            <circle cx="36" cy="14" r="2.8" fill="#81d4fa"/>
+                            <text x="24" y="27.5" text-anchor="middle" fill="#01579b" font-size="11" font-weight="800" font-family="system-ui,Segoe UI,sans-serif">O₂</text>
+                            <defs>
+                                <linearGradient id="quizVfRulesO2Grad" x1="10" y1="8" x2="38" y2="40">
+                                    <stop offset="0%" stop-color="#4fc3f7"/>
+                                    <stop offset="100%" stop-color="#0277bd"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <div class="quiz-vf-rules-modal__header-text">
+                        <p id="quiz-vf-rules-kicker" class="quiz-vf-rules-modal__kicker">Spiegazioni del gioco</p>
+                        <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__subtitle">Mantieni l’ossigenazione ottimale</h3>
+                    </div>
                 </header>
-                <p id="quiz-vf-rules-lead" class="quiz-vf-rules-modal__lead">
-                    Il misuratore simula l’ossigeno disciolto (0–4,5 mg/L): parti da <strong>2,5</strong> e la barra cala con il tempo.
-                    Ogni risposta esatta vale <strong>+10</strong> punti, ogni errore <strong>−10</strong> punti.
-                    Risposta <strong>giusta</strong>: recuperi circa un secondo di ossigeno; <strong>sbagliata</strong>: ne perdi circa uno.
-                    Se l’ossigeno arriva a <strong>zero</strong>, la modalità termina: resta un solo microbo in vasca.
-                    A fine turno, secondo l’OD finale, puoi guadagnare o perdere vermi; con le prime due soglie ottieni anche punti bonus (nessun punto nelle altre fasce).
-                </p>
-                <ul class="quiz-vf-rules-modal__list">
-                    <li>OD finale tra <strong>3,5 e 4</strong>: 4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus.</li>
-                    <li>OD tra <strong>1 e 2,5</strong>: +2 vermi + <strong>20 punti</strong> bonus.</li>
-                    <li>OD tra <strong>0,1 e 0,9</strong>: −2 vermi (crescita in difficoltà).</li>
-                    <li><strong>OD = 0</strong> durante il gioco: tutti i vermi tranne uno vengono rimossi.</li>
-                </ul>
+                <div id="quiz-vf-rules-desc">
+                    <p class="quiz-vf-rules-modal__lead">
+                        Il misuratore usa una scala di gioco dell’<strong>ossigeno disciolto</strong> da <strong>0 a 4,5 mg/L</strong>. Parti da <strong>2,5 mg/L</strong>.
+                        Finché rifletti, il valore <strong>scende di 0,25 mg/L al secondo</strong>. Dopo la tua scelta: risposta <strong>giusta +0,25 mg/L</strong>,
+                        <strong>sbagliata −0,25 mg/L</strong> (sempre in mg/L sulla scala di gioco).
+                        Se l’ossigeno disciolto arriva a <strong>0 mg/L</strong>, la modalità termina e resta un solo microbo in vasca.
+                    </p>
+                    <div class="quiz-vf-rules-modal__section">
+                        <p class="quiz-vf-rules-modal__section-title">Punteggio</p>
+                        <p>Ogni risposta esatta <strong>+10</strong> punti, ogni errore <strong>−10</strong> punti (il totale non scende sotto zero).</p>
+                    </div>
+                    <div class="quiz-vf-rules-modal__thresholds">
+                        <p class="quiz-vf-rules-modal__section-title">Fine turno · ossigeno disciolto finale</p>
+                        <ul class="quiz-vf-rules-modal__list">
+                            <li><strong>Ossigeno disciolto</strong> finale tra <strong>3,5 e 4 mg/L</strong>: 4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus.</li>
+                            <li><strong>Ossigeno disciolto</strong> tra <strong>1 e 2,5 mg/L</strong>: +2 vermi + <strong>20 punti</strong> bonus.</li>
+                            <li><strong>Ossigeno disciolto</strong> tra <strong>0,1 e 0,9 mg/L</strong>: −2 vermi.</li>
+                            <li><strong>Ossigeno disciolto = 0 mg/L</strong> durante il gioco: tutti i vermi tranne uno vengono rimossi.</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="quiz-vf-rules-modal__actions">
                     <button type="button" class="btn-side btn-report" onclick="quizVfRulesModalOk()">Ho capito — inizia</button>
                 </div>
@@ -7065,7 +7213,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508d';
+const APP_BUILD = '20260508g';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9013,7 +9161,7 @@ function quizVfCurrentItem() {
 
 function quizVfRunSingleStep() {
     const item = quizVfCurrentItem();
-    const sub = document.getElementById('quiz-vf-subtitle');
+    const titleEl = document.getElementById('quiz-vf-title');
     const st = document.getElementById('quiz-vf-statement');
     const bt = document.getElementById('quiz-vf-btn-true');
     const bf = document.getElementById('quiz-vf-btn-false');
@@ -9021,11 +9169,8 @@ function quizVfRunSingleStep() {
         quizVfFinishSessionCore();
         return;
     }
-    if (sub) {
-        sub.textContent =
-            'Domanda ' +
-            (quizVfIdxInBlock + 1) +
-            ' di 5 · mantieni OD sopra zero (scala 0–4,5 mg/L, start 2,5)';
+    if (titleEl) {
+        titleEl.textContent = 'Domanda ' + (quizVfIdxInBlock + 1) + ' di 5';
     }
     st.textContent = item.statement;
     if (bt) bt.disabled = false;
