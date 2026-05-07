@@ -3448,6 +3448,14 @@
             transform-origin: 45% 55%;
             animation: quizVfIntroWormDance 1.15s ease-in-out infinite;
         }
+        .quiz-vf-intro-worm-dancer__worm {
+            transform-origin: 50% 58%;
+            animation: quizVfIntroWormInnerMove 1.45s ease-in-out infinite;
+        }
+        .quiz-vf-intro-worm-dancer__eye {
+            transform-origin: center;
+            animation: quizVfIntroWormBlink 3.6s steps(1, end) infinite;
+        }
         @keyframes quizVfIntroWormDance {
             0%,
             100% {
@@ -3466,8 +3474,21 @@
                 transform: rotate(-12deg) translate(2px, 4px) scale(1);
             }
         }
+        @keyframes quizVfIntroWormInnerMove {
+            0%, 100% { transform: rotate(0deg) translate(0, 0); }
+            30% { transform: rotate(-6deg) translate(-2px, -1px); }
+            60% { transform: rotate(5deg) translate(2px, 1px); }
+        }
+        @keyframes quizVfIntroWormBlink {
+            0%, 10%, 13%, 40%, 43%, 70%, 100% { transform: scaleY(1); }
+            11%, 12%, 41%, 42%, 71%, 72% { transform: scaleY(0.12); }
+        }
         @media (prefers-reduced-motion: reduce) {
             .quiz-vf-intro-worm-dancer__svg {
+                animation: none;
+            }
+            .quiz-vf-intro-worm-dancer__worm,
+            .quiz-vf-intro-worm-dancer__eye {
                 animation: none;
             }
         }
@@ -7306,7 +7327,34 @@ function dismissAppSplash() {
                     <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline webkit-playsinline preload="metadata" onclick="quizVfIntroSkip()"></video>
                     <div class="quiz-vf-intro-wm-cover" aria-hidden="true"></div>
                     <div class="quiz-vf-intro-worm-dancer" aria-hidden="true">
-                        <img class="quiz-vf-intro-worm-dancer__svg" src="assets/splash-worm-icon.png" alt="" decoding="async">
+                        <svg class="quiz-vf-intro-worm-dancer__svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <defs>
+                                <radialGradient id="quizVfIntroBadgeBg" cx="35%" cy="30%" r="78%">
+                                    <stop offset="0%" stop-color="#e8f5e9"/>
+                                    <stop offset="55%" stop-color="#c8e6c9"/>
+                                    <stop offset="100%" stop-color="#81c784"/>
+                                </radialGradient>
+                                <linearGradient id="quizVfIntroWormTop" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#e8d5c4"/><stop offset="52%" stop-color="#9d6f4a"/><stop offset="100%" stop-color="#5c3d2e"/>
+                                </linearGradient>
+                                <radialGradient id="quizVfIntroWormHead" cx="35%" cy="30%" r="70%">
+                                    <stop offset="0%" stop-color="#efe6dc"/><stop offset="55%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#3e2723"/>
+                                </radialGradient>
+                            </defs>
+                            <circle cx="90" cy="90" r="82" fill="url(#quizVfIntroBadgeBg)" stroke="#2e7d32" stroke-opacity="0.58" stroke-width="4"/>
+                            <g class="quiz-vf-intro-worm-dancer__worm">
+                                <ellipse cx="132" cy="90" rx="18" ry="12" fill="url(#quizVfIntroWormTop)" transform="rotate(-18 132 90)" stroke="#5d4037" stroke-width="0.8"/>
+                                <ellipse cx="108" cy="86" rx="19" ry="13" fill="url(#quizVfIntroWormTop)" transform="rotate(-8 108 86)" stroke="#5d4037" stroke-width="0.8"/>
+                                <ellipse cx="84" cy="90" rx="21" ry="14" fill="url(#quizVfIntroWormTop)" transform="rotate(7 84 90)" stroke="#5d4037" stroke-width="0.8"/>
+                                <ellipse cx="64" cy="100" rx="22" ry="15" fill="url(#quizVfIntroWormTop)" transform="rotate(16 64 100)" stroke="#5d4037" stroke-width="0.8"/>
+                                <circle cx="48" cy="112" r="24" fill="url(#quizVfIntroWormHead)" stroke="#4e342e" stroke-width="1"/>
+                                <ellipse cx="41" cy="105" rx="5.2" ry="6" fill="#fff8f0" class="quiz-vf-intro-worm-dancer__eye"/>
+                                <ellipse cx="55" cy="103" rx="4.8" ry="5.5" fill="#fff8f0" class="quiz-vf-intro-worm-dancer__eye"/>
+                                <circle cx="41.5" cy="106" r="2.5" fill="#1e3a5f" class="quiz-vf-intro-worm-dancer__eye"/>
+                                <circle cx="54.5" cy="104.2" r="2.2" fill="#1e3a5f" class="quiz-vf-intro-worm-dancer__eye"/>
+                                <path d="M38 117 Q48 124 58 116" fill="none" stroke="#4e342e" stroke-width="1.8" stroke-linecap="round"/>
+                            </g>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -7525,7 +7573,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zn';
+const APP_BUILD = '20260508zo';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
