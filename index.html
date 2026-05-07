@@ -3741,6 +3741,9 @@
             padding-top: 5px;
             border-top: 1px solid rgba(25, 118, 210, 0.2);
         }
+        .quiz-play-time.quiz-play-time--reserve {
+            visibility: hidden;
+        }
         .quiz-play-time-meta {
             display: flex;
             align-items: baseline;
@@ -7500,7 +7503,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508ze';
+const APP_BUILD = '20260508zf';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13189,18 +13192,20 @@ function quizUpdatePlayProgress(extra) {
               '</div>'
             : '';
 
-    const timeHostCls = 'quiz-play-time' + (initUrgent ? ' quiz-play-time--urgent' : '');
+    const timeHostCls =
+        'quiz-play-time' +
+        (initUrgent ? ' quiz-play-time--urgent' : '') +
+        (showTime ? '' : ' quiz-play-time--reserve');
     const timeTrackCls = 'quiz-play-time-track' + (initUrgent ? ' quiz-play-time-track--urgent' : '');
-    const timeBlock = showTime
-        ? '<div class="' + timeHostCls + '" id="quiz-play-time" role="timer" aria-live="polite" aria-atomic="true">' +
-          '<div class="quiz-play-time-meta">' +
-          '<span class="quiz-play-time-lbl">Energia tempo</span>' +
-          '<span><span id="quiz-time-sec" class="quiz-play-time-sec">' + initSec + '</span><span class="quiz-play-time-unit">s</span></span>' +
-          '</div>' +
-          '<div class="' + timeTrackCls + '" id="quiz-time-track" role="progressbar" aria-valuemin="0" aria-valuemax="' + QUIZ_TIMER_SECONDS + '" aria-valuenow="' + initSec + '">' +
-          '<div class="quiz-play-time-fill" id="quiz-time-fill" style="width:' + (Math.max(0, Math.min(1, initFrac)) * 100) + '%"></div>' +
-          '</div></div>'
-        : '';
+    const timeBlock =
+        '<div class="' + timeHostCls + '" id="quiz-play-time" role="timer" aria-live="polite" aria-atomic="true">' +
+        '<div class="quiz-play-time-meta">' +
+        '<span class="quiz-play-time-lbl">Energia tempo</span>' +
+        '<span><span id="quiz-time-sec" class="quiz-play-time-sec">' + initSec + '</span><span class="quiz-play-time-unit">s</span></span>' +
+        '</div>' +
+        '<div class="' + timeTrackCls + '" id="quiz-time-track" role="progressbar" aria-valuemin="0" aria-valuemax="' + QUIZ_TIMER_SECONDS + '" aria-valuenow="' + initSec + '">' +
+        '<div class="quiz-play-time-fill" id="quiz-time-fill" style="width:' + (Math.max(0, Math.min(1, initFrac)) * 100) + '%"></div>' +
+        '</div></div>';
     prog.innerHTML =
         '<div class="' + boardCls + '" aria-label="Domanda ' + i + ' di ' + tot + ' · posizione e punti totali">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
