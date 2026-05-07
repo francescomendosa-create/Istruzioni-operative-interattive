@@ -2873,51 +2873,66 @@
             align-items: center;
             justify-content: center;
             padding: 16px;
-            background: rgba(5, 14, 28, 0.82);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background:
+                radial-gradient(120% 80% at 50% 0%, rgba(100, 181, 246, 0.18) 0%, transparent 55%),
+                linear-gradient(165deg, rgba(4, 12, 28, 0.9) 0%, rgba(8, 24, 48, 0.88) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .quiz-vf-rules-modal.quiz-vf-rules-modal--open {
             display: flex;
         }
         .quiz-vf-rules-modal__box {
-            width: min(92vw, 520px);
-            max-height: min(88vh, 640px);
+            width: min(94vw, 580px);
+            max-height: min(90vh, 720px);
             overflow: auto;
-            border-radius: 14px;
-            padding: 20px 20px 18px;
-            background: linear-gradient(180deg, #f5f9fc 0%, #e8f1f9 100%);
-            border: 1px solid rgba(26, 53, 84, 0.18);
-            box-shadow: 0 18px 44px rgba(5, 22, 40, 0.45);
+            border-radius: 18px;
+            padding: 22px 22px 20px;
+            background:
+                linear-gradient(145deg, #ffffff 0%, #f0f7fd 38%, #e3eef8 100%);
+            border: 1px solid rgba(41, 98, 150, 0.28);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.55) inset,
+                0 22px 50px rgba(4, 18, 40, 0.45),
+                0 6px 20px rgba(21, 101, 192, 0.12);
+        }
+        .quiz-vf-rules-modal__topstrip {
+            height: 7px;
+            margin: -22px -22px 16px -22px;
+            border-radius: 18px 18px 0 0;
+            background: linear-gradient(90deg, #0d47a1 0%, #1976d2 28%, #00897b 58%, #ffb300 100%);
+            box-shadow: 0 2px 8px rgba(13, 71, 161, 0.25);
         }
         .quiz-vf-rules-modal__header {
-            margin: 0 0 16px;
-            padding: 14px 14px 16px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(21, 101, 192, 0.09) 0%, rgba(13, 71, 120, 0.06) 100%);
-            border: 1px solid rgba(26, 53, 84, 0.14);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            margin: 0 0 18px;
+            padding: 16px 16px 18px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(227, 242, 253, 0.95) 0%, rgba(187, 222, 251, 0.35) 55%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid rgba(25, 118, 210, 0.22);
+            box-shadow:
+                0 8px 24px rgba(13, 71, 161, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
         .quiz-vf-rules-modal__o2-badge {
             flex-shrink: 0;
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
             background: linear-gradient(165deg, #e1f5fe 0%, #b3e5fc 45%, #81d4fa 100%);
-            border: 1px solid rgba(2, 136, 209, 0.35);
+            border: 1px solid rgba(2, 136, 209, 0.4);
             box-shadow:
-                0 4px 14px rgba(2, 119, 189, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.75);
+                0 6px 18px rgba(2, 119, 189, 0.22),
+                inset 0 2px 0 rgba(255, 255, 255, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .quiz-vf-rules-modal__o2-badge svg {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             display: block;
         }
         .quiz-vf-rules-modal__header-text {
@@ -2925,102 +2940,202 @@
             text-align: left;
         }
         .quiz-vf-rules-modal__kicker {
-            margin: 0 0 6px;
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
+            margin: 0 0 8px;
+            font-size: 0.76rem;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: #1565c0;
-            font-weight: 800;
+            color: #0d47a1;
+            font-weight: 900;
         }
         .quiz-vf-rules-modal__subtitle {
             margin: 0;
-            color: #0f3558;
-            font-size: 1.08rem;
-            line-height: 1.28;
-            font-weight: 700;
+            color: #082747;
+            font-size: clamp(1.12rem, 2.6vw, 1.28rem);
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
         .quiz-vf-rules-modal__lead {
-            margin: 0 0 12px;
-            color: #2b4f73;
-            font-size: 0.92rem;
-            line-height: 1.5;
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            color: #1a3d54;
+            font-size: clamp(0.98rem, 2.2vw, 1.06rem);
+            line-height: 1.55;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 246, 255, 0.75) 100%);
+            border-radius: 14px;
+            border: 1px solid rgba(100, 181, 246, 0.28);
+            box-shadow: 0 2px 14px rgba(21, 101, 192, 0.06);
         }
         .quiz-vf-rules-modal__lead strong {
             color: #0d47a1;
             font-weight: 800;
         }
         .quiz-vf-rules-modal__section {
-            margin: 0 0 14px;
-            padding: 12px 14px 14px;
-            border-radius: 12px;
-            background: linear-gradient(180deg, rgba(227, 242, 253, 0.65) 0%, rgba(255, 255, 255, 0.92) 100%);
-            border: 1px solid rgba(100, 181, 246, 0.35);
-            box-shadow: 0 2px 12px rgba(13, 71, 161, 0.06);
+            margin: 0 0 16px;
+            padding: 14px 16px 16px;
+            border-radius: 14px;
             text-align: left;
+            background: linear-gradient(165deg, #fffdf7 0%, #fff8e6 40%, #fff3e0 100%);
+            border: 1px solid rgba(255, 179, 0, 0.45);
+            box-shadow:
+                0 4px 18px rgba(245, 124, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+        .quiz-vf-rules-modal__section--score {
+            background: linear-gradient(165deg, #ffffff 0%, #f3f8ff 45%, #e8f4fc 100%);
+            border-color: rgba(66, 165, 245, 0.45);
+            box-shadow:
+                0 6px 22px rgba(25, 118, 210, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
         }
         .quiz-vf-rules-modal__section-title {
-            margin: 0 0 8px;
-            font-size: 0.68rem;
+            margin: 0 0 12px;
+            font-size: 0.78rem;
             font-weight: 900;
-            letter-spacing: 0.11em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #0277bd;
+            color: #01579b;
         }
-        .quiz-vf-rules-modal__section p {
-            margin: 0;
-            color: #1c4d6e;
+        .quiz-vf-rules-modal__section--score .quiz-vf-rules-modal__section-title {
+            color: #1565c0;
+        }
+        .quiz-vf-rules-modal__score-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: stretch;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        .quiz-vf-rules-modal__pill {
+            flex: 1 1 140px;
+            min-width: 0;
+            padding: 12px 14px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-align: center;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
+        }
+        .quiz-vf-rules-modal__pill--up {
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #43a047;
+            color: #1b5e20;
+        }
+        .quiz-vf-rules-modal__pill--down {
+            background: linear-gradient(180deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #e53935;
+            color: #b71c1c;
+        }
+        .quiz-vf-rules-modal__pill-num {
+            font-size: clamp(1.45rem, 4vw, 1.85rem);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+        .quiz-vf-rules-modal__pill-lbl {
+            font-size: 0.82rem;
+            font-weight: 700;
+            opacity: 0.92;
+        }
+        .quiz-vf-rules-modal__score-foot {
+            margin: 12px 0 0;
+            text-align: center;
             font-size: 0.88rem;
-            line-height: 1.48;
-        }
-        .quiz-vf-rules-modal__section p + p {
-            margin-top: 8px;
+            color: #37474f;
+            line-height: 1.45;
         }
         .quiz-vf-rules-modal__thresholds {
-            margin: 0 0 14px;
-            padding: 12px 14px 12px;
-            border-radius: 12px;
-            background: linear-gradient(145deg, #ffffff 0%, #f5fafc 55%, #eef6fb 100%);
-            border: 1px solid rgba(38, 70, 96, 0.14);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            margin: 0 0 16px;
+            padding: 16px 14px 14px;
+            border-radius: 16px;
+            background: linear-gradient(165deg, #fafdff 0%, #eef6fb 50%, #e3f2fd 100%);
+            border: 1px solid rgba(38, 70, 96, 0.18);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 6px 20px rgba(13, 71, 161, 0.08);
             text-align: left;
         }
         .quiz-vf-rules-modal__thresholds .quiz-vf-rules-modal__section-title {
-            margin-bottom: 10px;
-            color: #1565c0;
+            margin-bottom: 14px;
+            font-size: 0.8rem;
+            color: #0d47a1;
+            text-align: center;
         }
-        .quiz-vf-rules-modal__list {
+        .quiz-vf-rules-modal__cards {
             margin: 0;
             padding: 0;
             list-style: none;
-            color: #224860;
-            font-size: 0.85rem;
-            line-height: 1.48;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .quiz-vf-rules-modal__list li {
-            margin: 0;
-            padding: 8px 0 8px 28px;
-            position: relative;
-            border-bottom: 1px solid rgba(144, 164, 174, 0.22);
+        .quiz-vf-rules-modal__card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 12px 12px 14px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid rgba(144, 164, 174, 0.35);
+            box-shadow: 0 2px 10px rgba(38, 50, 56, 0.06);
         }
-        .quiz-vf-rules-modal__list li:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+        .quiz-vf-rules-modal__card-tag {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 900;
+            line-height: 1;
         }
-        .quiz-vf-rules-modal__list li::before {
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 0.95em;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #29b6f6, #0277bd);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+        .quiz-vf-rules-modal__card--best .quiz-vf-rules-modal__card-tag {
+            background: linear-gradient(145deg, #fff8e1, #ffecb3);
+            color: #f57f17;
+            border: 1px solid rgba(255, 193, 7, 0.55);
+        }
+        .quiz-vf-rules-modal__card--ok .quiz-vf-rules-modal__card-tag {
+            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            border: 1px solid rgba(102, 187, 106, 0.55);
+        }
+        .quiz-vf-rules-modal__card--warn .quiz-vf-rules-modal__card-tag {
+            background: linear-gradient(145deg, #fff3e0, #ffe0b2);
+            color: #ef6c00;
+            border: 1px solid rgba(255, 152, 0, 0.5);
+        }
+        .quiz-vf-rules-modal__card--crit .quiz-vf-rules-modal__card-tag {
+            background: linear-gradient(145deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            border: 1px solid rgba(239, 83, 80, 0.5);
+        }
+        .quiz-vf-rules-modal__card-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .quiz-vf-rules-modal__card-range {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #102a43;
+            letter-spacing: 0.02em;
+        }
+        .quiz-vf-rules-modal__card-desc {
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: #37474f;
         }
         .quiz-vf-rules-modal__actions {
             display: flex;
             justify-content: flex-end;
-            padding-top: 4px;
+            padding-top: 8px;
         }
         .quiz-vf-outcome-modal {
             display: none;
@@ -3236,11 +3351,56 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: min(46%, 280px);
-            height: min(22%, 88px);
-            min-height: 40px;
+            width: min(58%, 360px);
+            height: min(30%, 120px);
+            min-height: 56px;
+            z-index: 1;
             pointer-events: none;
-            background: radial-gradient(ellipse 115% 130% at 100% 0%, rgba(6, 8, 12, 0.97) 0%, rgba(10, 12, 18, 0.72) 42%, transparent 78%);
+            background: radial-gradient(ellipse 120% 140% at 100% 0%, rgba(3, 5, 10, 0.98) 0%, rgba(8, 10, 16, 0.88) 35%, rgba(12, 14, 20, 0.45) 65%, transparent 88%);
+        }
+        /* Verme “ballerino” sopra l’angolo: copre residui di etichette nel video (es. PvP / vs). */
+        .quiz-vf-intro-worm-dancer {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 2;
+            width: clamp(64px, 16vw, 100px);
+            height: clamp(64px, 16vw, 100px);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.55));
+        }
+        .quiz-vf-intro-worm-dancer__svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            transform-origin: 45% 55%;
+            animation: quizVfIntroWormDance 1.15s ease-in-out infinite;
+        }
+        @keyframes quizVfIntroWormDance {
+            0%,
+            100% {
+                transform: rotate(-6deg) translate(0, 0) scale(1);
+            }
+            20% {
+                transform: rotate(14deg) translate(-2px, -5px) scale(1.04);
+            }
+            40% {
+                transform: rotate(-10deg) translate(3px, 2px) scale(0.98);
+            }
+            60% {
+                transform: rotate(8deg) translate(-3px, -3px) scale(1.02);
+            }
+            80% {
+                transform: rotate(-12deg) translate(2px, 4px) scale(1);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-vf-intro-worm-dancer__svg {
+                animation: none;
+            }
         }
         .quiz-vf-intro-skip {
             align-self: flex-end;
@@ -3305,6 +3465,17 @@
                 min-width: 140px;
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
             }
+            .quiz-vf-intro-wm-cover {
+                width: min(56%, 420px);
+                height: min(28%, 140px);
+                min-height: 72px;
+            }
+            .quiz-vf-intro-worm-dancer {
+                width: clamp(80px, 11vw, 124px);
+                height: clamp(80px, 11vw, 124px);
+                top: max(6px, env(safe-area-inset-top, 0px));
+                right: max(10px, env(safe-area-inset-right, 0px));
+            }
         }
         /* Smartphone: video più alto possibile, letterbox con object-fit contain */
         @media (max-width: 640px) {
@@ -3327,8 +3498,12 @@
                 max-height: min(82vh, calc(100vw * 1.35));
             }
             .quiz-vf-intro-wm-cover {
-                width: min(54%, 260px);
-                height: min(28%, 80px);
+                width: min(62%, 300px);
+                height: min(32%, 100px);
+            }
+            .quiz-vf-intro-worm-dancer {
+                width: clamp(58px, 20vw, 88px);
+                height: clamp(58px, 20vw, 88px);
             }
             .quiz-vf-intro-skip {
                 width: 100%;
@@ -6939,8 +7114,8 @@ function dismissAppSplash() {
         </div>
         <div id="quiz-bonus-pick-modal" class="quiz-bonus-pick-modal" aria-hidden="true" aria-labelledby="quiz-bonus-pick-title">
             <div class="quiz-bonus-pick-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <h3 id="quiz-bonus-pick-title" class="quiz-bonus-pick-modal__title">Bonus domanda</h3>
-                <p class="quiz-bonus-pick-modal__lead">Scegli una casella: puoi ottenere punti bonus oppure una penalita.</p>
+                <h3 id="quiz-bonus-pick-title" class="quiz-bonus-pick-modal__title">Bonus</h3>
+                <p class="quiz-bonus-pick-modal__lead">Scegli una casella: puoi ricevere un bonus oppure una penalità.</p>
                 <div id="quiz-bonus-pick-grid" class="quiz-bonus-pick-grid" aria-live="polite"></div>
                 <div id="quiz-bonus-pick-result" class="quiz-bonus-pick-result">
                     <img id="quiz-bonus-pick-result-img" class="quiz-bonus-pick-result__img" alt="">
@@ -6981,12 +7156,25 @@ function dismissAppSplash() {
                 <div class="quiz-vf-intro-video-wrap">
                     <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline webkit-playsinline preload="metadata"></video>
                     <div class="quiz-vf-intro-wm-cover" aria-hidden="true"></div>
+                    <div class="quiz-vf-intro-worm-dancer" aria-hidden="true">
+                        <svg class="quiz-vf-intro-worm-dancer__svg" viewBox="-20 -16 48 32" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                            <path
+                                d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z"
+                                fill="#7cb342"
+                                stroke="#33691e"
+                                stroke-width="0.9"
+                            />
+                            <circle cx="-5" cy="-5" r="2.3" fill="#1b5e20" />
+                            <circle cx="6" cy="-4" r="1.8" fill="#1b5e20" />
+                        </svg>
+                    </div>
                 </div>
                 <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
             </div>
         </div>
         <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
             <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-desc" onclick="event.stopPropagation()">
+                <div class="quiz-vf-rules-modal__topstrip" aria-hidden="true"></div>
                 <header class="quiz-vf-rules-modal__header">
                     <span class="quiz-vf-rules-modal__o2-badge" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
@@ -7011,21 +7199,55 @@ function dismissAppSplash() {
                 <div id="quiz-vf-rules-desc">
                     <p class="quiz-vf-rules-modal__lead">
                         Il misuratore usa una scala di gioco dell’<strong>ossigeno disciolto</strong> da <strong>0 a 4,5 mg/L</strong>. Parti da <strong>2,5 mg/L</strong>.
-                        Finché rifletti, il valore <strong>scende di 0,25 mg/L al secondo</strong>. Dopo la tua scelta: risposta <strong>giusta +0,25 mg/L</strong>,
-                        <strong>sbagliata −0,25 mg/L</strong> (sempre in mg/L sulla scala di gioco).
+                        Finché rifletti, il valore <strong>scende di 0,25 mg/L al secondo</strong>. Dopo la tua scelta: risposta <strong>giusta +0,50 mg/L</strong> (come <strong>2 secondi</strong> di ossigeno recuperato sulla scala),
+                        <strong>sbagliata −0,25 mg/L</strong> (come <strong>1 secondo</strong> perso). Tutto in mg/L sulla scala di gioco.
                         Se l’ossigeno disciolto arriva a <strong>0 mg/L</strong>, la modalità termina e resta un solo microbo in vasca.
                     </p>
-                    <div class="quiz-vf-rules-modal__section">
-                        <p class="quiz-vf-rules-modal__section-title">Punteggio</p>
-                        <p>Ogni risposta esatta <strong>+10</strong> punti, ogni errore <strong>−10</strong> punti (il totale non scende sotto zero).</p>
+                    <div class="quiz-vf-rules-modal__section quiz-vf-rules-modal__section--score">
+                        <p class="quiz-vf-rules-modal__section-title">Punteggio · ogni domanda</p>
+                        <div class="quiz-vf-rules-modal__score-row">
+                            <div class="quiz-vf-rules-modal__pill quiz-vf-rules-modal__pill--up">
+                                <span class="quiz-vf-rules-modal__pill-num">+10</span>
+                                <span class="quiz-vf-rules-modal__pill-lbl">risposta giusta</span>
+                            </div>
+                            <div class="quiz-vf-rules-modal__pill quiz-vf-rules-modal__pill--down">
+                                <span class="quiz-vf-rules-modal__pill-num">−10</span>
+                                <span class="quiz-vf-rules-modal__pill-lbl">errore</span>
+                            </div>
+                        </div>
+                        <p class="quiz-vf-rules-modal__score-foot">Il totale punti non scende sotto <strong>zero</strong>.</p>
                     </div>
                     <div class="quiz-vf-rules-modal__thresholds">
-                        <p class="quiz-vf-rules-modal__section-title">Fine turno · ossigeno disciolto finale</p>
-                        <ul class="quiz-vf-rules-modal__list">
-                            <li><strong>Ossigeno disciolto</strong> finale tra <strong>3,5 e 4 mg/L</strong>: 4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus.</li>
-                            <li><strong>Ossigeno disciolto</strong> tra <strong>1 e 2,5 mg/L</strong>: +2 vermi + <strong>20 punti</strong> bonus.</li>
-                            <li><strong>Ossigeno disciolto</strong> tra <strong>0,1 e 0,9 mg/L</strong>: −2 vermi.</li>
-                            <li><strong>Ossigeno disciolto = 0 mg/L</strong> durante il gioco: tutti i vermi tranne uno vengono rimossi.</li>
+                        <p class="quiz-vf-rules-modal__section-title">Fine turno — ossigeno disciolto finale</p>
+                        <ul class="quiz-vf-rules-modal__cards">
+                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--best">
+                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">★</span>
+                                <div class="quiz-vf-rules-modal__card-text">
+                                    <span class="quiz-vf-rules-modal__card-range">3,5 – 4 mg/L</span>
+                                    <span class="quiz-vf-rules-modal__card-desc">4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus</span>
+                                </div>
+                            </li>
+                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--ok">
+                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">✓</span>
+                                <div class="quiz-vf-rules-modal__card-text">
+                                    <span class="quiz-vf-rules-modal__card-range">1 – 2,5 mg/L</span>
+                                    <span class="quiz-vf-rules-modal__card-desc">+2 vermi + <strong>20 punti</strong> bonus</span>
+                                </div>
+                            </li>
+                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--warn">
+                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">!</span>
+                                <div class="quiz-vf-rules-modal__card-text">
+                                    <span class="quiz-vf-rules-modal__card-range">0,1 – 0,9 mg/L</span>
+                                    <span class="quiz-vf-rules-modal__card-desc">−2 vermi</span>
+                                </div>
+                            </li>
+                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--crit">
+                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">✕</span>
+                                <div class="quiz-vf-rules-modal__card-text">
+                                    <span class="quiz-vf-rules-modal__card-range">0 mg/L durante il gioco</span>
+                                    <span class="quiz-vf-rules-modal__card-desc">Tutti i vermi tranne uno vengono rimossi</span>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -7213,7 +7435,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508g';
+const APP_BUILD = '20260508j';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7263,8 +7485,10 @@ const QUIZ_VF_O2_MAX = 4.5;
 const QUIZ_VF_O2_START = 2.5;
 /** mg/L al secondo (scala qualitativa): 2,5 → 0 in 10 s. */
 const QUIZ_VF_O2_DECAY_PER_SEC = 0.25;
-const QUIZ_VF_O2_DELTA_SEC = 1;
-const QUIZ_VF_O2_BUMP = QUIZ_VF_O2_DECAY_PER_SEC * QUIZ_VF_O2_DELTA_SEC;
+/** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 2 s → +0,50 mg/L). */
+const QUIZ_VF_O2_GAIN_EQUIV_SEC = 2;
+/** Risposta sbagliata: mg/L persi = decadimento × questi secondi equivalenti (default 1 s → −0,25 mg/L). */
+const QUIZ_VF_O2_LOSS_EQUIV_SEC = 1;
 const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
 const QUIZ_SUSPENSE_BGM_VOLUME_MAIN = 0.17;
 const QUIZ_SUSPENSE_BGM_VOLUME_LAYER = 0.07;
@@ -7372,6 +7596,8 @@ let quizBonusPickResolved = false;
 let quizBonusPickKeydownBound = false;
 /** Musica schermata scelta bonus: elemento persistente per poterla fermare subito al tap. */
 let quizBonusSceltaAudio = null;
+/** iOS/Safari: se audio.loop non parte senza gesture, primo pointer/touch sul modale avvia la traccia. */
+let quizBonusSceltaGestureHandler = null;
 /** Traccia quale intro (1|2) è attiva per questa visita alla schermata intro (ripresa dopo mute). */
 let quizIntroSessionTrack = null;
 let quizIntroAudioEl = null;
@@ -8940,7 +9166,11 @@ function quizVfOxygenLoop() {
 }
 
 function quizVfApplyAnswerDelta(ok) {
-    const d = ok ? QUIZ_VF_O2_BUMP : -QUIZ_VF_O2_BUMP;
+    const gainMg =
+        QUIZ_VF_O2_DECAY_PER_SEC * Math.max(0, Number(QUIZ_VF_O2_GAIN_EQUIV_SEC) || 0);
+    const lossMg =
+        QUIZ_VF_O2_DECAY_PER_SEC * Math.max(0, Number(QUIZ_VF_O2_LOSS_EQUIV_SEC) || 0);
+    const d = ok ? gainMg : -lossMg;
     quizVfOxygen = Math.min(QUIZ_VF_O2_MAX, Math.max(QUIZ_VF_O2_MIN, quizVfOxygen + d));
 }
 
@@ -9415,6 +9645,45 @@ function quizEnsureBonusSceltaAudio() {
     return quizBonusSceltaAudio;
 }
 
+function quizBonusDetachFirstGestureBonusMusic() {
+    const modal = document.getElementById('quiz-bonus-pick-modal');
+    const h = quizBonusSceltaGestureHandler;
+    quizBonusSceltaGestureHandler = null;
+    if (!modal || !h) return;
+    try {
+        modal.removeEventListener('pointerdown', h, true);
+    } catch (eRm) { /* ignore */ }
+    try {
+        modal.removeEventListener('touchstart', h, true);
+    } catch (eRm2) { /* ignore */ }
+}
+
+function quizBonusPlaySceltaMusicOnly() {
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv <= 0) return;
+        const a = quizEnsureBonusSceltaAudio();
+        if (!a) return;
+        a.volume = Math.max(0, Math.min(1, 0.86 * gv));
+        const p = a.play();
+        if (p !== undefined && typeof p.catch === 'function') {
+            p.catch(function () { /* ignore */ });
+        }
+    } catch (ePl) { /* ignore */ }
+}
+
+function quizBonusAttachFirstGestureBonusMusic() {
+    quizBonusDetachFirstGestureBonusMusic();
+    const modal = document.getElementById('quiz-bonus-pick-modal');
+    if (!modal || !modal.classList.contains('quiz-bonus-pick-modal--open')) return;
+    quizBonusSceltaGestureHandler = function quizBonusSceltaGestureOnce() {
+        quizBonusDetachFirstGestureBonusMusic();
+        quizBonusPlaySceltaMusicOnly();
+    };
+    modal.addEventListener('pointerdown', quizBonusSceltaGestureHandler, true);
+    modal.addEventListener('touchstart', quizBonusSceltaGestureHandler, true);
+}
+
 function quizStopBonusSceltaMusic() {
     try {
         const a = quizBonusSceltaAudio;
@@ -9425,6 +9694,7 @@ function quizStopBonusSceltaMusic() {
 }
 
 function quizStartBonusSceltaMusic() {
+    quizBonusDetachFirstGestureBonusMusic();
     quizStopBonusSceltaMusic();
     try {
         const gv = quizGetGameAudioLinearVolume();
@@ -9432,8 +9702,23 @@ function quizStartBonusSceltaMusic() {
         const a = quizEnsureBonusSceltaAudio();
         if (!a) return;
         a.volume = Math.max(0, Math.min(1, 0.86 * gv));
-        a.play().catch(function () { /* autoplay */ });
-    } catch (eP) { /* ignore */ }
+        const p = a.play();
+        if (p !== undefined && typeof p.catch === 'function') {
+            p.catch(function () {
+                quizBonusAttachFirstGestureBonusMusic();
+            });
+        } else {
+            setTimeout(function () {
+                try {
+                    if (a.paused) quizBonusAttachFirstGestureBonusMusic();
+                } catch (_) {
+                    quizBonusAttachFirstGestureBonusMusic();
+                }
+            }, 50);
+        }
+    } catch (eP) {
+        quizBonusAttachFirstGestureBonusMusic();
+    }
 }
 
 function quizPlayBonusOutcomeSfx(item) {
@@ -11562,6 +11847,7 @@ function quizBonusFangoItem() {
     return { id: 'fango-morto', label: 'Fango morto', img: QUIZ_BONUS_ASSET_FANGO, kind: 'fango', value: QUIZ_BONUS_FANGO_POINTS, title: 'Pericolo -20 punti' };
 }
 function quizBonusPickModalHide() {
+    quizBonusDetachFirstGestureBonusMusic();
     quizStopBonusSceltaMusic();
     const modal = document.getElementById('quiz-bonus-pick-modal');
     if (modal) { modal.classList.remove('quiz-bonus-pick-modal--open'); modal.setAttribute('aria-hidden', 'true'); }
