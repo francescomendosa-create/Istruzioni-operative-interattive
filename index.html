@@ -8100,7 +8100,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511e';
+const APP_BUILD = '20260511g';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8471,6 +8471,7 @@ function quizPresenceMillisFromLastSeen(ls) {
 
 function quizPresenceCountFromSnapshot(snap) {
     if (!snap) return 0;
+    /* Soglia con orologio locale: lastSeen è scritto come Timestamp lato client su ogni dispositivo (epoch ms comparabili). */
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
     var n = 0;
     snap.forEach(function (doc) {
@@ -8479,6 +8480,54 @@ function quizPresenceCountFromSnapshot(snap) {
         if (t >= threshold) n += 1;
     });
     return n;
+}
+
+/**
+ * Gli snapshot «solo cache» di una collezione possono contenere unicamente il doc del client locale
+ * (manca ancora la sincronizzazione dal server) → conteggio sempre 1. Da online ignoriamoli e aspettiamo i dati server.
+ */
+function quizPresenceSnapshotIsTrustworthy(snap) {
+    if (!snap || !snap.metadata) return true;
+    try {
+        if (!snap.metadata.fromCache) return true;
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+        return false;
+    } catch (eM) {
+        return true;
+    }
+}
+
+/** Debug in console: perché il conteggio è N (un doc = una sessione Firebase anonima, non la rete Wi‑Fi). */
+function quizPresenceDebugLog() {
+    try {
+        if (!quizPresenceLatestSnap) {
+            console.info('[presenza] Nessuno snapshot ancora. Firebase configurato:', quizFirestoreConfigured());
+            return;
+        }
+        var th = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+        var rows = [];
+        quizPresenceLatestSnap.forEach(function (doc) {
+            var d = doc.data() || {};
+            var t = quizPresenceMillisFromLastSeen(d.lastSeen);
+            rows.push({
+                id: doc.id,
+                lastSeenMs: t,
+                ageSec: t ? Math.round((Date.now() - t) / 1000) : null,
+                online: t >= th,
+                path: d.path || ''
+            });
+        });
+        console.table(rows);
+        console.info(
+            '[presenza] Online nella finestra ~' +
+                Math.round(QUIZ_PRESENCE_ONLINE_WINDOW_MS / 1000) +
+                's: ' +
+                quizPresenceCountFromSnapshot(quizPresenceLatestSnap) +
+                ' · Un browser/dispositivo = un UID anonimo (Wi‑Fi non conta).'
+        );
+    } catch (e) {
+        console.warn('[presenza debug]', e);
+    }
 }
 
 function quizPresenceUpdateHeaderAndProducer(n) {
@@ -8507,6 +8556,7 @@ function quizPresenceSubscribeRealtime() {
                 .collection(QUIZ_FS_PRESENCE)
                 .onSnapshot(
                     function (snap) {
+                        if (!quizPresenceSnapshotIsTrustworthy(snap)) return;
                         quizPresenceLatestSnap = snap;
                         quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
                         var btn = document.getElementById('header-presence-btn');
@@ -8544,7 +8594,7 @@ function quizPresencePing() {
     return quizEnsureFirebase()
         .then(function () {
             var uid = firebase.auth().currentUser && firebase.auth().currentUser.uid;
-            if (!uid) return;
+            if (!uid) return Promise.resolve();
             /* Timestamp client: così il conteggio locale vede subito lastSeen (serverTimestamp spesso null nel cache locale finché non risponde il server → 0 utenti). */
             var ts =
                 firebase.firestore.Timestamp && typeof firebase.firestore.Timestamp.now === 'function'
@@ -8560,7 +8610,14 @@ function quizPresencePing() {
                         path: String(window.location.pathname || '').slice(0, 160)
                     },
                     { merge: true }
-                );
+                )
+                .then(function () {
+                    return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
+                })
+                .then(function (snap) {
+                    quizPresenceLatestSnap = snap;
+                    quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+                });
         })
         .catch(function (e) {
             try {
@@ -8618,6 +8675,7 @@ function quizPresenceBootstrap() {
         quizPresenceStartHeartbeat();
         quizPresenceSubscribeRealtime();
         quizPresenceStartStaleTicker();
+        /* Il primo conteggio affidabile arriva dal get({server}) concatenato a quizPresencePing() dopo il write. */
     } catch (eB) { /* ignore */ }
 }
 
@@ -12023,6 +12081,9 @@ function showQuizSettingsModal() {
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('settings-open');
+    try {
+        if (typeof quizPresenceManualRefresh === 'function') quizPresenceManualRefresh();
+    } catch (ePres) { /* ignore */ }
 }
 
 /**
