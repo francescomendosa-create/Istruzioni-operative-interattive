@@ -7841,15 +7841,26 @@ function dismissAppSplash() {
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
         <div class="quiz-fs-scroll" style="text-align:left;">
-            <div class="quiz-actions" style="margin-bottom:14px;">
-                <button type="button" class="btn-side btn-reset" onclick="quizProducerResetLeaderboard()">Reset record classifica</button>
-            </div>
             <div class="quiz-producer-add">
                 <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
                 <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
                 <button type="button" class="btn-side btn-report" onclick="quizProducerAddEntry()">Aggiungi</button>
             </div>
             <div id="quiz-producer-table-host" class="quiz-producer-table-wrap"></div>
+        </div>
+    </div>
+
+    <div id="quiz-producer-remove-modal" class="quiz-exit-confirm-modal" aria-hidden="true" aria-labelledby="quiz-producer-remove-title" onclick="quizProducerRemoveModalBackdrop(event)">
+        <div class="quiz-exit-confirm-modal__box" role="alertdialog" aria-modal="true" onclick="event.stopPropagation()">
+            <div class="quiz-exit-confirm-modal__icon" aria-hidden="true">⚠️</div>
+            <h3 id="quiz-producer-remove-title">Eliminare dalla classifica?</h3>
+            <p class="quiz-exit-confirm-modal__lead">
+                Vuoi davvero rimuovere <strong id="quiz-producer-remove-name"></strong> dalla classifica? L'operazione non si può annullare dal gioco.
+            </p>
+            <div class="quiz-exit-confirm-modal__actions">
+                <button type="button" class="btn-side btn-quiz-exit-cancel" id="quiz-producer-remove-cancel" onclick="quizProducerRemoveConfirmCancel()">Annulla</button>
+                <button type="button" class="btn-side btn-quiz-exit-confirm" id="quiz-producer-remove-ok" onclick="quizProducerRemoveConfirmOk()">Elimina</button>
+            </div>
         </div>
     </div>
 
@@ -7867,7 +7878,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510f';
+const APP_BUILD = '20260510g';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -11746,14 +11757,75 @@ function hideQuizInfoDetailModal() {
     document.body.classList.remove('quiz-info-open');
 }
 
-function quizProducerResetLeaderboard() {
+let quizProducerRemovePendingIndex = null;
+let quizProducerRemoveKeydownBound = false;
+
+function quizProducerRemoveModalHide() {
+    const modal = document.getElementById('quiz-producer-remove-modal');
+    if (modal) {
+        modal.classList.remove('quiz-exit-confirm-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    quizProducerRemovePendingIndex = null;
+    if (quizProducerRemoveKeydownBound) {
+        document.removeEventListener('keydown', quizProducerRemoveModalKeydown, true);
+        quizProducerRemoveKeydownBound = false;
+    }
+}
+
+function quizProducerRemoveModalKeydown(ev) {
+    const modal = document.getElementById('quiz-producer-remove-modal');
+    if (!modal || !modal.classList.contains('quiz-exit-confirm-modal--open')) return;
+    if (ev.key === 'Escape') {
+        ev.preventDefault();
+        quizProducerRemoveConfirmCancel();
+    }
+}
+
+function quizProducerRemoveModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-producer-remove-modal') {
+        quizProducerRemoveConfirmCancel();
+    }
+}
+
+function quizProducerRemovePrompt(displayIndex) {
     if (!quizFirestoreConfigured()) return;
-    if (!window.confirm('Cancellare tutti i record della classifica su Firestore (e cache locale)?')) return;
-    quizSaveLeaderboardFullSync([]);
-    quizProducerRefreshTable();
-    try {
-        quizRenderLeaderboard();
-    } catch (e) {}
+    const rows = quizSortLeaderboardRows(quizLoadLeaderboard());
+    const idx = Number(displayIndex);
+    if (!Number.isFinite(idx) || idx < 0 || idx >= rows.length) return;
+    const row = rows[idx];
+    const nm = row && row.name != null ? String(row.name).trim() : '';
+    const safeName = nm || 'Operatore';
+    quizProducerRemovePendingIndex = idx;
+    const nameEl = document.getElementById('quiz-producer-remove-name');
+    const modal = document.getElementById('quiz-producer-remove-modal');
+    if (nameEl) nameEl.textContent = safeName;
+    if (!modal) return;
+    modal.classList.add('quiz-exit-confirm-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    if (!quizProducerRemoveKeydownBound) {
+        document.addEventListener('keydown', quizProducerRemoveModalKeydown, true);
+        quizProducerRemoveKeydownBound = true;
+    }
+    requestAnimationFrame(function () {
+        const cancelBtn = document.getElementById('quiz-producer-remove-cancel');
+        if (cancelBtn) {
+            try {
+                cancelBtn.focus();
+            } catch (eF) { /* ignore */ }
+        }
+    });
+}
+
+function quizProducerRemoveConfirmCancel() {
+    quizProducerRemoveModalHide();
+}
+
+function quizProducerRemoveConfirmOk() {
+    const idx = quizProducerRemovePendingIndex;
+    quizProducerRemoveModalHide();
+    if (idx == null || !Number.isFinite(Number(idx))) return;
+    quizProducerRemoveAt(Number(idx));
 }
 
 function showQuizProducerModal() {
@@ -11771,6 +11843,7 @@ function showQuizProducerModal() {
 }
 
 function hideQuizProducerModal() {
+    quizProducerRemoveModalHide();
     const el = document.getElementById('quiz-producer-overlay');
     if (el) {
         el.classList.remove('visible');
@@ -11794,7 +11867,7 @@ function quizProducerRefreshTable() {
     let html = '<table><thead><tr><th>#</th><th>Nome</th><th>Punti</th><th></th></tr></thead><tbody>';
     rows.forEach(function (r, i) {
         const nm = typeof escapeQuizHtml === 'function' ? escapeQuizHtml(r.name) : String(r.name || '').replace(/</g, '&lt;');
-        html += '<tr><td class="quiz-producer-num">' + (i + 1) + '</td><td>' + nm + '</td><td>' + (Number(r.score) || 0) + '</td><td><button type="button" class="btn-side btn-reset" style="padding:4px 8px;font-size:0.72rem;" onclick="quizProducerRemoveAt(' + i + ')">Rimuovi</button></td></tr>';
+        html += '<tr><td class="quiz-producer-num">' + (i + 1) + '</td><td>' + nm + '</td><td>' + (Number(r.score) || 0) + '</td><td><button type="button" class="btn-side btn-reset" style="padding:4px 8px;font-size:0.72rem;" onclick="quizProducerRemovePrompt(' + i + ')">Rimuovi</button></td></tr>';
     });
     html += '</tbody></table>';
     host.innerHTML = html;
