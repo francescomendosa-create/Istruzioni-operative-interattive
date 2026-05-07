@@ -1734,13 +1734,24 @@
                 display: inline-flex;
             }
         }
-        /* Smartphone: vite visibili nella fila sotto Posizione + grado (non inline). */
+        /* Posizione + Livello sulla stessa riga (sopra la riga vite su mobile). */
+        .quiz-play-pos-tier {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 5px;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        .quiz-play-pos-tier .quiz-play-trophy-tilt {
+            flex-shrink: 0;
+        }
         .quiz-play-pos-level {
             display: inline-flex;
             align-items: baseline;
-            gap: 4px;
-            margin-left: 6px;
-            flex-wrap: wrap;
+            gap: 3px;
+            margin-left: 4px;
+            flex-shrink: 0;
             white-space: nowrap;
         }
         .quiz-play-pos-level .quiz-play-oneline-lbl {
@@ -1752,19 +1763,33 @@
                 flex-basis: 100%;
                 width: 100%;
                 order: 10;
-                margin-top: 5px;
-                padding-top: 5px;
+                margin-top: 0;
+                padding-top: 6px;
                 border-top: 1px solid rgba(25, 118, 210, 0.18);
                 align-items: center;
                 justify-content: flex-start;
                 gap: 8px;
             }
             .quiz-play-oneline-left {
-                align-items: flex-start;
+                flex-direction: column;
+                align-items: stretch;
+                flex-wrap: nowrap;
+                gap: 6px;
+            }
+            .quiz-play-pos-tier {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                gap: 4px;
+            }
+            .quiz-play-pos-tier .quiz-play-oneline-lbl {
+                font-size: 0.66rem;
+            }
+            .quiz-play-pos-tier .quiz-play-oneline-val {
+                font-size: clamp(0.76rem, 3.4vw, 0.86rem);
             }
             .quiz-play-pos-level {
-                flex-basis: auto;
-                margin-left: 4px;
+                margin-left: 6px;
             }
             .quiz-play-lives-avatar {
                 width: 26px;
@@ -7901,7 +7926,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510j';
+const APP_BUILD = '20260510k';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -14043,6 +14068,7 @@ function quizUpdatePlayProgress(extra) {
         ' · punti totali">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
         '<div class="quiz-play-oneline-left">' +
+        '<div class="quiz-play-pos-tier">' +
         crown +
         '<span class="quiz-play-oneline-lbl">Posizione</span>' +
         '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
@@ -14052,6 +14078,7 @@ function quizUpdatePlayProgress(extra) {
         playLv +
         '</strong>' +
         '</span>' +
+        '</div>' +
         livesRow +
         '</div>' +
         '<div class="quiz-play-oneline-center">' +
