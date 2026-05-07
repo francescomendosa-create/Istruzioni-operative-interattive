@@ -7878,7 +7878,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510g';
+const APP_BUILD = '20260510h';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8363,7 +8363,7 @@ let quizRankDetailCtx = null;
 
 function quizWormLevelFromIdx(wormIdx) {
     const w = Number(wormIdx);
-    const map = [1, 2, 3, 5, 4];
+    const map = [1, 2, 3, 4, 5];
     if (Number.isFinite(w) && w >= 0 && w < map.length) return map[w];
     return 1;
 }
@@ -8374,8 +8374,8 @@ function quizWormUnlockSequenceForLevel(level) {
         1: [0],
         2: [0, 1],
         3: [0, 1, 2],
-        4: [0, 1, 2, 4],
-        5: [0, 1, 2, 4, 3]
+        4: [0, 1, 2, 3],
+        5: [0, 1, 2, 3, 4]
     };
     return seqByLevel[lv] || [0];
 }
@@ -9545,7 +9545,7 @@ function quizVfIntroMascotPickRandom() {
     const icons = [].slice.call(host.querySelectorAll('.quiz-vf-intro-worm-dancer__icon'));
     if (!icons.length) return;
     const round = Math.floor(Number(quizVfBlockRound) || 0) % 5;
-    const iconByRound = [0, 1, 2, 4, 3];
+    const iconByRound = [0, 1, 2, 3, 4];
     const wanted = iconByRound[round];
     let idx = icons.findIndex(function (el) {
         return Number(el.getAttribute('data-vf-worm-icon')) === wanted;
@@ -11889,8 +11889,8 @@ function quizProducerBuildWormSequenceForScore(score, level) {
         1: [0],
         2: [0, 1],
         3: [0, 1, 2],
-        4: [0, 1, 2, 4],
-        5: [0, 1, 2, 4, 3]
+        4: [0, 1, 2, 3],
+        5: [0, 1, 2, 3, 4]
     };
     const unlocked = unlockedByLevel[lv] || [0];
     const count = Math.max(4, Math.min(22, Math.floor(s / 45)));
@@ -15248,7 +15248,7 @@ function quizMicrobeUnlockModalNormalizeWormIdx(wormIdx) {
 
 function quizMicrobeUnlockLevelLabel(wormIdx) {
     const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
-    const lvl = [1, 2, 3, 5, 4][w] || 1;
+    const lvl = [1, 2, 3, 4, 5][w] || 1;
     const ordByLevel = {
         1: 'Primo',
         2: 'Secondo',
@@ -15261,7 +15261,7 @@ function quizMicrobeUnlockLevelLabel(wormIdx) {
 
 function quizMicrobeUnlockLevelNumber(wormIdx) {
     const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
-    return [1, 2, 3, 5, 4][w] || 1;
+    return [1, 2, 3, 4, 5][w] || 1;
 }
 
 function quizMicrobeUnlockModalFill(wormIdx) {
