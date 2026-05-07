@@ -116,18 +116,13 @@
             height: 18px;
         }
 
-        /* Presenza utenti (Firestore, tempo reale) — tra titolo e CHIMICO-FISICO */
-        .header-presence-row {
+        /* Presenza utenti: pill affianco al tasto Home (titolo resta centrato nella colonna centrale) */
+        .header-title-bar__start {
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin: 6px auto 0;
-            max-width: 900px;
-            padding: 0 8px;
-            box-sizing: border-box;
-        }
-        .header-presence-row[hidden] {
-            display: none !important;
+            gap: 7px;
+            flex-shrink: 0;
+            min-width: 0;
         }
         .header-presence-badge {
             display: inline-flex;
@@ -140,6 +135,24 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
+        }
+        .header-presence-badge--btn {
+            margin: 0;
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: filter 0.12s ease, transform 0.08s ease;
+        }
+        .header-presence-badge--btn:hover {
+            filter: brightness(1.06);
+        }
+        .header-presence-badge--btn:active {
+            transform: scale(0.98);
+        }
+        .header-presence-badge--btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.85);
+            outline-offset: 2px;
         }
         .header-presence-icon {
             font-size: 1.05rem;
@@ -5517,6 +5530,58 @@
         .quiz-producer-panel.visible {
             z-index: 10001;
         }
+        .quiz-producer-panel.visible::before {
+            background: linear-gradient(180deg, #b71c1c 0%, #8e0000 42%, #6d0000 100%);
+        }
+        .quiz-producer-panel.visible .quiz-fs-topbar {
+            background: linear-gradient(180deg, #7f0000 0%, #4a0000 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-producer-fs-scroll {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .quiz-producer-intro {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding: 28px 20px 36px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .quiz-producer-intro[hidden] {
+            display: none !important;
+        }
+        .quiz-producer-intro__title {
+            margin: 0;
+            font-size: clamp(1.6rem, 6vw, 2.15rem);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+        }
+        .quiz-producer-intro__lead {
+            margin: 0;
+            max-width: 28rem;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.88);
+        }
+        .quiz-producer-work {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding-bottom: 16px;
+        }
+        .quiz-producer-work[hidden] {
+            display: none !important;
+        }
         .quiz-producer-presence {
             margin-bottom: 16px;
             padding: 12px 14px;
@@ -7349,19 +7414,19 @@ function dismissAppSplash() {
 
 <div class="fixed-header">
     <div class="header-title-bar">
-        <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </button>
+        <div class="header-title-bar__start">
+            <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button type="button" id="header-presence-btn" class="header-presence-badge header-presence-badge--btn" hidden onclick="quizPresenceManualRefresh()" title="Utenti online nell’app (Firebase, ultimi ~90 s). Clic per aggiornare." aria-label="Utenti online: aggiorna conteggio">
+                <span class="header-presence-icon" aria-hidden="true">👤</span>
+                <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
+            </button>
+        </div>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
         <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
-    </div>
-    <div id="header-presence-row" class="header-presence-row" hidden>
-        <div class="header-presence-badge" role="status" title="Utenti online nell’app (stima Firebase, ultimi ~90 s)" aria-live="polite">
-            <span class="header-presence-icon" aria-hidden="true">👤</span>
-            <span id="header-presence-count" class="header-presence-num">—</span>
-        </div>
     </div>
     <div class="header-sec-row">
         <button type="button" id="btn-sec-cf" class="nav-sec-btn active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
@@ -7978,23 +8043,32 @@ function dismissAppSplash() {
             <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · SVILUPPATORE</span>
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
-        <div class="quiz-fs-scroll" style="text-align:left;">
-            <div id="quiz-producer-presence-box" class="quiz-producer-presence">
-                <div class="quiz-producer-presence__title">Utenti online (stima)</div>
-                <div class="quiz-producer-presence__row">
-                    <span id="quiz-producer-presence-count" class="quiz-producer-presence__num" aria-live="polite">—</span>
-                    <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
-                </div>
-                <p class="quiz-producer-presence__hint">
-                    Stesso conteggio dell’indicatore in alto: aggiornamento in tempo reale (Firestore). Considerati online gli utenti con heartbeat negli ultimi ~90 secondi. Serve la regola lettura su <strong>quiz_presence</strong>.
+        <div class="quiz-fs-scroll quiz-producer-fs-scroll" style="text-align:left;">
+            <div id="quiz-producer-intro" class="quiz-producer-intro">
+                <h2 id="quiz-producer-intro-title" class="quiz-producer-intro__title">Classifica</h2>
+                <p class="quiz-producer-intro__lead">
+                    Da qui puoi gestire la classifica del quiz. Premi Continua per aprire lo strumento di modifica.
                 </p>
+                <button type="button" id="quiz-producer-intro-continue" class="btn-side btn-report" onclick="quizProducerIntroContinue()">Continua</button>
             </div>
-            <div class="quiz-producer-add">
-                <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
-                <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
-                <button type="button" class="btn-side btn-report" onclick="quizProducerAddEntry()">Aggiungi</button>
+            <div id="quiz-producer-work" class="quiz-producer-work" hidden>
+                <div id="quiz-producer-presence-box" class="quiz-producer-presence">
+                    <div class="quiz-producer-presence__title">Utenti online (stima)</div>
+                    <div class="quiz-producer-presence__row">
+                        <span id="quiz-producer-presence-count" class="quiz-producer-presence__num" aria-live="polite">—</span>
+                        <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
+                    </div>
+                    <p class="quiz-producer-presence__hint">
+                        Stesso conteggio dell’indicatore in alto: aggiornamento in tempo reale (Firestore). Considerati online gli utenti con heartbeat negli ultimi ~90 secondi. Serve la regola lettura su <strong>quiz_presence</strong>.
+                    </p>
+                </div>
+                <div class="quiz-producer-add">
+                    <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
+                    <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
+                    <button type="button" class="btn-side btn-report" onclick="quizProducerAddEntry()">Aggiungi</button>
+                </div>
+                <div id="quiz-producer-table-host" class="quiz-producer-table-wrap"></div>
             </div>
-            <div id="quiz-producer-table-host" class="quiz-producer-table-wrap"></div>
         </div>
     </div>
 
@@ -8026,7 +8100,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511b';
+const APP_BUILD = '20260511d';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8435,8 +8509,8 @@ function quizPresenceSubscribeRealtime() {
                     function (snap) {
                         quizPresenceLatestSnap = snap;
                         quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
-                        var row = document.getElementById('header-presence-row');
-                        if (row) row.hidden = false;
+                        var btn = document.getElementById('header-presence-btn');
+                        if (btn) btn.hidden = false;
                     },
                     function (err) {
                         try {
@@ -8444,6 +8518,8 @@ function quizPresenceSubscribeRealtime() {
                         } catch (eL) { /* ignore */ }
                         var h = document.getElementById('header-presence-count');
                         if (h) h.textContent = '?';
+                        var btn = document.getElementById('header-presence-btn');
+                        if (btn) btn.hidden = false;
                     }
                 );
         })
@@ -8469,13 +8545,18 @@ function quizPresencePing() {
         .then(function () {
             var uid = firebase.auth().currentUser && firebase.auth().currentUser.uid;
             if (!uid) return;
+            /* Timestamp client: così il conteggio locale vede subito lastSeen (serverTimestamp spesso null nel cache locale finché non risponde il server → 0 utenti). */
+            var ts =
+                firebase.firestore.Timestamp && typeof firebase.firestore.Timestamp.now === 'function'
+                    ? firebase.firestore.Timestamp.now()
+                    : firebase.firestore.Timestamp.fromMillis(Date.now());
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_PRESENCE)
                 .doc(uid)
                 .set(
                     {
-                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastSeen: ts,
                         path: String(window.location.pathname || '').slice(0, 160)
                     },
                     { merge: true }
@@ -8485,6 +8566,26 @@ function quizPresencePing() {
             try {
                 console.warn('[quiz presence]', e);
             } catch (eL) { /* ignore */ }
+        });
+}
+
+/** Clic sul badge header: ping immediato + lettura fresca da Firestore. */
+function quizPresenceManualRefresh() {
+    if (!quizFirestoreConfigured()) return;
+    quizPresencePing();
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
+        })
+        .then(function (snap) {
+            quizPresenceLatestSnap = snap;
+            quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+            var btn = document.getElementById('header-presence-btn');
+            if (btn) btn.hidden = false;
+        })
+        .catch(function () {
+            var h = document.getElementById('header-presence-count');
+            if (h) h.textContent = '?';
         });
 }
 
@@ -8512,6 +8613,8 @@ function quizPresenceStartHeartbeat() {
 function quizPresenceBootstrap() {
     if (!quizFirestoreConfigured()) return;
     try {
+        var btn0 = document.getElementById('header-presence-btn');
+        if (btn0) btn0.hidden = false;
         quizPresenceStartHeartbeat();
         quizPresenceSubscribeRealtime();
         quizPresenceStartStaleTicker();
@@ -12192,6 +12295,29 @@ function quizProducerRemoveConfirmOk() {
     quizProducerRemoveAt(Number(idx));
 }
 
+function quizProducerResetIntro() {
+    const intro = document.getElementById('quiz-producer-intro');
+    const work = document.getElementById('quiz-producer-work');
+    if (intro) intro.hidden = false;
+    if (work) work.hidden = true;
+}
+
+function quizProducerIntroContinue() {
+    const intro = document.getElementById('quiz-producer-intro');
+    const work = document.getElementById('quiz-producer-work');
+    if (intro) intro.hidden = true;
+    if (work) work.hidden = false;
+    quizProducerRefreshTable();
+    try {
+        quizPresenceBootstrap();
+    } catch (ePb) { /* ignore */ }
+    quizProducerRefreshPresence();
+    requestAnimationFrame(function () {
+        const n = document.getElementById('quiz-producer-name');
+        if (n) n.focus();
+    });
+}
+
 function showQuizProducerModal() {
     const el = document.getElementById('quiz-producer-overlay');
     if (el) {
@@ -12199,19 +12325,20 @@ function showQuizProducerModal() {
         el.setAttribute('aria-hidden', 'false');
     }
     document.body.classList.add('producer-open');
-    quizProducerRefreshTable();
-    try {
-        quizPresenceBootstrap();
-    } catch (ePb) { /* ignore */ }
-    quizProducerRefreshPresence();
+    quizProducerResetIntro();
     requestAnimationFrame(function () {
-        const x = document.querySelector('#quiz-producer-overlay .quiz-fs-exit');
-        if (x) x.focus();
+        const c = document.getElementById('quiz-producer-intro-continue');
+        if (c) c.focus();
+        else {
+            const x = document.querySelector('#quiz-producer-overlay .quiz-fs-exit');
+            if (x) x.focus();
+        }
     });
 }
 
 function hideQuizProducerModal() {
     quizProducerRemoveModalHide();
+    quizProducerResetIntro();
     const el = document.getElementById('quiz-producer-overlay');
     if (el) {
         el.classList.remove('visible');
