@@ -2792,15 +2792,21 @@
             box-shadow: 0 16px 45px rgba(7, 26, 47, 0.42);
         }
         .quiz-vf-modal__title {
-            margin: 0 0 14px;
-            padding: 2px 4px 0;
-            color: #0a2540;
-            font-size: clamp(1.24rem, 3.2vw, 1.52rem);
+            margin: 0 0 16px;
+            padding: 16px 18px;
+            color: #061825;
+            font-size: clamp(1.28rem, 4.8vw, 1.85rem);
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.025em;
             text-align: center;
-            line-height: 1.22;
+            line-height: 1.38;
             text-wrap: balance;
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(227, 242, 253, 0.88) 48%, rgba(187, 222, 251, 0.55) 100%);
+            border-radius: 14px;
+            border: 1px solid rgba(66, 165, 245, 0.42);
+            box-shadow:
+                0 6px 22px rgba(13, 71, 161, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
         }
         .quiz-vf-o2-meter-wrap {
             margin-bottom: 14px;
@@ -2902,6 +2908,43 @@
             border-radius: 18px 18px 0 0;
             background: linear-gradient(90deg, #0d47a1 0%, #1976d2 28%, #00897b 58%, #ffb300 100%);
             box-shadow: 0 2px 8px rgba(13, 71, 161, 0.25);
+        }
+        .quiz-vf-rules-modal__strap {
+            margin: 0 0 20px;
+            padding: 18px 20px;
+            border-radius: 16px;
+            text-align: center;
+            background: linear-gradient(
+                155deg,
+                rgba(255, 255, 255, 0.98) 0%,
+                rgba(224, 247, 250, 0.65) 42%,
+                rgba(179, 229, 252, 0.55) 100%
+            );
+            border: 1px solid rgba(0, 137, 123, 0.32);
+            box-shadow:
+                0 10px 36px rgba(0, 77, 64, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+        .quiz-vf-rules-modal__strap-text {
+            margin: 0;
+            font-size: clamp(1.06rem, 3.2vw, 1.26rem);
+            font-weight: 800;
+            line-height: 1.55;
+            color: #0b3048;
+            letter-spacing: 0.015em;
+        }
+        .quiz-vf-rules-modal__strap-text strong {
+            color: #b71c1c;
+            font-weight: 900;
+        }
+        .quiz-vf-rules-modal__strap-kicker {
+            margin: 0 0 14px;
+            font-size: clamp(0.92rem, 2.8vw, 1.05rem);
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: 0.04em;
+            color: #1565c0;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
         }
         .quiz-vf-rules-modal__header {
             margin: 0 0 18px;
@@ -3267,12 +3310,6 @@
             display: flex;
             justify-content: flex-end;
         }
-        .quiz-vf-statement {
-            margin: 0 0 18px;
-            color: #102a45;
-            font-size: 1.02rem;
-            line-height: 1.45;
-        }
         .quiz-vf-actions {
             display: flex;
             gap: 12px;
@@ -3522,8 +3559,9 @@
                 padding: 14px;
                 border-radius: 12px;
             }
-            .quiz-vf-statement {
-                font-size: 0.92rem;
+            .quiz-vf-modal__title {
+                font-size: clamp(1.18rem, 5.2vw, 1.52rem);
+                padding: 14px 14px;
             }
             .quiz-vf-btn {
                 padding: 12px 14px;
@@ -3546,16 +3584,8 @@
                 margin-top: auto;
                 margin-bottom: auto;
             }
-            .quiz-vf-o2-meter-wrap {
-                margin-bottom: 10px;
-            }
-            .quiz-vf-o2-meter-label {
-                margin-bottom: 4px;
-            }
-            .quiz-vf-statement {
-                margin: 0 0 14px;
-                font-size: clamp(0.98rem, 1.35vw, 1.08rem);
-                line-height: 1.42;
+            .quiz-vf-modal__title {
+                font-size: clamp(1.22rem, 2.7vw, 1.78rem);
             }
         }
 
@@ -7130,21 +7160,8 @@ function dismissAppSplash() {
             </div>
         </div>
         <div id="quiz-vf-modal" class="quiz-vf-modal" aria-hidden="true" aria-labelledby="quiz-vf-title">
-            <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-                <h3 id="quiz-vf-title" class="quiz-vf-modal__title">Domanda</h3>
-                <div class="quiz-vf-o2-meter-wrap">
-                    <div class="quiz-vf-o2-meter-label">Ossigeno disciolto (mg/L · scala di gioco)</div>
-                    <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
-                        <div class="quiz-vf-o2-meter__rail">
-                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--0">0</span>
-                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--max">4,5</span>
-                            <div id="quiz-vf-o2-meter-fill" class="quiz-vf-o2-meter__fill"></div>
-                            <div id="quiz-vf-o2-meter-needle" class="quiz-vf-o2-meter__needle" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div id="quiz-vf-o2-readout" class="quiz-vf-o2-readout">OD ≈ <strong id="quiz-vf-o2-value">2,5</strong></div>
-                </div>
-                <p id="quiz-vf-statement" class="quiz-vf-statement"></p>
+            <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" aria-labelledby="quiz-vf-title" onclick="event.stopPropagation()">
+                <h3 id="quiz-vf-title" class="quiz-vf-modal__title"></h3>
                 <div class="quiz-vf-actions">
                     <button type="button" class="quiz-vf-btn quiz-vf-btn--true" id="quiz-vf-btn-true" onclick="quizVfAnswer(true)">VERO</button>
                     <button type="button" class="quiz-vf-btn quiz-vf-btn--false" id="quiz-vf-btn-false" onclick="quizVfAnswer(false)">FALSO</button>
@@ -7173,7 +7190,7 @@ function dismissAppSplash() {
             </div>
         </div>
         <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
-            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-desc" onclick="event.stopPropagation()">
+            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-strap quiz-vf-rules-desc" onclick="event.stopPropagation()">
                 <div class="quiz-vf-rules-modal__topstrip" aria-hidden="true"></div>
                 <header class="quiz-vf-rules-modal__header">
                     <span class="quiz-vf-rules-modal__o2-badge" aria-hidden="true">
@@ -7196,6 +7213,12 @@ function dismissAppSplash() {
                         <h3 id="quiz-vf-rules-title" class="quiz-vf-rules-modal__subtitle">Mantieni l’ossigenazione ottimale</h3>
                     </div>
                 </header>
+                <div id="quiz-vf-rules-strap" class="quiz-vf-rules-modal__strap">
+                    <p class="quiz-vf-rules-modal__strap-kicker">Sempre grafica e scrittura molto bella.</p>
+                    <p class="quiz-vf-rules-modal__strap-text">
+                        Mantieni l’ossigeno disciolto entro i <strong>parametri ottimali</strong>: altrimenti la biomassa <strong>andrà in sofferenza</strong>.
+                    </p>
+                </div>
                 <div id="quiz-vf-rules-desc">
                     <p class="quiz-vf-rules-modal__lead">
                         Il misuratore usa una scala di gioco dell’<strong>ossigeno disciolto</strong> da <strong>0 a 4,5 mg/L</strong>. Parti da <strong>2,5 mg/L</strong>.
@@ -7252,7 +7275,7 @@ function dismissAppSplash() {
                     </div>
                 </div>
                 <div class="quiz-vf-rules-modal__actions">
-                    <button type="button" class="btn-side btn-report" onclick="quizVfRulesModalOk()">Ho capito — inizia</button>
+                    <button type="button" class="btn-side btn-report" onclick="quizVfRulesModalOk()">Comincia</button>
                 </div>
             </div>
         </div>
@@ -7435,7 +7458,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508j';
+const APP_BUILD = '20260508l';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9392,17 +9415,13 @@ function quizVfCurrentItem() {
 function quizVfRunSingleStep() {
     const item = quizVfCurrentItem();
     const titleEl = document.getElementById('quiz-vf-title');
-    const st = document.getElementById('quiz-vf-statement');
     const bt = document.getElementById('quiz-vf-btn-true');
     const bf = document.getElementById('quiz-vf-btn-false');
-    if (!item || !st) {
+    if (!item || !titleEl) {
         quizVfFinishSessionCore();
         return;
     }
-    if (titleEl) {
-        titleEl.textContent = 'Domanda ' + (quizVfIdxInBlock + 1) + ' di 5';
-    }
-    st.textContent = item.statement;
+    titleEl.textContent = item.statement;
     if (bt) bt.disabled = false;
     if (bf) bf.disabled = false;
     quizVfChoiceBusy = false;
