@@ -2713,6 +2713,10 @@
             object-position: center;
             display: block;
         }
+        .quiz-bonus-pick-card__back img.quiz-bonus-pick-card__img--fango {
+            transform: scale(1.28);
+            transform-origin: center;
+        }
         .quiz-bonus-pick-result {
             position: fixed;
             left: 50%;
@@ -3921,6 +3925,40 @@
         .quiz-rank-detail-modal__actions {
             display: flex;
             justify-content: center;
+        }
+        .quiz-rank-detail-modal__bonus-title {
+            margin: 6px 0 8px;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .quiz-rank-detail-modal__bonus-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .quiz-rank-detail-modal__bonus-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px 4px 5px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(30, 58, 95, 0.14);
+            color: #1e3a8a;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .quiz-rank-detail-modal__bonus-item img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid rgba(30, 58, 95, 0.12);
         }
         /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda in poi, 25 s) */
         .quiz-play-time {
@@ -7441,6 +7479,8 @@ function dismissAppSplash() {
                 </div>
                 <p class="quiz-rank-detail-modal__worms-title">In vasca · vermi ottenuti</p>
                 <div id="quiz-rank-detail-worms" class="quiz-rank-detail-modal__worms"></div>
+                <p class="quiz-rank-detail-modal__bonus-title">Carte bonus ottenute</p>
+                <div id="quiz-rank-detail-bonus-list" class="quiz-rank-detail-modal__bonus-list"></div>
                 <div class="quiz-rank-detail-modal__actions">
                     <button type="button" class="btn-side btn-report" onclick="quizRankDetailModalOk()">Chiudi</button>
                 </div>
@@ -7825,7 +7865,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509aa';
+const APP_BUILD = '20260509ac';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8405,6 +8445,7 @@ function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
     const metaEl = document.getElementById('quiz-rank-detail-meta');
     const avatarEl = document.getElementById('quiz-rank-detail-avatar');
     const wormsEl = document.getElementById('quiz-rank-detail-worms');
+    const bonusEl = document.getElementById('quiz-rank-detail-bonus-list');
     if (!modal || !titleEl || !metaEl || !wormsEl) return;
     const rank = idx + 1;
     const level = quizWormLevelFromIdx(row.worm);
@@ -8435,6 +8476,19 @@ function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
             '</div>';
     });
     wormsEl.innerHTML = wormsHtml;
+    if (bonusEl) {
+        const bList = Array.isArray(row.bonusCards) ? row.bonusCards : [];
+        let bonusHtml = '';
+        bList.forEach(function (b) {
+            const label = escapeQuizHtml((b && b.label) ? b.label : 'Bonus');
+            const img = escapeQuizHtml((b && b.img) ? b.img : '');
+            bonusHtml += '<span class="quiz-rank-detail-modal__bonus-item">' +
+                (img ? '<img src="' + img + '" alt="" decoding="async" draggable="false">' : '') +
+                '<span>' + label + '</span></span>';
+        });
+        if (!bonusHtml) bonusHtml = '<span class="quiz-rank-detail-modal__bonus-item"><span>Nessun bonus carta</span></span>';
+        bonusEl.innerHTML = bonusHtml;
+    }
     quizRankDetailCtx = { index: idx };
     modal.classList.add('quiz-rank-detail-modal--open');
     modal.setAttribute('aria-hidden', 'false');
@@ -12119,6 +12173,8 @@ let quizTop3CelebrationCtx = null;
 let quizTop3CelebrationAudioEl = null;
 /** Timeout bonus arcade fine partita (puliti su nuovo quiz). */
 let quizOverArcadeTimers = [];
+/** Storico carte/bonus ottenuti nella partita corrente (per popup classifica). */
+let quizSessionBonusCards = [];
 
 function quizWormBonusPointsForAttr(attr) {
     if (attr === 'generic' || attr === null || attr === '') {
@@ -12430,6 +12486,12 @@ function quizBonusPickModalKeydown(ev) {
 }
 function quizBonusApplyOutcome(item) {
     if (!item) return;
+    quizSessionBonusCards.push({
+        id: String(item.id || ''),
+        label: String(item.label || item.title || 'Bonus'),
+        img: String(item.img || ''),
+        kind: String(item.kind || '')
+    });
     if (item.kind === 'points') quizState.score += Number(item.value) || 0;
     else if (item.kind === 'fango') quizState.score += Number(item.value) || QUIZ_BONUS_FANGO_POINTS;
     else if (item.kind === 'life') quizState.wrongCount = Math.max(0, (Number(quizState.wrongCount) || 0) - 1);
@@ -12480,6 +12542,9 @@ function quizOpenBonusPickModal(onContinue) {
             const revealImg = document.createElement('img');
             revealImg.src = item.img || '';
             revealImg.alt = item.label || '';
+            if (item.id === 'fango-morto') {
+                revealImg.classList.add('quiz-bonus-pick-card__img--fango');
+            }
             revealImg.onerror = function () { this.style.display = 'none'; };
             back.appendChild(revealImg);
             inner.appendChild(front);
@@ -14683,7 +14748,8 @@ function quizFinish(completedAll, opts) {
         completedAll: !!completedAll && !opts.seenAllQuestions,
         aborted: !!opts.aborted,
         avatar: saveAvatar,
-        wormsAcquired: quizBioCaptureVatWormSequence()
+        wormsAcquired: quizBioCaptureVatWormSequence(),
+        bonusCards: quizSessionBonusCards.slice(0, 64)
     };
 
     function finishCommit(displayName, goToPodiumAfterName) {
@@ -14740,6 +14806,7 @@ function quizStart() {
     quizState.score = 0;
     quizState.wrongCount = 0;
     quizState.avatarIndex = quizGetSessionAvatarIndex();
+    quizSessionBonusCards = [];
     quizSessionTimerBonusTotal = 0;
 
     if (!quizState.queue.length) {
