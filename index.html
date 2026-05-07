@@ -7825,7 +7825,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zz';
+const APP_BUILD = '20260509aa';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8324,6 +8324,27 @@ function quizWormUnlockSequenceForLevel(level) {
     return seqByLevel[lv] || [0];
 }
 
+function quizBioCaptureVatWormSequence() {
+    const root = document.getElementById('quiz-bio-worms');
+    if (!root) return [];
+    const nodes = [].slice.call(root.querySelectorAll('.quiz-worm'));
+    const seq = [];
+    nodes.forEach(function (g) {
+        const raw = g.getAttribute('data-quiz-worm-bonus');
+        if (raw == null || raw === '' || raw === 'generic') {
+            seq.push(0);
+            return;
+        }
+        const n = Number(raw);
+        if (Number.isFinite(n) && n >= 0 && n <= 4) {
+            seq.push(Math.floor(n));
+        } else {
+            seq.push(0);
+        }
+    });
+    return seq;
+}
+
 function quizBuildPodiumWormHtml(wormIndex) {
     var wi = Number(wormIndex);
     if (!Number.isFinite(wi) || wi < 0 || wi > 4) wi = 0;
@@ -8399,7 +8420,13 @@ function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
             avatarEl.style.display = 'none';
         }
     }
-    const seq = quizWormUnlockSequenceForLevel(level);
+    const savedSeq = Array.isArray(row.wormsAcquired)
+        ? row.wormsAcquired
+            .map(function (x) { return Number(x); })
+            .filter(function (x) { return Number.isFinite(x) && x >= 0 && x <= 4; })
+            .map(function (x) { return Math.floor(x); })
+        : [];
+    const seq = savedSeq.length ? savedSeq : quizWormUnlockSequenceForLevel(level);
     let wormsHtml = '';
     seq.forEach(function (wi) {
         wormsHtml += '<div class="quiz-rank-detail-modal__worm-item">' +
@@ -14655,7 +14682,8 @@ function quizFinish(completedAll, opts) {
         at: new Date().toISOString(),
         completedAll: !!completedAll && !opts.seenAllQuestions,
         aborted: !!opts.aborted,
-        avatar: saveAvatar
+        avatar: saveAvatar,
+        wormsAcquired: quizBioCaptureVatWormSequence()
     };
 
     function finishCommit(displayName, goToPodiumAfterName) {
