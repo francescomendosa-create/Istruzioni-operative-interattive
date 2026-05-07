@@ -3386,24 +3386,25 @@
             pointer-events: none;
             background: radial-gradient(ellipse 120% 140% at 100% 0%, rgba(3, 5, 10, 0.98) 0%, rgba(8, 10, 16, 0.88) 35%, rgba(12, 14, 20, 0.45) 65%, transparent 88%);
         }
-        /* Verme “ballerino” sopra l’angolo: copre residui di etichette nel video (es. PvP / vs). */
+        /* Verme "demolitore" (con bolla) sopra l'angolo: copre residui di etichette nel video. */
         .quiz-vf-intro-worm-dancer {
             position: absolute;
-            top: 2px;
-            right: 2px;
+            top: -8px;
+            right: 22px;
             z-index: 2;
-            width: clamp(64px, 16vw, 100px);
-            height: clamp(64px, 16vw, 100px);
+            width: clamp(110px, 24vw, 170px);
+            height: clamp(110px, 24vw, 170px);
             pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.55));
+            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.55));
         }
         .quiz-vf-intro-worm-dancer__svg {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: contain;
             transform-origin: 45% 55%;
             animation: quizVfIntroWormDance 1.15s ease-in-out infinite;
         }
@@ -3499,10 +3500,10 @@
                 min-height: 72px;
             }
             .quiz-vf-intro-worm-dancer {
-                width: clamp(80px, 11vw, 124px);
-                height: clamp(80px, 11vw, 124px);
-                top: max(6px, env(safe-area-inset-top, 0px));
-                right: max(10px, env(safe-area-inset-right, 0px));
+                width: clamp(128px, 16vw, 196px);
+                height: clamp(128px, 16vw, 196px);
+                top: calc(max(2px, env(safe-area-inset-top, 0px)) - 6px);
+                right: calc(max(12px, env(safe-area-inset-right, 0px)) + 10px);
             }
         }
         /* Smartphone: video più alto possibile, letterbox con object-fit contain */
@@ -3530,8 +3531,10 @@
                 height: min(32%, 100px);
             }
             .quiz-vf-intro-worm-dancer {
-                width: clamp(58px, 20vw, 88px);
-                height: clamp(58px, 20vw, 88px);
+                width: clamp(106px, 30vw, 156px);
+                height: clamp(106px, 30vw, 156px);
+                top: -10px;
+                right: 12px;
             }
             .quiz-vf-intro-skip {
                 width: 100%;
@@ -7183,16 +7186,7 @@ function dismissAppSplash() {
                     <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline webkit-playsinline preload="metadata"></video>
                     <div class="quiz-vf-intro-wm-cover" aria-hidden="true"></div>
                     <div class="quiz-vf-intro-worm-dancer" aria-hidden="true">
-                        <svg class="quiz-vf-intro-worm-dancer__svg" viewBox="-20 -16 48 32" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                            <path
-                                d="M-16,4 Q-9,-9 2,-5 Q12,-12 18,-2 Q11,11 0,9 Q-14,12 -16,4Z"
-                                fill="#7cb342"
-                                stroke="#33691e"
-                                stroke-width="0.9"
-                            />
-                            <circle cx="-5" cy="-5" r="2.3" fill="#1b5e20" />
-                            <circle cx="6" cy="-4" r="1.8" fill="#1b5e20" />
-                        </svg>
+                        <img class="quiz-vf-intro-worm-dancer__svg" src="assets/splash-worm-icon.png" alt="" decoding="async">
                     </div>
                 </div>
                 <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
@@ -7411,7 +7405,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508m';
+const APP_BUILD = '20260508o';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9116,7 +9110,6 @@ function quizVfClearTimer() {
 
 function quizVfStartOxygenDecayForQuestion() {
     quizVfClearTimer();
-    quizVfOxygen = QUIZ_VF_O2_START;
     quizVfOxygenLastTs = performance.now();
     quizVfOxygenLoopRunning = true;
     quizVfPaintOxygenMeter();
@@ -9416,6 +9409,7 @@ function quizRunVfPhaseThen(done) {
     quizVfActive = true;
     quizAnswerLocked = true;
     quizVfIdxInBlock = 0;
+    quizVfOxygen = QUIZ_VF_O2_START;
     quizVfOxygenDepleted = false;
     quizVfBeginIntroOrQuestions();
 }
