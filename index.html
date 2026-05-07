@@ -4315,11 +4315,12 @@
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
                 flex-shrink: 0;
-                margin-top: 64px;
-                margin-bottom: 2px;
+                margin-top: 12px;
+                margin-bottom: 0;
+                transform: translateY(8px);
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                max-height: 172px;
+                max-height: 150px;
                 min-height: 48px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
@@ -4345,11 +4346,12 @@
             }
             /* Scheda browser (barra indirizzi): viewport più bassa — compatta vasca e margini così le domande entrano meglio senza scroll */
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
-                margin-top: 60px;
-                margin-bottom: 2px;
+                margin-top: 10px;
+                margin-bottom: 0;
+                transform: translateY(6px);
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                max-height: 164px;
+                max-height: 142px;
                 min-height: 48px;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
@@ -7513,7 +7515,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zg';
+const APP_BUILD = '20260508zh';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
