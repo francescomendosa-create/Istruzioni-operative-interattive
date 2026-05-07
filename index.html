@@ -116,6 +116,46 @@
             height: 18px;
         }
 
+        /* Presenza utenti (Firestore, tempo reale) — tra titolo e CHIMICO-FISICO */
+        .header-presence-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 6px auto 0;
+            max-width: 900px;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+        .header-presence-row[hidden] {
+            display: none !important;
+        }
+        .header-presence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 12px 5px 9px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .header-presence-icon {
+            font-size: 1.05rem;
+            line-height: 1;
+            opacity: 0.95;
+            flex-shrink: 0;
+        }
+        .header-presence-num {
+            font-size: 0.95rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+            min-width: 1ch;
+        }
+
         /* Riga 2: sezioni operative (due colonne uguali, testo a capo se serve) */
         .header-sec-row {
             display: grid;
@@ -7317,6 +7357,12 @@ function dismissAppSplash() {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
     </div>
+    <div id="header-presence-row" class="header-presence-row" hidden>
+        <div class="header-presence-badge" role="status" title="Utenti online nell’app (stima Firebase, ultimi ~90 s)" aria-live="polite">
+            <span class="header-presence-icon" aria-hidden="true">👤</span>
+            <span id="header-presence-count" class="header-presence-num">—</span>
+        </div>
+    </div>
     <div class="header-sec-row">
         <button type="button" id="btn-sec-cf" class="nav-sec-btn active" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
         <button type="button" id="btn-sec-mbr" class="nav-sec-btn" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
@@ -7940,7 +7986,7 @@ function dismissAppSplash() {
                     <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
                 </div>
                 <p class="quiz-producer-presence__hint">
-                    Conteggio utenti Firebase distinti con segnale negli ultimi 2 minuti. Richiede regole lettura/scrittura sulla collezione Firestore <strong>quiz_presence</strong> (vedi commento nel codice sotto <code>quizPresencePing</code>).
+                    Stesso conteggio dell’indicatore in alto: aggiornamento in tempo reale (Firestore). Considerati online gli utenti con heartbeat negli ultimi ~90 secondi. Serve la regola lettura su <strong>quiz_presence</strong>.
                 </p>
             </div>
             <div class="quiz-producer-add">
@@ -7980,7 +8026,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511a';
+const APP_BUILD = '20260511b';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8180,9 +8226,10 @@ const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
 const QUIZ_FS_LEADERBOARD_DOC = 'global';
 /** Presenza online (heartbeat Auth anonimo → doc per uid). Richiede regole Firestore su `quiz_presence`. */
 const QUIZ_FS_PRESENCE = 'quiz_presence';
-const QUIZ_PRESENCE_HEARTBEAT_MS = 45000;
+/** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
+const QUIZ_PRESENCE_HEARTBEAT_MS = 15000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra. */
-const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 120000;
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 90000;
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
@@ -8199,6 +8246,12 @@ let quizLeaderboardLastError = '';
 /** Heartbeat presenza Firestore (null = non avviato). */
 let quizPresenceHeartbeatId = null;
 let quizPresenceHooksAttached = false;
+/** Ultimo snapshot collezione presenza (per conteggio tempo reale + decay locale). */
+let quizPresenceLatestSnap = null;
+/** unsubscribe onSnapshot presenza */
+let quizPresenceRealtimeUnsub = null;
+/** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
+let quizPresenceStaleTickerId = null;
 
 function quizInitLeaderboardSourceState() {
     quizLeaderboardHydrated = !quizFirestoreConfigured();
@@ -8333,6 +8386,83 @@ function quizEnsureFirebase() {
  * Chiunque sia autenticato (anche anonimo) può leggere la collezione: serve per il conteggio lato client.
  * Limita i campi scritti (solo lastSeen + hint non sensibili).
  */
+function quizPresenceMillisFromLastSeen(ls) {
+    if (!ls) return 0;
+    try {
+        return ls.toMillis ? ls.toMillis() : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+function quizPresenceCountFromSnapshot(snap) {
+    if (!snap) return 0;
+    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    var n = 0;
+    snap.forEach(function (doc) {
+        var d = doc.data();
+        var t = quizPresenceMillisFromLastSeen(d && d.lastSeen);
+        if (t >= threshold) n += 1;
+    });
+    return n;
+}
+
+function quizPresenceUpdateHeaderAndProducer(n) {
+    var h = document.getElementById('header-presence-count');
+    if (h) h.textContent = String(n);
+    var p = document.getElementById('quiz-producer-presence-count');
+    if (p) p.textContent = String(n);
+}
+
+function quizPresenceUnsubscribeRealtime() {
+    if (quizPresenceRealtimeUnsub) {
+        try {
+            quizPresenceRealtimeUnsub();
+        } catch (eU) { /* ignore */ }
+        quizPresenceRealtimeUnsub = null;
+    }
+}
+
+function quizPresenceSubscribeRealtime() {
+    if (!quizFirestoreConfigured()) return;
+    quizPresenceUnsubscribeRealtime();
+    quizEnsureFirebase()
+        .then(function () {
+            quizPresenceRealtimeUnsub = firebase
+                .firestore()
+                .collection(QUIZ_FS_PRESENCE)
+                .onSnapshot(
+                    function (snap) {
+                        quizPresenceLatestSnap = snap;
+                        quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+                        var row = document.getElementById('header-presence-row');
+                        if (row) row.hidden = false;
+                    },
+                    function (err) {
+                        try {
+                            console.warn('[presence snapshot]', err);
+                        } catch (eL) { /* ignore */ }
+                        var h = document.getElementById('header-presence-count');
+                        if (h) h.textContent = '?';
+                    }
+                );
+        })
+        .catch(function (e) {
+            try {
+                console.warn('[presence subscribe]', e);
+            } catch (e2) { /* ignore */ }
+        });
+}
+
+function quizPresenceStartStaleTicker() {
+    if (quizPresenceStaleTickerId != null) return;
+    quizPresenceStaleTickerId = setInterval(function () {
+        if (quizPresenceLatestSnap) {
+            quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(quizPresenceLatestSnap));
+        }
+    }, 8000);
+}
+
 function quizPresencePing() {
     if (!quizFirestoreConfigured()) return Promise.resolve();
     return quizEnsureFirebase()
@@ -8383,32 +8513,31 @@ function quizPresenceBootstrap() {
     if (!quizFirestoreConfigured()) return;
     try {
         quizPresenceStartHeartbeat();
+        quizPresenceSubscribeRealtime();
+        quizPresenceStartStaleTicker();
     } catch (eB) { /* ignore */ }
 }
 
-/** Conta utenti con lastSeen recente (stima; dipende da heartbeat e regole lettura). */
+/** Fallback se lo snapshot non è ancora arrivato (es. pulsante Aggiorna nello sviluppatore). */
 function quizPresenceCountOnline() {
+    if (quizPresenceLatestSnap) {
+        return Promise.resolve(quizPresenceCountFromSnapshot(quizPresenceLatestSnap));
+    }
     if (!quizFirestoreConfigured()) return Promise.resolve(0);
-    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
     return quizEnsureFirebase().then(function () {
         return firebase.firestore().collection(QUIZ_FS_PRESENCE).get();
     }).then(function (snap) {
-        var n = 0;
-        snap.forEach(function (doc) {
-            var d = doc.data();
-            var ls = d && d.lastSeen;
-            var t = 0;
-            try {
-                t = ls && ls.toMillis ? ls.toMillis() : 0;
-            } catch (eT) { /* ignore */ }
-            if (t >= threshold) n += 1;
-        });
-        return n;
+        quizPresenceLatestSnap = snap;
+        return quizPresenceCountFromSnapshot(snap);
     });
 }
 
 function quizProducerRefreshPresence() {
     var el = document.getElementById('quiz-producer-presence-count');
+    if (quizPresenceLatestSnap) {
+        if (el) el.textContent = String(quizPresenceCountFromSnapshot(quizPresenceLatestSnap));
+        return;
+    }
     if (el) el.textContent = '…';
     quizPresenceCountOnline()
         .then(function (n) {
