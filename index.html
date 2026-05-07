@@ -7417,6 +7417,23 @@ function dismissAppSplash() {
                         <div class="quiz-vf-intro-worm-dancer__icon" data-vf-worm-icon="3">
                             <img class="quiz-vf-intro-worm-dancer__img" src="assets/splash-worm-icon.png" alt="" decoding="async">
                         </div>
+                        <div class="quiz-vf-intro-worm-dancer__icon" data-vf-worm-icon="4">
+                            <svg class="quiz-vf-intro-worm-dancer__svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                <circle cx="90" cy="90" r="82" fill="#f3e5f5" stroke="#6a1b9a" stroke-opacity="0.52" stroke-width="4"/>
+                                <g class="quiz-vf-intro-worm-dancer__worm">
+                                    <ellipse cx="128" cy="90" rx="17" ry="12" fill="#ce93d8" stroke="#6a1b9a" stroke-width="0.8"/>
+                                    <ellipse cx="104" cy="88" rx="19" ry="13" fill="#ba68c8" stroke="#6a1b9a" stroke-width="0.8"/>
+                                    <ellipse cx="82" cy="94" rx="20" ry="14" fill="#ab47bc" stroke="#6a1b9a" stroke-width="0.8"/>
+                                    <ellipse cx="62" cy="104" rx="22" ry="15" fill="#8e24aa" stroke="#6a1b9a" stroke-width="0.8"/>
+                                    <circle cx="48" cy="116" r="24" fill="#f3e5f5" stroke="#4a148c" stroke-width="1"/>
+                                    <ellipse cx="40" cy="109" rx="5.2" ry="6" fill="#fff8f0" class="quiz-vf-intro-worm-dancer__eye"/>
+                                    <ellipse cx="55" cy="107" rx="4.8" ry="5.5" fill="#fff8f0" class="quiz-vf-intro-worm-dancer__eye"/>
+                                    <circle cx="41" cy="110" r="2.4" fill="#311b92" class="quiz-vf-intro-worm-dancer__eye"/>
+                                    <circle cx="54.5" cy="108.3" r="2.1" fill="#311b92" class="quiz-vf-intro-worm-dancer__eye"/>
+                                    <path d="M38 122 Q48 130 58 121" fill="none" stroke="#4a148c" stroke-width="1.8" stroke-linecap="round"/>
+                                </g>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -7636,7 +7653,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zq';
+const APP_BUILD = '20260508zt';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9170,11 +9187,14 @@ function quizVfIntroMascotPickRandom() {
     if (!host) return;
     const icons = [].slice.call(host.querySelectorAll('.quiz-vf-intro-worm-dancer__icon'));
     if (!icons.length) return;
-    let idx = Math.floor(Math.random() * icons.length);
-    if (icons.length > 1 && idx === quizVfIntroMascotLast) {
-        idx = (idx + 1 + Math.floor(Math.random() * (icons.length - 1))) % icons.length;
-    }
-    quizVfIntroMascotLast = idx;
+    const round = Math.floor(Number(quizVfBlockRound) || 0) % 5;
+    const iconByRound = [0, 1, 2, 4, 3];
+    const wanted = iconByRound[round];
+    let idx = icons.findIndex(function (el) {
+        return Number(el.getAttribute('data-vf-worm-icon')) === wanted;
+    });
+    if (idx < 0) idx = 0;
+    quizVfIntroMascotLast = wanted;
     icons.forEach(function (el, i) {
         el.classList.toggle('quiz-vf-intro-worm-dancer__icon--active', i === idx);
     });
@@ -9183,9 +9203,6 @@ function quizVfIntroMascotPickRandom() {
 function quizVfIntroMascotStartRandom() {
     quizVfIntroMascotStopRandom();
     quizVfIntroMascotPickRandom();
-    quizVfIntroMascotTimer = window.setInterval(function () {
-        quizVfIntroMascotPickRandom();
-    }, 1700 + Math.floor(Math.random() * 1000));
 }
 
 function quizVfIntroMascotStopRandom() {
@@ -13090,6 +13107,16 @@ function quizRenderLeaderboard() {
         return;
     }
     const display = rows.slice(0, QUIZ_LEADERBOARD_TOP_N);
+    function quizWormLevelFromIdx(wormIdx) {
+        const w = Number(wormIdx);
+        const map = [1, 2, 3, 5, 4];
+        if (Number.isFinite(w) && w >= 0 && w < map.length) return map[w];
+        return 1;
+    }
+    function rowLevel(row) {
+        const w = Number(row && row.worm);
+        return quizWormLevelFromIdx(w);
+    }
     function fmtWhen(iso) {
         const d = new Date(iso);
         return isNaN(d.getTime()) ? '—' : d.toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -13123,7 +13150,7 @@ function quizRenderLeaderboard() {
         } else {
             graphicBlock = '<div class="quiz-podium-emoji" aria-hidden="true">' + icon + '</div>';
         }
-        podium += `<div class="quiz-podium-slot ${cls}">${graphicBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello 1 · ${fmtWhen(r.at)}</div></div>`;
+        podium += `<div class="quiz-podium-slot ${cls}">${graphicBlock}<div class="quiz-podium-medal">${rank}\u00B0</div><div class="quiz-podium-name">${escapeQuizHtml(r.name)}</div><div class="quiz-podium-score">${r.score} pt</div><div class="quiz-podium-meta">Livello ${rowLevel(r)} · ${fmtWhen(r.at)}</div></div>`;
     });
     podium += '</div>';
 
@@ -13138,7 +13165,7 @@ function quizRenderLeaderboard() {
             const avHtml = useAvatar
                 ? `<img class="quiz-rank-rest-avatar" src="${escapeQuizHtml(quizAvatarUrl(av))}" alt="" decoding="async" draggable="false">`
                 : '';
-            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span>${avHtml}</span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
+            rest += `<div class="quiz-rank-rest-row"><span class="quiz-rank-pos-wrap"><span class="quiz-rank-pos-badge">${rank}</span><span class="quiz-rank-pos-suffix">\u00B0</span>${avHtml}</span><span class="quiz-rank-nm"><span class="quiz-rank-nm-inner">${escapeQuizHtml(r.name)} · Lv ${rowLevel(r)}</span></span><span class="quiz-rank-pt"><span class="quiz-rank-score-pill">${r.score}</span></span></div>`;
         }
         restSection = `<div class="quiz-rank-rest-wrap"><div class="quiz-rank-rest-title">Dal 4\u00B0 posto in gi\u00F9</div>${rest}</div>`;
     }
@@ -14646,6 +14673,19 @@ function quizMicrobeUnlockModalNormalizeWormIdx(wormIdx) {
     return 0;
 }
 
+function quizMicrobeUnlockLevelLabel(wormIdx) {
+    const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
+    const lvl = [1, 2, 3, 5, 4][w] || 1;
+    const ordByLevel = {
+        1: 'Primo',
+        2: 'Secondo',
+        3: 'Terzo',
+        4: 'Quarto',
+        5: 'Quinto'
+    };
+    return (ordByLevel[lvl] || (String(lvl) + '°')) + ' livello';
+}
+
 function quizMicrobeUnlockModalFill(wormIdx) {
     const w = quizMicrobeUnlockModalNormalizeWormIdx(wormIdx);
     const copy = QUIZ_MICROBE_UNLOCK_COPY[w];
@@ -14658,7 +14698,7 @@ function quizMicrobeUnlockModalFill(wormIdx) {
     const okBtn = document.getElementById('quiz-microbe-unlock-ok');
     if (kicker) kicker.textContent = copy.kicker;
     if (title) title.textContent = copy.title;
-    if (subtitle) subtitle.textContent = copy.subtitle;
+    if (subtitle) subtitle.textContent = quizMicrobeUnlockLevelLabel(w) + ' · ' + copy.subtitle;
     if (lead) lead.innerHTML = copy.lead;
     if (sum) sum.textContent = copy.detailsSummary;
     if (ul) ul.innerHTML = copy.detailsItemsHtml.join('');
