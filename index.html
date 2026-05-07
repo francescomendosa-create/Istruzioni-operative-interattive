@@ -3374,6 +3374,7 @@
             background: #000;
             object-fit: contain;
             object-position: center center;
+            cursor: pointer;
         }
         .quiz-vf-intro-wm-cover {
             position: absolute;
@@ -3389,11 +3390,11 @@
         /* Verme "demolitore" (con bolla) sopra l'angolo: copre residui di etichette nel video. */
         .quiz-vf-intro-worm-dancer {
             position: absolute;
-            top: -8px;
-            right: 22px;
+            top: -14px;
+            right: 40px;
             z-index: 2;
-            width: clamp(110px, 24vw, 170px);
-            height: clamp(110px, 24vw, 170px);
+            width: clamp(132px, 28.8vw, 204px);
+            height: clamp(132px, 28.8vw, 204px);
             pointer-events: none;
             display: flex;
             align-items: center;
@@ -3500,10 +3501,10 @@
                 min-height: 72px;
             }
             .quiz-vf-intro-worm-dancer {
-                width: clamp(128px, 16vw, 196px);
-                height: clamp(128px, 16vw, 196px);
-                top: calc(max(2px, env(safe-area-inset-top, 0px)) - 6px);
-                right: calc(max(12px, env(safe-area-inset-right, 0px)) + 10px);
+                width: clamp(154px, 19.2vw, 235px);
+                height: clamp(154px, 19.2vw, 235px);
+                top: calc(max(0px, env(safe-area-inset-top, 0px)) - 12px);
+                right: calc(max(10px, env(safe-area-inset-right, 0px)) + 28px);
             }
         }
         /* Smartphone: video più alto possibile, letterbox con object-fit contain */
@@ -3531,10 +3532,10 @@
                 height: min(32%, 100px);
             }
             .quiz-vf-intro-worm-dancer {
-                width: clamp(106px, 30vw, 156px);
-                height: clamp(106px, 30vw, 156px);
-                top: -10px;
-                right: 12px;
+                width: clamp(127px, 36vw, 187px);
+                height: clamp(127px, 36vw, 187px);
+                top: -16px;
+                right: 28px;
             }
             .quiz-vf-intro-skip {
                 width: 100%;
@@ -7183,13 +7184,12 @@ function dismissAppSplash() {
         <div id="quiz-vf-intro-layer" class="quiz-vf-intro-layer" aria-hidden="true">
             <div class="quiz-vf-intro-layer__box">
                 <div class="quiz-vf-intro-video-wrap">
-                    <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline webkit-playsinline preload="metadata"></video>
+                    <video id="quiz-vf-intro-video" class="quiz-vf-intro-video" playsinline webkit-playsinline preload="metadata" onclick="quizVfIntroSkip()"></video>
                     <div class="quiz-vf-intro-wm-cover" aria-hidden="true"></div>
                     <div class="quiz-vf-intro-worm-dancer" aria-hidden="true">
                         <img class="quiz-vf-intro-worm-dancer__svg" src="assets/splash-worm-icon.png" alt="" decoding="async">
                     </div>
                 </div>
-                <button type="button" class="quiz-vf-intro-skip btn-side btn-report" onclick="quizVfIntroSkip()">Salta video</button>
             </div>
         </div>
         <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
@@ -7405,7 +7405,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508o';
+const APP_BUILD = '20260508s';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7455,8 +7455,8 @@ const QUIZ_VF_O2_MAX = 4.5;
 const QUIZ_VF_O2_START = 2.5;
 /** mg/L al secondo (scala qualitativa): 2,5 → 0 in 10 s. */
 const QUIZ_VF_O2_DECAY_PER_SEC = 0.25;
-/** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 2 s → +0,50 mg/L). */
-const QUIZ_VF_O2_GAIN_EQUIV_SEC = 2;
+/** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 3 s → +0,75 mg/L). */
+const QUIZ_VF_O2_GAIN_EQUIV_SEC = 3;
 /** Risposta sbagliata: mg/L persi = decadimento × questi secondi equivalenti (default 1 s → −0,25 mg/L). */
 const QUIZ_VF_O2_LOSS_EQUIV_SEC = 1;
 const QUIZ_LS_SUSPENSE_LAST = 'io-quiz-suspense-last-audio';
@@ -9615,13 +9615,22 @@ function quizBonusDetachFirstGestureBonusMusic() {
     const modal = document.getElementById('quiz-bonus-pick-modal');
     const h = quizBonusSceltaGestureHandler;
     quizBonusSceltaGestureHandler = null;
-    if (!modal || !h) return;
+    if (!h) return;
     try {
-        modal.removeEventListener('pointerdown', h, true);
+        if (modal) modal.removeEventListener('pointerdown', h, true);
     } catch (eRm) { /* ignore */ }
     try {
-        modal.removeEventListener('touchstart', h, true);
+        if (modal) modal.removeEventListener('touchstart', h, true);
     } catch (eRm2) { /* ignore */ }
+    try {
+        if (modal) modal.removeEventListener('click', h, true);
+    } catch (eRm3) { /* ignore */ }
+    try {
+        document.removeEventListener('pointerdown', h, true);
+        document.removeEventListener('touchstart', h, true);
+        document.removeEventListener('click', h, true);
+        document.removeEventListener('keydown', h, true);
+    } catch (eRmDoc) { /* ignore */ }
 }
 
 function quizBonusPlaySceltaMusicOnly() {
@@ -9648,6 +9657,12 @@ function quizBonusAttachFirstGestureBonusMusic() {
     };
     modal.addEventListener('pointerdown', quizBonusSceltaGestureHandler, true);
     modal.addEventListener('touchstart', quizBonusSceltaGestureHandler, true);
+    modal.addEventListener('click', quizBonusSceltaGestureHandler, true);
+    /* Fallback mobile: alcuni browser non propagano in modo affidabile sul nodo modale. */
+    document.addEventListener('pointerdown', quizBonusSceltaGestureHandler, true);
+    document.addEventListener('touchstart', quizBonusSceltaGestureHandler, true);
+    document.addEventListener('click', quizBonusSceltaGestureHandler, true);
+    document.addEventListener('keydown', quizBonusSceltaGestureHandler, true);
 }
 
 function quizStopBonusSceltaMusic() {
