@@ -2987,13 +2987,51 @@
             color: #1565c0;
             font-weight: 700;
         }
+        .quiz-vf-outcome-modal__bonus {
+            margin: 0 0 10px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1b5e20;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+        .quiz-vf-outcome-modal__bonus[hidden] {
+            display: none !important;
+        }
         .quiz-vf-outcome-worms {
+            margin: 10px 0 16px;
+            min-height: 48px;
+        }
+        .quiz-vf-outcome-worm-strip {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            align-items: flex-start;
-            margin: 12px 0 16px;
-            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-vf-outcome-worm-slot {
+            width: 92px;
+            height: 68px;
+            border-radius: 12px;
+            background: rgba(76, 175, 80, 0.12);
+            border: 1px solid rgba(56, 142, 60, 0.32);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        }
+        .quiz-vf-outcome-worm-slot--lost {
+            background: rgba(120, 120, 120, 0.15);
+            border-color: rgba(198, 40, 40, 0.45);
+        }
+        .quiz-vf-outcome-worm-slot svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .quiz-vf-outcome-worm-slot .quiz-worm {
+            pointer-events: none;
         }
         .quiz-vf-outcome-worm {
             position: relative;
@@ -6832,13 +6870,14 @@ function dismissAppSplash() {
                 </header>
                 <p id="quiz-vf-rules-lead" class="quiz-vf-rules-modal__lead">
                     Il misuratore simula l’ossigeno disciolto (0–4,5 mg/L): parti da <strong>2,5</strong> e la barra cala con il tempo.
+                    Ogni risposta esatta vale <strong>+10</strong> punti, ogni errore <strong>−10</strong> punti.
                     Risposta <strong>giusta</strong>: recuperi circa un secondo di ossigeno; <strong>sbagliata</strong>: ne perdi circa uno.
                     Se l’ossigeno arriva a <strong>zero</strong>, la modalità termina: resta un solo microbo in vasca.
-                    A fine turno, secondo l’OD finale, puoi guadagnare o perdere vermi — come nella parte principale del quiz.
+                    A fine turno, secondo l’OD finale, puoi guadagnare o perdere vermi; con le prime due soglie ottieni anche punti bonus (nessun punto nelle altre fasce).
                 </p>
                 <ul class="quiz-vf-rules-modal__list">
-                    <li>OD finale tra <strong>3,5 e 4</strong>: premio — 4 vermi delle varianti migliori già sbloccate.</li>
-                    <li>OD tra <strong>1 e 2,5</strong>: +2 vermi.</li>
+                    <li>OD finale tra <strong>3,5 e 4</strong>: 4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus.</li>
+                    <li>OD tra <strong>1 e 2,5</strong>: +2 vermi + <strong>20 punti</strong> bonus.</li>
                     <li>OD tra <strong>0,1 e 0,9</strong>: −2 vermi (crescita in difficoltà).</li>
                     <li><strong>OD = 0</strong> durante il gioco: tutti i vermi tranne uno vengono rimossi.</li>
                 </ul>
@@ -6854,6 +6893,7 @@ function dismissAppSplash() {
                     <h3 id="quiz-vf-outcome-title" class="quiz-vf-outcome-modal__title"></h3>
                 </header>
                 <p id="quiz-vf-outcome-lead" class="quiz-vf-outcome-modal__lead"></p>
+                <p id="quiz-vf-outcome-bonus" class="quiz-vf-outcome-modal__bonus" hidden></p>
                 <p id="quiz-vf-outcome-o2" class="quiz-vf-outcome-modal__o2"></p>
                 <div id="quiz-vf-outcome-worms" class="quiz-vf-outcome-worms"></div>
                 <div class="quiz-vf-outcome-modal__actions">
@@ -7025,7 +7065,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508a';
+const APP_BUILD = '20260508d';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7064,7 +7104,12 @@ const QUIZ_VF_INTRO_VIDEO_PHONE = 'assets/quiz-vf/intro-vero-o-falso-phone.mp4';
 const QUIZ_VF_BGM_VOLUME = 0.38;
 /** Riferimento: da 2,5 a 0 richiede ~10 s di decadimento al tasso sotto. */
 const QUIZ_VF_SECONDS = 10;
-const QUIZ_VF_POINTS_CORRECT = 1;
+/** Punteggio per ogni risposta nella sessione Vero o falso (oltre agli effetti sull’ossigeno e ai bonus di fine turno). */
+const QUIZ_VF_POINTS_PER_CORRECT = 10;
+const QUIZ_VF_POINTS_PER_WRONG = 10;
+/** Bonus punteggio a fine turno V/F solo se entrano in vasca 2 o 4 vermi (soglie OD). */
+const QUIZ_VF_BONUS_WORMS_2 = 20;
+const QUIZ_VF_BONUS_WORMS_4 = 40;
 const QUIZ_VF_O2_MIN = 0;
 const QUIZ_VF_O2_MAX = 4.5;
 const QUIZ_VF_O2_START = 2.5;
@@ -7198,6 +7243,10 @@ let quizVfOxygen = QUIZ_VF_O2_START;
 let quizVfOxygenLastTs = 0;
 let quizVfOxygenLoopRunning = false;
 let quizVfOxygenDepleted = false;
+/** Id SVG univoci nei cloni miniature popup esito V/F. */
+let quizVfOutcomeThumbSeq = 0;
+/** Clone SVG degli ultimi 2 vermi prima della penalità OD (per anteprima nel popup). */
+let quizVfPendingPenaltyWormClones = null;
 let quizAiLastError = '';
 const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
@@ -8747,6 +8796,52 @@ function quizVfApplyAnswerDelta(ok) {
     quizVfOxygen = Math.min(QUIZ_VF_O2_MAX, Math.max(QUIZ_VF_O2_MIN, quizVfOxygen + d));
 }
 
+function quizVfAddWormTierBonus(pts) {
+    pts = Number(pts) || 0;
+    if (pts <= 0) return;
+    quizState.score = (Number(quizState.score) || 0) + pts;
+    try {
+        quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true, scoreboardScoring: true });
+    } catch (eU) { /* ignore */ }
+}
+
+function quizVfOutcomeMountThumbnailsFromWormGroups(groups, lostStyle) {
+    const host = document.getElementById('quiz-vf-outcome-worms');
+    if (!host) return;
+    host.innerHTML = '';
+    if (!groups || groups.length === 0) return;
+    const strip = document.createElement('div');
+    strip.className = 'quiz-vf-outcome-worm-strip';
+    const NS = 'http://www.w3.org/2000/svg';
+    groups.forEach(function (wg) {
+        if (!wg) return;
+        const cell = document.createElement('div');
+        cell.className =
+            'quiz-vf-outcome-worm-slot' + (lostStyle ? ' quiz-vf-outcome-worm-slot--lost' : '');
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 96 72');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        const c = wg.cloneNode(true);
+        quizVfOutcomeThumbSeq += 1;
+        try {
+            quizRemapSvgIds(c, 'vfpop' + quizVfOutcomeThumbSeq);
+        } catch (eR) { /* ignore */ }
+        c.setAttribute('transform', 'translate(48,40) scale(0.115)');
+        svg.appendChild(c);
+        cell.appendChild(svg);
+        strip.appendChild(cell);
+    });
+    host.appendChild(strip);
+}
+
+function quizVfOutcomeMountThumbnailsFromVatGain(prevCount, lostStyle) {
+    const vat = document.getElementById('quiz-bio-worms');
+    if (!vat) return;
+    const all = [].slice.call(vat.querySelectorAll('.quiz-worm'));
+    const gained = all.slice(Math.max(0, Number(prevCount) || 0));
+    quizVfOutcomeMountThumbnailsFromWormGroups(gained, lostStyle);
+}
+
 function quizVfOutcomeWormCells(n, lost) {
     let html = '';
     const cls = 'quiz-vf-outcome-worm' + (lost ? ' quiz-vf-outcome-worm--lost' : '');
@@ -8804,47 +8899,70 @@ function quizBioVatRewardBestWorms(n) {
 }
 
 function quizVfApplyEndRewards(finalO2) {
+    quizVfPendingPenaltyWormClones = null;
     if (quizVfOxygenDepleted) return;
     const o = Number(finalO2);
     if (o >= 3.5 && o <= 4.5) {
         quizBioVatRewardBestWorms(4);
+        quizVfAddWormTierBonus(QUIZ_VF_BONUS_WORMS_4);
     } else if (o >= 1 && o <= 2.5) {
         quizBioVatOnCorrectAnswer(quizState.index, {});
         quizBioVatOnCorrectAnswer(quizState.index, {});
+        quizVfAddWormTierBonus(QUIZ_VF_BONUS_WORMS_2);
     } else if (o >= 0.1 && o < 1) {
+        const vat = document.getElementById('quiz-bio-worms');
+        if (vat) {
+            const all = [].slice.call(vat.querySelectorAll('.quiz-worm'));
+            quizVfPendingPenaltyWormClones = all.slice(-2).map(function (w) {
+                return w.cloneNode(true);
+            });
+        }
         quizBioRemoveWorms(2);
     }
 }
 
-function quizVfShowOutcomeEndPopup(finalO2) {
+function quizVfShowOutcomeEndPopup(finalO2, prevWormCount) {
+    const prevCt = typeof prevWormCount === 'number' ? prevWormCount : 0;
     const o = Number(finalO2);
     const titleEl = document.getElementById('quiz-vf-outcome-title');
     const leadEl = document.getElementById('quiz-vf-outcome-lead');
     const o2El = document.getElementById('quiz-vf-outcome-o2');
-    const wormsEl = document.getElementById('quiz-vf-outcome-worms');
+    const bonusEl = document.getElementById('quiz-vf-outcome-bonus');
+    if (bonusEl) {
+        bonusEl.hidden = true;
+        bonusEl.textContent = '';
+    }
     if (o2El) o2El.textContent = 'OD finale ≈ ' + quizVfFormatO2(o) + ' mg/L (scala di gioco)';
     let title = 'Fine turno Vero o falso';
     let lead = 'Sessione completata senza anossia.';
-    let wormHtml = '';
     if (o >= 3.5 && o <= 4.5) {
         title = 'Ossigeno ottimale';
-        lead = 'Biomassa in crescita: hai guadagnato 4 vermi delle varianti migliori già sbloccate.';
-        wormHtml = quizVfOutcomeWormCells(4, false);
+        lead = 'Biomassa in crescita: i vermi sotto sono quelli appena entrati in vasca.';
+        if (bonusEl) {
+            bonusEl.hidden = false;
+            bonusEl.textContent = 'Bonus soglia OD: +' + QUIZ_VF_BONUS_WORMS_4 + ' punti';
+        }
+        quizVfOutcomeMountThumbnailsFromVatGain(prevCt, false);
     } else if (o >= 1 && o <= 2.5) {
         title = 'Ossigenazione sufficiente';
-        lead = 'Condizioni stabili: +2 vermi in vasca.';
-        wormHtml = quizVfOutcomeWormCells(2, false);
+        lead = 'Condizioni stabili: i vermi sotto sono quelli appena entrati in vasca.';
+        if (bonusEl) {
+            bonusEl.hidden = false;
+            bonusEl.textContent = 'Bonus soglia OD: +' + QUIZ_VF_BONUS_WORMS_2 + ' punti';
+        }
+        quizVfOutcomeMountThumbnailsFromVatGain(prevCt, false);
     } else if (o >= 0.1 && o < 1) {
         title = 'Stress da carenza parziale';
-        lead = 'Ossigeno molto basso: per carenza perdi 2 vermi.';
-        wormHtml = quizVfOutcomeWormCells(2, true);
+        lead = 'Ossigeno molto basso: per carenza rimuoviamo 2 vermi dalla vasca. Nessun punto bonus.';
+        quizVfOutcomeMountThumbnailsFromWormGroups(quizVfPendingPenaltyWormClones || [], true);
+        quizVfPendingPenaltyWormClones = null;
     } else {
         lead = 'Nessun bonus o penalità legati alle soglie OD per questo risultato.';
-        wormHtml = '';
+        const wormsEl = document.getElementById('quiz-vf-outcome-worms');
+        if (wormsEl) wormsEl.innerHTML = '';
     }
     if (titleEl) titleEl.textContent = title;
     if (leadEl) leadEl.textContent = lead;
-    if (wormsEl) wormsEl.innerHTML = wormHtml;
     quizVfOutcomeModalShow();
 }
 
@@ -8853,8 +8971,10 @@ function quizVfFinalizeRoundSuccess(finalO2) {
     quizVfStopOxygenDecay();
     quizVfClearTimer();
     quizStopSpeech();
+    const vatPre = document.getElementById('quiz-bio-worms');
+    const prevWorms = vatPre ? vatPre.querySelectorAll('.quiz-worm').length : quizBioWormCount;
     quizVfApplyEndRewards(finalO2);
-    quizVfShowOutcomeEndPopup(finalO2);
+    quizVfShowOutcomeEndPopup(finalO2, prevWorms);
 }
 
 function quizVfFinishSessionCore() {
@@ -8975,7 +9095,10 @@ function quizVfAnswer(choiceTrue) {
     quizStopSpeech();
     const ok = !!item.answer === !!choiceTrue;
     if (ok) {
-        quizState.score = (Number(quizState.score) || 0) + QUIZ_VF_POINTS_CORRECT;
+        quizState.score = Math.max(
+            0,
+            (Number(quizState.score) || 0) + QUIZ_VF_POINTS_PER_CORRECT
+        );
         try {
             quizPlayCorrectAnswerSfx();
         } catch (eC) { /* ignore */ }
@@ -8983,9 +9106,16 @@ function quizVfAnswer(choiceTrue) {
             quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true, scoreboardScoring: true });
         } catch (eU) { /* ignore */ }
     } else {
+        quizState.score = Math.max(
+            0,
+            (Number(quizState.score) || 0) - QUIZ_VF_POINTS_PER_WRONG
+        );
         try {
             quizPlayWrongAnswerSfx();
         } catch (eW) { /* ignore */ }
+        try {
+            quizUpdatePlayProgress({ scoreOverride: quizState.score, scoreAnimTick: true, scoreboardScoring: true });
+        } catch (eU) { /* ignore */ }
     }
     quizVfApplyAnswerDelta(ok);
     quizVfPaintOxygenMeter();
