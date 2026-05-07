@@ -7865,7 +7865,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509ad';
+const APP_BUILD = '20260509ae';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -12127,6 +12127,7 @@ const QUIZ_WORM_BONUS_BY_VARIANT = {
     4: 20
 };
 const QUIZ_WORM_BONUS_GENERIC = 2;
+const QUIZ_LS_WINDOW_STATE = 'io-window-state-v1';
 /**
  * Da quale numero di domanda (1-based, come in UI: Domanda 1, 2, 3…) partono countdown e punti-tempo.
  * 3 = sempre dalla terza domanda in poi, qualunque sia successo nelle precedenti.
@@ -16293,6 +16294,86 @@ function quizSyncBrowserTabClass() {
     document.body.classList.toggle('quiz-in-browser-tab', !quizIsAppLikeDisplayMode());
 }
 
+function quizCanManageDesktopWindowState() {
+    try {
+        const fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+        const wide = (window.screen && Number(window.screen.availWidth) >= 900) || window.innerWidth >= 900;
+        return !!(fine && wide);
+    } catch (e) {
+        return false;
+    }
+}
+
+function quizCaptureWindowState() {
+    const sw = (window.screen && Number(window.screen.availWidth)) || 0;
+    const sh = (window.screen && Number(window.screen.availHeight)) || 0;
+    const ow = Number(window.outerWidth) || Number(window.innerWidth) || 0;
+    const oh = Number(window.outerHeight) || Number(window.innerHeight) || 0;
+    const sx = Number(window.screenX);
+    const sy = Number(window.screenY);
+    const fullscreen = !!(document.fullscreenElement || (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches));
+    const maximized = !fullscreen && sw > 0 && sh > 0 && ow >= (sw - 24) && oh >= (sh - 24);
+    return {
+        w: Math.max(320, Math.round(ow)),
+        h: Math.max(420, Math.round(oh)),
+        x: Number.isFinite(sx) ? Math.round(sx) : null,
+        y: Number.isFinite(sy) ? Math.round(sy) : null,
+        fullscreen: !!fullscreen,
+        maximized: !!maximized,
+        ts: Date.now()
+    };
+}
+
+function quizSaveWindowState() {
+    if (!quizCanManageDesktopWindowState()) return;
+    try {
+        localStorage.setItem(QUIZ_LS_WINDOW_STATE, JSON.stringify(quizCaptureWindowState()));
+    } catch (e) { /* ignore */ }
+}
+
+function quizRequestFullscreenBestEffort() {
+    const root = document.documentElement;
+    if (!root || !root.requestFullscreen) return;
+    try {
+        const p = root.requestFullscreen();
+        if (p && typeof p.catch === 'function') p.catch(function () { /* gesture required */ });
+    } catch (e) { /* ignore */ }
+}
+
+function quizRestoreWindowState() {
+    if (!quizCanManageDesktopWindowState()) return;
+    let st = null;
+    try {
+        st = JSON.parse(localStorage.getItem(QUIZ_LS_WINDOW_STATE) || 'null');
+    } catch (e) {
+        st = null;
+    }
+    if (!st || typeof st !== 'object') return;
+    try {
+        if (st.maximized) {
+            window.moveTo(0, 0);
+            window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+        } else if (!st.fullscreen) {
+            if (Number.isFinite(st.x) && Number.isFinite(st.y)) {
+                window.moveTo(st.x, st.y);
+            }
+            if (Number.isFinite(st.w) && Number.isFinite(st.h)) {
+                window.resizeTo(st.w, st.h);
+            }
+        }
+    } catch (eR) { /* browser may block */ }
+    if (st.fullscreen) {
+        quizRequestFullscreenBestEffort();
+        const tryOnGesture = function () {
+            quizRequestFullscreenBestEffort();
+            document.removeEventListener('pointerdown', tryOnGesture, true);
+            document.removeEventListener('keydown', tryOnGesture, true);
+        };
+        document.addEventListener('pointerdown', tryOnGesture, true);
+        document.addEventListener('keydown', tryOnGesture, true);
+    }
+}
+
 function openQuiz() {
     if (!quizFeatureEnabled) return;
     const panel = document.getElementById("quiz-panel");
@@ -16613,6 +16694,25 @@ document.addEventListener('toggle', function (ev) {
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
     else go();
+})();
+
+(function quizDesktopWindowStatePersistence() {
+    function restoreSoon() {
+        setTimeout(function () {
+            quizRestoreWindowState();
+        }, 60);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', restoreSoon);
+    } else {
+        restoreSoon();
+    }
+    window.addEventListener('resize', quizSaveWindowState);
+    window.addEventListener('beforeunload', quizSaveWindowState);
+    window.addEventListener('pagehide', quizSaveWindowState);
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') quizSaveWindowState();
+    });
 })();
 
 window.addEventListener('pagehide', function quizLeaderboardRealtimeCleanup() {
