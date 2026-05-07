@@ -3914,6 +3914,14 @@
             color: #475569;
             line-height: 1.2;
         }
+        .quiz-rank-detail-modal__worm-count {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            color: #1565c0;
+        }
         .quiz-rank-detail-modal__actions {
             display: flex;
             justify-content: center;
@@ -7878,7 +7886,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510h';
+const APP_BUILD = '20260510i';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8451,6 +8459,21 @@ function quizRankDetailModalOk() {
     quizRankDetailModalHide();
 }
 
+/** Raggruppa la sequenza vermi per tipo (max 5 righe compatte nel popup classifica). */
+function quizRankDetailGroupWormCounts(seq) {
+    const counts = {};
+    (seq || []).forEach(function (wi) {
+        counts[wi] = (counts[wi] || 0) + 1;
+    });
+    const order = [0, 1, 2, 3, 4];
+    const out = [];
+    order.forEach(function (wi) {
+        const n = counts[wi];
+        if (n) out.push({ wi: wi, n: n });
+    });
+    return out;
+}
+
 function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
     const idx = Number(displayIndex);
     if (!Number.isFinite(idx)) return;
@@ -8484,14 +8507,26 @@ function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
             .map(function (x) { return Math.floor(x); })
         : [];
     const seq = savedSeq.length ? savedSeq : quizWormUnlockSequenceForLevel(level);
+    const grouped = quizRankDetailGroupWormCounts(seq);
     let wormsHtml = '';
-    seq.forEach(function (wi) {
-        wormsHtml += '<div class="quiz-rank-detail-modal__worm-item">' +
+    grouped.forEach(function (g) {
+        const wi = g.wi;
+        const n = g.n;
+        const baseName = escapeQuizHtml(QUIZ_PODIUM_WORM_LABELS[wi] || 'Verme');
+        const countLine =
+            n > 1
+                ? '<span class="quiz-rank-detail-modal__worm-count">\u00D7' + String(n) + '</span>'
+                : '';
+        wormsHtml +=
+            '<div class="quiz-rank-detail-modal__worm-item">' +
             quizBuildPodiumWormHtml(wi) +
-            '<div class="quiz-rank-detail-modal__worm-name">' + escapeQuizHtml(QUIZ_PODIUM_WORM_LABELS[wi] || 'Verme') + '</div>' +
+            '<div class="quiz-rank-detail-modal__worm-name">' +
+            baseName +
+            '</div>' +
+            countLine +
             '</div>';
     });
-    wormsEl.innerHTML = wormsHtml;
+    wormsEl.innerHTML = wormsHtml || '<p style="margin:0;color:#64748b;font-size:0.82rem;">Nessun verme registrato per questo risultato.</p>';
     if (bonusEl) {
         const bList = Array.isArray(row.bonusCards) ? row.bonusCards : [];
         let bonusHtml = '';
