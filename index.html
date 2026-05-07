@@ -2837,6 +2837,11 @@
             transform: translateX(-50%);
         }
         .quiz-vf-o2-meter__tick--0 { left: 0%; transform: translateX(0); }
+        .quiz-vf-o2-meter__tick--warn {
+            left: 22.222222%;
+            color: #b71c1c;
+            font-weight: 900;
+        }
         .quiz-vf-o2-meter__tick--max { left: 100%; transform: translateX(-100%); }
         .quiz-vf-o2-meter__fill {
             position: absolute;
@@ -2864,12 +2869,19 @@
             transition: left 0.06s linear;
         }
         .quiz-vf-o2-readout {
-            font-size: 0.92rem;
+            font-size: clamp(1.02rem, 3.5vw, 1.22rem);
             color: #143254;
             text-align: center;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            transition: color 0.14s ease;
         }
         .quiz-vf-o2-readout strong {
+            font-size: 1.22em;
             font-variant-numeric: tabular-nums;
+        }
+        .quiz-vf-o2-readout.quiz-vf-o2-readout--low {
+            color: #b71c1c;
         }
         .quiz-vf-rules-modal {
             display: none;
@@ -3243,14 +3255,16 @@
         }
         .quiz-vf-outcome-worm-strip {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-wrap: nowrap;
+            gap: 12px;
             align-items: center;
             justify-content: center;
+            overflow-x: auto;
+            padding: 2px 2px 6px;
         }
         .quiz-vf-outcome-worm-slot {
-            width: 92px;
-            height: 68px;
+            width: 104px;
+            height: 76px;
             border-radius: 12px;
             background: rgba(76, 175, 80, 0.12);
             border: 1px solid rgba(56, 142, 60, 0.32);
@@ -3263,6 +3277,21 @@
         .quiz-vf-outcome-worm-slot--lost {
             background: rgba(120, 120, 120, 0.15);
             border-color: rgba(198, 40, 40, 0.45);
+            position: relative;
+        }
+        .quiz-vf-outcome-worm-slot--lost::after {
+            content: '✕';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.05rem;
+            font-weight: 900;
+            color: #c62828;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(198, 40, 40, 0.14) 100%);
+            pointer-events: none;
         }
         .quiz-vf-outcome-worm-slot svg {
             width: 100%;
@@ -4273,26 +4302,26 @@
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
                 flex-shrink: 0;
-                margin-top: 8px;
-                margin-bottom: 4px;
+                margin-top: 14px;
+                margin-bottom: 2px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                max-height: 118px;
+                max-height: 102px;
                 min-height: 48px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
-                margin: 6px auto 12px;
-                font-size: clamp(1.12rem, 2.1vw, 1.4rem);
-                line-height: 1.42;
+                margin: 4px auto 9px;
+                font-size: clamp(1.08rem, 2.02vw, 1.32rem);
+                line-height: 1.38;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choices {
-                gap: 10px;
-                margin: 0 auto 8px;
+                gap: 8px;
+                margin: 0 auto 5px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choice-btn {
-                padding: 12px 18px 12px 20px;
-                min-height: 2.85rem;
-                line-height: 1.42;
+                padding: 10px 15px 10px 17px;
+                min-height: 2.6rem;
+                line-height: 1.36;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-feedback {
                 margin-top: 10px;
@@ -4303,23 +4332,23 @@
             }
             /* Scheda browser (barra indirizzi): viewport più bassa — compatta vasca e margini così le domande entrano meglio senza scroll */
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-bio-vat-wrap {
-                margin-top: 10px;
+                margin-top: 14px;
                 margin-bottom: 2px;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                max-height: 112px;
+                max-height: 96px;
                 min-height: 48px;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
-                margin: 6px auto 12px;
+                margin: 4px auto 9px;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choices {
-                gap: 11px;
-                margin: 0 auto 8px;
+                gap: 8px;
+                margin: 0 auto 5px;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-choice-btn {
-                padding: 12px 18px 12px 20px;
-                min-height: 2.85rem;
+                padding: 10px 15px 10px 17px;
+                min-height: 2.6rem;
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-play-scoreboard {
                 margin-bottom: 4px;
@@ -7227,6 +7256,7 @@ function dismissAppSplash() {
                     <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
                         <div class="quiz-vf-o2-meter__rail">
                             <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--0">0</span>
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--warn">1 mg/L</span>
                             <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--max">4,5</span>
                             <div id="quiz-vf-o2-meter-fill" class="quiz-vf-o2-meter__fill"></div>
                             <div id="quiz-vf-o2-meter-needle" class="quiz-vf-o2-meter__needle" aria-hidden="true"></div>
@@ -7465,7 +7495,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508v';
+const APP_BUILD = '20260508z';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9154,6 +9184,9 @@ function quizVfPaintOxygenMeter() {
     if (fill) fill.style.width = pct + '%';
     if (needle) needle.style.left = pct + '%';
     if (readout) readout.textContent = quizVfFormatO2(o2);
+    if (readout && readout.parentElement) {
+        readout.parentElement.classList.toggle('quiz-vf-o2-readout--low', o2 < 1);
+    }
     if (meter) meter.setAttribute('aria-valuenow', String(Number(o2.toFixed(2))));
 }
 
@@ -9268,6 +9301,14 @@ function quizVfTriggerAnoxiaDuringQuestion() {
     quizStopSpeech();
     quizVfOxygenDepleted = true;
     const lost = Math.max(0, quizBioWormCount - 1);
+    const vat = document.getElementById('quiz-bio-worms');
+    let lostGroups = [];
+    if (vat && lost > 0) {
+        const all = [].slice.call(vat.querySelectorAll('.quiz-worm'));
+        lostGroups = all.slice(-lost).map(function (w) {
+            return w.cloneNode(true);
+        });
+    }
     quizBioRemoveWorms(lost);
     try {
         quizPlayWrongAnswerSfx();
@@ -9275,14 +9316,13 @@ function quizVfTriggerAnoxiaDuringQuestion() {
     const title = document.getElementById('quiz-vf-outcome-title');
     const lead = document.getElementById('quiz-vf-outcome-lead');
     const o2el = document.getElementById('quiz-vf-outcome-o2');
-    const worms = document.getElementById('quiz-vf-outcome-worms');
     if (title) title.textContent = 'Biomassa in sofferenza';
     if (lead) {
         lead.textContent =
             'Carenza critica di ossigeno: la biomassa collassa. Resta un solo microganismo rappresentativo in vasca; gli altri sono persi.';
     }
     if (o2el) o2el.textContent = 'OD ≈ 0 mg/L (scala di gioco)';
-    if (worms) worms.innerHTML = lost > 0 ? quizVfOutcomeWormCells(lost, true) : '';
+    quizVfOutcomeMountThumbnailsFromWormGroups(lostGroups, true);
     quizVfOutcomeModalShow();
 }
 
