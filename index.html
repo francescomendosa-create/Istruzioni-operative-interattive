@@ -7834,8 +7834,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509aj';
-const QUIZ_LS_UPDATE_DISMISSED_BUILD = 'io-update-dismissed-build';
+const APP_BUILD = '20260509ak';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -11447,10 +11446,6 @@ function quizUpdateBannerEnsure() {
     const closeBtn = document.getElementById('quiz-update-banner-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', function () {
-            try {
-                const rb = el.getAttribute('data-remote-build') || '';
-                if (rb) localStorage.setItem(QUIZ_LS_UPDATE_DISMISSED_BUILD, rb);
-            } catch (e) { /* ignore */ }
             el.style.display = 'none';
         });
     }
@@ -11477,9 +11472,6 @@ async function quizCheckUpdateAvailableSilently() {
         const remoteBuild = quizParseSwBuildFromText(await resp.text());
         const localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
         if (!remoteBuild || !localBuild || remoteBuild === localBuild) return;
-        let dismissed = '';
-        try { dismissed = String(localStorage.getItem(QUIZ_LS_UPDATE_DISMISSED_BUILD) || ''); } catch (e) { /* ignore */ }
-        if (dismissed === remoteBuild) return;
         quizShowUpdateBanner(remoteBuild);
     } catch (e) { /* ignore */ }
 }
