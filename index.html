@@ -4320,10 +4320,13 @@
                 transform: translateY(8px);
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play .quiz-bio-vat-svg {
-                width: 108%;
-                max-width: 108%;
+                width: 128%;
+                max-width: 128%;
                 max-height: 150px;
                 min-height: 48px;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
                 margin: 4px auto 9px;
@@ -4357,6 +4360,9 @@
                 max-width: 108%;
                 max-height: 142px;
                 min-height: 48px;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
             }
             body.quiz-in-browser-tab.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-q {
                 margin: 4px auto 9px;
@@ -7519,7 +7525,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zj';
+const APP_BUILD = '20260508zl';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
