@@ -163,7 +163,7 @@
             flex-shrink: 0;
         }
         .quiz-settings-presence-badge .header-presence-num {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
             color: #0d47a1;
@@ -5137,6 +5137,37 @@
             min-width: min(300px, 92vw);
             border-radius: 12px;
         }
+        .quiz-intro-name-row {
+            margin-top: 14px;
+            padding: 0 14px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .quiz-intro-name-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #37474f;
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+        .quiz-intro-name-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #90caf9;
+            font-size: 0.94rem;
+            background: #fff;
+            color: #1a237e;
+        }
+        .quiz-intro-name-input::placeholder {
+            color: #90a4ae;
+            font-size: 0.88rem;
+        }
         .quiz-lock-overlay {
             position: fixed;
             inset: 0;
@@ -5159,6 +5190,84 @@
             padding: 18px;
         }
         .quiz-settings-overlay.visible { display: flex; }
+        /* Modali sopra Impostazioni: Chi sei? · elenco collegati */
+        .quiz-presence-sub-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 10026;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+        .quiz-presence-sub-overlay.visible {
+            display: flex;
+        }
+        .quiz-presence-sub-overlay__box {
+            width: min(92vw, 380px);
+            max-height: min(78vh, 420px);
+            overflow: auto;
+            border-radius: 14px;
+            padding: 18px 16px 16px;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+            box-sizing: border-box;
+        }
+        .quiz-presence-sub-overlay__box h4 {
+            margin: 0 0 8px;
+            color: #1a237e;
+            font-size: 1.08rem;
+            font-weight: 800;
+        }
+        .quiz-presence-sub-overlay__lead {
+            margin: 0 0 12px;
+            font-size: 0.86rem;
+            color: #546e7a;
+            line-height: 1.45;
+        }
+        .quiz-presence-sub-overlay__box label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #37474f;
+            margin-bottom: 6px;
+        }
+        .quiz-presence-sub-overlay__box input[type='text'] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #90caf9;
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+        }
+        .quiz-presence-sub-overlay__actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .quiz-presence-connected-list {
+            margin: 0 0 14px;
+            padding: 0 0 0 18px;
+            font-size: 0.92rem;
+            color: #263238;
+            line-height: 1.45;
+        }
+        .quiz-presence-connected-list li {
+            margin-bottom: 6px;
+        }
+        .quiz-presence-connected-list__empty {
+            list-style: none;
+            margin-left: -18px;
+            padding-left: 0;
+            color: #78909c;
+            font-style: italic;
+        }
         /**
          * Dopo «Aggiorna» la pagina si ricarica: questo strato (attivato da <head>) copre il contenuto
          * finché non è pronto il vero #quiz-settings-overlay, così la finestra non «scompare».
@@ -7519,6 +7628,10 @@ function dismissAppSplash() {
                     </div>
                 </div>
             </div>
+            <div class="quiz-intro-name-row">
+                <label for="quiz-name" class="quiz-intro-name-label">Nome (per la classifica)</label>
+                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi · vuoto = Operatore">
+            </div>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
             </div>
@@ -7907,11 +8020,15 @@ function dismissAppSplash() {
         <div class="quiz-settings-box" role="dialog" aria-modal="true" aria-labelledby="quiz-settings-title">
             <div class="quiz-settings-heading-row">
                 <h4 id="quiz-settings-title">Impostazioni</h4>
-                <button type="button" id="header-presence-btn" class="quiz-settings-presence-badge quiz-settings-presence-badge--btn" hidden onclick="quizPresenceManualRefresh()" title="Utenti online nell’app (Firebase, ultimi ~90 s). Clic per aggiornare." aria-label="Utenti online: aggiorna conteggio">
+                <button type="button" id="header-presence-btn" class="quiz-settings-presence-badge quiz-settings-presence-badge--btn" hidden onclick="quizPresenceOpenConnectedModal()" title="Utenti online: clic per vedere chi è collegato" aria-label="Utenti online: apri elenco">
                     <span class="header-presence-icon" aria-hidden="true">👤</span>
                     <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
                 </button>
             </div>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei: nome per presenza online">
+                <span><strong>Chi sei?</strong><br><span id="quiz-presence-whoami-summary" class="quiz-settings-row-sub" style="margin-top:4px;">Nome per gli altri online (facoltativo)</span></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
             <label class="quiz-settings-row quiz-settings-row--toggle">
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
@@ -7940,6 +8057,27 @@ function dismissAppSplash() {
             <div class="quiz-lock-actions" style="margin-top:14px;">
                 <button type="button" class="btn-side btn-reset" onclick="hideQuizSettingsModal()">Chiudi</button>
             </div>
+        </div>
+    </div>
+
+    <div id="quiz-presence-whoami-overlay" class="quiz-presence-sub-overlay" aria-hidden="true" onclick="quizPresenceWhoamiBackdrop(event)">
+        <div class="quiz-presence-sub-overlay__box" role="dialog" aria-modal="true" aria-labelledby="quiz-presence-whoami-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-presence-whoami-title">Chi sei?</h4>
+            <p class="quiz-presence-sub-overlay__lead">Come vuoi essere mostrato tra gli utenti collegati. Non è il nome della classifica quiz.</p>
+            <label for="quiz-presence-whoami-input">Il tuo nome</label>
+            <input type="text" id="quiz-presence-whoami-input" maxlength="40" autocomplete="nickname" placeholder="Facoltativo · lascia vuoto se preferisci">
+            <div class="quiz-presence-sub-overlay__actions">
+                <button type="button" class="btn-side btn-reset" onclick="quizPresenceHideWhoamiModal()">Annulla</button>
+                <button type="button" class="btn-side btn-report" onclick="quizPresenceWhoamiSave()">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-presence-connected-overlay" class="quiz-presence-sub-overlay" aria-hidden="true" onclick="quizPresenceConnectedBackdrop(event)">
+        <div class="quiz-presence-sub-overlay__box" role="dialog" aria-modal="true" aria-labelledby="quiz-presence-connected-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-presence-connected-title">Collegati ora</h4>
+            <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
+            <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
     </div>
 
@@ -8059,7 +8197,7 @@ function dismissAppSplash() {
                         <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
                     </div>
                     <p class="quiz-producer-presence__hint">
-                        Stesso conteggio dell’indicatore in alto: aggiornamento in tempo reale (Firestore). Considerati online gli utenti con heartbeat negli ultimi ~90 secondi. Serve la regola lettura su <strong>quiz_presence</strong>.
+                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, ~90 s). Regole su <strong>quiz_presence</strong>.
                     </p>
                 </div>
                 <div class="quiz-producer-add">
@@ -8100,11 +8238,15 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511g';
+const APP_BUILD = '20260511i';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
+/** Nome mostrato solo in presenza online (Impostazioni → Chi sei?). Separato dalla classifica quiz. */
+const QUIZ_LS_PRESENCE_WHOAMI = 'io-presence-whoami';
+/** Ultimo nome usato nel campo intro quiz (classifica), indipendente dalla presenza. */
+const QUIZ_LS_QUIZ_INTRO_NAME = 'io-quiz-intro-display-name';
 const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_SPEECH_MUTED = 'io-quiz-speech-muted';
@@ -8455,10 +8597,11 @@ function quizEnsureFirebase() {
  *   match /quiz_presence/{uid} {
  *     allow read: if request.auth != null;
  *     allow create, update: if request.auth != null && request.auth.uid == uid;
+ *     // Se usi keys(): includi lastSeen, path, displayName (string max ~40).
  *   }
  *
  * Chiunque sia autenticato (anche anonimo) può leggere la collezione: serve per il conteggio lato client.
- * Limita i campi scritti (solo lastSeen + hint non sensibili).
+ * Campi: lastSeen (Timestamp), path (string), displayName (string opzionale, nome in app · max ~40 caratteri).
  */
 function quizPresenceMillisFromLastSeen(ls) {
     if (!ls) return 0;
@@ -8497,7 +8640,160 @@ function quizPresenceSnapshotIsTrustworthy(snap) {
     }
 }
 
-/** Debug in console: perché il conteggio è N (un doc = una sessione Firebase anonima, non la rete Wi‑Fi). */
+function quizPresenceSanitizeLabel(s) {
+    var t = s != null ? String(s).trim() : '';
+    if (t.length > 40) t = t.slice(0, 40);
+    return t;
+}
+
+function quizPersistQuizIntroName(name) {
+    var s = quizPresenceSanitizeLabel(name);
+    try {
+        if (s) localStorage.setItem(QUIZ_LS_QUIZ_INTRO_NAME, s);
+        else localStorage.removeItem(QUIZ_LS_QUIZ_INTRO_NAME);
+    } catch (eLs) { /* ignore */ }
+}
+
+function quizPresencePersistWhoami(name) {
+    var s = quizPresenceSanitizeLabel(name);
+    try {
+        if (s) localStorage.setItem(QUIZ_LS_PRESENCE_WHOAMI, s);
+        else localStorage.removeItem(QUIZ_LS_PRESENCE_WHOAMI);
+    } catch (eLs) { /* ignore */ }
+}
+
+/** Solo Impostazioni → Chi sei? (non il nome classifica quiz). */
+function quizPresenceGetWhoami() {
+    try {
+        var ls = localStorage.getItem(QUIZ_LS_PRESENCE_WHOAMI);
+        if (ls) return quizPresenceSanitizeLabel(ls);
+    } catch (e2) { /* ignore */ }
+    return '';
+}
+
+function quizPresenceUpdateWhoamiSummaryUi() {
+    var el = document.getElementById('quiz-presence-whoami-summary');
+    if (!el) return;
+    var w = quizPresenceGetWhoami();
+    el.textContent = w ? 'Ti mostri come: ' + w : 'Nome per gli altri online (facoltativo)';
+}
+
+function quizPresenceWhoamiBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-presence-whoami-overlay') quizPresenceHideWhoamiModal();
+}
+
+function quizPresenceOpenWhoamiModal() {
+    var overlay = document.getElementById('quiz-presence-whoami-overlay');
+    var inp = document.getElementById('quiz-presence-whoami-input');
+    if (!overlay || !inp) return;
+    inp.value = quizPresenceGetWhoami();
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    quizPresenceUpdateWhoamiSummaryUi();
+    requestAnimationFrame(function () {
+        try {
+            inp.focus();
+            inp.select();
+        } catch (eF) { /* ignore */ }
+    });
+}
+
+function quizPresenceHideWhoamiModal() {
+    var overlay = document.getElementById('quiz-presence-whoami-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function quizPresenceWhoamiSave() {
+    var inp = document.getElementById('quiz-presence-whoami-input');
+    var v = inp && inp.value != null ? String(inp.value) : '';
+    quizPresencePersistWhoami(v);
+    quizPresenceUpdateWhoamiSummaryUi();
+    try {
+        void quizPresencePing();
+    } catch (eP) { /* ignore */ }
+    quizPresenceHideWhoamiModal();
+}
+
+/** Se Chiudi Impostazioni con il modale Chi sei? aperto: salva e invia al server. */
+function quizPresenceFlushWhoamiOnSettingsClose() {
+    var wo = document.getElementById('quiz-presence-whoami-overlay');
+    if (!wo || !wo.classList.contains('visible')) return;
+    var inp = document.getElementById('quiz-presence-whoami-input');
+    if (inp) quizPresencePersistWhoami(inp.value != null ? String(inp.value) : '');
+    quizPresenceUpdateWhoamiSummaryUi();
+    try {
+        void quizPresencePing();
+    } catch (eP) { /* ignore */ }
+    quizPresenceHideWhoamiModal();
+}
+
+function quizPresenceConnectedBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-presence-connected-overlay') quizPresenceHideConnectedModal();
+}
+
+function quizPresenceFillConnectedList() {
+    var ul = document.getElementById('quiz-presence-connected-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    var snap = quizPresenceLatestSnap;
+    if (!snap) {
+        ul.innerHTML =
+            '<li class="quiz-presence-connected-list__empty">Nessun dato ancora. Controlla la connessione o Firebase.</li>';
+        return;
+    }
+    var th = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    var rows = [];
+    snap.forEach(function (doc) {
+        var d = doc.data() || {};
+        if (quizPresenceMillisFromLastSeen(d.lastSeen) < th) return;
+        var raw = d.displayName != null ? String(d.displayName).trim() : '';
+        rows.push(raw ? raw : 'Senza nome');
+    });
+    rows.sort(function (a, b) {
+        return String(a).localeCompare(String(b), 'it', { sensitivity: 'base' });
+    });
+    if (!rows.length) {
+        ul.innerHTML = '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~90 s).</li>';
+        return;
+    }
+    rows.forEach(function (nm) {
+        var li = document.createElement('li');
+        li.textContent = nm;
+        ul.appendChild(li);
+    });
+}
+
+function quizPresenceOpenConnectedModal() {
+    var overlay = document.getElementById('quiz-presence-connected-overlay');
+    if (!overlay) return;
+    quizPresencePing();
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
+        })
+        .then(function (snap) {
+            quizPresenceLatestSnap = snap;
+            quizPresenceUpdatePresenceUi();
+            quizPresenceFillConnectedList();
+            overlay.classList.add('visible');
+            overlay.setAttribute('aria-hidden', 'false');
+        })
+        .catch(function () {
+            quizPresenceFillConnectedList();
+            overlay.classList.add('visible');
+            overlay.setAttribute('aria-hidden', 'false');
+        });
+}
+
+function quizPresenceHideConnectedModal() {
+    var overlay = document.getElementById('quiz-presence-connected-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
 function quizPresenceDebugLog() {
     try {
         if (!quizPresenceLatestSnap) {
@@ -8511,6 +8807,7 @@ function quizPresenceDebugLog() {
             var t = quizPresenceMillisFromLastSeen(d.lastSeen);
             rows.push({
                 id: doc.id,
+                displayName: (d.displayName != null ? String(d.displayName).trim() : '') || 'Senza nome',
                 lastSeenMs: t,
                 ageSec: t ? Math.round((Date.now() - t) / 1000) : null,
                 online: t >= th,
@@ -8530,11 +8827,30 @@ function quizPresenceDebugLog() {
     }
 }
 
-function quizPresenceUpdateHeaderAndProducer(n) {
+function quizPresenceUpdatePresenceUi() {
+    var snap = quizPresenceLatestSnap;
     var h = document.getElementById('header-presence-count');
-    if (h) h.textContent = String(n);
     var p = document.getElementById('quiz-producer-presence-count');
-    if (p) p.textContent = String(n);
+    var btn = document.getElementById('header-presence-btn');
+    if (!snap) {
+        if (h) h.textContent = '—';
+        if (p) p.textContent = '—';
+        if (btn) btn.setAttribute('title', 'Utenti online: clic per vedere i nomi');
+        return;
+    }
+    var n = quizPresenceCountFromSnapshot(snap);
+    var numStr = String(n);
+    if (h) h.textContent = numStr;
+    if (p) p.textContent = numStr;
+    if (btn) {
+        btn.setAttribute('title', n ? numStr + ' online · clic per l’elenco' : 'Nessuno in finestra · clic per dettagli');
+    }
+    var listOpen = document.getElementById('quiz-presence-connected-overlay');
+    if (listOpen && listOpen.classList.contains('visible')) {
+        try {
+            quizPresenceFillConnectedList();
+        } catch (eF) { /* ignore */ }
+    }
 }
 
 function quizPresenceUnsubscribeRealtime() {
@@ -8558,7 +8874,7 @@ function quizPresenceSubscribeRealtime() {
                     function (snap) {
                         if (!quizPresenceSnapshotIsTrustworthy(snap)) return;
                         quizPresenceLatestSnap = snap;
-                        quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+                        quizPresenceUpdatePresenceUi();
                         var btn = document.getElementById('header-presence-btn');
                         if (btn) btn.hidden = false;
                     },
@@ -8584,7 +8900,7 @@ function quizPresenceStartStaleTicker() {
     if (quizPresenceStaleTickerId != null) return;
     quizPresenceStaleTickerId = setInterval(function () {
         if (quizPresenceLatestSnap) {
-            quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(quizPresenceLatestSnap));
+            quizPresenceUpdatePresenceUi();
         }
     }, 8000);
 }
@@ -8600,6 +8916,7 @@ function quizPresencePing() {
                 firebase.firestore.Timestamp && typeof firebase.firestore.Timestamp.now === 'function'
                     ? firebase.firestore.Timestamp.now()
                     : firebase.firestore.Timestamp.fromMillis(Date.now());
+            var displayName = quizPresenceGetWhoami() || '';
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_PRESENCE)
@@ -8607,7 +8924,8 @@ function quizPresencePing() {
                 .set(
                     {
                         lastSeen: ts,
-                        path: String(window.location.pathname || '').slice(0, 160)
+                        path: String(window.location.pathname || '').slice(0, 160),
+                        displayName: displayName
                     },
                     { merge: true }
                 )
@@ -8616,7 +8934,7 @@ function quizPresencePing() {
                 })
                 .then(function (snap) {
                     quizPresenceLatestSnap = snap;
-                    quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+                    quizPresenceUpdatePresenceUi();
                 });
         })
         .catch(function (e) {
@@ -8636,7 +8954,7 @@ function quizPresenceManualRefresh() {
         })
         .then(function (snap) {
             quizPresenceLatestSnap = snap;
-            quizPresenceUpdateHeaderAndProducer(quizPresenceCountFromSnapshot(snap));
+            quizPresenceUpdatePresenceUi();
             var btn = document.getElementById('header-presence-btn');
             if (btn) btn.hidden = false;
         })
@@ -8696,13 +9014,13 @@ function quizPresenceCountOnline() {
 function quizProducerRefreshPresence() {
     var el = document.getElementById('quiz-producer-presence-count');
     if (quizPresenceLatestSnap) {
-        if (el) el.textContent = String(quizPresenceCountFromSnapshot(quizPresenceLatestSnap));
+        quizPresenceUpdatePresenceUi();
         return;
     }
     if (el) el.textContent = '…';
     quizPresenceCountOnline()
-        .then(function (n) {
-            if (el) el.textContent = String(n);
+        .then(function () {
+            quizPresenceUpdatePresenceUi();
         })
         .catch(function () {
             if (el) el.textContent = '?';
@@ -12082,6 +12400,9 @@ function showQuizSettingsModal() {
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('settings-open');
     try {
+        quizPresenceUpdateWhoamiSummaryUi();
+    } catch (eWho) { /* ignore */ }
+    try {
         if (typeof quizPresenceManualRefresh === 'function') quizPresenceManualRefresh();
     } catch (ePres) { /* ignore */ }
 }
@@ -12187,6 +12508,12 @@ function quizSettingsForceRefresh(btn) {
 }
 
 function hideQuizSettingsModal() {
+    try {
+        quizPresenceFlushWhoamiOnSettingsClose();
+    } catch (eWho) { /* ignore */ }
+    try {
+        quizPresenceHideConnectedModal();
+    } catch (eCo) { /* ignore */ }
     try {
         document.documentElement.classList.remove('quiz-settings-reopen-pending');
     } catch (eRm) { /* ignore */ }
@@ -15569,6 +15896,7 @@ function quizFinish(completedAll, opts) {
         else if (nm.length > 40) nm = nm.slice(0, 40);
         pendingRow.name = nm;
         quizState.name = nm;
+        quizPersistQuizIntroName(nm);
         const nameIn = document.getElementById('quiz-name');
         if (nameIn) nameIn.value = nm;
         if (!opts.aborted) {
@@ -15608,6 +15936,7 @@ function quizStart() {
     const nameIn = document.getElementById('quiz-name');
     const lvlIn = document.getElementById('quiz-start-level');
     quizState.name = (nameIn && nameIn.value) ? nameIn.value.trim() : '';
+    quizPersistQuizIntroName(quizState.name);
     quizState.startLevel = 1;
     if (lvlIn) lvlIn.value = '1';
     quizSelectStartLevel();
@@ -17194,6 +17523,16 @@ function openQuiz() {
     quizSavePanelOpen(true);
     quizShowScreen("intro");
     quizSelectStartLevel();
+    try {
+        const qn = document.getElementById('quiz-name');
+        if (qn) {
+            var saved = '';
+            try {
+                saved = localStorage.getItem(QUIZ_LS_QUIZ_INTRO_NAME) || '';
+            } catch (eLs) { /* ignore */ }
+            if (saved) qn.value = saved;
+        }
+    } catch (eQn) { /* ignore */ }
     quizRenderLeaderboard();
     const scrollBox = document.querySelector(".quiz-fs-scroll");
     if (scrollBox) scrollBox.scrollTop = 0;
