@@ -3657,6 +3657,55 @@
             display: flex;
             justify-content: flex-end;
         }
+        .quiz-top3-celebration-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10062;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.62);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .quiz-top3-celebration-modal.quiz-top3-celebration-modal--open {
+            display: flex;
+        }
+        .quiz-top3-celebration-modal__box {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px 20px 20px;
+            border-radius: 18px;
+            text-align: center;
+            background: linear-gradient(160deg, #ffffff 0%, #fff8e1 42%, #e3f2fd 100%);
+            border: 1px solid rgba(255, 179, 0, 0.35);
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.52) inset,
+                0 24px 52px rgba(15, 23, 42, 0.28);
+        }
+        .quiz-top3-celebration-modal__icon {
+            font-size: clamp(2.6rem, 10vw, 3.3rem);
+            line-height: 1;
+            margin: 0 0 10px;
+        }
+        .quiz-top3-celebration-modal__title {
+            margin: 0 0 8px;
+            color: #4a148c;
+            font-size: clamp(1.1rem, 4.8vw, 1.4rem);
+            font-weight: 900;
+        }
+        .quiz-top3-celebration-modal__lead {
+            margin: 0 0 16px;
+            color: #37474f;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+        .quiz-top3-celebration-modal__actions {
+            display: flex;
+            justify-content: center;
+        }
         /* Timeline “energia” sotto Posizione / Punti (dalla 3ª domanda in poi, 25 s) */
         .quiz-play-time {
             margin-top: 5px;
@@ -7112,6 +7161,16 @@ function dismissAppSplash() {
                 </div>
             </div>
         </div>
+        <div id="quiz-top3-celebration-modal" class="quiz-top3-celebration-modal" aria-hidden="true" aria-labelledby="quiz-top3-celebration-title">
+            <div class="quiz-top3-celebration-modal__box" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+                <div id="quiz-top3-celebration-icon" class="quiz-top3-celebration-modal__icon" aria-hidden="true">🏆</div>
+                <h3 id="quiz-top3-celebration-title" class="quiz-top3-celebration-modal__title">Top 3!</h3>
+                <p id="quiz-top3-celebration-lead" class="quiz-top3-celebration-modal__lead"></p>
+                <div class="quiz-top3-celebration-modal__actions">
+                    <button type="button" class="btn-side btn-report" onclick="quizTop3CelebrationModalOk()">Continua</button>
+                </div>
+            </div>
+        </div>
         <div id="quiz-exit-confirm-modal" class="quiz-exit-confirm-modal" aria-hidden="true" aria-labelledby="quiz-exit-confirm-title" onclick="quizExitConfirmBackdrop(event)">
             <div class="quiz-exit-confirm-modal__box" role="alertdialog" aria-modal="true" onclick="event.stopPropagation()">
                 <div class="quiz-exit-confirm-modal__icon" aria-hidden="true">⚠️</div>
@@ -7218,7 +7277,8 @@ function dismissAppSplash() {
                 </header>
                 <div id="quiz-vf-rules-strap" class="quiz-vf-rules-modal__strap">
                     <p class="quiz-vf-rules-modal__strap-text">
-                        Mantieni l’ossigeno disciolto entro i <strong>parametri ottimali</strong>: altrimenti la biomassa <strong>andrà in sofferenza</strong>.
+                        Mantieni l’ossigeno disciolto entro i <strong>parametri ottimali</strong>: altrimenti la biomassa <strong>andrà in sofferenza</strong>.<br>
+                        Risposta <strong>giusta</strong>: l’ossigeno <strong>aumenta</strong>. Risposta <strong>sbagliata</strong>: l’ossigeno <strong>scende</strong>.
                     </p>
                 </div>
                 <div class="quiz-vf-rules-modal__actions">
@@ -7405,7 +7465,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508t';
+const APP_BUILD = '20260508v';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -7453,8 +7513,8 @@ const QUIZ_VF_BONUS_WORMS_4 = 40;
 const QUIZ_VF_O2_MIN = 0;
 const QUIZ_VF_O2_MAX = 4.5;
 const QUIZ_VF_O2_START = 2.5;
-/** mg/L al secondo (scala qualitativa): 2,5 → 0 in 10 s. */
-const QUIZ_VF_O2_DECAY_PER_SEC = 0.25;
+/** mg/L al secondo (scala qualitativa): 2,5 → 0 in 25 s. */
+const QUIZ_VF_O2_DECAY_PER_SEC = 0.10;
 /** Risposta giusta: mg/L guadagnati = decadimento × questi secondi equivalenti (default 3 s → +0,75 mg/L). */
 const QUIZ_VF_O2_GAIN_EQUIV_SEC = 3;
 /** Risposta sbagliata: mg/L persi = decadimento × questi secondi equivalenti (default 1 s → −0,25 mg/L). */
@@ -7480,6 +7540,8 @@ const QUIZ_SFX_MICROBE_OK_CLICK = 'assets/quiz-sfx/effetto-clic.mp3';
 const QUIZ_SFX_BONUS_OK = 'assets/quiz-sfx/effetto-ok.mp3';
 /** Bonus game: musica durante la scelta delle carte (si ferma alla selezione). */
 const QUIZ_SFX_BONUS_SCELTA = 'assets/quiz-sfx/scelta.mp3';
+/** Musica celebrativa subito dopo il nome in classifica (top 3). */
+const QUIZ_SFX_TOP3_NAME = 'assets/quiz-sfx/vittoria-dopo-nome-classifica.mp3';
 /** Bonus game: premio, penalita fango. */
 const QUIZ_SFX_BONUS_WIN = 'assets/quiz-sfx/bonus-win.mp3';
 const QUIZ_SFX_BONUS_FANGO = 'assets/quiz-sfx/bonus-fango.mp3';
@@ -11533,6 +11595,9 @@ let quizScoreAnimTimer = null;
 let quizWrongModalFinishOpts = null;
 /** Contesto modale nome top 10: callback dopo conferma. */
 let quizTop10NameModalCtx = null;
+/** Popup celebrazione top 3 dopo inserimento nome in classifica. */
+let quizTop3CelebrationCtx = null;
+let quizTop3CelebrationAudioEl = null;
 /** Timeout bonus arcade fine partita (puliti su nuovo quiz). */
 let quizOverArcadeTimers = [];
 
@@ -13511,6 +13576,83 @@ function quizTop10NameModalKeydown(ev) {
     }
 }
 
+function quizTop3CelebrationStopAudio() {
+    try {
+        if (quizTop3CelebrationAudioEl) {
+            quizTop3CelebrationAudioEl.pause();
+            quizTop3CelebrationAudioEl.src = '';
+            quizTop3CelebrationAudioEl = null;
+        }
+    } catch (eStop) { /* ignore */ }
+}
+
+function quizTop3CelebrationModalHide() {
+    const modal = document.getElementById('quiz-top3-celebration-modal');
+    if (modal) {
+        modal.classList.remove('quiz-top3-celebration-modal--open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    quizTop3CelebrationCtx = null;
+    quizTop3CelebrationStopAudio();
+    document.removeEventListener('keydown', quizTop3CelebrationModalKeydown, true);
+}
+
+function quizTop3CelebrationModalOk() {
+    const ctx = quizTop3CelebrationCtx;
+    quizTop3CelebrationCtx = null;
+    quizTop3CelebrationModalHide();
+    if (ctx && typeof ctx.onDone === 'function') {
+        try { ctx.onDone(); } catch (eDone) { /* ignore */ }
+    }
+}
+
+function quizTop3CelebrationModalKeydown(ev) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+        const modal = document.getElementById('quiz-top3-celebration-modal');
+        if (modal && modal.classList.contains('quiz-top3-celebration-modal--open')) {
+            ev.preventDefault();
+            quizTop3CelebrationModalOk();
+        }
+    }
+}
+
+function quizOpenTop3CelebrationModal(rank, displayName, onDone) {
+    const n = Math.max(1, Math.min(3, Number(rank) || 3));
+    const modal = document.getElementById('quiz-top3-celebration-modal');
+    const titleEl = document.getElementById('quiz-top3-celebration-title');
+    const leadEl = document.getElementById('quiz-top3-celebration-lead');
+    const iconEl = document.getElementById('quiz-top3-celebration-icon');
+    if (!modal || !titleEl || !leadEl || !iconEl) {
+        if (typeof onDone === 'function') onDone();
+        return;
+    }
+    const nm = displayName && String(displayName).trim() ? String(displayName).trim() : 'Operatore';
+    const icon = n === 1 ? '🏆' : (n === 2 ? '🥈' : '🥉');
+    const title = n === 1 ? 'Primo posto!' : (n === 2 ? 'Secondo posto!' : 'Terzo posto!');
+    const lead =
+        n === 1
+            ? nm + ', sei in vetta alla classifica!'
+            : nm + ', ottimo risultato: sei tra i primi tre!';
+    iconEl.textContent = icon;
+    titleEl.textContent = title;
+    leadEl.textContent = lead;
+    quizTop3CelebrationCtx = { onDone: onDone };
+    modal.classList.add('quiz-top3-celebration-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.addEventListener('keydown', quizTop3CelebrationModalKeydown, true);
+    try {
+        const gv = quizGetGameAudioLinearVolume();
+        if (gv > 0) {
+            quizTop3CelebrationStopAudio();
+            const a = new Audio(quizResolveMediaUrl(QUIZ_SFX_TOP3_NAME));
+            a.volume = Math.max(0, Math.min(1, 0.92 * gv));
+            quizTop3CelebrationAudioEl = a;
+            const p = a.play();
+            if (p && typeof p.catch === 'function') p.catch(function () { /* autoplay */ });
+        }
+    } catch (ePlay) { /* ignore */ }
+}
+
 function quizTop10NameModalOk() {
     const ctx = quizTop10NameModalCtx;
     if (!ctx || typeof ctx.finishCommit !== 'function') {
@@ -13522,6 +13664,12 @@ function quizTop10NameModalOk() {
     if (!raw) raw = 'Operatore';
     else if (raw.length > 40) raw = raw.slice(0, 40);
     quizTop10NameModalHide();
+    if ((Number(ctx.rank) || 0) >= 1 && (Number(ctx.rank) || 0) <= 3) {
+        quizOpenTop3CelebrationModal(ctx.rank, raw, function () {
+            ctx.finishCommit(raw);
+        });
+        return;
+    }
     ctx.finishCommit(raw);
 }
 
@@ -13534,8 +13682,8 @@ function quizOpenTop10NameModal(pendingRow, finishCommit) {
         finishCommit((pendingRow.name && String(pendingRow.name).trim()) || 'Operatore');
         return;
     }
-    quizTop10NameModalCtx = { finishCommit: finishCommit };
     const rank = quizSimulatedInsertRank(pendingRow.score);
+    quizTop10NameModalCtx = { finishCommit: finishCommit, rank: rank };
     if (lead) {
         lead.textContent = 'Con ' + pendingRow.score + ' punti sei al ' + rank + '° posto tra i migliori. Inserisci il nome da mostrare in classifica, oppure premi OK senza scrivere per usare «Operatore».';
     }
@@ -14047,6 +14195,7 @@ function quizStart() {
     quizWrongModalHide();
     quizWrongModalFinishOpts = null;
     quizTop10NameModalHide();
+    quizTop3CelebrationModalHide();
     quizMicrobeUnlockModalForceClose();
     quizClearQuestionTimer();
     quizOverArcadeClearTimers();
@@ -14398,6 +14547,11 @@ function quizOpenMicrobeUnlockModal(wormIdx, onContinue) {
 
 /** Esci in alto / Esc: da gioco o risultato torna all’intro del quiz; dall’intro chiude il pannello. */
 function quizTopExit() {
+    const top3m = document.getElementById('quiz-top3-celebration-modal');
+    if (top3m && top3m.classList.contains('quiz-top3-celebration-modal--open')) {
+        quizTop3CelebrationModalOk();
+        return;
+    }
     const mud = document.getElementById('quiz-microbe-unlock-modal');
     if (mud && mud.classList.contains('quiz-microbe-unlock-modal--open')) {
         quizMicrobeUnlockModalOk();
@@ -15566,6 +15720,11 @@ function closeQuiz() {
     const top10m = document.getElementById('quiz-top10-name-modal');
     if (top10m && top10m.classList.contains('quiz-top10-name-modal--open')) {
         quizTop10NameModalOk();
+        return;
+    }
+    const top3m = document.getElementById('quiz-top3-celebration-modal');
+    if (top3m && top3m.classList.contains('quiz-top3-celebration-modal--open')) {
+        quizTop3CelebrationModalOk();
         return;
     }
     const mum = document.getElementById('quiz-microbe-unlock-modal');
