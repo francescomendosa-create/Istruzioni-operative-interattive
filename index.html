@@ -7525,7 +7525,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zm';
+const APP_BUILD = '20260508zn';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9298,7 +9298,7 @@ function quizVfOutcomeMountThumbnailsFromWormGroups(groups, lostStyle) {
         try {
             quizRemapSvgIds(c, 'vfpop' + quizVfOutcomeThumbSeq);
         } catch (eR) { /* ignore */ }
-        c.setAttribute('transform', 'translate(48,40) scale(0.115)');
+        c.setAttribute('transform', 'translate(48,44) scale(1)');
         svg.appendChild(c);
         cell.appendChild(svg);
         strip.appendChild(cell);
