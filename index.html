@@ -1735,6 +1735,17 @@
             }
         }
         /* Smartphone: vite visibili nella fila sotto Posizione + grado (non inline). */
+        .quiz-play-pos-level {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-left: 6px;
+            flex-wrap: wrap;
+            white-space: nowrap;
+        }
+        .quiz-play-pos-level .quiz-play-oneline-lbl {
+            margin-left: 0;
+        }
         @media (max-width: 768px) {
             .quiz-play-lives-inline-wrap {
                 display: inline-flex !important;
@@ -1750,6 +1761,10 @@
             }
             .quiz-play-oneline-left {
                 align-items: flex-start;
+            }
+            .quiz-play-pos-level {
+                flex-basis: auto;
+                margin-left: 4px;
             }
             .quiz-play-lives-avatar {
                 width: 26px;
@@ -7886,7 +7901,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510i';
+const APP_BUILD = '20260510j';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13925,6 +13940,20 @@ function quizShowScreen(which) {
     }
 }
 
+/** Livello biologia massimo già sbloccato (1–5) in base alle domande completate in questa partita. */
+function quizPlayCurrentProgressLevel() {
+    const curIx = Math.max(0, Number(quizState.index) || 0);
+    const completedIdx = curIx - 1;
+    const unlocked = quizBioUnlockedSplashVariantIndices(completedIdx);
+    if (!unlocked.length) return 1;
+    let maxLv = 1;
+    unlocked.forEach(function (wi) {
+        const lv = quizWormLevelFromIdx(wi);
+        if (lv > maxLv) maxLv = lv;
+    });
+    return maxLv;
+}
+
 function quizUpdatePlayProgress(extra) {
     extra = extra || {};
     const prog = document.getElementById('quiz-progress');
@@ -13934,6 +13963,7 @@ function quizUpdatePlayProgress(extra) {
     const sc = extra.scoreOverride != null ? Number(extra.scoreOverride) : quizState.score;
     const { rank } = quizComputeLiveRank(sc);
     const ord = rank + '\u00B0';
+    const playLv = quizPlayCurrentProgressLevel();
     const isFirst = rank === 1;
     const rowClass = 'quiz-play-oneline' + (isFirst ? ' quiz-play-oneline--first' : '');
     const crown = isFirst ? '<span class="quiz-play-trophy-tilt" aria-hidden="true" title="1\u00B0 posto">\u{1F3C6}</span>' : '';
@@ -14000,12 +14030,28 @@ function quizUpdatePlayProgress(extra) {
         '<div class="quiz-play-time-fill" id="quiz-time-fill" style="width:' + (Math.max(0, Math.min(1, initFrac)) * 100) + '%"></div>' +
         '</div></div>';
     prog.innerHTML =
-        '<div class="' + boardCls + '" aria-label="Domanda ' + i + ' di ' + tot + ' · posizione e punti totali">' +
+        '<div class="' +
+        boardCls +
+        '" aria-label="Domanda ' +
+        i +
+        ' di ' +
+        tot +
+        ' · posizione ' +
+        ord +
+        ' · livello ' +
+        playLv +
+        ' · punti totali">' +
         '<div class="' + rowClass + '" aria-live="polite">' +
         '<div class="quiz-play-oneline-left">' +
         crown +
         '<span class="quiz-play-oneline-lbl">Posizione</span>' +
         '<strong class="quiz-play-oneline-val">' + ord + '</strong>' +
+        '<span class="quiz-play-pos-level">' +
+        '<span class="quiz-play-oneline-lbl">Livello</span> ' +
+        '<strong id="quiz-play-level-val" class="quiz-play-oneline-val">' +
+        playLv +
+        '</strong>' +
+        '</span>' +
         livesRow +
         '</div>' +
         '<div class="quiz-play-oneline-center">' +
