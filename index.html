@@ -1562,6 +1562,8 @@
         }
         .quiz-level-key li { margin: 2px 0; }
         #quiz-play-body {
+            position: relative;
+            padding-bottom: 64px;
             transition: opacity 0.28s ease, transform 0.28s ease;
         }
         #quiz-play-body.quiz-fade-out {
@@ -1586,7 +1588,15 @@
             padding: 12px 14px;
             border-radius: 10px;
             font-weight: bold;
-            margin-top: 12px;
+            margin: 0 auto;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 8px;
+            width: min(100%, 720px);
+            box-sizing: border-box;
+            z-index: 4;
+            pointer-events: none;
             animation: quizPop 0.32s ease;
         }
         .quiz-feedback-ok {
@@ -1961,7 +1971,7 @@
         #quiz-screen-play .quiz-feedback {
             font-size: 0.95rem;
             padding: 8px 10px;
-            margin-top: 6px;
+            margin-top: 0;
         }
         /* Adelfo: ingresso animato sopra la vasca (solo schermata gioco) */
         #quiz-screen-play {
@@ -3742,7 +3752,7 @@
             border-top: 1px solid rgba(25, 118, 210, 0.2);
         }
         .quiz-play-time.quiz-play-time--reserve {
-            visibility: hidden;
+            visibility: visible;
         }
         .quiz-play-time-meta {
             display: flex;
@@ -4327,7 +4337,7 @@
                 line-height: 1.36;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-feedback {
-                margin-top: 10px;
+                margin-top: 0;
                 padding: 10px 14px;
             }
             body.quiz-open .quiz-panel.visible.quiz-panel--screen-play #quiz-screen-play .quiz-play-scoreboard {
@@ -7503,7 +7513,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508zf';
+const APP_BUILD = '20260508zg';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
