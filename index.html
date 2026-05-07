@@ -5477,6 +5477,50 @@
         .quiz-producer-panel.visible {
             z-index: 10001;
         }
+        .quiz-producer-presence {
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #e8f5e9 0%, #ffffff 55%, #f1f8e9 100%);
+            border: 1px solid rgba(46, 125, 50, 0.35);
+            box-shadow: 0 2px 10px rgba(27, 94, 32, 0.08);
+        }
+        .quiz-producer-presence__title {
+            margin: 0 0 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #2e7d32;
+        }
+        .quiz-producer-presence__row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .quiz-producer-presence__num {
+            font-size: clamp(1.6rem, 5vw, 2rem);
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #1b5e20;
+            line-height: 1;
+        }
+        .quiz-producer-presence__btn {
+            flex-shrink: 0;
+            padding: 7px 14px !important;
+            font-size: 0.78rem !important;
+        }
+        .quiz-producer-presence__hint {
+            margin: 10px 0 0;
+            font-size: 0.68rem;
+            line-height: 1.35;
+            color: #546e7a;
+        }
+        .quiz-producer-presence__hint code {
+            font-size: 0.66rem;
+        }
         .quiz-producer-add {
             display: grid;
             grid-template-columns: 1fr 88px auto;
@@ -7889,6 +7933,16 @@ function dismissAppSplash() {
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
         <div class="quiz-fs-scroll" style="text-align:left;">
+            <div id="quiz-producer-presence-box" class="quiz-producer-presence">
+                <div class="quiz-producer-presence__title">Utenti online (stima)</div>
+                <div class="quiz-producer-presence__row">
+                    <span id="quiz-producer-presence-count" class="quiz-producer-presence__num" aria-live="polite">—</span>
+                    <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
+                </div>
+                <p class="quiz-producer-presence__hint">
+                    Conteggio utenti Firebase distinti con segnale negli ultimi 2 minuti. Richiede regole lettura/scrittura sulla collezione Firestore <strong>quiz_presence</strong> (vedi commento nel codice sotto <code>quizPresencePing</code>).
+                </p>
+            </div>
             <div class="quiz-producer-add">
                 <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
                 <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
@@ -7926,7 +7980,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260510k';
+const APP_BUILD = '20260511a';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8124,6 +8178,11 @@ const QUIZ_FS_COLLECTION = 'quiz_settings';
 /** Classifica condivisa (tutti i dispositivi che usano lo stesso progetto Firebase). */
 const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
 const QUIZ_FS_LEADERBOARD_DOC = 'global';
+/** Presenza online (heartbeat Auth anonimo → doc per uid). Richiede regole Firestore su `quiz_presence`. */
+const QUIZ_FS_PRESENCE = 'quiz_presence';
+const QUIZ_PRESENCE_HEARTBEAT_MS = 45000;
+/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra. */
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 120000;
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
@@ -8137,6 +8196,9 @@ let quizLeaderboardHydrated = false;
 let quizLeaderboardCloudError = false;
 /** Dettaglio ultimo errore (tooltip + console) per capire regole / dominio / rete. */
 let quizLeaderboardLastError = '';
+/** Heartbeat presenza Firestore (null = non avviato). */
+let quizPresenceHeartbeatId = null;
+let quizPresenceHooksAttached = false;
 
 function quizInitLeaderboardSourceState() {
     quizLeaderboardHydrated = !quizFirestoreConfigured();
@@ -8257,6 +8319,104 @@ function quizEnsureFirebase() {
         });
     }
     return quizFirebaseInitPromise;
+}
+
+/*
+ * Presenza «online»: ogni client Auth anonimo scrive quiz_presence/{uid} con lastSeen.
+ * Regole Firestore suggerite (Console → Firestore → Regole):
+ *
+ *   match /quiz_presence/{uid} {
+ *     allow read: if request.auth != null;
+ *     allow create, update: if request.auth != null && request.auth.uid == uid;
+ *   }
+ *
+ * Chiunque sia autenticato (anche anonimo) può leggere la collezione: serve per il conteggio lato client.
+ * Limita i campi scritti (solo lastSeen + hint non sensibili).
+ */
+function quizPresencePing() {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    return quizEnsureFirebase()
+        .then(function () {
+            var uid = firebase.auth().currentUser && firebase.auth().currentUser.uid;
+            if (!uid) return;
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_PRESENCE)
+                .doc(uid)
+                .set(
+                    {
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        path: String(window.location.pathname || '').slice(0, 160)
+                    },
+                    { merge: true }
+                );
+        })
+        .catch(function (e) {
+            try {
+                console.warn('[quiz presence]', e);
+            } catch (eL) { /* ignore */ }
+        });
+}
+
+function quizPresenceAttachLifecycleOnce() {
+    if (quizPresenceHooksAttached) return;
+    quizPresenceHooksAttached = true;
+    try {
+        document.addEventListener('visibilitychange', function quizPresenceVis() {
+            if (document.visibilityState === 'visible') quizPresencePing();
+        });
+        window.addEventListener('pagehide', function quizPresenceHide() {
+            quizPresencePing();
+        });
+    } catch (eA) { /* ignore */ }
+}
+
+function quizPresenceStartHeartbeat() {
+    if (!quizFirestoreConfigured()) return;
+    quizPresenceAttachLifecycleOnce();
+    if (quizPresenceHeartbeatId != null) return;
+    quizPresencePing();
+    quizPresenceHeartbeatId = setInterval(quizPresencePing, QUIZ_PRESENCE_HEARTBEAT_MS);
+}
+
+function quizPresenceBootstrap() {
+    if (!quizFirestoreConfigured()) return;
+    try {
+        quizPresenceStartHeartbeat();
+    } catch (eB) { /* ignore */ }
+}
+
+/** Conta utenti con lastSeen recente (stima; dipende da heartbeat e regole lettura). */
+function quizPresenceCountOnline() {
+    if (!quizFirestoreConfigured()) return Promise.resolve(0);
+    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    return quizEnsureFirebase().then(function () {
+        return firebase.firestore().collection(QUIZ_FS_PRESENCE).get();
+    }).then(function (snap) {
+        var n = 0;
+        snap.forEach(function (doc) {
+            var d = doc.data();
+            var ls = d && d.lastSeen;
+            var t = 0;
+            try {
+                t = ls && ls.toMillis ? ls.toMillis() : 0;
+            } catch (eT) { /* ignore */ }
+            if (t >= threshold) n += 1;
+        });
+        return n;
+    });
+}
+
+function quizProducerRefreshPresence() {
+    var el = document.getElementById('quiz-producer-presence-count');
+    if (el) el.textContent = '…';
+    quizPresenceCountOnline()
+        .then(function (n) {
+            if (el) el.textContent = String(n);
+        })
+        .catch(function () {
+            if (el) el.textContent = '?';
+        });
 }
 
 function quizSyncPrefsToFirestoreDebounced() {
@@ -11911,6 +12071,10 @@ function showQuizProducerModal() {
     }
     document.body.classList.add('producer-open');
     quizProducerRefreshTable();
+    try {
+        quizPresenceBootstrap();
+    } catch (ePb) { /* ignore */ }
+    quizProducerRefreshPresence();
     requestAnimationFrame(function () {
         const x = document.querySelector('#quiz-producer-overlay .quiz-fs-exit');
         if (x) x.focus();
@@ -16910,6 +17074,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizUpdateFirebaseSyncUi();
             } catch (eFsUi) { /* ignore */ }
+            try {
+                quizPresenceBootstrap();
+            } catch (ePres) { /* ignore */ }
         }
         if (quizFirestoreConfigured()) {
             Promise.all([
