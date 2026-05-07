@@ -2937,15 +2937,6 @@
             color: #b71c1c;
             font-weight: 900;
         }
-        .quiz-vf-rules-modal__strap-kicker {
-            margin: 0 0 14px;
-            font-size: clamp(0.92rem, 2.8vw, 1.05rem);
-            font-weight: 700;
-            font-style: italic;
-            letter-spacing: 0.04em;
-            color: #1565c0;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
-        }
         .quiz-vf-rules-modal__header {
             margin: 0 0 18px;
             padding: 16px 16px 18px;
@@ -3583,6 +3574,12 @@
                 overflow: visible;
                 margin-top: auto;
                 margin-bottom: auto;
+            }
+            .quiz-vf-o2-meter-wrap {
+                margin-bottom: 10px;
+            }
+            .quiz-vf-o2-meter-label {
+                margin-bottom: 4px;
             }
             .quiz-vf-modal__title {
                 font-size: clamp(1.22rem, 2.7vw, 1.78rem);
@@ -7162,6 +7159,18 @@ function dismissAppSplash() {
         <div id="quiz-vf-modal" class="quiz-vf-modal" aria-hidden="true" aria-labelledby="quiz-vf-title">
             <div class="quiz-vf-modal__box" role="dialog" aria-modal="true" aria-labelledby="quiz-vf-title" onclick="event.stopPropagation()">
                 <h3 id="quiz-vf-title" class="quiz-vf-modal__title"></h3>
+                <div class="quiz-vf-o2-meter-wrap">
+                    <div class="quiz-vf-o2-meter-label">Ossigeno disciolto (mg/L · scala di gioco)</div>
+                    <div class="quiz-vf-o2-meter" id="quiz-vf-o2-meter" role="meter" aria-valuemin="0" aria-valuemax="4.5" aria-valuenow="2.5">
+                        <div class="quiz-vf-o2-meter__rail">
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--0">0</span>
+                            <span class="quiz-vf-o2-meter__tick quiz-vf-o2-meter__tick--max">4,5</span>
+                            <div id="quiz-vf-o2-meter-fill" class="quiz-vf-o2-meter__fill"></div>
+                            <div id="quiz-vf-o2-meter-needle" class="quiz-vf-o2-meter__needle" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div id="quiz-vf-o2-readout" class="quiz-vf-o2-readout">OD ≈ <strong id="quiz-vf-o2-value">2,5</strong> mg/L</div>
+                </div>
                 <div class="quiz-vf-actions">
                     <button type="button" class="quiz-vf-btn quiz-vf-btn--true" id="quiz-vf-btn-true" onclick="quizVfAnswer(true)">VERO</button>
                     <button type="button" class="quiz-vf-btn quiz-vf-btn--false" id="quiz-vf-btn-false" onclick="quizVfAnswer(false)">FALSO</button>
@@ -7190,7 +7199,7 @@ function dismissAppSplash() {
             </div>
         </div>
         <div id="quiz-vf-rules-modal" class="quiz-vf-rules-modal" aria-hidden="true" aria-labelledby="quiz-vf-rules-kicker quiz-vf-rules-title">
-            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-strap quiz-vf-rules-desc" onclick="event.stopPropagation()">
+            <div class="quiz-vf-rules-modal__box" role="dialog" aria-modal="true" aria-describedby="quiz-vf-rules-strap" onclick="event.stopPropagation()">
                 <div class="quiz-vf-rules-modal__topstrip" aria-hidden="true"></div>
                 <header class="quiz-vf-rules-modal__header">
                     <span class="quiz-vf-rules-modal__o2-badge" aria-hidden="true">
@@ -7214,65 +7223,9 @@ function dismissAppSplash() {
                     </div>
                 </header>
                 <div id="quiz-vf-rules-strap" class="quiz-vf-rules-modal__strap">
-                    <p class="quiz-vf-rules-modal__strap-kicker">Sempre grafica e scrittura molto bella.</p>
                     <p class="quiz-vf-rules-modal__strap-text">
                         Mantieni l’ossigeno disciolto entro i <strong>parametri ottimali</strong>: altrimenti la biomassa <strong>andrà in sofferenza</strong>.
                     </p>
-                </div>
-                <div id="quiz-vf-rules-desc">
-                    <p class="quiz-vf-rules-modal__lead">
-                        Il misuratore usa una scala di gioco dell’<strong>ossigeno disciolto</strong> da <strong>0 a 4,5 mg/L</strong>. Parti da <strong>2,5 mg/L</strong>.
-                        Finché rifletti, il valore <strong>scende di 0,25 mg/L al secondo</strong>. Dopo la tua scelta: risposta <strong>giusta +0,50 mg/L</strong> (come <strong>2 secondi</strong> di ossigeno recuperato sulla scala),
-                        <strong>sbagliata −0,25 mg/L</strong> (come <strong>1 secondo</strong> perso). Tutto in mg/L sulla scala di gioco.
-                        Se l’ossigeno disciolto arriva a <strong>0 mg/L</strong>, la modalità termina e resta un solo microbo in vasca.
-                    </p>
-                    <div class="quiz-vf-rules-modal__section quiz-vf-rules-modal__section--score">
-                        <p class="quiz-vf-rules-modal__section-title">Punteggio · ogni domanda</p>
-                        <div class="quiz-vf-rules-modal__score-row">
-                            <div class="quiz-vf-rules-modal__pill quiz-vf-rules-modal__pill--up">
-                                <span class="quiz-vf-rules-modal__pill-num">+10</span>
-                                <span class="quiz-vf-rules-modal__pill-lbl">risposta giusta</span>
-                            </div>
-                            <div class="quiz-vf-rules-modal__pill quiz-vf-rules-modal__pill--down">
-                                <span class="quiz-vf-rules-modal__pill-num">−10</span>
-                                <span class="quiz-vf-rules-modal__pill-lbl">errore</span>
-                            </div>
-                        </div>
-                        <p class="quiz-vf-rules-modal__score-foot">Il totale punti non scende sotto <strong>zero</strong>.</p>
-                    </div>
-                    <div class="quiz-vf-rules-modal__thresholds">
-                        <p class="quiz-vf-rules-modal__section-title">Fine turno — ossigeno disciolto finale</p>
-                        <ul class="quiz-vf-rules-modal__cards">
-                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--best">
-                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">★</span>
-                                <div class="quiz-vf-rules-modal__card-text">
-                                    <span class="quiz-vf-rules-modal__card-range">3,5 – 4 mg/L</span>
-                                    <span class="quiz-vf-rules-modal__card-desc">4 vermi (varianti migliori già sbloccate) + <strong>40 punti</strong> bonus</span>
-                                </div>
-                            </li>
-                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--ok">
-                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">✓</span>
-                                <div class="quiz-vf-rules-modal__card-text">
-                                    <span class="quiz-vf-rules-modal__card-range">1 – 2,5 mg/L</span>
-                                    <span class="quiz-vf-rules-modal__card-desc">+2 vermi + <strong>20 punti</strong> bonus</span>
-                                </div>
-                            </li>
-                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--warn">
-                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">!</span>
-                                <div class="quiz-vf-rules-modal__card-text">
-                                    <span class="quiz-vf-rules-modal__card-range">0,1 – 0,9 mg/L</span>
-                                    <span class="quiz-vf-rules-modal__card-desc">−2 vermi</span>
-                                </div>
-                            </li>
-                            <li class="quiz-vf-rules-modal__card quiz-vf-rules-modal__card--crit">
-                                <span class="quiz-vf-rules-modal__card-tag" aria-hidden="true">✕</span>
-                                <div class="quiz-vf-rules-modal__card-text">
-                                    <span class="quiz-vf-rules-modal__card-range">0 mg/L durante il gioco</span>
-                                    <span class="quiz-vf-rules-modal__card-desc">Tutti i vermi tranne uno vengono rimossi</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
                 <div class="quiz-vf-rules-modal__actions">
                     <button type="button" class="btn-side btn-report" onclick="quizVfRulesModalOk()">Comincia</button>
@@ -7458,7 +7411,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508l';
+const APP_BUILD = '20260508m';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
