@@ -1420,29 +1420,29 @@
         .quiz-avatar-picker__blink {
             position: absolute;
             left: 50%;
-            top: 42%;
-            width: 44%;
+            top: 39%;
+            width: 52%;
             transform: translate(-50%, -50%);
             display: flex;
             justify-content: space-between;
             pointer-events: none;
             z-index: 2;
-            opacity: 0.68;
+            opacity: 0.78;
         }
         .quiz-avatar-picker__blink-eye {
-            width: 26%;
+            width: 24%;
             aspect-ratio: 1.3 / 1;
             border-radius: 999px;
-            background: rgba(20, 23, 28, 0.22);
+            background: rgba(16, 20, 26, 0.34);
             transform-origin: center;
-            animation: quizAvatarBlink 5.8s infinite;
+            animation: quizAvatarBlink 4.9s infinite;
         }
         .quiz-avatar-picker__blink-eye:nth-child(2) {
-            animation-delay: 0.08s;
+            animation-delay: 0.06s;
         }
         @keyframes quizAvatarBlink {
-            0%, 44%, 46%, 100% { transform: scaleY(0.2); opacity: 0.15; }
-            45% { transform: scaleY(1); opacity: 0.55; }
+            0%, 32%, 34%, 68%, 70%, 100% { transform: scaleY(1); opacity: 0.52; }
+            33%, 69% { transform: scaleY(0.08); opacity: 0.9; }
         }
         .quiz-avatar-picker__counter {
             width: 100%;
@@ -7865,7 +7865,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509ae';
+const APP_BUILD = '20260509af';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
