@@ -8402,7 +8402,7 @@ function dismissAppSplash() {
                         <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
                     </div>
                     <p class="quiz-producer-presence__hint">
-                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, finestra ~15 min). Regole su <strong>quiz_presence</strong>.
+                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, finestra ~1 min). Regole su <strong>quiz_presence</strong>.
                     </p>
                 </div>
                 <div class="quiz-producer-add">
@@ -8443,7 +8443,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511bf';
+const APP_BUILD = '20260511bg';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
