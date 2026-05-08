@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ac';
+const APP_BUILD = '20260511ad';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15718,6 +15718,25 @@ function quizIntroNameInputAutoSize() {
     inp.style.width = String(n) + 'ch';
 }
 
+function quizIntroNamePrepareFreshEdit(ev) {
+    var inp = ev && ev.currentTarget ? ev.currentTarget : document.getElementById('quiz-name');
+    if (!inp) return;
+    if (inp.dataset.prefilled !== '1') return;
+    inp.value = '';
+    inp.dataset.prefilled = '0';
+    quizIntroNameInputAutoSize();
+}
+
+function quizIntroNameCommitOnEnter(ev) {
+    if (!ev || ev.key !== 'Enter') return;
+    ev.preventDefault();
+    var inp = ev.currentTarget;
+    if (!inp) return;
+    var v = inp.value != null ? String(inp.value).trim() : '';
+    quizPersistQuizIntroName(v);
+    try { inp.blur(); } catch (e) { /* ignore */ }
+}
+
 function quizOpenTop10NameModal(pendingRow, finishCommit) {
     const modal = document.getElementById('quiz-top10-name-modal');
     const lead = document.getElementById('quiz-top10-name-modal-lead');
@@ -17851,11 +17870,25 @@ function openQuiz() {
             try {
                 saved = localStorage.getItem(QUIZ_LS_QUIZ_INTRO_NAME) || '';
             } catch (eLs) { /* ignore */ }
-            if (saved) qn.value = saved;
+            if (saved) {
+                qn.value = saved;
+                qn.dataset.prefilled = '1';
+            } else {
+                qn.value = '';
+                qn.dataset.prefilled = '0';
+            }
             quizIntroNameInputAutoSize();
             if (!qn.dataset.autosizeBound) {
                 qn.addEventListener('input', quizIntroNameInputAutoSize);
                 qn.dataset.autosizeBound = '1';
+            }
+            if (!qn.dataset.focusClearBound) {
+                qn.addEventListener('focus', quizIntroNamePrepareFreshEdit);
+                qn.dataset.focusClearBound = '1';
+            }
+            if (!qn.dataset.enterCommitBound) {
+                qn.addEventListener('keydown', quizIntroNameCommitOnEnter);
+                qn.dataset.enterCommitBound = '1';
             }
         }
     } catch (eQn) { /* ignore */ }
