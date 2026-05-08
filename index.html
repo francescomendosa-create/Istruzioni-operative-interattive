@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511an';
+const APP_BUILD = '20260511ao';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9325,11 +9325,23 @@ function quizPresencePing() {
             payload[sessionFieldPrefix + '.lastSeen'] = ts;
             payload[sessionFieldPrefix + '.path'] = String(window.location.pathname || '').slice(0, 160);
             payload[sessionFieldPrefix + '.displayName'] = displayName;
-            return firebase
+            var ref = firebase
                 .firestore()
                 .collection(QUIZ_FS_PRESENCE)
-                .doc(uid)
+                .doc(uid);
+            return ref
                 .set(payload, { merge: true })
+                .catch(function () {
+                    /* Fallback compatibilità: alcune regole consentono solo i campi top-level storici. */
+                    return ref.set(
+                        {
+                            lastSeen: ts,
+                            path: String(window.location.pathname || '').slice(0, 160),
+                            displayName: displayName
+                        },
+                        { merge: true }
+                    );
+                })
                 .then(function () {
                     return quizPresenceReadCollectionRobust();
                 });
@@ -9346,6 +9358,10 @@ function quizPresencePing() {
                 var b = document.getElementById('header-presence-btn');
                 if (b) b.hidden = false;
             } catch (eB) { /* ignore */ }
+            try {
+                /* Anche con errore di scrittura, prova a leggere la collezione per mostrare almeno i device visibili. */
+                void quizPresenceReadCollectionRobust();
+            } catch (eR) { /* ignore */ }
         });
 }
 
