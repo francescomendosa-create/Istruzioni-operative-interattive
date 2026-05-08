@@ -5705,6 +5705,59 @@
             min-height: 40px;
             box-sizing: border-box;
         }
+        .quiz-app-overlay {
+            z-index: 10041;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: max(8px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+        }
+        .quiz-app-overlay .quiz-lock-box.quiz-app-box {
+            width: min(94vw, 420px);
+            max-width: min(94vw, 420px);
+            padding: 14px 12px 10px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            align-content: stretch;
+            max-height: min(78dvh, calc(100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))));
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .quiz-app-body {
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            color: #455a64;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            margin: 0;
+            padding-right: 4px;
+            text-align: center;
+        }
+        .quiz-app-qr {
+            width: min(74vw, 260px);
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid #e3f2fd;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+            background: #fff;
+            display: block;
+            margin: 10px auto 10px;
+        }
+        .quiz-app-url {
+            word-break: break-all;
+            font-size: 0.76rem;
+            color: #1565c0;
+            margin: 4px 0 0;
+        }
+        .quiz-app-overlay .quiz-lock-actions {
+            margin-top: 8px;
+            border-top: 1px solid #eceff1;
+            padding-top: 8px;
+            background: #fff;
+        }
         .quiz-info-version-line {
             margin: 10px 0 0;
             padding-top: 8px;
@@ -8242,6 +8295,13 @@ function dismissAppSplash() {
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizAppModal()" aria-label="App e barcode accesso">
+                <div>
+                    <div class="quiz-settings-row-title">App</div>
+                    <div class="quiz-settings-row-sub">Barcode accesso rapido</div>
+                </div>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
                 <div>
                     <div class="quiz-settings-row-title">Info</div>
@@ -8381,6 +8441,20 @@ function dismissAppSplash() {
         </div>
     </div>
 
+    <div id="quiz-app-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="quizAppModalBackdrop(event)">
+        <div class="quiz-lock-box quiz-app-box" role="dialog" aria-modal="true" aria-labelledby="quiz-app-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-app-title" class="quiz-lock-title">App</h4>
+            <div class="quiz-app-body">
+                <p style="margin:0;">Scansiona il barcode/QR per aprire direttamente l'app.</p>
+                <img id="quiz-app-qr-img" class="quiz-app-qr" alt="QR code accesso app">
+                <p id="quiz-app-url" class="quiz-app-url"></p>
+            </div>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-report" onclick="hideQuizAppModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
     <div id="quiz-producer-overlay" class="quiz-panel quiz-producer-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Advanced mode · Sviluppatore">
         <div class="quiz-fs-topbar" style="justify-content: space-between;">
             <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · SVILUPPATORE</span>
@@ -8443,7 +8517,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511bg';
+const APP_BUILD = '20260511bh';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13546,6 +13620,42 @@ function hideQuizInfoDetailModal() {
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-info-open');
+}
+
+function quizGetCanonicalAppUrl() {
+    try {
+        var u = new URL(window.location.href);
+        u.hash = '';
+        return u.toString();
+    } catch (e) {
+        return String(window.location.href || '');
+    }
+}
+
+function showQuizAppModal() {
+    var overlay = document.getElementById('quiz-app-overlay');
+    var img = document.getElementById('quiz-app-qr-img');
+    var txt = document.getElementById('quiz-app-url');
+    if (!overlay || !img || !txt) return;
+    var appUrl = quizGetCanonicalAppUrl();
+    var qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=' + encodeURIComponent(appUrl);
+    img.src = qrSrc;
+    txt.textContent = appUrl;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function hideQuizAppModal() {
+    var overlay = document.getElementById('quiz-app-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
+}
+
+function quizAppModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-app-overlay') hideQuizAppModal();
 }
 
 let quizProducerRemovePendingIndex = null;
