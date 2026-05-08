@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511au';
+const APP_BUILD = '20260511av';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8934,6 +8934,37 @@ function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
     return out;
 }
 
+function quizPresenceReadMirrorFromServerPreferred() {
+    if (!quizFirestoreConfigured()) return Promise.resolve([]);
+    return quizEnsureFirebase()
+        .then(function () {
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_LEADERBOARD)
+                .doc(QUIZ_FS_LEADERBOARD_DOC)
+                .get({ source: 'server' })
+                .catch(function () {
+                    return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).get();
+                });
+        })
+        .then(function (docSnap) {
+            if (!docSnap || !docSnap.exists) {
+                quizPresenceMirrorRows = [];
+                return [];
+            }
+            var d = docSnap.data() || {};
+            var rows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
+            quizPresenceMirrorRows = rows;
+            try {
+                quizPresenceUpdatePresenceUi();
+            } catch (eUi) { /* ignore */ }
+            return rows;
+        })
+        .catch(function () {
+            return [];
+        });
+}
+
 function quizPresenceSanitizeLabel(s) {
     var t = s != null ? String(s).trim() : '';
     if (t.length > 40) t = t.slice(0, 40);
@@ -9034,7 +9065,7 @@ function quizPresenceFillConnectedList() {
     });
     if (!rows.length) {
         ul.innerHTML =
-            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~15 min).</li>';
+            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~15 min; ping automatico ogni 15 s).</li>';
         return;
     }
     var unnamedCounter = 0;
@@ -9054,7 +9085,7 @@ function quizPresenceOpenConnectedModal() {
     var overlay = document.getElementById('quiz-presence-connected-overlay');
     if (!overlay) return;
     quizPresencePing();
-    quizPresenceReadCollectionRobust()
+    Promise.all([quizPresenceReadCollectionRobust(), quizPresenceReadMirrorFromServerPreferred()])
         .then(function () {
             quizPresenceFillConnectedList();
             overlay.classList.add('visible');
@@ -9067,7 +9098,7 @@ function quizPresenceOpenConnectedModal() {
         });
     /* Se il primo snapshot arriva da cache (spesso solo il doc locale), forza un refresh server poco dopo. */
     setTimeout(function () {
-        quizPresenceReadCollectionFromServerWithRetry(3, 320)
+        Promise.all([quizPresenceReadCollectionFromServerWithRetry(3, 320), quizPresenceReadMirrorFromServerPreferred()])
             .then(function () {
                 quizPresenceFillConnectedList();
             })
@@ -9082,7 +9113,7 @@ function quizPresenceRefreshConnectedNow(btn) {
         btn.disabled = true;
     }
     quizPresencePing();
-    quizPresenceReadCollectionFromServerWithRetry(3, 320)
+    Promise.all([quizPresenceReadCollectionFromServerWithRetry(3, 320), quizPresenceReadMirrorFromServerPreferred()])
         .then(function () {
             quizPresenceFillConnectedList();
         })
@@ -9107,7 +9138,7 @@ function quizPresenceHideConnectedModal() {
 function quizPresenceStartConnectedPolling() {
     quizPresenceStopConnectedPolling();
     quizPresenceConnectedPollTimer = setInterval(function () {
-        quizPresenceReadCollectionFromServerWithRetry(2, 260)
+        Promise.all([quizPresenceReadCollectionFromServerWithRetry(2, 260), quizPresenceReadMirrorFromServerPreferred()])
             .then(function () {
                 quizPresenceFillConnectedList();
             })
