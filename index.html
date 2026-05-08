@@ -5437,6 +5437,22 @@
             line-height: 1.4;
         }
         .quiz-presence-history-list li { margin-bottom: 5px; }
+        .quiz-presence-history-status-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: baseline;
+        }
+        .quiz-presence-history-status-dot--on {
+            background: #2e7d32;
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.18);
+        }
+        .quiz-presence-history-status-dot--off {
+            background: #c62828;
+            box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.14);
+        }
         .quiz-presence-history-list__empty {
             list-style: none;
             margin-left: -16px;
@@ -8427,7 +8443,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511bd';
+const APP_BUILD = '20260511be';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8636,7 +8652,7 @@ const QUIZ_FS_PRESENCE = 'quiz_presence';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
-const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 180000;
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 60000;
 const QUIZ_LS_PRESENCE_DEVICE_ID = 'io-presence-device-id';
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
@@ -9164,7 +9180,7 @@ function quizPresenceFillConnectedList() {
     rows = dedupRows;
     if (!rows.length) {
         ul.innerHTML =
-            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~3 min; ping automatico ogni 10 s).</li>';
+            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~1 min; ping automatico ogni 10 s).</li>';
         return;
     }
     var unnamedCounter = 0;
@@ -9248,8 +9264,19 @@ function quizPresenceRenderHistory24h() {
             unnamedCounter += 1;
             name = 'Utente senza nome ' + String(unnamedCounter);
         }
+        var isOnline = (Date.now() - (Number((r && r.lastSeenMs) || 0) || 0)) <= QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+        var dotCls = isOnline
+            ? 'quiz-presence-history-status-dot quiz-presence-history-status-dot--on'
+            : 'quiz-presence-history-status-dot quiz-presence-history-status-dot--off';
+        var stateTxt = isOnline ? 'online' : 'disconnesso';
         var li = document.createElement('li');
-        li.textContent = name + ' · collegato ' + quizPresenceFormatAgo(r && r.lastSeenMs);
+        li.innerHTML =
+            '<span class="' + dotCls + '" aria-hidden="true"></span>' +
+            name +
+            ' · ' +
+            stateTxt +
+            ' · ultimo ping ' +
+            quizPresenceFormatAgo(r && r.lastSeenMs);
         list.appendChild(li);
     });
 }
@@ -9580,7 +9607,7 @@ function quizPresenceStartStaleTicker() {
         if (quizPresenceLatestSnap) {
             quizPresenceUpdatePresenceUi();
         }
-    }, 8000);
+    }, 2000);
 }
 
 function quizPresenceWriteMirrorPresence(uid, sessionId, displayName, pathValue) {
