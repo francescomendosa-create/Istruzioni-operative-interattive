@@ -8215,6 +8215,7 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
+            <p id="quiz-presence-debug-line" style="margin:8px 0 0;font-size:0.73rem;color:#607d8b;"></p>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
     </div>
@@ -8376,7 +8377,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511aw';
+const APP_BUILD = '20260511ax';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8618,6 +8619,8 @@ let quizPresenceLastFetchError = '';
 let quizPresenceSubscribeRetryTimer = null;
 /** Poll while "Collegati ora" popup is open (server refresh). */
 let quizPresenceConnectedPollTimer = null;
+let quizPresenceLastServerReadAt = 0;
+let quizPresenceLastMirrorReadAt = 0;
 
 /** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
 function quizNormalizeBonusCards(list, maxItems) {
@@ -8912,6 +8915,19 @@ function quizPresenceCountMergedNow() {
     return quizPresenceCollectRowsMerged().length;
 }
 
+function quizPresenceRenderDebugLine() {
+    var el = document.getElementById('quiz-presence-debug-line');
+    if (!el) return;
+    var fromPresence = quizPresenceCollectOnlineRowsFromSnapshot(quizPresenceLatestSnap).length;
+    var fromMirror = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows.length : 0;
+    var merged = quizPresenceCollectRowsMerged().length;
+    var pAge = quizPresenceLastServerReadAt ? Math.max(0, Math.round((Date.now() - quizPresenceLastServerReadAt) / 1000)) : null;
+    var mAge = quizPresenceLastMirrorReadAt ? Math.max(0, Math.round((Date.now() - quizPresenceLastMirrorReadAt) / 1000)) : null;
+    var pTxt = pAge == null ? 'mai' : String(pAge) + 's fa';
+    var mTxt = mAge == null ? 'mai' : String(mAge) + 's fa';
+    el.textContent = 'Diagnostica: presence=' + fromPresence + ' · mirror=' + fromMirror + ' · totale=' + merged + ' · sync presence ' + pTxt + ' · sync mirror ' + mTxt;
+}
+
 function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
     var out = [];
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
@@ -8954,11 +8970,13 @@ function quizPresenceReadMirrorFromServerPreferred() {
         .then(function (docSnap) {
             if (!docSnap || !docSnap.exists) {
                 quizPresenceMirrorRows = [];
+                quizPresenceLastMirrorReadAt = Date.now();
                 return [];
             }
             var d = docSnap.data() || {};
             var rows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
             quizPresenceMirrorRows = rows;
+            quizPresenceLastMirrorReadAt = Date.now();
             try {
                 quizPresenceUpdatePresenceUi();
             } catch (eUi) { /* ignore */ }
@@ -9062,6 +9080,7 @@ function quizPresenceConnectedBackdrop(ev) {
 function quizPresenceFillConnectedList() {
     var ul = document.getElementById('quiz-presence-connected-list');
     if (!ul) return;
+    quizPresenceRenderDebugLine();
     ul.innerHTML = '';
     var rows = quizPresenceCollectRowsMerged();
     rows.sort(function (a, b) {
@@ -9083,6 +9102,7 @@ function quizPresenceFillConnectedList() {
         li.textContent = nm;
         ul.appendChild(li);
     });
+    quizPresenceRenderDebugLine();
 }
 
 function quizPresenceOpenConnectedModal() {
@@ -9136,6 +9156,8 @@ function quizPresenceHideConnectedModal() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
+    var dbg = document.getElementById('quiz-presence-debug-line');
+    if (dbg) dbg.textContent = '';
     quizPresenceStopConnectedPolling();
 }
 
@@ -9200,6 +9222,7 @@ function quizPresenceReadCollectionRobust() {
         .then(function (snap) {
             if (snap) {
                 quizPresenceLatestSnap = snap;
+                quizPresenceLastServerReadAt = Date.now();
                 quizPresenceLastFetchError = '';
                 quizPresenceUpdatePresenceUi();
                 var btn = document.getElementById('header-presence-btn');
@@ -9251,6 +9274,7 @@ function quizPresenceReadCollectionFromServerPreferred() {
             } catch (eMeta) { /* ignore */ }
             if (shouldApplySnap) {
                 quizPresenceLatestSnap = snap;
+                quizPresenceLastServerReadAt = Date.now();
                 quizPresenceLastFetchError = '';
                 quizPresenceUpdatePresenceUi();
                 var btn = document.getElementById('header-presence-btn');
@@ -9363,6 +9387,7 @@ function quizPresenceSubscribeRealtime() {
                 .onSnapshot(
                     function (snap) {
                         quizPresenceLatestSnap = snap;
+                        quizPresenceLastServerReadAt = Date.now();
                         quizPresenceLastFetchError = '';
                         quizPresenceUpdatePresenceUi();
                         var btn = document.getElementById('header-presence-btn');
