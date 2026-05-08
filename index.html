@@ -8215,7 +8215,6 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
-            <p id="quiz-presence-debug-line" style="margin:8px 0 0;font-size:0.76rem;font-weight:700;color:#455a64;"></p>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
     </div>
@@ -8377,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ba';
+const APP_BUILD = '20260511bb';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8621,8 +8620,6 @@ let quizPresenceSubscribeRetryTimer = null;
 let quizPresenceConnectedPollTimer = null;
 let quizPresenceLastServerReadAt = 0;
 let quizPresenceLastMirrorReadAt = 0;
-let quizPresenceLastWriteStatus = 'idle';
-let quizPresenceLastMirrorWriteStatus = 'idle';
 
 /** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
 function quizNormalizeBonusCards(list, maxItems) {
@@ -8917,33 +8914,6 @@ function quizPresenceCountMergedNow() {
     return quizPresenceCollectRowsMerged().length;
 }
 
-function quizPresenceRenderDebugLine() {
-    var el = document.getElementById('quiz-presence-debug-line');
-    if (!el) return;
-    var fromPresence = quizPresenceCollectOnlineRowsFromSnapshot(quizPresenceLatestSnap).length;
-    var fromMirror = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows.length : 0;
-    var merged = quizPresenceCollectRowsMerged().length;
-    var pAge = quizPresenceLastServerReadAt ? Math.max(0, Math.round((Date.now() - quizPresenceLastServerReadAt) / 1000)) : null;
-    var mAge = quizPresenceLastMirrorReadAt ? Math.max(0, Math.round((Date.now() - quizPresenceLastMirrorReadAt) / 1000)) : null;
-    var pTxt = pAge == null ? 'mai' : String(pAge) + 's fa';
-    var mTxt = mAge == null ? 'mai' : String(mAge) + 's fa';
-    el.textContent =
-        'Diagnostica: presence=' +
-        fromPresence +
-        ' · mirror=' +
-        fromMirror +
-        ' · totale=' +
-        merged +
-        ' · sync presence ' +
-        pTxt +
-        ' · sync mirror ' +
-        mTxt +
-        ' · write presence=' +
-        quizPresenceLastWriteStatus +
-        ' · write mirror=' +
-        quizPresenceLastMirrorWriteStatus;
-}
-
 function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
     var out = [];
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
@@ -9110,7 +9080,6 @@ function quizPresenceConnectedBackdrop(ev) {
 function quizPresenceFillConnectedList() {
     var ul = document.getElementById('quiz-presence-connected-list');
     if (!ul) return;
-    quizPresenceRenderDebugLine();
     ul.innerHTML = '';
     var rows = quizPresenceCollectRowsMerged();
     rows.sort(function (a, b) {
@@ -9132,7 +9101,6 @@ function quizPresenceFillConnectedList() {
         li.textContent = nm;
         ul.appendChild(li);
     });
-    quizPresenceRenderDebugLine();
 }
 
 function quizPresenceOpenConnectedModal() {
@@ -9186,8 +9154,6 @@ function quizPresenceHideConnectedModal() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
-    var dbg = document.getElementById('quiz-presence-debug-line');
-    if (dbg) dbg.textContent = '';
     quizPresenceStopConnectedPolling();
 }
 
@@ -9471,13 +9437,10 @@ function quizPresenceWriteMirrorPresence(uid, sessionId, displayName, pathValue)
             .doc(QUIZ_FS_LEADERBOARD_DOC)
             .set(mirrorPayload, { merge: true })
             .then(function () {
-                quizPresenceLastMirrorWriteStatus = 'ok';
                 quizPresenceLastMirrorReadAt = Date.now();
                 return quizPresenceReadMirrorFromServerPreferred();
             })
-            .catch(function (eMw) {
-                quizPresenceLastMirrorWriteStatus = 'err:' + quizFormatSyncError(eMw).slice(0, 28);
-            });
+            .catch(function () {});
     } catch (eMir) {
         quizPresenceLastMirrorWriteStatus = 'err:' + quizFormatSyncError(eMir).slice(0, 28);
         return Promise.resolve();
@@ -9527,7 +9490,6 @@ function quizPresencePing() {
                     );
                 })
                 .then(function () {
-                    quizPresenceLastWriteStatus = 'ok';
                     return Promise.all([
                         quizPresenceWriteMirrorPresence(uid, sessionId, displayName, pagePath),
                         quizPresenceReadCollectionRobust()
@@ -9535,7 +9497,6 @@ function quizPresencePing() {
                 });
         })
         .catch(function (e) {
-            quizPresenceLastWriteStatus = 'err:' + quizFormatSyncError(e).slice(0, 28);
             try {
                 console.warn('[quiz presence]', e);
             } catch (eL) { /* ignore */ }
