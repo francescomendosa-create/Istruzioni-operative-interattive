@@ -8247,7 +8247,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511m';
+const APP_BUILD = '20260511p';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8481,8 +8481,6 @@ let quizPresenceRealtimeUnsub = null;
 let quizPresenceStaleTickerId = null;
 /** Ultimo errore lettura presenza (tooltip). */
 let quizPresenceLastFetchError = '';
-/** Lettura differita se il listener riceve solo snapshot cache. */
-let quizPresenceDeferredReadTimer = null;
 /** Riprovare iscrizione listener dopo errore. */
 let quizPresenceSubscribeRetryTimer = null;
 
@@ -8662,21 +8660,6 @@ function quizPresenceCountFromSnapshot(snap) {
     return n;
 }
 
-/**
- * Gli snapshot «solo cache» di una collezione possono contenere unicamente il doc del client locale
- * (manca ancora la sincronizzazione dal server) → conteggio sempre 1. Da online ignoriamoli e aspettiamo i dati server.
- */
-function quizPresenceSnapshotIsTrustworthy(snap) {
-    if (!snap || !snap.metadata) return true;
-    try {
-        if (!snap.metadata.fromCache) return true;
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
-        return false;
-    } catch (eM) {
-        return true;
-    }
-}
-
 function quizPresenceSanitizeLabel(s) {
     var t = s != null ? String(s).trim() : '';
     if (t.length > 40) t = t.slice(0, 40);
@@ -8789,7 +8772,8 @@ function quizPresenceFillConnectedList() {
         return String(a).localeCompare(String(b), 'it', { sensitivity: 'base' });
     });
     if (!rows.length) {
-        ul.innerHTML = '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~90 s).</li>';
+        ul.innerHTML =
+            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~2 min).</li>';
         return;
     }
     rows.forEach(function (nm) {
@@ -8856,17 +8840,11 @@ function quizPresenceDebugLog() {
     }
 }
 
-/** Lettura collezione: prima server, poi fallback cache/rete mista (evita «?» se solo il server non risponde). */
+/** Lettura collezione presenza (default Firestore: cache + rete). */
 function quizPresenceReadCollectionRobust() {
     if (!quizFirestoreConfigured()) return Promise.resolve(null);
     return quizEnsureFirebase()
         .then(function () {
-            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
-        })
-        .catch(function (eSrv) {
-            try {
-                console.warn('[presenza] get(server) non riuscita, fallback:', quizFormatSyncError(eSrv));
-            } catch (eL) { /* ignore */ }
             return firebase.firestore().collection(QUIZ_FS_PRESENCE).get();
         })
         .then(function (snap) {
@@ -8896,14 +8874,6 @@ function quizPresenceReadCollectionRobust() {
         });
 }
 
-function quizPresenceScheduleDeferredRead() {
-    if (quizPresenceDeferredReadTimer != null) return;
-    quizPresenceDeferredReadTimer = setTimeout(function () {
-        quizPresenceDeferredReadTimer = null;
-        quizPresenceReadCollectionRobust();
-    }, 550);
-}
-
 function quizPresenceScheduleSubscribeRetry() {
     if (quizPresenceSubscribeRetryTimer != null) return;
     quizPresenceSubscribeRetryTimer = setTimeout(function () {
@@ -8923,8 +8893,10 @@ function quizPresenceUpdatePresenceUi() {
         btn.classList.remove('presence-badge--linked', 'presence-badge--warn');
     }
     if (!snap) {
-        if (h) h.textContent = quizPresenceLastFetchError ? '…' : '—';
-        if (p) p.textContent = quizPresenceLastFetchError ? '…' : '—';
+        var numLabel = quizFirestoreConfigured() ? '…' : '—';
+        if (quizPresenceLastFetchError) numLabel = '…';
+        if (h) h.textContent = numLabel;
+        if (p) p.textContent = numLabel;
         if (btn) {
             btn.setAttribute('title', 'Utenti online: clic per vedere i nomi');
             if (quizPresenceLastFetchError) {
@@ -8975,10 +8947,6 @@ function quizPresenceSubscribeRealtime() {
                 .collection(QUIZ_FS_PRESENCE)
                 .onSnapshot(
                     function (snap) {
-                        if (!quizPresenceSnapshotIsTrustworthy(snap)) {
-                            quizPresenceScheduleDeferredRead();
-                            return;
-                        }
                         quizPresenceLatestSnap = snap;
                         quizPresenceLastFetchError = '';
                         quizPresenceUpdatePresenceUi();
@@ -9046,6 +9014,14 @@ function quizPresencePing() {
             try {
                 console.warn('[quiz presence]', e);
             } catch (eL) { /* ignore */ }
+            quizPresenceLastFetchError = quizFormatSyncError(e);
+            try {
+                quizPresenceUpdatePresenceUi();
+            } catch (eUi) { /* ignore */ }
+            try {
+                var b = document.getElementById('header-presence-btn');
+                if (b) b.hidden = false;
+            } catch (eB) { /* ignore */ }
         });
 }
 
@@ -9054,6 +9030,18 @@ function quizPresenceManualRefresh() {
     if (!quizFirestoreConfigured()) return;
     quizPresencePing();
     quizPresenceReadCollectionRobust();
+}
+
+/** Impostazioni: il badge è `hidden` nell’HTML finché non parte la presenza — qui lo mostriamo sempre che Firebase sia configurato e ripartiamo se il bootstrap non è mai arrivato. */
+function quizPresenceOnSettingsOpen() {
+    if (!quizFirestoreConfigured()) return;
+    var btn = document.getElementById('header-presence-btn');
+    if (btn) btn.hidden = false;
+    if (quizPresenceHeartbeatId == null) {
+        quizPresenceBootstrap();
+    } else {
+        quizPresenceManualRefresh();
+    }
 }
 
 function quizPresenceAttachLifecycleOnce() {
@@ -12489,7 +12477,7 @@ function showQuizSettingsModal() {
         quizPresenceUpdateWhoamiSummaryUi();
     } catch (eWho) { /* ignore */ }
     try {
-        if (typeof quizPresenceManualRefresh === 'function') quizPresenceManualRefresh();
+        if (typeof quizPresenceOnSettingsOpen === 'function') quizPresenceOnSettingsOpen();
     } catch (ePres) { /* ignore */ }
 }
 
