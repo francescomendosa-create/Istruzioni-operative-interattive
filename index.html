@@ -3913,6 +3913,13 @@
             justify-content: center;
             margin-top: 14px;
         }
+        .quiz-top10-name-modal__ver {
+            margin: 10px 0 0;
+            font-size: 0.72rem;
+            color: #5e35b1;
+            opacity: 0.9;
+            text-align: center;
+        }
         .quiz-top3-celebration-modal {
             display: none;
             position: fixed;
@@ -7824,6 +7831,7 @@ function dismissAppSplash() {
                 <div class="quiz-top10-name-modal__actions">
                     <button type="button" class="btn-side btn-report" id="quiz-top10-name-ok" onclick="quizTop10NameModalOk()">OK</button>
                 </div>
+                <p class="quiz-top10-name-modal__ver">UI nome classifica · build 20260511v</p>
             </div>
         </div>
         <div id="quiz-top3-celebration-modal" class="quiz-top3-celebration-modal" aria-hidden="true" aria-labelledby="quiz-top3-celebration-title">
@@ -8297,7 +8305,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511u';
+const APP_BUILD = '20260511v';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
