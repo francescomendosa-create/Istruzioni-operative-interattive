@@ -8443,7 +8443,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511be';
+const APP_BUILD = '20260511bf';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9237,9 +9237,7 @@ function quizPresenceCollectRowsMerged24h() {
 
 function quizPresenceFormatAgo(lastSeenMs) {
     var diff = Math.max(0, Date.now() - (Number(lastSeenMs) || 0));
-    var sec = Math.round(diff / 1000);
-    if (sec < 60) return sec + ' sec fa';
-    var min = Math.round(sec / 60);
+    var min = Math.max(1, Math.round(diff / 60000));
     if (min < 60) return min + ' min fa';
     var hr = Math.round(min / 60);
     return hr + ' ora fa';
@@ -9268,15 +9266,13 @@ function quizPresenceRenderHistory24h() {
         var dotCls = isOnline
             ? 'quiz-presence-history-status-dot quiz-presence-history-status-dot--on'
             : 'quiz-presence-history-status-dot quiz-presence-history-status-dot--off';
-        var stateTxt = isOnline ? 'online' : 'disconnesso';
+        var stateTxt = isOnline ? 'online' : ('disconnesso · collegato ' + quizPresenceFormatAgo(r && r.lastSeenMs));
         var li = document.createElement('li');
         li.innerHTML =
             '<span class="' + dotCls + '" aria-hidden="true"></span>' +
             name +
             ' · ' +
-            stateTxt +
-            ' · ultimo ping ' +
-            quizPresenceFormatAgo(r && r.lastSeenMs);
+            stateTxt;
         list.appendChild(li);
     });
 }
