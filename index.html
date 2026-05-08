@@ -5309,6 +5309,50 @@
             font-size: 1.08rem;
             font-weight: 800;
         }
+        .quiz-presence-connected-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0 0 8px;
+        }
+        .quiz-presence-connected-head h4 {
+            margin: 0;
+        }
+        .quiz-presence-refresh-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid #90caf9;
+            background: linear-gradient(180deg, #ffffff 0%, #e3f2fd 50%, #bbdefb 100%);
+            color: #0d47a1;
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 0 #64b5f6, inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
+        }
+        .quiz-presence-refresh-btn:hover {
+            filter: brightness(1.03);
+        }
+        .quiz-presence-refresh-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 0 #64b5f6, inset 0 2px 4px rgba(13, 71, 161, 0.12);
+        }
+        .quiz-presence-refresh-btn:focus-visible {
+            outline: 2px solid #1565c0;
+            outline-offset: 2px;
+        }
+        .quiz-presence-refresh-btn.is-spinning {
+            animation: quiz-presence-refresh-spin 0.7s linear infinite;
+        }
+        @keyframes quiz-presence-refresh-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         .quiz-presence-sub-overlay__lead {
             margin: 0 0 12px;
             font-size: 0.86rem;
@@ -8166,7 +8210,10 @@ function dismissAppSplash() {
 
     <div id="quiz-presence-connected-overlay" class="quiz-presence-sub-overlay" aria-hidden="true" onclick="quizPresenceConnectedBackdrop(event)">
         <div class="quiz-presence-sub-overlay__box" role="dialog" aria-modal="true" aria-labelledby="quiz-presence-connected-title" onclick="event.stopPropagation()">
-            <h4 id="quiz-presence-connected-title">Collegati ora</h4>
+            <div class="quiz-presence-connected-head">
+                <h4 id="quiz-presence-connected-title">Collegati ora</h4>
+                <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
+            </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
@@ -8329,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511aa';
+const APP_BUILD = '20260511ac';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8920,6 +8967,34 @@ function quizPresenceOpenConnectedModal() {
             overlay.classList.add('visible');
             overlay.setAttribute('aria-hidden', 'false');
         });
+    /* Se il primo snapshot arriva da cache (spesso solo il doc locale), forza un refresh server poco dopo. */
+    setTimeout(function () {
+        quizPresenceReadCollectionFromServerPreferred()
+            .then(function () {
+                quizPresenceFillConnectedList();
+            })
+            .catch(function () { /* ignore */ });
+    }, 380);
+}
+
+function quizPresenceRefreshConnectedNow(btn) {
+    if (btn) {
+        btn.classList.add('is-spinning');
+        btn.disabled = true;
+    }
+    quizPresencePing();
+    quizPresenceReadCollectionFromServerPreferred()
+        .then(function () {
+            quizPresenceFillConnectedList();
+        })
+        .catch(function () { /* ignore */ })
+        .then(function () {
+            setTimeout(function () {
+                if (!btn) return;
+                btn.classList.remove('is-spinning');
+                btn.disabled = false;
+            }, 260);
+        });
 }
 
 function quizPresenceHideConnectedModal() {
@@ -8993,6 +9068,28 @@ function quizPresenceReadCollectionRobust() {
                 quizPresenceUpdatePresenceUi();
             } catch (eUi) { /* ignore */ }
             return null;
+        });
+}
+
+/** Per il popup «Collegati ora»: prova server prima, fallback normale (cache+rete). */
+function quizPresenceReadCollectionFromServerPreferred() {
+    if (!quizFirestoreConfigured()) return Promise.resolve(null);
+    return quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get({ source: 'server' });
+        })
+        .catch(function () {
+            return firebase.firestore().collection(QUIZ_FS_PRESENCE).get();
+        })
+        .then(function (snap) {
+            if (snap) {
+                quizPresenceLatestSnap = snap;
+                quizPresenceLastFetchError = '';
+                quizPresenceUpdatePresenceUi();
+                var btn = document.getElementById('header-presence-btn');
+                if (btn) btn.hidden = false;
+            }
+            return snap;
         });
 }
 
