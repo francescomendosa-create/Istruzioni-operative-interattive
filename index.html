@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ah';
+const APP_BUILD = '20260511ai';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8971,7 +8971,7 @@ function quizPresenceOpenConnectedModal() {
         });
     /* Se il primo snapshot arriva da cache (spesso solo il doc locale), forza un refresh server poco dopo. */
     setTimeout(function () {
-        quizPresenceReadCollectionFromServerPreferred()
+        quizPresenceReadCollectionFromServerWithRetry(3, 320)
             .then(function () {
                 quizPresenceFillConnectedList();
             })
@@ -8986,7 +8986,7 @@ function quizPresenceRefreshConnectedNow(btn) {
         btn.disabled = true;
     }
     quizPresencePing();
-    quizPresenceReadCollectionFromServerPreferred()
+    quizPresenceReadCollectionFromServerWithRetry(3, 320)
         .then(function () {
             quizPresenceFillConnectedList();
         })
@@ -9011,7 +9011,7 @@ function quizPresenceHideConnectedModal() {
 function quizPresenceStartConnectedPolling() {
     quizPresenceStopConnectedPolling();
     quizPresenceConnectedPollTimer = setInterval(function () {
-        quizPresenceReadCollectionFromServerPreferred()
+        quizPresenceReadCollectionFromServerWithRetry(2, 260)
             .then(function () {
                 quizPresenceFillConnectedList();
             })
@@ -9127,6 +9127,34 @@ function quizPresenceReadCollectionFromServerPreferred() {
             }
             return snap;
         });
+}
+
+function quizPresenceReadCollectionFromServerWithRetry(maxAttempts, delayMs) {
+    var attempts = Math.max(1, Number(maxAttempts) || 1);
+    var wait = Math.max(120, Number(delayMs) || 220);
+    var lastErr = null;
+    var run = function () {
+        return quizPresenceReadCollectionFromServerPreferred().then(function (snap) {
+            if (snap) return snap;
+            if (attempts > 1) {
+                attempts -= 1;
+                return new Promise(function (resolve) {
+                    setTimeout(resolve, wait);
+                }).then(run);
+            }
+            return snap;
+        }).catch(function (err) {
+            lastErr = err;
+            if (attempts > 1) {
+                attempts -= 1;
+                return new Promise(function (resolve) {
+                    setTimeout(resolve, wait);
+                }).then(run);
+            }
+            return Promise.reject(lastErr || err);
+        });
+    };
+    return run();
 }
 
 function quizPresenceScheduleSubscribeRetry() {
