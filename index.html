@@ -5218,17 +5218,6 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
-        .quiz-intro-name-field {
-            margin: 0 auto;
-            width: min(250px, 100%);
-            padding: 8px 8px 7px;
-            border-radius: 12px;
-            border: 1px solid rgba(74, 20, 140, 0.22);
-            background: linear-gradient(180deg, #f3e6ff 0%, #e6f1ff 100%);
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.88),
-                0 6px 12px rgba(74, 20, 140, 0.12);
-        }
         .quiz-intro-name-input {
             width: 10ch;
             min-width: 10ch;
@@ -5236,23 +5225,33 @@
             box-sizing: border-box;
             padding: 8px 10px;
             border-radius: 10px;
-            border: 1px solid #b39ddb;
+            border: 2px solid #8e24aa;
             font-size: 0.95rem;
-            font-weight: 700;
-            background: #fff;
+            font-weight: 900;
+            background: linear-gradient(180deg, #ffffff 0%, #f6edff 100%);
             color: #4a148c;
             text-align: center;
-            transition: width 0.16s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            box-shadow:
+                0 0 0 2px rgba(186, 104, 200, 0.18),
+                0 6px 12px rgba(74, 20, 140, 0.16);
+            transition: width 0.16s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease, filter 0.14s ease;
         }
         .quiz-intro-name-input::placeholder {
             color: #8d6eaa;
             font-size: 0.94rem;
+            text-transform: none;
+            letter-spacing: 0;
         }
         .quiz-intro-name-input:focus-visible {
             outline: none;
-            border-color: #7e57c2;
-            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.18);
+            border-color: #6a1b9a;
+            box-shadow:
+                0 0 0 3px rgba(126, 87, 194, 0.2),
+                0 8px 14px rgba(74, 20, 140, 0.2);
             transform: translateY(-1px);
+            filter: saturate(1.04);
         }
         .quiz-lock-overlay {
             position: fixed;
@@ -7716,9 +7715,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-intro-name-row">
                 <label for="quiz-name" class="quiz-intro-name-label">Inserisci il tuo nome</label>
-                <div class="quiz-intro-name-field">
-                    <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi">
-                </div>
+                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi">
             </div>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
@@ -8330,7 +8327,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511x';
+const APP_BUILD = '20260511y';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15613,6 +15610,11 @@ function quizIntroNameInputAutoSize() {
     var inp = document.getElementById('quiz-name');
     if (!inp) return;
     var val = inp.value != null ? String(inp.value) : '';
+    var upper = val.toUpperCase();
+    if (upper !== val) {
+        inp.value = upper;
+        val = upper;
+    }
     var n = Math.max(10, Math.min(24, val.trim().length + 2));
     inp.style.width = String(n) + 'ch';
 }
