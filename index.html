@@ -5203,7 +5203,7 @@
         .quiz-intro-name-row {
             margin-top: 14px;
             padding: 0 14px;
-            max-width: 320px;
+            max-width: min(92vw, 420px);
             margin-left: auto;
             margin-right: auto;
             text-align: center;
@@ -5219,9 +5219,9 @@
             text-transform: uppercase;
         }
         .quiz-intro-name-input {
-            width: 10ch;
-            min-width: 10ch;
-            max-width: min(40ch, calc(100vw - 70px));
+            width: calc(6ch + 22px);
+            min-width: calc(6ch + 22px);
+            max-width: calc(10ch + 22px);
             box-sizing: border-box;
             padding: 8px 10px;
             border-radius: 10px;
@@ -7761,7 +7761,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-intro-name-row">
                 <label for="quiz-name" class="quiz-intro-name-label">Inserisci il tuo nome</label>
-                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi" aria-label="Nome quiz">
+                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="10" autocomplete="nickname" placeholder="Es. Mario" aria-label="Nome quiz">
             </div>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511aj';
+const APP_BUILD = '20260511al';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15778,8 +15778,13 @@ function quizIntroNameInputAutoSize() {
         inp.value = upper;
         val = upper;
     }
-    var n = Math.max(10, Math.min(40, val.trim().length + 2));
-    inp.style.width = String(n) + 'ch';
+    var trimmed = val.trim();
+    if (trimmed.length > 10) {
+        trimmed = trimmed.slice(0, 10);
+        inp.value = trimmed;
+    }
+    var n = Math.max(6, Math.min(10, trimmed.length + 1));
+    inp.style.width = 'calc(' + String(n) + 'ch + 22px)';
 }
 
 function quizIntroNameBeginInlineEdit(ev) {
