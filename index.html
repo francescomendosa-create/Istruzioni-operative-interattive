@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511av';
+const APP_BUILD = '20260511aw';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8908,6 +8908,10 @@ function quizPresenceCollectRowsMerged() {
     return Object.keys(map).map(function (k) { return map[k]; });
 }
 
+function quizPresenceCountMergedNow() {
+    return quizPresenceCollectRowsMerged().length;
+}
+
 function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
     var out = [];
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
@@ -9302,7 +9306,8 @@ function quizPresenceUpdatePresenceUi() {
     if (btn) {
         btn.classList.remove('presence-badge--linked', 'presence-badge--warn');
     }
-    if (!snap) {
+    var mergedCount = quizPresenceCountMergedNow();
+    if (!snap && mergedCount <= 0) {
         var numLabel = quizFirestoreConfigured() ? '…' : '—';
         if (quizPresenceLastFetchError) numLabel = '…';
         if (h) h.textContent = numLabel;
@@ -9322,7 +9327,7 @@ function quizPresenceUpdatePresenceUi() {
         }
         return;
     }
-    var n = quizPresenceCountFromSnapshot(snap);
+    var n = mergedCount > 0 ? mergedCount : quizPresenceCountFromSnapshot(snap);
     var numStr = String(n);
     if (h) h.textContent = numStr;
     if (p) p.textContent = numStr;
