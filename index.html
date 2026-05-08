@@ -8377,7 +8377,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511az';
+const APP_BUILD = '20260511ba';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8948,9 +8948,8 @@ function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
     var out = [];
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
     var root = d && d.presence && typeof d.presence === 'object' ? d.presence : null;
-    if (!root) return out;
-    Object.keys(root).forEach(function (k) {
-        var item = root[k] || {};
+    var pushIfOnline = function (k, item) {
+        if (!item || typeof item !== 'object') return;
         var t = Number(item.lastSeenMs || 0) || 0;
         if (t < threshold) return;
         var uid = item.uid != null ? String(item.uid) : '';
@@ -8966,7 +8965,21 @@ function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
             sessionId: sid,
             lastSeenMs: t
         });
-    });
+    };
+    if (root) {
+        Object.keys(root).forEach(function (k) {
+            pushIfOnline(k, root[k] || {});
+        });
+    }
+    /* Compatibilità record vecchi scritti come chiavi top-level "presence.<uid>__<sid>". */
+    if (d && typeof d === 'object') {
+        Object.keys(d).forEach(function (k) {
+            if (!/^presence\./i.test(String(k || ''))) return;
+            var item = d[k];
+            var keyTail = String(k).replace(/^presence\./i, '');
+            pushIfOnline(keyTail, item);
+        });
+    }
     return out;
 }
 
@@ -9442,9 +9455,10 @@ function quizPresenceStartStaleTicker() {
 function quizPresenceWriteMirrorPresence(uid, sessionId, displayName, pathValue) {
     if (!quizFirestoreConfigured()) return Promise.resolve();
     try {
-        var mirrorKey = 'presence.' + uid + '__' + sessionId;
+        var mirrorKey = String(uid || '') + '__' + String(sessionId || '');
         var mirrorPayload = {};
-        mirrorPayload[mirrorKey] = {
+        mirrorPayload.presence = {};
+        mirrorPayload.presence[mirrorKey] = {
             uid: uid,
             sessionId: sessionId,
             displayName: displayName,
