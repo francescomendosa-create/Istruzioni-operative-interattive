@@ -8427,7 +8427,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511bc';
+const APP_BUILD = '20260511bd';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8634,9 +8634,9 @@ const QUIZ_FS_LEADERBOARD_DOC = 'global';
 /** Presenza online (heartbeat Auth anonimo → doc per uid). Richiede regole Firestore su `quiz_presence`. */
 const QUIZ_FS_PRESENCE = 'quiz_presence';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
-const QUIZ_PRESENCE_HEARTBEAT_MS = 15000;
-/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~15 min, robusta anche con tab/device in background). */
-const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 900000;
+const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
+/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 180000;
 const QUIZ_LS_PRESENCE_DEVICE_ID = 'io-presence-device-id';
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
@@ -9148,9 +9148,23 @@ function quizPresenceFillConnectedList() {
     rows.sort(function (a, b) {
         return String(a && a.label ? a.label : '').localeCompare(String(b && b.label ? b.label : ''), 'it', { sensitivity: 'base' });
     });
+    var dedupRows = [];
+    var seenNamed = {};
+    rows.forEach(function (row) {
+        var nm = row && row.label ? String(row.label).trim() : '';
+        if (!nm) {
+            dedupRows.push(row);
+            return;
+        }
+        var k = nm.toLowerCase();
+        if (seenNamed[k]) return;
+        seenNamed[k] = 1;
+        dedupRows.push(row);
+    });
+    rows = dedupRows;
     if (!rows.length) {
         ul.innerHTML =
-            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~15 min; ping automatico ogni 15 s).</li>';
+            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~3 min; ping automatico ogni 10 s).</li>';
         return;
     }
     var unnamedCounter = 0;
@@ -9289,12 +9303,7 @@ function quizPresenceRefreshConnectedNow(btn) {
         btn.classList.add('is-spinning');
         btn.disabled = true;
     }
-    quizPresencePing();
-    Promise.all([quizPresenceReadCollectionFromServerWithRetry(3, 320), quizPresenceReadMirrorFromServerPreferred()])
-        .then(function () {
-            quizPresenceFillConnectedList();
-        })
-        .catch(function () { /* ignore */ })
+    quizPresenceHardRefreshConnectedNow()
         .then(function () {
             setTimeout(function () {
                 if (!btn) return;
@@ -9316,12 +9325,12 @@ function quizPresenceHideConnectedModal() {
 function quizPresenceStartConnectedPolling() {
     quizPresenceStopConnectedPolling();
     quizPresenceConnectedPollTimer = setInterval(function () {
-        Promise.all([quizPresenceReadCollectionFromServerWithRetry(2, 260), quizPresenceReadMirrorFromServerPreferred()])
+        Promise.all([quizPresenceReadCollectionFromServerWithRetry(2, 220), quizPresenceReadMirrorFromServerPreferred()])
             .then(function () {
                 quizPresenceFillConnectedList();
             })
             .catch(function () { /* ignore */ });
-    }, 1800);
+    }, 1200);
 }
 
 function quizPresenceStopConnectedPolling() {
@@ -9598,9 +9607,58 @@ function quizPresenceWriteMirrorPresence(uid, sessionId, displayName, pathValue)
             })
             .catch(function () {});
     } catch (eMir) {
-        quizPresenceLastMirrorWriteStatus = 'err:' + quizFormatSyncError(eMir).slice(0, 28);
         return Promise.resolve();
     }
+}
+
+function quizPresenceMarkOfflineBestEffort() {
+    try {
+        if (!quizFirestoreConfigured()) return;
+        var auth = firebase && firebase.auth ? firebase.auth() : null;
+        var uid = auth && auth.currentUser && auth.currentUser.uid ? String(auth.currentUser.uid) : '';
+        if (!uid) return;
+        var sid = quizPresenceGetDeviceId();
+        var dn = quizPresenceGetWhoami() || '';
+        var pp = String(window.location.pathname || '').slice(0, 160);
+        var mirrorKey = String(uid || '') + '__' + String(sid || '');
+        var mirrorPayload = { presence: {} };
+        mirrorPayload.presence[mirrorKey] = {
+            uid: uid,
+            sessionId: sid,
+            displayName: dn,
+            path: pp,
+            lastSeenMs: Date.now() - (QUIZ_PRESENCE_ONLINE_WINDOW_MS + 5000)
+        };
+        void firebase
+            .firestore()
+            .collection(QUIZ_FS_LEADERBOARD)
+            .doc(QUIZ_FS_LEADERBOARD_DOC)
+            .set(mirrorPayload, { merge: true });
+    } catch (e) { /* ignore */ }
+}
+
+function quizPresenceHardRefreshConnectedNow() {
+    var attempts = 4;
+    var waitMs = 360;
+    var run = function () {
+        return Promise.all([
+            quizPresencePing(),
+            quizPresenceReadCollectionFromServerWithRetry(2, 220),
+            quizPresenceReadMirrorFromServerPreferred()
+        ])
+            .then(function () {
+                quizPresenceFillConnectedList();
+                if (attempts <= 1) return;
+                attempts -= 1;
+                return new Promise(function (resolve) { setTimeout(resolve, waitMs); }).then(run);
+            })
+            .catch(function () {
+                if (attempts <= 1) return;
+                attempts -= 1;
+                return new Promise(function (resolve) { setTimeout(resolve, waitMs); }).then(run);
+            });
+    };
+    return run();
 }
 
 function quizPresencePing() {
@@ -9707,7 +9765,10 @@ function quizPresenceAttachLifecycleOnce() {
             if (document.visibilityState === 'visible') quizPresencePing();
         });
         window.addEventListener('pagehide', function quizPresenceHide() {
-            quizPresencePing();
+            quizPresenceMarkOfflineBestEffort();
+        });
+        window.addEventListener('beforeunload', function quizPresenceUnload() {
+            quizPresenceMarkOfflineBestEffort();
         });
     } catch (eA) { /* ignore */ }
 }
