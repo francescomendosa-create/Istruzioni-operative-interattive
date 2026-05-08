@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511at';
+const APP_BUILD = '20260511au';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8607,6 +8607,7 @@ let quizPresenceHeartbeatId = null;
 let quizPresenceHooksAttached = false;
 /** Ultimo snapshot collezione presenza (per conteggio tempo reale + decay locale). */
 let quizPresenceLatestSnap = null;
+let quizPresenceMirrorRows = [];
 /** unsubscribe onSnapshot presenza */
 let quizPresenceRealtimeUnsub = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
@@ -8869,7 +8870,68 @@ function quizPresenceCollectOnlineRowsFromSnapshot(snap) {
 }
 
 function quizPresenceCountFromSnapshot(snap) {
-    return quizPresenceCollectOnlineRowsFromSnapshot(snap).length;
+    var fromPresence = quizPresenceCollectOnlineRowsFromSnapshot(snap);
+    var fromMirror = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows : [];
+    var dedup = {};
+    var out = 0;
+    fromPresence.concat(fromMirror).forEach(function (r) {
+        var uid = String((r && r.uid) || '');
+        var sid = String((r && r.sessionId) || '');
+        var key = uid + '|' + sid;
+        if (dedup[key]) return;
+        dedup[key] = 1;
+        out += 1;
+    });
+    return out;
+}
+
+function quizPresenceCollectRowsMerged() {
+    var baseRows = quizPresenceCollectOnlineRowsFromSnapshot(quizPresenceLatestSnap);
+    var mirrorRows = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows : [];
+    var map = {};
+    baseRows.concat(mirrorRows).forEach(function (r) {
+        var uid = String((r && r.uid) || '');
+        var sid = String((r && r.sessionId) || '');
+        var key = uid + '|' + sid;
+        if (!key || key === '|') return;
+        var prev = map[key];
+        var t = Number((r && r.lastSeenMs) || 0) || 0;
+        if (!prev || t >= (Number(prev.lastSeenMs) || 0)) {
+            map[key] = {
+                label: r && r.label ? String(r.label).trim() : '',
+                uid: uid,
+                sessionId: sid,
+                lastSeenMs: t
+            };
+        }
+    });
+    return Object.keys(map).map(function (k) { return map[k]; });
+}
+
+function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
+    var out = [];
+    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    var root = d && d.presence && typeof d.presence === 'object' ? d.presence : null;
+    if (!root) return out;
+    Object.keys(root).forEach(function (k) {
+        var item = root[k] || {};
+        var t = Number(item.lastSeenMs || 0) || 0;
+        if (t < threshold) return;
+        var uid = item.uid != null ? String(item.uid) : '';
+        var sid = item.sessionId != null ? String(item.sessionId) : '';
+        if (!uid && k) {
+            var parts = String(k).split('__');
+            uid = uid || String(parts[0] || '');
+            sid = sid || String(parts[1] || '');
+        }
+        out.push({
+            label: item.displayName != null ? String(item.displayName).trim() : '',
+            uid: uid,
+            sessionId: sid,
+            lastSeenMs: t
+        });
+    });
+    return out;
 }
 
 function quizPresenceSanitizeLabel(s) {
@@ -8966,13 +9028,7 @@ function quizPresenceFillConnectedList() {
     var ul = document.getElementById('quiz-presence-connected-list');
     if (!ul) return;
     ul.innerHTML = '';
-    var snap = quizPresenceLatestSnap;
-    if (!snap) {
-        ul.innerHTML =
-            '<li class="quiz-presence-connected-list__empty">Nessun dato ancora. Controlla la connessione o Firebase.</li>';
-        return;
-    }
-    var rows = quizPresenceCollectOnlineRowsFromSnapshot(snap);
+    var rows = quizPresenceCollectRowsMerged();
     rows.sort(function (a, b) {
         return String(a && a.label ? a.label : '').localeCompare(String(b && b.label ? b.label : ''), 'it', { sensitivity: 'base' });
     });
@@ -9345,6 +9401,22 @@ function quizPresencePing() {
                     );
                 })
                 .then(function () {
+                    try {
+                        var mirrorKey = 'presence.' + uid + '__' + sessionId;
+                        var mirrorPayload = {};
+                        mirrorPayload[mirrorKey] = {
+                            uid: uid,
+                            sessionId: sessionId,
+                            displayName: displayName,
+                            path: String(window.location.pathname || '').slice(0, 160),
+                            lastSeenMs: Date.now()
+                        };
+                        void firebase
+                            .firestore()
+                            .collection(QUIZ_FS_LEADERBOARD)
+                            .doc(QUIZ_FS_LEADERBOARD_DOC)
+                            .set(mirrorPayload, { merge: true });
+                    } catch (eMir) { /* ignore */ }
                     return quizPresenceReadCollectionRobust();
                 });
         })
@@ -9919,6 +9991,14 @@ function quizAttachLeaderboardRealtime() {
                         return;
                     }
                     var d = snap.data() || {};
+                    try {
+                        quizPresenceMirrorRows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
+                    } catch (ePm) {
+                        quizPresenceMirrorRows = [];
+                    }
+                    try {
+                        quizPresenceUpdatePresenceUi();
+                    } catch (ePu) { /* ignore */ }
                     var rows = Array.isArray(d.rows) ? d.rows.slice(0, QUIZ_LEADERBOARD_TOP_N) : [];
                     quizNormalizePodiumWorms(rows);
                     quizSaveLeaderboardLocalOnly(rows);
@@ -9929,6 +10009,10 @@ function quizAttachLeaderboardRealtime() {
                 },
                 function (err) {
                     console.warn('[quiz leaderboard realtime]', err);
+                    try {
+                        quizPresenceMirrorRows = [];
+                        quizPresenceUpdatePresenceUi();
+                    } catch (ePu2) { /* ignore */ }
                     quizMarkLeaderboardHydratedFromCloud(true, err);
                 }
             );
@@ -9961,7 +10045,7 @@ function quizSaveLeaderboardFullSync(rows) {
                 return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
                     rows: sorted,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                }, { merge: true });
             })
             .catch(function (e) {
                 console.warn('[quiz leaderboard full sync]', e);
