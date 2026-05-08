@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ao';
+const APP_BUILD = '20260511ap';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -12734,6 +12734,32 @@ function quizSetUpdateAvailable(remoteBuild) {
     quizSettingsRefreshLineReset();
 }
 
+/**
+ * Confronto build token (es. 20260511an):
+ * - > 0: remote più nuovo
+ * - < 0: remote più vecchio
+ * - = 0: uguali/indeterminati
+ */
+function quizCompareBuildTokens(remoteBuild, localBuild) {
+    var r = String(remoteBuild || '').trim().toLowerCase();
+    var l = String(localBuild || '').trim().toLowerCase();
+    if (!r || !l) return 0;
+    if (r === l) return 0;
+    var rx = /^(\d{8})([a-z]{0,4})$/i;
+    var rm = r.match(rx);
+    var lm = l.match(rx);
+    if (rm && lm) {
+        var rDate = Number(rm[1]) || 0;
+        var lDate = Number(lm[1]) || 0;
+        if (rDate !== lDate) return rDate > lDate ? 1 : -1;
+        var rSfx = String(rm[2] || '');
+        var lSfx = String(lm[2] || '');
+        if (rSfx === lSfx) return 0;
+        return rSfx > lSfx ? 1 : -1;
+    }
+    return r > l ? 1 : -1;
+}
+
 async function quizCheckUpdateAvailableSilently() {
     try {
         const base = new URL('.', window.location.href).href;
@@ -12742,7 +12768,8 @@ async function quizCheckUpdateAvailableSilently() {
         if (!resp || !resp.ok) return;
         const remoteBuild = quizParseSwBuildFromText(await resp.text());
         const localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
-        if (!remoteBuild || !localBuild || remoteBuild === localBuild) {
+        var cmp = quizCompareBuildTokens(remoteBuild, localBuild);
+        if (!remoteBuild || !localBuild || cmp <= 0) {
             quizSetUpdateAvailable('');
             return;
         }
