@@ -5239,9 +5239,6 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.35);
             transition: width 0.16s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease, filter 0.14s ease;
         }
-        .quiz-intro-name-input[readonly] {
-            cursor: pointer;
-        }
         .quiz-intro-name-input::placeholder {
             color: rgba(255, 255, 255, 0.78);
             font-size: 0.84rem;
@@ -7764,7 +7761,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-intro-name-row">
                 <label for="quiz-name" class="quiz-intro-name-label">Inserisci il tuo nome</label>
-                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi" readonly aria-label="Nome quiz: clicca per modificare">
+                <input type="text" id="quiz-name" class="quiz-intro-name-input" maxlength="40" autocomplete="nickname" placeholder="Es. Mario Rossi" aria-label="Nome quiz">
             </div>
             <div class="quiz-actions">
                 <button type="button" class="btn-side btn-report" onclick="quizStart()">Avvia quiz</button>
@@ -8222,18 +8219,6 @@ function dismissAppSplash() {
         </div>
     </div>
 
-    <div id="quiz-intro-name-modal" class="quiz-lock-overlay" aria-hidden="true" onclick="quizIntroNameModalBackdrop(event)">
-        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-intro-name-modal-title" onclick="event.stopPropagation()">
-            <h4 id="quiz-intro-name-modal-title" class="quiz-lock-title">Inserisci il tuo nome</h4>
-            <p class="quiz-lock-hint">Scrivi il nuovo nome e premi Invio oppure Salva.</p>
-            <input id="quiz-intro-name-modal-input" class="quiz-lock-input" type="text" maxlength="40" autocomplete="nickname" placeholder="Es. MARIO ROSSI" onkeydown="quizIntroNameModalKeydown(event)">
-            <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="quizIntroNameModalHide()">Annulla</button>
-                <button type="button" class="btn-side btn-report" onclick="quizIntroNameModalSave()">Salva</button>
-            </div>
-        </div>
-    </div>
-
     <div id="quiz-lock-overlay" class="quiz-lock-overlay quiz-lock-overlay--producer" aria-hidden="true">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password Advanced mode · Sviluppatore">
             <h4 class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
@@ -8391,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ag';
+const APP_BUILD = '20260511ah';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15769,55 +15754,34 @@ function quizIntroNameInputAutoSize() {
     inp.style.width = String(n) + 'ch';
 }
 
-function quizIntroNameModalOpen() {
-    var overlay = document.getElementById('quiz-intro-name-modal');
-    var inp = document.getElementById('quiz-intro-name-modal-input');
-    if (!overlay || !inp) return;
-    inp.value = '';
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden', 'false');
-    requestAnimationFrame(function () {
-        try { inp.focus(); } catch (eF) { /* ignore */ }
-    });
-}
-
-function quizIntroNameModalHide() {
-    var overlay = document.getElementById('quiz-intro-name-modal');
-    if (!overlay) return;
-    overlay.classList.remove('visible');
-    overlay.setAttribute('aria-hidden', 'true');
-}
-
-function quizIntroNameModalBackdrop(ev) {
-    if (ev && ev.target && ev.target.id === 'quiz-intro-name-modal') {
-        quizIntroNameModalHide();
+function quizIntroNameBeginInlineEdit(ev) {
+    var inp = ev && ev.currentTarget ? ev.currentTarget : document.getElementById('quiz-name');
+    if (!inp) return;
+    if (inp.dataset.inlineEditing !== '1') {
+        inp.value = '';
+        inp.dataset.inlineEditing = '1';
+        quizIntroNameInputAutoSize();
     }
+    try { inp.focus(); } catch (eF) { /* ignore */ }
 }
 
-function quizIntroNameModalSave() {
-    var popupInput = document.getElementById('quiz-intro-name-modal-input');
-    var introInput = document.getElementById('quiz-name');
-    if (!popupInput || !introInput) {
-        quizIntroNameModalHide();
-        return;
-    }
-    var v = popupInput.value != null ? String(popupInput.value).trim() : '';
-    introInput.value = v;
-    quizIntroNameInputAutoSize();
+function quizIntroNameCommitOnEnter(ev) {
+    if (!ev || ev.key !== 'Enter') return;
+    ev.preventDefault();
+    var inp = ev.currentTarget;
+    if (!inp) return;
+    var v = inp.value != null ? String(inp.value).trim() : '';
     quizPersistQuizIntroName(v);
-    introInput.dataset.prefilled = v ? '1' : '0';
-    quizIntroNameModalHide();
+    inp.dataset.inlineEditing = '0';
+    try { inp.blur(); } catch (eB) { /* ignore */ }
 }
 
-function quizIntroNameModalKeydown(ev) {
-    if (!ev) return;
-    if (ev.key === 'Enter') {
-        ev.preventDefault();
-        quizIntroNameModalSave();
-    } else if (ev.key === 'Escape') {
-        ev.preventDefault();
-        quizIntroNameModalHide();
-    }
+function quizIntroNameCommitOnBlur(ev) {
+    var inp = ev && ev.currentTarget ? ev.currentTarget : document.getElementById('quiz-name');
+    if (!inp) return;
+    var v = inp.value != null ? String(inp.value).trim() : '';
+    quizPersistQuizIntroName(v);
+    inp.dataset.inlineEditing = '0';
 }
 
 function quizOpenTop10NameModal(pendingRow, finishCommit) {
@@ -17961,16 +17925,12 @@ function openQuiz() {
                 qn.addEventListener('input', quizIntroNameInputAutoSize);
                 qn.dataset.autosizeBound = '1';
             }
-            if (!qn.dataset.popupBound) {
-                qn.addEventListener('click', quizIntroNameModalOpen);
-                qn.addEventListener('keydown', function (ev) {
-                    if (!ev) return;
-                    if (ev.key === 'Enter' || ev.key === ' ') {
-                        ev.preventDefault();
-                        quizIntroNameModalOpen();
-                    }
-                });
-                qn.dataset.popupBound = '1';
+            if (!qn.dataset.inlineEditBound) {
+                qn.addEventListener('click', quizIntroNameBeginInlineEdit);
+                qn.addEventListener('focus', quizIntroNameBeginInlineEdit);
+                qn.addEventListener('keydown', quizIntroNameCommitOnEnter);
+                qn.addEventListener('blur', quizIntroNameCommitOnBlur);
+                qn.dataset.inlineEditBound = '1';
             }
         }
     } catch (eQn) { /* ignore */ }
