@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511aq';
+const APP_BUILD = '20260511ar';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -12701,7 +12701,7 @@ function quizSpeechSettingsBackToSettings() {
 function quizParseSwBuildFromText(swText) {
     try {
         var m = String(swText || '').match(/\*\s*build:\s*([^\r\n\*]+)/i);
-        return m ? String(m[1]).trim() : '';
+        return m ? quizNormalizeBuildToken(String(m[1]).trim()) : '';
     } catch (e) {
         return '';
     }
@@ -12729,7 +12729,13 @@ function quizApplyUpdateAvailabilityUi() {
 }
 
 function quizSetUpdateAvailable(remoteBuild) {
-    quizPendingRemoteBuild = String(remoteBuild || '').trim();
+    var rb = quizNormalizeBuildToken(remoteBuild);
+    var lb = quizNormalizeBuildToken(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '');
+    if (!rb || !lb || quizCompareBuildTokens(rb, lb) <= 0) {
+        quizPendingRemoteBuild = '';
+    } else {
+        quizPendingRemoteBuild = rb;
+    }
     quizApplyUpdateAvailabilityUi();
     quizSettingsRefreshLineReset();
 }
@@ -12741,8 +12747,8 @@ function quizSetUpdateAvailable(remoteBuild) {
  * - = 0: uguali/indeterminati
  */
 function quizCompareBuildTokens(remoteBuild, localBuild) {
-    var r = String(remoteBuild || '').trim().toLowerCase();
-    var l = String(localBuild || '').trim().toLowerCase();
+    var r = quizNormalizeBuildToken(remoteBuild);
+    var l = quizNormalizeBuildToken(localBuild);
     if (!r || !l) return 0;
     if (r === l) return 0;
     var rx = /^(\d{8})([a-z]{0,4})$/i;
@@ -12758,6 +12764,13 @@ function quizCompareBuildTokens(remoteBuild, localBuild) {
         return rSfx > lSfx ? 1 : -1;
     }
     return r > l ? 1 : -1;
+}
+
+function quizNormalizeBuildToken(v) {
+    var s = String(v || '').trim().toLowerCase();
+    if (!s) return '';
+    var m = s.match(/(\d{8}[a-z]{0,4})/i);
+    return m ? String(m[1]).toLowerCase() : s;
 }
 
 async function quizCheckUpdateAvailableSilently() {
@@ -12801,6 +12814,13 @@ function quizSettingsRefreshLineReset() {
     if (!line) return;
     var b = String(APP_BUILD).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     var hasUpdate = !!quizPendingRemoteBuild;
+    if (hasUpdate) {
+        var cmp = quizCompareBuildTokens(quizPendingRemoteBuild, APP_BUILD);
+        if (cmp <= 0) {
+            quizPendingRemoteBuild = '';
+            hasUpdate = false;
+        }
+    }
     var hl = quizSettingsBuildHighlightGet() || hasUpdate;
     var spanCls = 'quiz-settings-build-label' + (hl ? ' quiz-settings-build-label--updated' : '') + (hasUpdate ? ' quiz-settings-build-label--blink' : '');
     if (hasUpdate) {
