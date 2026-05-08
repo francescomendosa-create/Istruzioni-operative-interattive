@@ -4909,7 +4909,7 @@
             margin: 0;
             font-size: 0.92rem;
             line-height: 1.5;
-            max-width: 320px;
+            max-width: min(96vw, 760px);
             margin-left: auto;
             margin-right: auto;
         }
@@ -5221,7 +5221,7 @@
         .quiz-intro-name-input {
             width: 10ch;
             min-width: 10ch;
-            max-width: min(24ch, calc(100vw - 200px));
+            max-width: min(40ch, calc(100vw - 70px));
             box-sizing: border-box;
             padding: 8px 10px;
             border-radius: 10px;
@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ai';
+const APP_BUILD = '20260511aj';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15778,7 +15778,7 @@ function quizIntroNameInputAutoSize() {
         inp.value = upper;
         val = upper;
     }
-    var n = Math.max(10, Math.min(24, val.trim().length + 2));
+    var n = Math.max(10, Math.min(40, val.trim().length + 2));
     inp.style.width = String(n) + 'ch';
 }
 
