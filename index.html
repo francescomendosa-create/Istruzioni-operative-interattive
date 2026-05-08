@@ -3818,15 +3818,15 @@
         }
         .quiz-top10-name-modal__box {
             width: 100%;
-            max-width: 430px;
-            padding: 24px 22px 20px;
-            border-radius: 20px;
-            background: linear-gradient(165deg, #ffffff 0%, #f5ebff 38%, #e8f4fc 100%);
-            border: 1px solid rgba(74, 20, 140, 0.26);
+            max-width: 540px;
+            padding: 30px 26px 24px;
+            border-radius: 24px;
+            background: linear-gradient(160deg, #ffffff 0%, #efe2ff 30%, #e2f0ff 100%);
+            border: 1px solid rgba(74, 20, 140, 0.3);
             box-shadow:
-                0 0 0 3px rgba(255, 255, 255, 0.58) inset,
-                0 22px 48px rgba(49, 27, 146, 0.2);
-            text-align: left;
+                0 0 0 4px rgba(255, 255, 255, 0.62) inset,
+                0 26px 56px rgba(49, 27, 146, 0.24);
+            text-align: center;
         }
         .quiz-top10-name-modal__kicker {
             margin: 0 0 8px;
@@ -3844,29 +3844,28 @@
             padding: 5px 10px;
         }
         .quiz-top10-name-modal__box h3 {
-            margin: 0 0 9px;
-            font-size: clamp(1.08rem, 3.4vw, 1.28rem);
+            margin: 0 0 10px;
+            font-size: clamp(1.25rem, 4.2vw, 1.62rem);
             color: #4a148c;
             line-height: 1.22;
         }
         .quiz-top10-name-modal__lead {
-            margin: 0 0 14px;
-            font-size: 0.9rem;
+            margin: 0 0 18px;
+            font-size: 0.98rem;
             color: #37474f;
             line-height: 1.45;
+            text-align: center;
         }
         .quiz-top10-name-modal__field {
             margin: 0 auto;
-            padding: 10px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(74, 20, 140, 0.2);
-            background: linear-gradient(180deg, #f5ebff 0%, #e9f2ff 100%);
+            padding: 16px 16px 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(74, 20, 140, 0.24);
+            background: linear-gradient(180deg, #f4e9ff 0%, #e7f2ff 100%);
             box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.82),
-                0 8px 16px rgba(74, 20, 140, 0.12);
-            width: fit-content;
-            min-width: 220px;
-            max-width: 100%;
+                inset 0 1px 0 rgba(255, 255, 255, 0.86),
+                0 10px 20px rgba(74, 20, 140, 0.14);
+            width: min(430px, 100%);
         }
         .quiz-top10-name-modal__label {
             display: block;
@@ -3879,16 +3878,16 @@
             text-align: center;
         }
         .quiz-top10-name-modal__input {
-            width: 12ch;
+            width: 14ch;
             min-width: 12ch;
-            max-width: min(34ch, calc(100vw - 130px));
+            max-width: min(34ch, calc(100vw - 170px));
             box-sizing: border-box;
-            padding: 10px 14px;
-            border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 14px;
             border: 1px solid #b39ddb;
             background: #fff;
             color: #4a148c;
-            font-size: 1rem;
+            font-size: 1.08rem;
             font-weight: 700;
             text-align: center;
             margin-bottom: 0;
@@ -3911,7 +3910,8 @@
         }
         .quiz-top10-name-modal__actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
+            margin-top: 14px;
         }
         .quiz-top3-celebration-modal {
             display: none;
@@ -7817,7 +7817,7 @@ function dismissAppSplash() {
                 <h3 id="quiz-top10-name-modal-title">Sei nei primi 10!</h3>
                 <p id="quiz-top10-name-modal-lead" class="quiz-top10-name-modal__lead"></p>
                 <div class="quiz-top10-name-modal__field">
-                    <label class="quiz-top10-name-modal__label" for="quiz-top10-name-input">Nome in classifica</label>
+                    <label class="quiz-top10-name-modal__label" for="quiz-top10-name-input">Inserisci il tuo nome</label>
                     <input type="text" id="quiz-top10-name-input" class="quiz-top10-name-modal__input" maxlength="40" autocomplete="nickname" placeholder="Es. Operatore MBBR" aria-describedby="quiz-top10-name-modal-hint">
                     <p id="quiz-top10-name-modal-hint" class="quiz-top10-name-modal__hint">Lascia vuoto e premi OK per registrarti come «Operatore».</p>
                 </div>
@@ -8297,7 +8297,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511t';
+const APP_BUILD = '20260511u';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
