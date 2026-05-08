@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511am';
+const APP_BUILD = '20260511an';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8584,6 +8584,7 @@ const QUIZ_FS_PRESENCE = 'quiz_presence';
 const QUIZ_PRESENCE_HEARTBEAT_MS = 15000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~2 min, tollera orologi disallineati). */
 const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 120000;
+const QUIZ_LS_PRESENCE_DEVICE_ID = 'io-presence-device-id';
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
@@ -8810,17 +8811,63 @@ function quizPresenceMillisFromLastSeen(ls) {
     }
 }
 
-function quizPresenceCountFromSnapshot(snap) {
-    if (!snap) return 0;
-    /* Soglia con orologio locale: lastSeen è scritto come Timestamp lato client su ogni dispositivo (epoch ms comparabili). */
+function quizPresenceGetDeviceId() {
+    var id = '';
+    try {
+        id = localStorage.getItem(QUIZ_LS_PRESENCE_DEVICE_ID) || '';
+    } catch (eLs) { /* ignore */ }
+    id = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
+    if (id) return id;
+    var seed = '';
+    try {
+        seed = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    } catch (eR) {
+        seed = String(Math.floor(Math.random() * 1e9));
+    }
+    id = String(seed).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16) || 'device';
+    try {
+        localStorage.setItem(QUIZ_LS_PRESENCE_DEVICE_ID, id);
+    } catch (eSet) { /* ignore */ }
+    return id;
+}
+
+function quizPresenceCollectOnlineRowsFromSnapshot(snap) {
+    var out = [];
+    if (!snap) return out;
     var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
-    var n = 0;
     snap.forEach(function (doc) {
-        var d = doc.data();
-        var t = quizPresenceMillisFromLastSeen(d && d.lastSeen);
-        if (t >= threshold) n += 1;
+        var d = doc.data() || {};
+        var sessions = d.sessions && typeof d.sessions === 'object' ? d.sessions : null;
+        var hasSessionRows = false;
+        if (sessions) {
+            Object.keys(sessions).forEach(function (sid) {
+                var s = sessions[sid] || {};
+                var t = quizPresenceMillisFromLastSeen(s.lastSeen);
+                if (t < threshold) return;
+                hasSessionRows = true;
+                out.push({
+                    label: s.displayName != null ? String(s.displayName).trim() : '',
+                    uid: String(doc.id || ''),
+                    sessionId: String(sid || ''),
+                    lastSeenMs: t
+                });
+            });
+        }
+        if (hasSessionRows) return;
+        var tLegacy = quizPresenceMillisFromLastSeen(d.lastSeen);
+        if (tLegacy < threshold) return;
+        out.push({
+            label: d.displayName != null ? String(d.displayName).trim() : '',
+            uid: String(doc.id || ''),
+            sessionId: '',
+            lastSeenMs: tLegacy
+        });
     });
-    return n;
+    return out;
+}
+
+function quizPresenceCountFromSnapshot(snap) {
+    return quizPresenceCollectOnlineRowsFromSnapshot(snap).length;
 }
 
 function quizPresenceSanitizeLabel(s) {
@@ -8923,31 +8970,22 @@ function quizPresenceFillConnectedList() {
             '<li class="quiz-presence-connected-list__empty">Nessun dato ancora. Controlla la connessione o Firebase.</li>';
         return;
     }
-    var th = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
-    var rows = [];
-    snap.forEach(function (doc) {
-        var d = doc.data() || {};
-        if (quizPresenceMillisFromLastSeen(d.lastSeen) < th) return;
-        var raw = d.displayName != null ? String(d.displayName).trim() : '';
-        if (raw) {
-            rows.push(raw);
-            return;
-        }
-        var shortId = '';
-        try {
-            shortId = String(doc.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-6).toUpperCase();
-        } catch (eId) { /* ignore */ }
-        rows.push(shortId ? ('Utente sconosciuto #' + shortId) : 'Utente sconosciuto');
-    });
+    var rows = quizPresenceCollectOnlineRowsFromSnapshot(snap);
     rows.sort(function (a, b) {
-        return String(a).localeCompare(String(b), 'it', { sensitivity: 'base' });
+        return String(a && a.label ? a.label : '').localeCompare(String(b && b.label ? b.label : ''), 'it', { sensitivity: 'base' });
     });
     if (!rows.length) {
         ul.innerHTML =
             '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~2 min).</li>';
         return;
     }
-    rows.forEach(function (nm) {
+    var unnamedCounter = 0;
+    rows.forEach(function (row) {
+        var nm = row && row.label ? String(row.label).trim() : '';
+        if (!nm) {
+            unnamedCounter += 1;
+            nm = 'Utente senza nome ' + String(unnamedCounter);
+        }
         var li = document.createElement('li');
         li.textContent = nm;
         ul.appendChild(li);
@@ -9277,18 +9315,21 @@ function quizPresencePing() {
                     ? firebase.firestore.Timestamp.now()
                     : firebase.firestore.Timestamp.fromMillis(Date.now());
             var displayName = quizPresenceGetWhoami() || '';
+            var sessionId = quizPresenceGetDeviceId();
+            var sessionFieldPrefix = 'sessions.' + sessionId;
+            var payload = {
+                lastSeen: ts,
+                path: String(window.location.pathname || '').slice(0, 160),
+                displayName: displayName
+            };
+            payload[sessionFieldPrefix + '.lastSeen'] = ts;
+            payload[sessionFieldPrefix + '.path'] = String(window.location.pathname || '').slice(0, 160);
+            payload[sessionFieldPrefix + '.displayName'] = displayName;
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_PRESENCE)
                 .doc(uid)
-                .set(
-                    {
-                        lastSeen: ts,
-                        path: String(window.location.pathname || '').slice(0, 160),
-                        displayName: displayName
-                    },
-                    { merge: true }
-                )
+                .set(payload, { merge: true })
                 .then(function () {
                     return quizPresenceReadCollectionRobust();
                 });
