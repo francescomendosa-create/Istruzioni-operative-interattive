@@ -5219,9 +5219,9 @@
             text-transform: uppercase;
         }
         .quiz-intro-name-input {
-            width: calc(6ch + 22px);
-            min-width: calc(6ch + 22px);
-            max-width: calc(10ch + 22px);
+            width: calc(6ch + 30px);
+            min-width: calc(6ch + 30px);
+            max-width: calc(10ch + 30px);
             box-sizing: border-box;
             padding: 8px 10px;
             border-radius: 10px;
@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511al';
+const APP_BUILD = '20260511am';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15784,7 +15784,7 @@ function quizIntroNameInputAutoSize() {
         inp.value = trimmed;
     }
     var n = Math.max(6, Math.min(10, trimmed.length + 1));
-    inp.style.width = 'calc(' + String(n) + 'ch + 22px)';
+    inp.style.width = 'calc(' + String(n) + 'ch + 30px)';
 }
 
 function quizIntroNameBeginInlineEdit(ev) {
