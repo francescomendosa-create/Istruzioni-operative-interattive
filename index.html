@@ -3818,26 +3818,49 @@
         }
         .quiz-top10-name-modal__box {
             width: 100%;
-            max-width: 400px;
-            padding: 22px 20px 20px;
-            border-radius: 16px;
-            background: linear-gradient(165deg, #ffffff 0%, #f3e8ff 42%, #e8f4fc 100%);
-            border: 1px solid rgba(106, 27, 154, 0.28);
+            max-width: 430px;
+            padding: 24px 22px 20px;
+            border-radius: 20px;
+            background: linear-gradient(165deg, #ffffff 0%, #f5ebff 38%, #e8f4fc 100%);
+            border: 1px solid rgba(74, 20, 140, 0.26);
             box-shadow:
-                0 0 0 3px rgba(255, 255, 255, 0.5) inset,
-                0 18px 40px rgba(49, 27, 146, 0.18);
+                0 0 0 3px rgba(255, 255, 255, 0.58) inset,
+                0 22px 48px rgba(49, 27, 146, 0.2);
             text-align: left;
         }
+        .quiz-top10-name-modal__kicker {
+            margin: 0 0 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #5e35b1;
+            background: rgba(94, 53, 177, 0.08);
+            border: 1px solid rgba(94, 53, 177, 0.2);
+            border-radius: 999px;
+            padding: 5px 10px;
+        }
         .quiz-top10-name-modal__box h3 {
-            margin: 0 0 10px;
-            font-size: 1.12rem;
+            margin: 0 0 9px;
+            font-size: clamp(1.08rem, 3.4vw, 1.28rem);
             color: #4a148c;
+            line-height: 1.22;
         }
         .quiz-top10-name-modal__lead {
             margin: 0 0 14px;
             font-size: 0.9rem;
             color: #37474f;
             line-height: 1.45;
+        }
+        .quiz-top10-name-modal__field {
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(74, 20, 140, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(243, 232, 255, 0.58) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
         }
         .quiz-top10-name-modal__label {
             display: block;
@@ -3852,13 +3875,24 @@
             width: 100%;
             box-sizing: border-box;
             padding: 12px 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid #b39ddb;
-            font-size: 0.95rem;
-            margin-bottom: 16px;
+            background: #fff;
+            font-size: 0.98rem;
+            margin-bottom: 0;
+            transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease;
+        }
+        .quiz-top10-name-modal__input::placeholder {
+            color: #8d6eaa;
+        }
+        .quiz-top10-name-modal__input:focus-visible {
+            outline: none;
+            border-color: #7e57c2;
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.18);
+            transform: translateY(-1px);
         }
         .quiz-top10-name-modal__hint {
-            margin: -8px 0 14px;
+            margin: 8px 0 2px;
             font-size: 0.78rem;
             color: #616161;
         }
@@ -7766,11 +7800,14 @@ function dismissAppSplash() {
         </div>
         <div id="quiz-top10-name-modal" class="quiz-top10-name-modal" aria-hidden="true" aria-labelledby="quiz-top10-name-modal-title">
             <div class="quiz-top10-name-modal__box" role="dialog" aria-modal="true">
+                <p class="quiz-top10-name-modal__kicker">🏆 Classifica live</p>
                 <h3 id="quiz-top10-name-modal-title">Sei nei primi 10!</h3>
                 <p id="quiz-top10-name-modal-lead" class="quiz-top10-name-modal__lead"></p>
-                <label class="quiz-top10-name-modal__label" for="quiz-top10-name-input">Nome in classifica</label>
-                <input type="text" id="quiz-top10-name-input" class="quiz-top10-name-modal__input" maxlength="40" autocomplete="nickname" aria-describedby="quiz-top10-name-modal-hint">
-                <p id="quiz-top10-name-modal-hint" class="quiz-top10-name-modal__hint">Lascia vuoto e premi OK per registrarti come «Operatore».</p>
+                <div class="quiz-top10-name-modal__field">
+                    <label class="quiz-top10-name-modal__label" for="quiz-top10-name-input">Nome in classifica</label>
+                    <input type="text" id="quiz-top10-name-input" class="quiz-top10-name-modal__input" maxlength="40" autocomplete="nickname" placeholder="Es. Operatore MBBR" aria-describedby="quiz-top10-name-modal-hint">
+                    <p id="quiz-top10-name-modal-hint" class="quiz-top10-name-modal__hint">Lascia vuoto e premi OK per registrarti come «Operatore».</p>
+                </div>
                 <div class="quiz-top10-name-modal__actions">
                     <button type="button" class="btn-side btn-report" id="quiz-top10-name-ok" onclick="quizTop10NameModalOk()">OK</button>
                 </div>
@@ -8247,7 +8284,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511p';
+const APP_BUILD = '20260511r';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8483,6 +8520,38 @@ let quizPresenceStaleTickerId = null;
 let quizPresenceLastFetchError = '';
 /** Riprovare iscrizione listener dopo errore. */
 let quizPresenceSubscribeRetryTimer = null;
+
+/** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
+function quizNormalizeBonusCards(list, maxItems) {
+    var arr = Array.isArray(list) ? list : [];
+    var out = [];
+    var byKey = {};
+    var limit = Number(maxItems);
+    if (!Number.isFinite(limit) || limit <= 0) limit = 64;
+    for (var i = 0; i < arr.length; i++) {
+        var raw = arr[i] || {};
+        var id = raw.id != null ? String(raw.id) : '';
+        var label = raw.label != null ? String(raw.label) : 'Bonus';
+        var img = raw.img != null ? String(raw.img) : '';
+        var kind = raw.kind != null ? String(raw.kind) : '';
+        var key = [id, label, img, kind].join('|');
+        if (Object.prototype.hasOwnProperty.call(byKey, key)) {
+            byKey[key].count += 1;
+            continue;
+        }
+        if (out.length >= limit) break;
+        var item = {
+            id: id,
+            label: label,
+            img: img,
+            kind: kind,
+            count: 1
+        };
+        byKey[key] = item;
+        out.push(item);
+    }
+    return out;
+}
 
 function quizInitLeaderboardSourceState() {
     quizLeaderboardHydrated = !quizFirestoreConfigured();
@@ -9410,14 +9479,16 @@ function quizOpenRankCharacterModalByDisplayIndex(displayIndex) {
     });
     wormsEl.innerHTML = wormsHtml || '<p style="margin:0;color:#64748b;font-size:0.82rem;">Nessun verme registrato per questo risultato.</p>';
     if (bonusEl) {
-        const bList = Array.isArray(row.bonusCards) ? row.bonusCards : [];
+        const bList = quizNormalizeBonusCards(row.bonusCards, 64);
         let bonusHtml = '';
         bList.forEach(function (b) {
             const label = escapeQuizHtml((b && b.label) ? b.label : 'Bonus');
             const img = escapeQuizHtml((b && b.img) ? b.img : '');
+            const count = Math.max(1, Number(b && b.count) || 1);
+            const countHtml = count > 1 ? ' <strong>×' + String(count) + '</strong>' : '';
             bonusHtml += '<span class="quiz-rank-detail-modal__bonus-item">' +
                 (img ? '<img src="' + img + '" alt="" decoding="async" draggable="false">' : '') +
-                '<span>' + label + '</span></span>';
+                '<span>' + label + countHtml + '</span></span>';
         });
         if (!bonusHtml) bonusHtml = '<span class="quiz-rank-detail-modal__bonus-item"><span>Nessun bonus carta</span></span>';
         bonusEl.innerHTML = bonusHtml;
@@ -15961,7 +16032,7 @@ function quizFinish(completedAll, opts) {
         aborted: !!opts.aborted,
         avatar: saveAvatar,
         wormsAcquired: quizBioCaptureVatWormSequence(),
-        bonusCards: quizSessionBonusCards.slice(0, 64)
+        bonusCards: quizNormalizeBonusCards(quizSessionBonusCards, 64)
     };
 
     function finishCommit(displayName, goToPodiumAfterName) {
