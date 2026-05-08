@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ar';
+const APP_BUILD = '20260511as';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8519,6 +8519,7 @@ const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 /** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
 const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
+const QUIZ_LS_HIGHEST_BUILD_SEEN = 'io-quiz-highest-build-seen';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
@@ -12773,16 +12774,38 @@ function quizNormalizeBuildToken(v) {
     return m ? String(m[1]).toLowerCase() : s;
 }
 
+function quizGetHighestBuildSeen() {
+    try {
+        return quizNormalizeBuildToken(localStorage.getItem(QUIZ_LS_HIGHEST_BUILD_SEEN) || '');
+    } catch (e) {
+        return '';
+    }
+}
+
+function quizRememberHighestBuildSeen(buildToken) {
+    var b = quizNormalizeBuildToken(buildToken);
+    if (!b) return;
+    var cur = quizGetHighestBuildSeen();
+    if (!cur || quizCompareBuildTokens(b, cur) > 0) {
+        try {
+            localStorage.setItem(QUIZ_LS_HIGHEST_BUILD_SEEN, b);
+        } catch (eSet) { /* ignore */ }
+    }
+}
+
 async function quizCheckUpdateAvailableSilently() {
     try {
+        quizRememberHighestBuildSeen(APP_BUILD);
         const base = new URL('.', window.location.href).href;
         const swHref = new URL('sw.js', base).href;
         const resp = await fetch(swHref + '?check=' + Date.now(), { cache: 'no-store', credentials: 'same-origin' });
         if (!resp || !resp.ok) return;
         const remoteBuild = quizParseSwBuildFromText(await resp.text());
         const localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
-        var cmp = quizCompareBuildTokens(remoteBuild, localBuild);
-        if (!remoteBuild || !localBuild || cmp <= 0) {
+        const highestSeen = quizGetHighestBuildSeen();
+        var cmpLocal = quizCompareBuildTokens(remoteBuild, localBuild);
+        var cmpSeen = highestSeen ? quizCompareBuildTokens(remoteBuild, highestSeen) : 1;
+        if (!remoteBuild || !localBuild || cmpLocal <= 0 || cmpSeen <= 0) {
             quizSetUpdateAvailable('');
             return;
         }
@@ -12903,15 +12926,16 @@ function quizSettingsForceRefresh(btn) {
             } catch (eFetch) { /* rete / CORS: si continua */ }
 
             var localBuild = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '').trim();
-            if (remoteBuild && localBuild && remoteBuild !== localBuild) {
+            var cmpBuild = quizCompareBuildTokens(remoteBuild, localBuild);
+            if (remoteBuild && localBuild && cmpBuild > 0) {
                 quizSettingsBuildHighlightSet(true);
-            } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
+            } else if (remoteBuild && localBuild && cmpBuild <= 0) {
                 quizSettingsBuildHighlightSet(false);
             }
             if (line) {
-                if (remoteBuild && localBuild && remoteBuild !== localBuild) {
+                if (remoteBuild && localBuild && cmpBuild > 0) {
                     line.textContent = 'Aggiorna: nuovo build — ricarico…';
-                } else if (remoteBuild && localBuild && remoteBuild === localBuild) {
+                } else if (remoteBuild && localBuild && cmpBuild <= 0) {
                     line.textContent = 'Aggiorna: allineato — ricarico…';
                 } else {
                     line.textContent = 'Aggiorna — ricarico…';
