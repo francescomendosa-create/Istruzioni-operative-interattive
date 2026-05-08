@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ad';
+const APP_BUILD = '20260511ae';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -16724,10 +16724,6 @@ function render() {
             <div class="section-title-box">
                 <h2>${sectionTitle}</h2>
             </div>`;
-        if (s === 'cf') {
-            cont.innerHTML += '<p class="header-settings-hint" role="note">Icona ingranaggio in alto a destra (o doppio clic sul titolo) per le impostazioni.</p>';
-        }
-
         db[s].forEach(item => {
             cont.innerHTML += `
                 <div class="card" id="card-${s}-${item.p}">
