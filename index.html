@@ -8025,8 +8025,8 @@ function dismissAppSplash() {
                     <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
                 </button>
             </div>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei: nome per presenza online">
-                <span><strong>Chi sei?</strong><br><span id="quiz-presence-whoami-summary" class="quiz-settings-row-sub" style="margin-top:4px;">Nome per gli altri online (facoltativo)</span></span>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei?">
+                <span><strong>Chi sei?</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <label class="quiz-settings-row quiz-settings-row--toggle">
@@ -8238,7 +8238,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511j';
+const APP_BUILD = '20260511k';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8678,10 +8678,7 @@ function quizPresenceGetWhoami() {
 }
 
 function quizPresenceUpdateWhoamiSummaryUi() {
-    var el = document.getElementById('quiz-presence-whoami-summary');
-    if (!el) return;
-    var w = quizPresenceGetWhoami();
-    el.textContent = w ? 'Ti mostri come: ' + w : 'Nome per gli altri online (facoltativo)';
+    /* Sottotitolo riga «Chi sei?» rimosso: niente da aggiornare. */
 }
 
 function quizPresenceWhoamiBackdrop(ev) {
