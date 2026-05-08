@@ -8284,7 +8284,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511r';
+const APP_BUILD = '20260511s';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8835,7 +8835,15 @@ function quizPresenceFillConnectedList() {
         var d = doc.data() || {};
         if (quizPresenceMillisFromLastSeen(d.lastSeen) < th) return;
         var raw = d.displayName != null ? String(d.displayName).trim() : '';
-        rows.push(raw ? raw : 'Senza nome');
+        if (raw) {
+            rows.push(raw);
+            return;
+        }
+        var shortId = '';
+        try {
+            shortId = String(doc.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-6).toUpperCase();
+        } catch (eId) { /* ignore */ }
+        rows.push(shortId ? ('Utente sconosciuto #' + shortId) : 'Utente sconosciuto');
     });
     rows.sort(function (a, b) {
         return String(a).localeCompare(String(b), 'it', { sensitivity: 'base' });
