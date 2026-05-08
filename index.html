@@ -8335,7 +8335,7 @@ function dismissAppSplash() {
                         <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
                     </div>
                     <p class="quiz-producer-presence__hint">
-                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, ~90 s). Regole su <strong>quiz_presence</strong>.
+                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, finestra ~15 min). Regole su <strong>quiz_presence</strong>.
                     </p>
                 </div>
                 <div class="quiz-producer-add">
@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ap';
+const APP_BUILD = '20260511aq';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8582,8 +8582,8 @@ const QUIZ_FS_LEADERBOARD_DOC = 'global';
 const QUIZ_FS_PRESENCE = 'quiz_presence';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 15000;
-/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~2 min, tollera orologi disallineati). */
-const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 120000;
+/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~15 min, robusta anche con tab/device in background). */
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 900000;
 const QUIZ_LS_PRESENCE_DEVICE_ID = 'io-presence-device-id';
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
@@ -8976,7 +8976,7 @@ function quizPresenceFillConnectedList() {
     });
     if (!rows.length) {
         ul.innerHTML =
-            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~2 min).</li>';
+            '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (~15 min).</li>';
         return;
     }
     var unnamedCounter = 0;
