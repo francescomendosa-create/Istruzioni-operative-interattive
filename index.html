@@ -156,6 +156,15 @@
             outline: 2px solid #1565c0;
             outline-offset: 2px;
         }
+        .quiz-settings-presence-badge--btn.presence-badge--linked {
+            border-color: #43a047;
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+        }
+        .quiz-settings-presence-badge--btn.presence-badge--warn {
+            border-color: #ff9800;
+            background: linear-gradient(180deg, #fff8e1 0%, #ffe0b2 100%);
+        }
         .quiz-settings-presence-badge .header-presence-icon {
             font-size: 1.05rem;
             line-height: 1;
@@ -8238,7 +8247,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511k';
+const APP_BUILD = '20260511m';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8444,12 +8453,14 @@ const QUIZ_FS_LEADERBOARD_DOC = 'global';
 const QUIZ_FS_PRESENCE = 'quiz_presence';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 15000;
-/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra. */
-const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 90000;
+/** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~2 min, tollera orologi disallineati). */
+const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 120000;
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
 let quizFirebaseInitPromise = null;
+/** Firestore: `settings()` va chiamato una sola volta, prima delle query (long polling = proxy aziendali). */
+let quizFirestoreSettingsApplied = false;
 let quizFsSyncTimer = null;
 /** unsubscribe Firestore classifica tempo reale */
 let quizLeaderboardUnsub = null;
@@ -8571,6 +8582,22 @@ function quizMarkLeaderboardHydratedFromCloud(isError, errDetail) {
 }
 
 /** Barra fissa sotto Quiz/Diagnostica: stato reale (config assente = solo locale su ogni dispositivo). */
+function quizApplyFirestoreTransportSettings() {
+    if (quizFirestoreSettingsApplied || typeof firebase === 'undefined') return;
+    try {
+        if (!firebase.apps || !firebase.apps.length) return;
+        firebase.firestore().settings({
+            experimentalForceLongPolling: true,
+            ignoreUndefinedProperties: true
+        });
+        quizFirestoreSettingsApplied = true;
+    } catch (eFs) {
+        try {
+            console.warn('[Firestore settings]', eFs);
+        } catch (eL) { /* ignore */ }
+    }
+}
+
 function quizEnsureFirebase() {
     if (!quizFirebaseInitPromise) {
         quizFirebaseInitPromise = new Promise(function (resolve, reject) {
@@ -8582,6 +8609,7 @@ function quizEnsureFirebase() {
                 if (!firebase.apps.length) {
                     firebase.initializeApp(window.__FIREBASE_QUIZ_CONFIG__);
                 }
+                quizApplyFirestoreTransportSettings();
                 const auth = firebase.auth();
                 if (auth.currentUser) {
                     resolve();
@@ -8591,6 +8619,9 @@ function quizEnsureFirebase() {
             } catch (e) {
                 reject(e);
             }
+        }).catch(function (err) {
+            quizFirebaseInitPromise = null;
+            return Promise.reject(err);
         });
     }
     return quizFirebaseInitPromise;
@@ -8853,14 +8884,14 @@ function quizPresenceReadCollectionRobust() {
                 console.warn('[presenza] lettura collezione fallita:', quizFormatSyncError(eAll));
             } catch (eL2) { /* ignore */ }
             quizPresenceLastFetchError = quizFormatSyncError(eAll);
-            var h = document.getElementById('header-presence-count');
             var btn = document.getElementById('header-presence-btn');
-            if (!quizPresenceLatestSnap && h) h.textContent = '…';
-            else quizPresenceUpdatePresenceUi();
             var tip =
                 'Presenza: errore di lettura. Controlla regole Firestore (quiz_presence), Auth anonimo e dominio autorizzato. ';
             if (quizPresenceLastFetchError) tip += quizPresenceLastFetchError.slice(0, 160);
             if (btn) btn.setAttribute('title', tip);
+            try {
+                quizPresenceUpdatePresenceUi();
+            } catch (eUi) { /* ignore */ }
             return null;
         });
 }
@@ -8888,10 +8919,25 @@ function quizPresenceUpdatePresenceUi() {
     var h = document.getElementById('header-presence-count');
     var p = document.getElementById('quiz-producer-presence-count');
     var btn = document.getElementById('header-presence-btn');
+    if (btn) {
+        btn.classList.remove('presence-badge--linked', 'presence-badge--warn');
+    }
     if (!snap) {
-        if (h) h.textContent = '—';
-        if (p) p.textContent = '—';
-        if (btn) btn.setAttribute('title', 'Utenti online: clic per vedere i nomi');
+        if (h) h.textContent = quizPresenceLastFetchError ? '…' : '—';
+        if (p) p.textContent = quizPresenceLastFetchError ? '…' : '—';
+        if (btn) {
+            btn.setAttribute('title', 'Utenti online: clic per vedere i nomi');
+            if (quizPresenceLastFetchError) {
+                btn.classList.add('presence-badge--warn');
+                btn.setAttribute(
+                    'title',
+                    'Presenza: ' +
+                        (quizPresenceLastFetchError.length > 120
+                            ? quizPresenceLastFetchError.slice(0, 118) + '…'
+                            : quizPresenceLastFetchError)
+                );
+            }
+        }
         return;
     }
     var n = quizPresenceCountFromSnapshot(snap);
@@ -8900,6 +8946,7 @@ function quizPresenceUpdatePresenceUi() {
     if (p) p.textContent = numStr;
     if (btn) {
         btn.setAttribute('title', n ? numStr + ' online · clic per l’elenco' : 'Nessuno in finestra · clic per dettagli');
+        if (n >= 1) btn.classList.add('presence-badge--linked');
     }
     var listOpen = document.getElementById('quiz-presence-connected-overlay');
     if (listOpen && listOpen.classList.contains('visible')) {
@@ -9038,7 +9085,7 @@ function quizPresenceBootstrap() {
         quizPresenceStartHeartbeat();
         quizPresenceSubscribeRealtime();
         quizPresenceStartStaleTicker();
-        /* Il primo conteggio affidabile arriva dal get({server}) concatenato a quizPresencePing() dopo il write. */
+        void quizPresenceReadCollectionRobust();
     } catch (eB) { /* ignore */ }
 }
 
