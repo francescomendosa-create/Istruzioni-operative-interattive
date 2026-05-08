@@ -1,7 +1,7 @@
 /*
  * Service worker per PWA: installazione Chrome + aggiornamenti.
  * Cambia la riga "build: …" quando pubblichi — così il file cambia byte e i client scaricano il nuovo SW.
- * build: 20260511ax
+ * build: 20260511ay
  */
 self.addEventListener('install', function (event) {
     self.skipWaiting();

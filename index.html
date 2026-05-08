@@ -8215,7 +8215,7 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
-            <p id="quiz-presence-debug-line" style="margin:8px 0 0;font-size:0.73rem;color:#607d8b;"></p>
+            <p id="quiz-presence-debug-line" style="margin:8px 0 0;font-size:0.76rem;font-weight:700;color:#455a64;"></p>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
     </div>
@@ -8377,7 +8377,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511ax';
+const APP_BUILD = '20260511ay';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8621,6 +8621,8 @@ let quizPresenceSubscribeRetryTimer = null;
 let quizPresenceConnectedPollTimer = null;
 let quizPresenceLastServerReadAt = 0;
 let quizPresenceLastMirrorReadAt = 0;
+let quizPresenceLastWriteStatus = 'idle';
+let quizPresenceLastMirrorWriteStatus = 'idle';
 
 /** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
 function quizNormalizeBonusCards(list, maxItems) {
@@ -8925,7 +8927,21 @@ function quizPresenceRenderDebugLine() {
     var mAge = quizPresenceLastMirrorReadAt ? Math.max(0, Math.round((Date.now() - quizPresenceLastMirrorReadAt) / 1000)) : null;
     var pTxt = pAge == null ? 'mai' : String(pAge) + 's fa';
     var mTxt = mAge == null ? 'mai' : String(mAge) + 's fa';
-    el.textContent = 'Diagnostica: presence=' + fromPresence + ' · mirror=' + fromMirror + ' · totale=' + merged + ' · sync presence ' + pTxt + ' · sync mirror ' + mTxt;
+    el.textContent =
+        'Diagnostica: presence=' +
+        fromPresence +
+        ' · mirror=' +
+        fromMirror +
+        ' · totale=' +
+        merged +
+        ' · sync presence ' +
+        pTxt +
+        ' · sync mirror ' +
+        mTxt +
+        ' · write presence=' +
+        quizPresenceLastWriteStatus +
+        ' · write mirror=' +
+        quizPresenceLastMirrorWriteStatus;
 }
 
 function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
@@ -8983,6 +8999,7 @@ function quizPresenceReadMirrorFromServerPreferred() {
             return rows;
         })
         .catch(function () {
+            quizPresenceLastMirrorReadAt = Date.now();
             return [];
         });
 }
@@ -9435,15 +9452,17 @@ function quizPresencePing() {
                     : firebase.firestore.Timestamp.fromMillis(Date.now());
             var displayName = quizPresenceGetWhoami() || '';
             var sessionId = quizPresenceGetDeviceId();
-            var sessionFieldPrefix = 'sessions.' + sessionId;
             var payload = {
                 lastSeen: ts,
                 path: String(window.location.pathname || '').slice(0, 160),
                 displayName: displayName
             };
-            payload[sessionFieldPrefix + '.lastSeen'] = ts;
-            payload[sessionFieldPrefix + '.path'] = String(window.location.pathname || '').slice(0, 160);
-            payload[sessionFieldPrefix + '.displayName'] = displayName;
+            payload.sessions = {};
+            payload.sessions[sessionId] = {
+                lastSeen: ts,
+                path: String(window.location.pathname || '').slice(0, 160),
+                displayName: displayName
+            };
             var ref = firebase
                 .firestore()
                 .collection(QUIZ_FS_PRESENCE)
@@ -9462,6 +9481,7 @@ function quizPresencePing() {
                     );
                 })
                 .then(function () {
+                    quizPresenceLastWriteStatus = 'ok';
                     try {
                         var mirrorKey = 'presence.' + uid + '__' + sessionId;
                         var mirrorPayload = {};
@@ -9476,12 +9496,19 @@ function quizPresencePing() {
                             .firestore()
                             .collection(QUIZ_FS_LEADERBOARD)
                             .doc(QUIZ_FS_LEADERBOARD_DOC)
-                            .set(mirrorPayload, { merge: true });
+                            .set(mirrorPayload, { merge: true })
+                            .then(function () {
+                                quizPresenceLastMirrorWriteStatus = 'ok';
+                            })
+                            .catch(function (eMw) {
+                                quizPresenceLastMirrorWriteStatus = 'err:' + quizFormatSyncError(eMw).slice(0, 28);
+                            });
                     } catch (eMir) { /* ignore */ }
                     return quizPresenceReadCollectionRobust();
                 });
         })
         .catch(function (e) {
+            quizPresenceLastWriteStatus = 'err:' + quizFormatSyncError(e).slice(0, 28);
             try {
                 console.warn('[quiz presence]', e);
             } catch (eL) { /* ignore */ }
