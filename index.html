@@ -8376,7 +8376,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511as';
+const APP_BUILD = '20260511at';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8520,6 +8520,7 @@ const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
 /** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
 const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
 const QUIZ_LS_HIGHEST_BUILD_SEEN = 'io-quiz-highest-build-seen';
+const QUIZ_SS_BUILD_SELF_HEAL = 'io-quiz-build-self-heal-once';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
 const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
@@ -12713,7 +12714,14 @@ let quizPendingRemoteBuild = '';
 function quizApplyUpdateAvailabilityUi() {
     const headerSettingsBtn = document.querySelector('button[onclick="showQuizSettingsModal()"]');
     const refreshBtn = document.getElementById('quiz-settings-refresh-btn');
-    const hasUpdate = !!quizPendingRemoteBuild;
+    var hasUpdate = !!quizPendingRemoteBuild;
+    if (hasUpdate) {
+        var cmp = quizCompareBuildTokens(quizPendingRemoteBuild, APP_BUILD);
+        if (cmp <= 0) {
+            quizPendingRemoteBuild = '';
+            hasUpdate = false;
+        }
+    }
     if (headerSettingsBtn) {
         headerSettingsBtn.classList.toggle('quiz-update-available', hasUpdate);
         if (hasUpdate) {
@@ -12793,9 +12801,36 @@ function quizRememberHighestBuildSeen(buildToken) {
     }
 }
 
+function quizEnsureBuildNotStaleOnLaunch() {
+    var current = quizNormalizeBuildToken(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '');
+    var highestSeen = quizGetHighestBuildSeen();
+    if (!current || !highestSeen) return;
+    if (quizCompareBuildTokens(current, highestSeen) >= 0) return;
+    var guardKey = current + '->' + highestSeen;
+    var alreadyTried = '';
+    try {
+        alreadyTried = String(sessionStorage.getItem(QUIZ_SS_BUILD_SELF_HEAL) || '');
+    } catch (eGet) { /* ignore */ }
+    if (alreadyTried === guardKey) return;
+    try {
+        sessionStorage.setItem(QUIZ_SS_BUILD_SELF_HEAL, guardKey);
+    } catch (eSet) { /* ignore */ }
+    try {
+        quizPendingRemoteBuild = '';
+        quizSettingsBuildHighlightSet(false);
+    } catch (eClr) { /* ignore */ }
+    try {
+        var u = new URL(window.location.href);
+        u.searchParams.set('refresh_build', highestSeen);
+        u.searchParams.set('ts', String(Date.now()));
+        window.location.replace(u.toString());
+    } catch (eNav) { /* ignore */ }
+}
+
 async function quizCheckUpdateAvailableSilently() {
     try {
         quizRememberHighestBuildSeen(APP_BUILD);
+        quizEnsureBuildNotStaleOnLaunch();
         const base = new URL('.', window.location.href).href;
         const swHref = new URL('sw.js', base).href;
         const resp = await fetch(swHref + '?check=' + Date.now(), { cache: 'no-store', credentials: 'same-origin' });
