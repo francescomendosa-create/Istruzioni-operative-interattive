@@ -5399,6 +5399,50 @@
             color: #78909c;
             font-style: italic;
         }
+        .quiz-presence-history-toggle {
+            width: 100%;
+            border: 1px solid #bbdefb;
+            background: #f5fbff;
+            color: #0d47a1;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: left;
+            margin: 2px 0 8px;
+        }
+        .quiz-presence-history-toggle:hover { filter: brightness(0.99); }
+        .quiz-presence-history-wrap[hidden] { display: none !important; }
+        .quiz-presence-history-wrap {
+            margin: 0 0 12px;
+            padding: 8px 10px;
+            border: 1px solid #e3f2fd;
+            border-radius: 10px;
+            background: #fafcff;
+        }
+        .quiz-presence-history-title {
+            margin: 0 0 6px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #1565c0;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .quiz-presence-history-list {
+            margin: 0;
+            padding: 0 0 0 16px;
+            font-size: 0.86rem;
+            color: #37474f;
+            line-height: 1.4;
+        }
+        .quiz-presence-history-list li { margin-bottom: 5px; }
+        .quiz-presence-history-list__empty {
+            list-style: none;
+            margin-left: -16px;
+            color: #90a4ae;
+            font-style: italic;
+        }
         /**
          * Dopo «Aggiorna» la pagina si ricarica: questo strato (attivato da <head>) copre il contenuto
          * finché non è pronto il vero #quiz-settings-overlay, così la finestra non «scompare».
@@ -8215,6 +8259,13 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
+            <button type="button" id="quiz-presence-history-toggle" class="quiz-presence-history-toggle" onclick="quizPresenceToggleHistory24h()">
+                Mostra storico collegamenti (ultime 24 ore)
+            </button>
+            <div id="quiz-presence-history-wrap" class="quiz-presence-history-wrap" hidden>
+                <p class="quiz-presence-history-title">Storico 24 ore</p>
+                <ul id="quiz-presence-history-list" class="quiz-presence-history-list"></ul>
+            </div>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
         </div>
     </div>
@@ -8376,7 +8427,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260511bb';
+const APP_BUILD = '20260511bc';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8608,6 +8659,7 @@ let quizPresenceHooksAttached = false;
 /** Ultimo snapshot collezione presenza (per conteggio tempo reale + decay locale). */
 let quizPresenceLatestSnap = null;
 let quizPresenceMirrorRows = [];
+let quizPresenceMirrorRawDoc = null;
 /** unsubscribe onSnapshot presenza */
 let quizPresenceRealtimeUnsub = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
@@ -8620,6 +8672,7 @@ let quizPresenceSubscribeRetryTimer = null;
 let quizPresenceConnectedPollTimer = null;
 let quizPresenceLastServerReadAt = 0;
 let quizPresenceLastMirrorReadAt = 0;
+let quizPresenceHistoryExpanded = false;
 
 /** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
 function quizNormalizeBonusCards(list, maxItems) {
@@ -8837,9 +8890,13 @@ function quizPresenceGetDeviceId() {
 }
 
 function quizPresenceCollectOnlineRowsFromSnapshot(snap) {
+    return quizPresenceCollectRowsFromSnapshotWithWindow(snap, QUIZ_PRESENCE_ONLINE_WINDOW_MS);
+}
+
+function quizPresenceCollectRowsFromSnapshotWithWindow(snap, windowMs) {
     var out = [];
     if (!snap) return out;
-    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    var threshold = Date.now() - Math.max(0, Number(windowMs) || 0);
     snap.forEach(function (doc) {
         var d = doc.data() || {};
         var sessions = d.sessions && typeof d.sessions === 'object' ? d.sessions : null;
@@ -8915,8 +8972,12 @@ function quizPresenceCountMergedNow() {
 }
 
 function quizPresenceExtractMirrorRowsFromLeaderboardDoc(d) {
+    return quizPresenceExtractMirrorRowsFromLeaderboardDocWithWindow(d, QUIZ_PRESENCE_ONLINE_WINDOW_MS);
+}
+
+function quizPresenceExtractMirrorRowsFromLeaderboardDocWithWindow(d, windowMs) {
     var out = [];
-    var threshold = Date.now() - QUIZ_PRESENCE_ONLINE_WINDOW_MS;
+    var threshold = Date.now() - Math.max(0, Number(windowMs) || 0);
     var root = d && d.presence && typeof d.presence === 'object' ? d.presence : null;
     var pushIfOnline = function (k, item) {
         if (!item || typeof item !== 'object') return;
@@ -8969,10 +9030,12 @@ function quizPresenceReadMirrorFromServerPreferred() {
         .then(function (docSnap) {
             if (!docSnap || !docSnap.exists) {
                 quizPresenceMirrorRows = [];
+                quizPresenceMirrorRawDoc = null;
                 quizPresenceLastMirrorReadAt = Date.now();
                 return [];
             }
             var d = docSnap.data() || {};
+            quizPresenceMirrorRawDoc = d;
             var rows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
             quizPresenceMirrorRows = rows;
             quizPresenceLastMirrorReadAt = Date.now();
@@ -9101,11 +9164,103 @@ function quizPresenceFillConnectedList() {
         li.textContent = nm;
         ul.appendChild(li);
     });
+    if (quizPresenceHistoryExpanded) {
+        quizPresenceRenderHistory24h();
+    }
+}
+
+function quizPresenceCollectRowsMerged24h() {
+    var dayMs = 24 * 60 * 60 * 1000;
+    var baseRows = quizPresenceCollectRowsFromSnapshotWithWindow(quizPresenceLatestSnap, dayMs);
+    var mirrorRows24 = quizPresenceExtractMirrorRowsFromLeaderboardDocWithWindow(quizPresenceMirrorRawDoc, dayMs);
+    var map = {};
+    baseRows.forEach(function (r) {
+        var uid = String((r && r.uid) || '');
+        var sid = String((r && r.sessionId) || '');
+        var key = uid + '|' + sid;
+        if (!key || key === '|') return;
+        map[key] = {
+            label: r && r.label ? String(r.label).trim() : '',
+            uid: uid,
+            sessionId: sid,
+            lastSeenMs: Number((r && r.lastSeenMs) || 0) || 0
+        };
+    });
+    mirrorRows24.forEach(function (r) {
+        var uid = String((r && r.uid) || '');
+        var sid = String((r && r.sessionId) || '');
+        var key = uid + '|' + sid;
+        if (!key || key === '|') return;
+        var prev = map[key];
+        var t = Number((r && r.lastSeenMs) || 0) || 0;
+        if (!prev || t >= (Number(prev.lastSeenMs) || 0)) {
+            map[key] = {
+                label: r && r.label ? String(r.label).trim() : '',
+                uid: uid,
+                sessionId: sid,
+                lastSeenMs: t
+            };
+        }
+    });
+    return Object.keys(map).map(function (k) { return map[k]; });
+}
+
+function quizPresenceFormatAgo(lastSeenMs) {
+    var diff = Math.max(0, Date.now() - (Number(lastSeenMs) || 0));
+    var sec = Math.round(diff / 1000);
+    if (sec < 60) return sec + ' sec fa';
+    var min = Math.round(sec / 60);
+    if (min < 60) return min + ' min fa';
+    var hr = Math.round(min / 60);
+    return hr + ' ora fa';
+}
+
+function quizPresenceRenderHistory24h() {
+    var list = document.getElementById('quiz-presence-history-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = quizPresenceCollectRowsMerged24h();
+    rows.sort(function (a, b) {
+        return (Number((b && b.lastSeenMs) || 0) || 0) - (Number((a && a.lastSeenMs) || 0) || 0);
+    });
+    if (!rows.length) {
+        list.innerHTML = '<li class="quiz-presence-history-list__empty">Nessun collegamento registrato nelle ultime 24 ore.</li>';
+        return;
+    }
+    var unnamedCounter = 0;
+    rows.forEach(function (r) {
+        var name = r && r.label ? String(r.label).trim() : '';
+        if (!name) {
+            unnamedCounter += 1;
+            name = 'Utente senza nome ' + String(unnamedCounter);
+        }
+        var li = document.createElement('li');
+        li.textContent = name + ' · collegato ' + quizPresenceFormatAgo(r && r.lastSeenMs);
+        list.appendChild(li);
+    });
+}
+
+function quizPresenceToggleHistory24h() {
+    quizPresenceHistoryExpanded = !quizPresenceHistoryExpanded;
+    var wrap = document.getElementById('quiz-presence-history-wrap');
+    var btn = document.getElementById('quiz-presence-history-toggle');
+    if (wrap) wrap.hidden = !quizPresenceHistoryExpanded;
+    if (btn) {
+        btn.textContent = quizPresenceHistoryExpanded
+            ? 'Nascondi storico collegamenti (ultime 24 ore)'
+            : 'Mostra storico collegamenti (ultime 24 ore)';
+    }
+    if (quizPresenceHistoryExpanded) quizPresenceRenderHistory24h();
 }
 
 function quizPresenceOpenConnectedModal() {
     var overlay = document.getElementById('quiz-presence-connected-overlay');
     if (!overlay) return;
+    quizPresenceHistoryExpanded = false;
+    var hWrap = document.getElementById('quiz-presence-history-wrap');
+    if (hWrap) hWrap.hidden = true;
+    var hBtn = document.getElementById('quiz-presence-history-toggle');
+    if (hBtn) hBtn.textContent = 'Mostra storico collegamenti (ultime 24 ore)';
     quizPresencePing();
     Promise.all([quizPresenceReadCollectionRobust(), quizPresenceReadMirrorFromServerPreferred()])
         .then(function () {
@@ -9154,6 +9309,7 @@ function quizPresenceHideConnectedModal() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
+    quizPresenceHistoryExpanded = false;
     quizPresenceStopConnectedPolling();
 }
 
@@ -10067,6 +10223,8 @@ function quizAttachLeaderboardRealtime() {
             quizLeaderboardUnsub = ref.onSnapshot(
                 function (snap) {
                     if (!snap.exists) {
+                        quizPresenceMirrorRawDoc = null;
+                        quizPresenceMirrorRows = [];
                         /* Non cancellare la classifica locale: se il doc cloud non esiste ancora
                            (prima scrittura, ritardo rete, regole), svuotare qui fa sparire record appena inseriti. */
                         quizMarkLeaderboardHydratedFromCloud(false);
@@ -10076,9 +10234,11 @@ function quizAttachLeaderboardRealtime() {
                         return;
                     }
                     var d = snap.data() || {};
+                    quizPresenceMirrorRawDoc = d;
                     try {
                         quizPresenceMirrorRows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
                     } catch (ePm) {
+                        quizPresenceMirrorRawDoc = null;
                         quizPresenceMirrorRows = [];
                     }
                     try {
@@ -10095,6 +10255,7 @@ function quizAttachLeaderboardRealtime() {
                 function (err) {
                     console.warn('[quiz leaderboard realtime]', err);
                     try {
+                        quizPresenceMirrorRawDoc = null;
                         quizPresenceMirrorRows = [];
                         quizPresenceUpdatePresenceUi();
                     } catch (ePu2) { /* ignore */ }
