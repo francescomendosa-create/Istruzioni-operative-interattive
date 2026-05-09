@@ -8522,7 +8522,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508volsplit';
+const APP_BUILD = '20260508reopen2';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13368,6 +13368,20 @@ function quizEnsureBuildNotStaleOnLaunch() {
         var u = new URL(window.location.href);
         u.searchParams.set('refresh_build', highestSeen);
         u.searchParams.set('ts', String(Date.now()));
+        /* Stesso tab: sessionStorage sopravvive al replace; l’URL deve ristabilire anche lo strato pending in <head>. */
+        var keepReopen = false;
+        try {
+            keepReopen =
+                sessionStorage.getItem(QUIZ_SS_REOPEN_SETTINGS) === '1' ||
+                u.searchParams.get('reopen_settings') === '1' ||
+                document.documentElement.classList.contains('quiz-settings-reopen-pending');
+        } catch (eR) { /* ignore */ }
+        if (keepReopen) {
+            u.searchParams.set('reopen_settings', '1');
+            try {
+                sessionStorage.setItem(QUIZ_SS_REOPEN_SETTINGS, '1');
+            } catch (eS) { /* ignore */ }
+        }
         window.location.replace(u.toString());
     } catch (eNav) { /* ignore */ }
 }
@@ -13476,6 +13490,10 @@ function showQuizSettingsModal() {
             void quizCheckUpdateAvailableSilently();
         }
     } catch (eChk) { /* ignore */ }
+    /* Dopo il blocco sincrono di quizCheckUpdateAvailableSilently (es. self-heal refresh): se non c’è stato replace, togli intent. Prima di aprire non va pulito o si perde reopen con refresh_build. */
+    try {
+        quizClearReopenSettingsIntentMarkers();
+    } catch (eCl) { /* ignore */ }
 }
 
 function quizHasReopenSettingsIntent() {
@@ -13499,13 +13517,12 @@ function quizClearReopenSettingsIntentMarkers() {
     } catch (eC) { /* ignore */ }
 }
 
-/** Dopo ricarico da «Aggiorna» / intent multi-canale: riapre Impostazioni non appena il DOM ha l’overlay (fallback anche su `load`). */
+/** Dopo ricarico da «Aggiorna»: non cancellare intent prima di show — quizEnsureBuildNotStaleOnLaunch può fare subito un replace senza reopen. La pulizia è in showQuizSettingsModal dopo il check sincrono. */
 function quizApplyReopenSettingsIntent() {
     try {
         if (!quizHasReopenSettingsIntent()) return;
         var overlay = document.getElementById('quiz-settings-overlay');
         if (!overlay) return;
-        quizClearReopenSettingsIntentMarkers();
         requestAnimationFrame(function () {
             try {
                 showQuizSettingsModal();
@@ -13526,10 +13543,7 @@ function quizApplyReopenSettingsIntent() {
     window.addEventListener('load', function quizReopenSettingsIntentLoadFallback() {
         try {
             var o = document.getElementById('quiz-settings-overlay');
-            if (o && o.classList.contains('visible')) {
-                if (quizHasReopenSettingsIntent()) quizClearReopenSettingsIntentMarkers();
-                return;
-            }
+            if (o && o.classList.contains('visible')) return;
             quizApplyReopenSettingsIntent();
         } catch (eL) { /* ignore */ }
     });
