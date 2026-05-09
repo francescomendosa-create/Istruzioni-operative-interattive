@@ -7783,20 +7783,43 @@ function dismissAppSplash() {
     playSplashBubblePop();
     if (sp) sp.classList.add('app-splash--bursting');
     var waitMs = 1100;
-    try {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            waitMs = 200;
-        }
-    } catch (e0) {}
-    window.setTimeout(function () {
+    var finished = false;
+    var finalize = function () {
+        if (finished) return;
+        finished = true;
         dismissAppSplash._busy = false;
         if (btn) {
             btn.disabled = false;
             btn.removeAttribute('aria-busy');
         }
         finishDismissAppSplashToApp();
-    }, waitMs);
+    };
+    try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            waitMs = 200;
+        }
+    } catch (e0) {}
+    window.setTimeout(finalize, waitMs);
+    /* iPhone/Safari: in rari casi il timer principale può slittare molto; watchdog evita tap "morto". */
+    window.setTimeout(finalize, Math.max(waitMs + 900, 2200));
 }
+(function splashEnterButtonBindRobust() {
+    var btn = document.getElementById('app-splash-enter-btn');
+    if (!btn || btn.dataset.boundSplashEnter === '1') return;
+    btn.dataset.boundSplashEnter = '1';
+    var lastTapAt = 0;
+    var run = function (ev) {
+        var now = Date.now();
+        if (now - lastTapAt < 320) return;
+        lastTapAt = now;
+        try {
+            if (ev && ev.type === 'touchend' && typeof ev.preventDefault === 'function') ev.preventDefault();
+        } catch (eP) { /* ignore */ }
+        dismissAppSplash();
+    };
+    btn.addEventListener('touchend', run, { passive: false });
+    btn.addEventListener('pointerup', run, { passive: true });
+})();
 (function splashRasterCheck() {
     var im = document.getElementById('app-splash-raster-img');
     var inner = document.getElementById('app-splash-icon-live-inner');
@@ -8340,7 +8363,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605100</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605101</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8463,7 +8486,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605100</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605101</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8568,7 +8591,7 @@ const QUIZ_PASSWORD_PRODUCER = '1629';
 const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605100';
+const APP_BUILD = '202605101';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
