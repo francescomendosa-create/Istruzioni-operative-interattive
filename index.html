@@ -9111,7 +9111,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605126';
+const APP_BUILD = '202605127';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14903,6 +14903,77 @@ function quizModifyGetMergedItem(sectionKey, index) {
     return quizModifyMergeFields(base, patch);
 }
 
+/** Indice array `db[s]` per punto scheda `p` (allinea override Modifica salvati per indice). */
+function checklistRowIndexByPoint(s, p) {
+    try {
+        var rows = typeof db !== 'undefined' && db && db[s] ? db[s] : [];
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i] && rows[i].p === p) return i;
+        }
+    } catch (eI) {
+        /* ignore */
+    }
+    return -1;
+}
+
+/** Voce checklist runtime: `db` + campi sovrascritti da `MODIFY_LS_OVERRIDES` (stesso schema del pannello Modifica). */
+function checklistGetMergedItem(s, p) {
+    try {
+        var rows = typeof db !== 'undefined' && db && db[s] ? db[s] : [];
+        var idx = checklistRowIndexByPoint(s, p);
+        if (idx < 0) {
+            var fb = rows.filter(function (x) {
+                return x && x.p === p;
+            })[0];
+            return fb || null;
+        }
+        var raw = rows[idx] || {};
+        var ed = quizModifyGetMergedItem(s, idx);
+        return Object.assign({}, raw, ed);
+    } catch (eM) {
+        try {
+            var rows2 = db[s] || [];
+            return rows2.filter(function (x) {
+                return x && x.p === p;
+            })[0] || null;
+        } catch (e2) {
+            return null;
+        }
+    }
+}
+
+/** Aggiorna solo il titolo domanda sulla card dopo Salva/Ripristina in Modifica (senza rifare tutto il render). */
+function checklistRefreshQuestionCard(sectionKey, index) {
+    try {
+        var rows = quizModifyGetSectionRows(sectionKey);
+        var row = rows[index];
+        if (!row || row.p == null) return;
+        var merged = checklistGetMergedItem(sectionKey, row.p);
+        if (!merged) return;
+        var card = document.getElementById('card-' + sectionKey + '-' + row.p);
+        if (!card) return;
+        var el = card.querySelector('.question-header .question');
+        if (el) el.innerHTML = merged.q != null ? String(merged.q) : '';
+    } catch (eR) {
+        /* ignore */
+    }
+}
+
+function checklistTouchDomAfterModifyPersist() {
+    if (!quizModifyDetailCtx) return;
+    checklistRefreshQuestionCard(quizModifyDetailCtx.sectionKey, quizModifyDetailCtx.index);
+    try {
+        syncCf2CorrelationUpdate();
+    } catch (eS) {
+        /* ignore */
+    }
+    try {
+        updateRealTimeReport();
+    } catch (eU) {
+        /* ignore */
+    }
+}
+
 function quizModifyFillViewsFromWorking() {
     var w = quizModifyDetailWorking;
     if (!w) return;
@@ -15154,6 +15225,7 @@ function quizModifyDetailActionRestore(field) {
     }
     quizModifyFillViewsFromWorking();
     quizModifyPersistWorkingToStorage();
+    checklistTouchDomAfterModifyPersist();
 }
 
 function quizModifyDetailActionSave(field) {
@@ -15203,6 +15275,7 @@ function quizModifyDetailActionSave(field) {
     quizModifyFillViewsFromWorking();
     quizModifyPersistWorkingToStorage();
     quizModifyDetailUpdateSaveButtons();
+    checklistTouchDomAfterModifyPersist();
 }
 
 function quizModifyDetailBindOnce() {
@@ -19566,11 +19639,12 @@ function render() {
                 <h2>${sectionTitle}</h2>
             </div>`;
         db[s].forEach(item => {
+            const mergedRow = checklistGetMergedItem(s, item.p) || item;
             cont.innerHTML += `
                 <div class="card" id="card-${s}-${item.p}">
                     <div style="color:var(--accent); font-size:0.8rem; font-weight:bold;">${s === 'cf' ? 'CHIMICO-FISICO' : 'BIOLOGICO MBBR'} - PUNTO ${item.p}</div>
                     <div class="question-header">
-                        <div class="question">${item.q}</div>
+                        <div class="question">${mergedRow.q}</div>
                         <div class="return-relation-wrap">
                             <span class="cf2-corr-hand-hint return-relation-hand" id="return-hand-${s}-${item.p}" aria-hidden="true">👉</span>
                             <button class="btn-return-inline" id="return-btn-${s}-${item.p}" onclick="executeReturn()">CONTINUA RELAZIONE ↑</button>
@@ -19776,7 +19850,7 @@ function syncCf2CorrelationUpdate() {
 
     if (!oilCorr && !biomassAlarm) return;
 
-    const cf2 = db['cf'].find((x) => x.p === 2);
+    const cf2 = checklistGetMergedItem('cf', 2) || db['cf'].find((x) => x.p === 2);
     let oilBody = '';
     if (oilCorr && cf2 && cf2.correlation_update) {
         oilBody = `<div class="correlation-mbbr-oil-block">${cf2.correlation_update}</div>`;
@@ -19886,7 +19960,7 @@ function clearAnswerToggle(s, p) {
 function check(s, p, val, btn) {
     mbrCheckDepth += 1;
     try {
-    const item = db[s].find(x => x.p === p);
+    const item = checklistGetMergedItem(s, p) || db[s].find(x => x.p === p);
 
     // Secondo click sulla stessa risposta (Sì/No gia attiva): annulla e torna ai pulsanti neutri
     if (!isUpdating && correlationYes[`${s}-${p}`] === val) {
@@ -20167,7 +20241,7 @@ function updateRealTimeReport() {
     const priorityActions = [];
     const correlationNotes = [];
 
-    const getItem = (s, p) => (db[s] || []).find(x => x.p === p);
+    const getItem = (s, p) => checklistGetMergedItem(s, p) || (db[s] || []).find(x => x.p === p);
     const addAction = (text) => {
         if (text && !priorityActions.includes(text)) priorityActions.push(text);
     };
