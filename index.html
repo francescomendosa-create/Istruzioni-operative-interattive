@@ -8339,7 +8339,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605095</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605096</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8458,7 +8458,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605095</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605096</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8552,7 +8552,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605095';
+const APP_BUILD = '202605096';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9915,15 +9915,35 @@ function quizPresenceAttachLifecycleOnce() {
     quizPresenceHooksAttached = true;
     try {
         document.addEventListener('visibilitychange', function quizPresenceVis() {
-            if (document.visibilityState === 'visible') quizPresencePing();
+            if (document.visibilityState === 'visible') {
+                quizPresenceStartHeartbeat();
+                quizPresencePing();
+            } else {
+                quizPresenceStopHeartbeat();
+            }
+        });
+        window.addEventListener('focus', function quizPresenceFocus() {
+            quizPresenceStartHeartbeat();
+            quizPresencePing();
+        });
+        window.addEventListener('blur', function quizPresenceBlur() {
+            quizPresenceStopHeartbeat();
         });
         window.addEventListener('pagehide', function quizPresenceHide() {
+            quizPresenceStopHeartbeat();
             quizPresenceMarkOfflineBestEffort();
         });
         window.addEventListener('beforeunload', function quizPresenceUnload() {
+            quizPresenceStopHeartbeat();
             quizPresenceMarkOfflineBestEffort();
         });
     } catch (eA) { /* ignore */ }
+}
+
+function quizPresenceStopHeartbeat() {
+    if (quizPresenceHeartbeatId == null) return;
+    clearInterval(quizPresenceHeartbeatId);
+    quizPresenceHeartbeatId = null;
 }
 
 function quizPresenceStartHeartbeat() {
