@@ -8698,7 +8698,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605119';
+const APP_BUILD = '202605120';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -10270,6 +10270,24 @@ function quizTryApplyModifyFeaturesFromDocField(d) {
     } catch (e) { /* ignore */ }
 }
 
+/** Legge il flag da quiz_leaderboard/global (stesso doc della classifica). */
+function quizFetchModifyFeaturesFromLeaderboardDoc(reason) {
+    return quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).get();
+        })
+        .then(function (snap) {
+            if (!snap.exists) return;
+            var d = snap.data() || {};
+            var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
+            if (want === null) return;
+            quizApplyModifyFeaturesFromRemote(want);
+        })
+        .catch(function (e) {
+            console.warn('[quiz modify read leaderboard]', reason || '', e);
+        });
+}
+
 function quizFetchModifyFeaturesFromFirestore(reason) {
     if (!quizFirestoreConfigured()) return Promise.resolve();
     return quizEnsureFirebase()
@@ -10277,16 +10295,21 @@ function quizFetchModifyFeaturesFromFirestore(reason) {
             var ref = firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC);
             /* default source: cache se offline / rete instabile; server quando disponibile */
             return ref.get().then(function (snap) {
-                if (!snap.exists) return;
-                var d = snap.data() || {};
-                var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
-                if (want === null) return;
-                quizApplyModifyFeaturesFromRemote(want);
-                quizMirrorModifyFeaturesToLeaderboardDoc(want);
+                if (snap.exists) {
+                    var d = snap.data() || {};
+                    var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
+                    if (want !== null) {
+                        quizApplyModifyFeaturesFromRemote(want);
+                        quizMirrorModifyFeaturesToLeaderboardDoc(want);
+                        return;
+                    }
+                }
+                return quizFetchModifyFeaturesFromLeaderboardDoc(reason + '/fallback-lb');
             });
         })
         .catch(function (e) {
-            console.warn('[quiz_app_flags server read]', reason || '', e);
+            console.warn('[quiz_app_flags read]', reason || '', e);
+            return quizFetchModifyFeaturesFromLeaderboardDoc(reason + '/catch-lb');
         });
 }
 
@@ -10314,16 +10337,17 @@ function quizPushModifyFeaturesGlobal() {
                 modifyFeaturesEnabled: v,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            return db
-                .collection(QUIZ_FS_APP_FLAGS)
-                .doc(QUIZ_FS_APP_FLAGS_DOC)
-                .set(payload, { merge: true })
-                .then(function () {
-                    return db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(payload, { merge: true });
-                });
+            /* Due scritture indipendenti: se quiz_app_flags non è nelle regole, la prima falliva e la catena
+             * .then() impediva di salvare anche su quiz_leaderboard/global (dove la classifica scrive già). */
+            db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(payload, { merge: true }).catch(function (eLb) {
+                console.warn('[quiz modify write → leaderboard]', eLb);
+            });
+            db.collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC).set(payload, { merge: true }).catch(function (eFl) {
+                console.warn('[quiz modify write → app_flags]', eFl);
+            });
         })
         .catch(function (e) {
-            console.warn('[quiz app flags write]', e);
+            console.warn('[quiz modify push auth]', e);
         });
 }
 
