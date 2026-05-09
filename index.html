@@ -8373,7 +8373,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605102</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605103</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8496,7 +8496,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605102</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605103</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8538,10 +8538,32 @@ function dismissAppSplash() {
         </div>
     </div>
 
+    <div id="quiz-developer-menu-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizDeveloperMenuBackdrop(event)">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-developer-menu-title" onclick="event.stopPropagation()" style="width:min(94vw,420px);">
+            <h4 id="quiz-developer-menu-title" class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
+            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;">Strumenti sviluppatore e abilitazione funzioni collegate al tasto <strong>Modifica</strong> in Impostazioni.</p>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;" onclick="quizDeveloperOpenClassifica()" aria-label="Apri classifica">
+                <span><strong>Classifica</strong></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;margin-top:8px;" onclick="quizDeveloperOpenModifyFromMenu()" aria-label="Modifica · contenuti da configurare">
+                <span><strong>Modifica</strong></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <label class="quiz-settings-row quiz-settings-row--toggle" style="width:100%;box-sizing:border-box;margin-top:10px;">
+                <span class="quiz-settings-row-text">Abilita funzioni <strong>Modifica</strong> (Impostazioni)</span>
+                <input type="checkbox" id="quiz-developer-modify-toggle" onchange="quizDeveloperModifyToggleChanged(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
+            </label>
+            <div class="quiz-lock-actions" style="margin-top:14px;">
+                <button type="button" class="btn-side btn-report" onclick="hideQuizDeveloperMenuModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
     <div id="quiz-modify-dev-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizModifyDevModalBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
             <h4 id="quiz-modify-dev-title" class="quiz-lock-title">Modifica</h4>
-            <p style="margin:0;color:#37474f;font-size:0.92rem;">Modalità ancora in via di sviluppo.</p>
+            <p id="quiz-modify-dev-body" style="margin:0;color:#37474f;font-size:0.92rem;">Modalità ancora in via di sviluppo.</p>
             <div class="quiz-lock-actions">
                 <button type="button" id="quiz-modify-dev-close" class="btn-side btn-report" onclick="hideQuizModifyInDevelopmentPopup()">Chiudi</button>
             </div>
@@ -8554,14 +8576,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
         </div>
         <div class="quiz-fs-scroll quiz-producer-fs-scroll" style="text-align:left;">
-            <div id="quiz-producer-intro" class="quiz-producer-intro">
-                <h2 id="quiz-producer-intro-title" class="quiz-producer-intro__title">Pannello sviluppatore</h2>
-                <p class="quiz-producer-intro__lead">
-                    Seleziona uno strumento. La classifica si apre nella finestra dedicata successiva.
-                </p>
-                <button type="button" id="quiz-producer-intro-continue" class="btn-side btn-report" onclick="quizProducerIntroContinue()">Classifica</button>
-            </div>
-            <div id="quiz-producer-work" class="quiz-producer-work" hidden>
+            <div id="quiz-producer-work" class="quiz-producer-work">
                 <div class="quiz-producer-add">
                     <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
                     <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
@@ -8599,12 +8614,15 @@ let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
+/** Advanced mode: abilita funzioni collegate al tasto Modifica in Impostazioni (toggle nel menu sviluppatore). */
+const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605102';
+const APP_BUILD = '202605103';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
+let quizDeveloperModifyFeaturesEnabled = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 /** Nome mostrato solo in presenza online (Impostazioni → Chi sei?). Separato dalla classifica quiz. */
@@ -13616,6 +13634,8 @@ async function showQuizSettingsModal() {
         return;
     }
     syncSettingsQuizToggleUi();
+    quizLoadDeveloperModifyFeaturesState();
+    quizSyncDeveloperModifySettingsRow();
     quizRefreshInProgress = false;
     quizSettingsRefreshLineReset();
     const vLab = document.getElementById('quiz-settings-version-label');
@@ -13876,11 +13896,100 @@ function quizApplyAdvancedModeUi() {
     btn.classList.toggle('quiz-advanced-active', !!quizAdvancedModeEnabled);
 }
 
+function quizLoadDeveloperModifyFeaturesState() {
+    try {
+        quizDeveloperModifyFeaturesEnabled = localStorage.getItem(QUIZ_LS_DEVELOPER_MODIFY_FEATURES) === '1';
+    } catch (e) {
+        quizDeveloperModifyFeaturesEnabled = false;
+    }
+}
+
+function quizDeveloperModifyFeaturesGet() {
+    return !!quizDeveloperModifyFeaturesEnabled;
+}
+
+function quizSetDeveloperModifyFeaturesEnabled(on) {
+    quizDeveloperModifyFeaturesEnabled = !!on;
+    try {
+        if (quizDeveloperModifyFeaturesEnabled) {
+            localStorage.setItem(QUIZ_LS_DEVELOPER_MODIFY_FEATURES, '1');
+        } else {
+            localStorage.removeItem(QUIZ_LS_DEVELOPER_MODIFY_FEATURES);
+        }
+    } catch (eLs) { /* ignore */ }
+    quizSyncDeveloperModifyToggleUi();
+    quizSyncDeveloperModifySettingsRow();
+}
+
+function quizSyncDeveloperModifyToggleUi() {
+    var cb = document.getElementById('quiz-developer-modify-toggle');
+    if (cb) cb.checked = quizDeveloperModifyFeaturesGet();
+}
+
+function quizSyncDeveloperModifySettingsRow() {
+    var on = quizDeveloperModifyFeaturesGet();
+    var row = document.getElementById('quiz-settings-modify-btn');
+    if (!row) return;
+    row.disabled = !on;
+    row.style.opacity = on ? '' : '0.55';
+    row.style.pointerEvents = on ? '' : 'none';
+    row.setAttribute('aria-disabled', on ? 'false' : 'true');
+    row.setAttribute('title', on ? 'Modifica · strumenti aggiuntivi' : 'Abilita le funzioni Modifica dal menu Advanced mode (toggle).');
+}
+
+function quizDeveloperModifyToggleChanged(checked) {
+    quizSetDeveloperModifyFeaturesEnabled(!!checked);
+}
+
+function showQuizDeveloperMenuModal() {
+    quizLoadDeveloperModifyFeaturesState();
+    quizSyncDeveloperModifyToggleUi();
+    var o = document.getElementById('quiz-developer-menu-overlay');
+    if (!o) return;
+    o.classList.add('visible');
+    o.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function hideQuizDeveloperMenuModal() {
+    var o = document.getElementById('quiz-developer-menu-overlay');
+    if (!o) return;
+    o.classList.remove('visible');
+    o.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
+}
+
+function quizDeveloperMenuBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-developer-menu-overlay') {
+        hideQuizDeveloperMenuModal();
+    }
+}
+
+function quizDeveloperOpenClassifica() {
+    hideQuizDeveloperMenuModal();
+    showQuizProducerModal();
+}
+
+function quizDeveloperOpenModifyFromMenu() {
+    hideQuizDeveloperMenuModal();
+    showQuizModifyInDevelopmentPopup();
+}
+
 function showQuizModifyInDevelopmentPopup() {
     const overlay = document.getElementById('quiz-modify-dev-overlay');
+    const body = document.getElementById('quiz-modify-dev-body');
     if (!overlay) return;
+    if (body) {
+        if (!quizDeveloperModifyFeaturesGet()) {
+            body.textContent =
+                'Abilita prima le funzioni Modifica: Impostazioni → Advanced mode · Sviluppatore, attiva il toggle «Abilita funzioni Modifica».';
+        } else {
+            body.textContent = 'Modalità ancora in via di sviluppo.';
+        }
+    }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
     requestAnimationFrame(function () {
         try {
             var btn = document.getElementById('quiz-modify-dev-close');
@@ -13894,6 +14003,7 @@ function hideQuizModifyInDevelopmentPopup() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
 }
 
 function quizModifyDevModalBackdrop(ev) {
@@ -13909,12 +14019,12 @@ function showQuizPasswordModal() {
     const confirmBtn = document.getElementById('quiz-lock-confirm-btn');
     if (!overlay || !input || !err || !hint || !cancelBtn || !confirmBtn) return;
     if (quizAdvancedModeEnabled) {
-        hint.textContent = 'Modalità già attiva. Puoi aprire il pannello o uscire dalla modalità.';
+        hint.textContent = 'Modalità già attiva. Puoi aprire il menu sviluppatore o uscire dalla modalità.';
         input.style.display = 'none';
         err.textContent = '';
         err.style.display = 'none';
         cancelBtn.textContent = 'Esci modalità';
-        confirmBtn.textContent = 'Apri pannello';
+        confirmBtn.textContent = 'Apri menu';
     } else {
         hint.textContent = 'Inserisci la password per accedere.';
         input.style.display = '';
@@ -13958,7 +14068,7 @@ function confirmQuizPassword() {
         quizPasswordResumeSettings = false;
         hideQuizPasswordModal();
         hideQuizSettingsModal();
-        showQuizProducerModal();
+        showQuizDeveloperMenuModal();
         return;
     }
     const input = document.getElementById('quiz-lock-input');
@@ -13977,7 +14087,7 @@ function confirmQuizPassword() {
     quizPasswordResumeSettings = false;
     hideQuizPasswordModal();
     hideQuizSettingsModal();
-    showQuizProducerModal();
+    showQuizDeveloperMenuModal();
 }
 
 function settingsQuizFeatureToggle(on) {
@@ -14119,18 +14229,9 @@ function quizProducerRemoveConfirmOk() {
     quizProducerRemoveAt(Number(idx));
 }
 
-function quizProducerResetIntro() {
-    const intro = document.getElementById('quiz-producer-intro');
-    const work = document.getElementById('quiz-producer-work');
-    if (intro) intro.hidden = false;
-    if (work) work.hidden = true;
-}
+function quizProducerResetIntro() {}
 
 function quizProducerIntroContinue() {
-    const intro = document.getElementById('quiz-producer-intro');
-    const work = document.getElementById('quiz-producer-work');
-    if (intro) intro.hidden = true;
-    if (work) work.hidden = false;
     quizProducerRefreshTable();
     try {
         quizPresenceBootstrap();
@@ -14149,10 +14250,14 @@ function showQuizProducerModal() {
         el.setAttribute('aria-hidden', 'false');
     }
     document.body.classList.add('producer-open');
-    quizProducerResetIntro();
+    quizProducerRefreshTable();
+    try {
+        quizPresenceBootstrap();
+    } catch (ePb) { /* ignore */ }
+    quizProducerRefreshPresence();
     requestAnimationFrame(function () {
-        const c = document.getElementById('quiz-producer-intro-continue');
-        if (c) c.focus();
+        const n = document.getElementById('quiz-producer-name');
+        if (n) n.focus();
         else {
             const x = document.querySelector('#quiz-producer-overlay .quiz-fs-exit');
             if (x) x.focus();
@@ -14326,7 +14431,23 @@ function setupQuizTitleToggle() {
         const info = document.getElementById('quiz-info-overlay');
         const prod = document.getElementById('quiz-producer-overlay');
         const lock = document.getElementById('quiz-lock-overlay');
+        const devMenu = document.getElementById('quiz-developer-menu-overlay');
+        const modifyDev = document.getElementById('quiz-modify-dev-overlay');
         const settings = document.getElementById('quiz-settings-overlay');
+        if (devMenu && devMenu.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideQuizDeveloperMenuModal();
+            }
+            return;
+        }
+        if (modifyDev && modifyDev.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideQuizModifyInDevelopmentPopup();
+            }
+            return;
+        }
         if (info && info.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
@@ -19207,6 +19328,8 @@ window.addEventListener('load', function initQuizProtection() {
             applyQuizVisibility();
             syncSettingsQuizToggleUi();
             quizLoadAdvancedModeState();
+            quizLoadDeveloperModifyFeaturesState();
+            quizSyncDeveloperModifySettingsRow();
             quizSyncSpeechUi();
             /** All’avvio mostriamo sempre home → istruzioni; il quiz si apre solo dal pulsante Quiz. */
             try {
