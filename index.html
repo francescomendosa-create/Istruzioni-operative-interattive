@@ -5467,7 +5467,7 @@
             pointer-events: all;
         }
         html.quiz-settings-reopen-pending::after {
-            content: 'Aggiornamento in corso…';
+            content: 'Ricerca aggiornamento in corso…';
             position: fixed;
             left: 50%;
             top: 50%;
@@ -5490,6 +5490,9 @@
             color: #1a237e;
             font-weight: 700;
             pointer-events: none;
+        }
+        html.quiz-settings-reopen-pending.quiz-settings-reopen-pending--apply::after {
+            content: 'Aggiornamento in corso…';
         }
         .quiz-settings-box {
             width: min(92vw, 440px);
@@ -7106,6 +7109,18 @@
                 } catch (eU) { /* ignore */ }
                 if (need) {
                     document.documentElement.classList.add('quiz-settings-reopen-pending');
+                    var pendingMsg = '';
+                    try {
+                        pendingMsg = sessionStorage.getItem('io-quiz-reopen-pending-msg') || '';
+                    } catch (eM) { /* ignore */ }
+                    try {
+                        sessionStorage.removeItem('io-quiz-reopen-pending-msg');
+                    } catch (eR) { /* ignore */ }
+                    if (pendingMsg === 'apply') {
+                        document.documentElement.classList.add('quiz-settings-reopen-pending--apply');
+                    } else {
+                        document.documentElement.classList.add('quiz-settings-reopen-pending--search');
+                    }
                     try {
                         window.__QUIZ_REOPEN_PAGE_T0 = Date.now();
                     } catch (eT) { /* ignore */ }
@@ -8525,7 +8540,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605085';
+const APP_BUILD = '202605086';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8666,9 +8681,11 @@ const QUIZ_VF_BANK = [
 const QUIZ_LS_GEMINI_COMMENTATOR = 'io-quiz-gemini-commentator';
 /* Se preferisci chiavi fisse nel codice, inseriscile qui e i campi non saranno mostrati nella UI. */
 const QUIZ_AI_TEXT_KEY_CODE = 'AIzaSyDgXB9-bfvJZm5sj1LCcebHHiHG6fvjoNg';
-/** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. (Stessa stringa in <head> per lo strato «fermo».) */
+/** Impostazioni: dopo ricarico da «Aggiorna», riapri il pop-up automaticamente. Messaggio strato <head>: vedi QUIZ_SS_REOPEN_PENDING_MSG. */
 const QUIZ_SS_REOPEN_SETTINGS = 'io-quiz-reopen-settings-after-reload';
-/** Dopo ricarico da «Aggiorna»: mostra almeno così tanti ms «Aggiornamento in corso…» prima di riaprire Impostazioni (così non lampeggia). */
+/** Valori: apply = «Aggiornamento in corso…»; search (o assente) = «Ricerca aggiornamento in corso…». */
+const QUIZ_SS_REOPEN_PENDING_MSG = 'io-quiz-reopen-pending-msg';
+/** Dopo ricarico da «Aggiorna»: mostra almeno così tanti ms lo strato messaggio prima di riaprire Impostazioni (così non lampeggia). */
 const QUIZ_REOPEN_PENDING_MIN_MS = 1400;
 /** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
 const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
@@ -13486,7 +13503,11 @@ function quizSettingsRefreshLineReset() {
 
 function showQuizSettingsModal() {
     try {
-        document.documentElement.classList.remove('quiz-settings-reopen-pending');
+        document.documentElement.classList.remove(
+            'quiz-settings-reopen-pending',
+            'quiz-settings-reopen-pending--apply',
+            'quiz-settings-reopen-pending--search'
+        );
     } catch (eRm) { /* ignore */ }
     const overlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
@@ -13545,7 +13566,7 @@ function quizClearReopenSettingsIntentMarkers() {
     } catch (eC) { /* ignore */ }
 }
 
-/** Dopo ricarico da «Aggiorna»: attende un minimo prima di riaprire Impostazioni così «Aggiornamento in corso…» resta leggibile. */
+/** Dopo ricarico da «Aggiorna»: attende un minimo prima di riaprire Impostazioni così il messaggio (ricerca vs aggiornamento) resta leggibile. */
 function quizApplyReopenSettingsIntent() {
     try {
         if (!quizHasReopenSettingsIntent()) return;
@@ -13598,6 +13619,16 @@ function quizApplyReopenSettingsIntent() {
 function quizSettingsForceRefresh(btn) {
     if (quizRefreshInProgress) return;
     quizRefreshInProgress = true;
+    var updateReadyInUi = false;
+    try {
+        var prb = typeof quizPendingRemoteBuild !== 'undefined' ? quizPendingRemoteBuild : '';
+        if (prb && typeof quizCompareBuildTokens === 'function' && typeof APP_BUILD !== 'undefined') {
+            updateReadyInUi = quizCompareBuildTokens(prb, APP_BUILD) > 0;
+        }
+    } catch (eFl) { /* ignore */ }
+    try {
+        sessionStorage.setItem(QUIZ_SS_REOPEN_PENDING_MSG, updateReadyInUi ? 'apply' : 'search');
+    } catch (eSm) { /* ignore */ }
     var line = document.getElementById('quiz-settings-refresh-line');
     if (line) line.textContent = 'Aggiorna…';
     if (btn) {
@@ -13698,7 +13729,11 @@ function hideQuizSettingsModal() {
         quizPresenceHideConnectedModal();
     } catch (eCo) { /* ignore */ }
     try {
-        document.documentElement.classList.remove('quiz-settings-reopen-pending');
+        document.documentElement.classList.remove(
+            'quiz-settings-reopen-pending',
+            'quiz-settings-reopen-pending--apply',
+            'quiz-settings-reopen-pending--search'
+        );
     } catch (eRm) { /* ignore */ }
     const overlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
