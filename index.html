@@ -8698,7 +8698,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605118';
+const APP_BUILD = '202605119';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -10229,7 +10229,47 @@ function quizPullPrefsFromFirestoreAndApply() {
  *     allow read: if request.auth != null;
  *     allow create, update: if request.auth != null;
  *   }
+ * In più il flag viene duplicato con merge su quiz_leaderboard/global: molti progetti hanno già
+ * le regole per la classifica ma non per quiz_app_flags — così tutti i dispositivi ricevono lo stesso stato.
  */
+function quizCoerceModifyFeaturesEnabled(raw) {
+    if (raw === true || raw === false) return raw;
+    if (raw === 1 || raw === 0) return raw === 1;
+    if (typeof raw === 'number' && isFinite(raw)) return raw !== 0;
+    if (typeof raw === 'string') {
+        var s = String(raw).trim().toLowerCase();
+        if (s === '1' || s === 'true' || s === 'yes' || s === 'on') return true;
+        if (s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+    }
+    return null;
+}
+
+/** Propaga il flag sul doc classifica (merge): fallback per client che non leggono quiz_app_flags. */
+function quizMirrorModifyFeaturesToLeaderboardDoc(want) {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(
+                {
+                    modifyFeaturesEnabled: !!want,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                },
+                { merge: true }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz modify mirror → leaderboard]', e);
+        });
+}
+
+function quizTryApplyModifyFeaturesFromDocField(d) {
+    try {
+        var want = quizCoerceModifyFeaturesEnabled((d || {}).modifyFeaturesEnabled);
+        if (want === null) return;
+        quizApplyModifyFeaturesFromRemote(want);
+    } catch (e) { /* ignore */ }
+}
+
 function quizFetchModifyFeaturesFromFirestore(reason) {
     if (!quizFirestoreConfigured()) return Promise.resolve();
     return quizEnsureFirebase()
@@ -10239,8 +10279,10 @@ function quizFetchModifyFeaturesFromFirestore(reason) {
             return ref.get().then(function (snap) {
                 if (!snap.exists) return;
                 var d = snap.data() || {};
-                if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
-                quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+                var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
+                if (want === null) return;
+                quizApplyModifyFeaturesFromRemote(want);
+                quizMirrorModifyFeaturesToLeaderboardDoc(want);
             });
         })
         .catch(function (e) {
@@ -10264,15 +10306,21 @@ function quizApplyModifyFeaturesFromRemote(want) {
 
 function quizPushModifyFeaturesGlobal() {
     if (!quizFirestoreConfigured()) return;
+    var v = !!quizDeveloperModifyFeaturesEnabled;
     quizEnsureFirebase()
         .then(function () {
-            return firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC).set(
-                {
-                    modifyFeaturesEnabled: !!quizDeveloperModifyFeaturesEnabled,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                },
-                { merge: true }
-            );
+            var db = firebase.firestore();
+            var payload = {
+                modifyFeaturesEnabled: v,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            return db
+                .collection(QUIZ_FS_APP_FLAGS)
+                .doc(QUIZ_FS_APP_FLAGS_DOC)
+                .set(payload, { merge: true })
+                .then(function () {
+                    return db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(payload, { merge: true });
+                });
         })
         .catch(function (e) {
             console.warn('[quiz app flags write]', e);
@@ -10295,8 +10343,10 @@ function quizSubscribeModifyFeaturesFlag() {
                     function (snap) {
                         if (!snap.exists) return;
                         var d = snap.data() || {};
-                        if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
-                        quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+                        var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
+                        if (want === null) return;
+                        quizApplyModifyFeaturesFromRemote(want);
+                        quizMirrorModifyFeaturesToLeaderboardDoc(want);
                     },
                     function (err) {
                         console.warn('[quiz_app_flags snapshot]', err);
@@ -10703,6 +10753,7 @@ function quizPullLeaderboardFromFirestore() {
                 return;
             }
             var d = snap.data() || {};
+            quizTryApplyModifyFeaturesFromDocField(d);
             var pulled = Array.isArray(d.rows) ? d.rows : [];
             var sortedPull = quizSortLeaderboardRows(pulled);
             quizNormalizePodiumWorms(sortedPull);
@@ -10748,6 +10799,7 @@ function quizAttachLeaderboardRealtime() {
                         return;
                     }
                     var d = snap.data() || {};
+                    quizTryApplyModifyFeaturesFromDocField(d);
                     quizPresenceMirrorRawDoc = d;
                     try {
                         quizPresenceMirrorRows = quizPresenceExtractMirrorRowsFromLeaderboardDoc(d);
