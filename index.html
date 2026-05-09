@@ -5872,6 +5872,11 @@
             justify-content: flex-end;
             margin-top: 8px;
         }
+        /* Footer elenco Modifica contenuti: solo «Chiudi» (prova / barra ridotta). */
+        .quiz-modify-actions--footer-minimal #quiz-modify-dev-close {
+            width: 100%;
+            box-sizing: border-box;
+        }
         .quiz-modify-actions .btn-side:disabled {
             opacity: 0.45;
             cursor: not-allowed;
@@ -9035,12 +9040,7 @@ function dismissAppSplash() {
                 </div>
                 <div id="quiz-modify-list" class="quiz-modify-list" role="listbox" aria-label="Domande della sezione"></div>
                 <p id="quiz-modify-hint" class="quiz-modify-hint"></p>
-                <div class="quiz-lock-actions quiz-modify-actions">
-                    <button type="button" class="btn-side btn-reset" id="quiz-modify-btn-revert" disabled title="Ripristino versione precedente dopo cronologia salvataggi">
-                        Ripristina precedente
-                    </button>
-                    <button type="button" class="btn-side btn-reset" id="quiz-modify-btn-discard" disabled title="Annulla modifiche non salvate">Annulla bozza</button>
-                    <button type="button" class="btn-side btn-report" id="quiz-modify-btn-save" disabled title="Salvataggio persistente (Firebase / locale) in arrivo">Salva</button>
+                <div class="quiz-lock-actions quiz-modify-actions quiz-modify-actions--footer-minimal">
                     <button type="button" id="quiz-modify-dev-close" class="btn-side btn-report" onclick="hideQuizModifyInDevelopmentPopup()">Chiudi</button>
                 </div>
             </div>
@@ -9183,7 +9183,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605135';
+const APP_BUILD = '202605136';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
