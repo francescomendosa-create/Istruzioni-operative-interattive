@@ -8450,7 +8450,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605115</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605116</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8573,7 +8573,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605115</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605116</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8698,7 +8698,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605115';
+const APP_BUILD = '202605116';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -8952,6 +8952,8 @@ let quizPresenceMirrorRawDoc = null;
 let quizPresenceRealtimeUnsub = null;
 /** unsubscribe flag Modifica condiviso (quiz_app_flags/ui) */
 let quizModifyFeaturesUnsub = null;
+/** backup polling se il listener realtime non aggiorna (regole/rete/iOS) */
+let quizModifyFeaturesPollId = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
 let quizPresenceStaleTickerId = null;
 /** Ultimo errore lettura presenza (tooltip). */
@@ -10222,12 +10224,29 @@ function quizPullPrefsFromFirestoreAndApply() {
 
 /*
  * Flag UI condiviso (stesso comportamento su tutti i client del progetto Firebase).
- * Regole Firestore suggerite:
+ * Obbligatorio in Console Firebase → Firestore → Regole, altrimenti lettura/scrittura falliscono:
  *   match /quiz_app_flags/{docId} {
  *     allow read: if request.auth != null;
  *     allow create, update: if request.auth != null;
  *   }
  */
+function quizFetchModifyFeaturesFromFirestore(reason) {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    return quizEnsureFirebase()
+        .then(function () {
+            var ref = firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC);
+            return ref.get({ source: 'server' }).then(function (snap) {
+                if (!snap.exists) return;
+                var d = snap.data() || {};
+                if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
+                quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+            });
+        })
+        .catch(function (e) {
+            console.warn('[quiz_app_flags server read]', reason || '', e);
+        });
+}
+
 function quizApplyModifyFeaturesFromRemote(want) {
     want = !!want;
     quizDeveloperModifyFeaturesEnabled = want;
@@ -10270,31 +10289,57 @@ function quizSubscribeModifyFeaturesFlag() {
                 quizModifyFeaturesUnsub = null;
             }
             var ref = firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC);
-            return ref
-                .get()
-                .then(function (snap) {
-                    if (snap.exists) {
+            return quizFetchModifyFeaturesFromFirestore('listener-bootstrap').then(function () {
+                quizModifyFeaturesUnsub = ref.onSnapshot(
+                    function (snap) {
+                        if (!snap.exists) return;
                         var d = snap.data() || {};
-                        if (typeof d.modifyFeaturesEnabled === 'boolean') {
-                            quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
-                        }
+                        if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
+                        quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+                    },
+                    function (err) {
+                        console.warn('[quiz_app_flags snapshot]', err);
+                        window.setTimeout(function () {
+                            try {
+                                quizSubscribeModifyFeaturesFlag();
+                            } catch (eR) { /* ignore */ }
+                        }, 4000);
                     }
-                })
-                .then(function () {
-                    quizModifyFeaturesUnsub = ref.onSnapshot(
-                        function (snap) {
-                            if (!snap.exists) return;
-                            var d = snap.data() || {};
-                            if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
-                            quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
-                        },
-                        function (err) {
-                            console.warn('[quiz_app_flags]', err);
-                        }
-                    );
-                });
+                );
+            });
         })
-        .catch(function () {});
+        .catch(function (e) {
+            console.warn('[quiz_app_flags subscribe]', e);
+        });
+}
+
+function quizStartModifyFeaturesPolling() {
+    if (!quizFirestoreConfigured()) return;
+    try {
+        if (quizModifyFeaturesPollId) {
+            clearInterval(quizModifyFeaturesPollId);
+            quizModifyFeaturesPollId = null;
+        }
+        quizModifyFeaturesPollId = window.setInterval(function () {
+            quizFetchModifyFeaturesFromFirestore('poll');
+        }, 5000);
+    } catch (eP) { /* ignore */ }
+}
+
+function quizVisibilityRefreshModifyFeatures() {
+    if (quizVisibilityRefreshModifyFeatures._done) return;
+    quizVisibilityRefreshModifyFeatures._done = true;
+    try {
+        document.addEventListener(
+            'visibilitychange',
+            function () {
+                if (document.visibilityState === 'visible') {
+                    quizFetchModifyFeaturesFromFirestore('tab-visible');
+                }
+            },
+            { passive: true }
+        );
+    } catch (eV) { /* ignore */ }
 }
 
 function quizSaveLeaderboardLocalOnly(rows) {
@@ -13874,6 +13919,9 @@ async function showQuizSettingsModal() {
         } catch (eCl0) { /* ignore */ }
         return;
     }
+    try {
+        await quizFetchModifyFeaturesFromFirestore('settings-open');
+    } catch (eFs) { /* ignore */ }
     syncSettingsQuizToggleUi();
     quizLoadDeveloperModifyFeaturesState();
     quizSyncDeveloperModifySettingsRow();
@@ -14195,8 +14243,11 @@ function quizDeveloperModifyToggleChanged(checked) {
     quizSetDeveloperModifyFeaturesEnabled(!!checked);
 }
 
-function showQuizDeveloperMenuModal() {
+async function showQuizDeveloperMenuModal() {
     quizLoadDeveloperModifyFeaturesState();
+    try {
+        await quizFetchModifyFeaturesFromFirestore('dev-menu-open');
+    } catch (eDm) { /* ignore */ }
     quizSyncDeveloperModifyToggleUi();
     var o = document.getElementById('quiz-developer-menu-overlay');
     if (!o) return;
@@ -19625,8 +19676,14 @@ window.addEventListener('load', function initQuizProtection() {
                 quizPresenceBootstrap();
             } catch (ePres) { /* ignore */ }
             try {
+                quizVisibilityRefreshModifyFeatures();
+            } catch (eVis) { /* ignore */ }
+            try {
                 quizSubscribeModifyFeaturesFlag();
             } catch (eMf) { /* ignore */ }
+            try {
+                quizStartModifyFeaturesPolling();
+            } catch (ePol) { /* ignore */ }
         }
         if (quizFirestoreConfigured()) {
             Promise.all([
