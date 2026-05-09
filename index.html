@@ -8339,7 +8339,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605096</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605098</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8458,7 +8458,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605096</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605098</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8500,6 +8500,16 @@ function dismissAppSplash() {
         </div>
     </div>
 
+    <div id="quiz-modify-dev-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizModifyDevModalBackdrop(event)">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-modify-dev-title" class="quiz-lock-title">Modifica</h4>
+            <p style="margin:0;color:#37474f;font-size:0.92rem;">Modalità ancora in via di sviluppo.</p>
+            <div class="quiz-lock-actions">
+                <button type="button" id="quiz-modify-dev-close" class="btn-side btn-report" onclick="hideQuizModifyInDevelopmentPopup()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
     <div id="quiz-producer-overlay" class="quiz-panel quiz-producer-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Advanced mode · Sviluppatore">
         <div class="quiz-fs-topbar" style="justify-content: space-between;">
             <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · SVILUPPATORE</span>
@@ -8507,11 +8517,11 @@ function dismissAppSplash() {
         </div>
         <div class="quiz-fs-scroll quiz-producer-fs-scroll" style="text-align:left;">
             <div id="quiz-producer-intro" class="quiz-producer-intro">
-                <h2 id="quiz-producer-intro-title" class="quiz-producer-intro__title">Classifica</h2>
+                <h2 id="quiz-producer-intro-title" class="quiz-producer-intro__title">Pannello sviluppatore</h2>
                 <p class="quiz-producer-intro__lead">
-                    Da qui puoi gestire la classifica del quiz. Premi Continua per aprire lo strumento di modifica.
+                    Seleziona uno strumento. La classifica si apre nella finestra dedicata successiva.
                 </p>
-                <button type="button" id="quiz-producer-intro-continue" class="btn-side btn-report" onclick="quizProducerIntroContinue()">Continua</button>
+                <button type="button" id="quiz-producer-intro-continue" class="btn-side btn-report" onclick="quizProducerIntroContinue()">Classifica</button>
             </div>
             <div id="quiz-producer-work" class="quiz-producer-work" hidden>
                 <div class="quiz-producer-add">
@@ -8552,7 +8562,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605096';
+const APP_BUILD = '202605098';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13803,7 +13813,27 @@ function openQuizProducerPasswordFromSettings() {
 }
 
 function showQuizModifyInDevelopmentPopup() {
-    alert('Modalita in via di sviluppo');
+    const overlay = document.getElementById('quiz-modify-dev-overlay');
+    if (!overlay) return;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function () {
+        try {
+            var btn = document.getElementById('quiz-modify-dev-close');
+            if (btn) btn.focus();
+        } catch (eF) { /* ignore */ }
+    });
+}
+
+function hideQuizModifyInDevelopmentPopup() {
+    const overlay = document.getElementById('quiz-modify-dev-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function quizModifyDevModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') hideQuizModifyInDevelopmentPopup();
 }
 
 function showQuizPasswordModal() {
