@@ -5736,6 +5736,50 @@
         .quiz-modify-new-scheda-row {
             margin-bottom: 10px;
         }
+        .quiz-modify-new-scheda-form {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #cfd8dc;
+            background: #f5f7fa;
+            box-sizing: border-box;
+        }
+        .quiz-modify-new-scheda-form[hidden] {
+            display: none !important;
+        }
+        .quiz-modify-new-scheda-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #546e7a;
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+        .quiz-modify-new-scheda-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cfd8dc;
+            background: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #37474f;
+            margin-bottom: 12px;
+        }
+        .quiz-modify-new-scheda-input:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.22);
+        }
+        .quiz-modify-new-scheda-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .quiz-modify-btn-new-scheda[hidden] {
+            display: none !important;
+        }
         .quiz-modify-btn-new-scheda {
             width: 100%;
             padding: 10px 14px;
@@ -8974,8 +9018,16 @@ function dismissAppSplash() {
                     Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda»
                     (struttura vuota pronta per nuove domande, salvata in locale sul dispositivo).
                 </p>
-                <div class="quiz-modify-new-scheda-row">
+                <div class="quiz-modify-new-scheda-row" id="quiz-modify-new-scheda-host">
                     <button type="button" class="quiz-modify-btn-new-scheda" id="quiz-modify-btn-new-scheda" title="Aggiungi una scheda vuota con la stessa struttura delle altre">Crea nuova scheda</button>
+                    <div id="quiz-modify-new-scheda-form" class="quiz-modify-new-scheda-form" hidden>
+                        <label class="quiz-modify-new-scheda-label" for="quiz-modify-new-scheda-name">Nome della nuova scheda</label>
+                        <input type="text" id="quiz-modify-new-scheda-name" class="quiz-modify-new-scheda-input" maxlength="80" placeholder="Trascrivi il nome (come le altre schede)" autocomplete="off" aria-label="Nome della nuova scheda" />
+                        <div class="quiz-modify-new-scheda-actions">
+                            <button type="button" class="btn-side btn-reset" id="quiz-modify-new-scheda-cancel">Annulla</button>
+                            <button type="button" class="btn-side btn-report" id="quiz-modify-new-scheda-confirm">Crea scheda</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="quiz-modify-tabs" id="quiz-modify-tablist" role="tablist" aria-label="Sezione impianto e schede personalizzate"></div>
                 <div class="quiz-modify-create-row">
@@ -9131,7 +9183,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605134';
+const APP_BUILD = '202605135';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15690,10 +15742,31 @@ function quizModifyAppendQuestionToCustomSection(sectionKey) {
     quizModifySaveCustomSchedario(d);
 }
 
-function quizModifyOnNewSchedaClick() {
-    var name = window.prompt('Nome della nuova scheda:', 'Nuova scheda');
-    if (name === null) return;
-    name = String(name).trim() || 'Nuova scheda';
+function quizModifyNewSchedaFormClose() {
+    var btn = document.getElementById('quiz-modify-btn-new-scheda');
+    var form = document.getElementById('quiz-modify-new-scheda-form');
+    var inp = document.getElementById('quiz-modify-new-scheda-name');
+    if (form) form.hidden = true;
+    if (btn) btn.hidden = false;
+    if (inp) inp.value = '';
+}
+
+function quizModifyNewSchedaFormOpen() {
+    var btn = document.getElementById('quiz-modify-btn-new-scheda');
+    var form = document.getElementById('quiz-modify-new-scheda-form');
+    var inp = document.getElementById('quiz-modify-new-scheda-name');
+    if (btn) btn.hidden = true;
+    if (form) form.hidden = false;
+    if (inp) {
+        inp.value = '';
+        try {
+            inp.focus();
+        } catch (eF) { /* ignore */ }
+    }
+}
+
+function quizModifyCreateNewSchedaWithName(name) {
+    name = String(name || '').trim() || 'Nuova scheda';
     var id = 'cs-' + Date.now();
     var d = quizModifyLoadCustomSchedario();
     d.order.push(id);
@@ -15703,6 +15776,17 @@ function quizModifyOnNewSchedaClick() {
     quizModifyRebuildTablist();
     quizModifyUpdateTabs();
     quizModifySetSection(id);
+}
+
+function quizModifyNewSchedaFormConfirm() {
+    var inp = document.getElementById('quiz-modify-new-scheda-name');
+    var name = inp ? inp.value : '';
+    quizModifyCreateNewSchedaWithName(name);
+    quizModifyNewSchedaFormClose();
+}
+
+function quizModifyOnNewSchedaClick() {
+    quizModifyNewSchedaFormOpen();
 }
 
 function quizModifyGetSectionRows(sectionKey) {
@@ -15847,6 +15931,33 @@ function quizModifyShellBindOnce() {
             quizModifyOnNewSchedaClick();
         });
     }
+    var btnNewSchedaCancel = document.getElementById('quiz-modify-new-scheda-cancel');
+    if (btnNewSchedaCancel && btnNewSchedaCancel.dataset.modifyBound !== '1') {
+        btnNewSchedaCancel.dataset.modifyBound = '1';
+        btnNewSchedaCancel.addEventListener('click', function () {
+            quizModifyNewSchedaFormClose();
+        });
+    }
+    var btnNewSchedaOk = document.getElementById('quiz-modify-new-scheda-confirm');
+    if (btnNewSchedaOk && btnNewSchedaOk.dataset.modifyBound !== '1') {
+        btnNewSchedaOk.dataset.modifyBound = '1';
+        btnNewSchedaOk.addEventListener('click', function () {
+            quizModifyNewSchedaFormConfirm();
+        });
+    }
+    var inpNewScheda = document.getElementById('quiz-modify-new-scheda-name');
+    if (inpNewScheda && inpNewScheda.dataset.modifyBound !== '1') {
+        inpNewScheda.dataset.modifyBound = '1';
+        inpNewScheda.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                quizModifyNewSchedaFormConfirm();
+            } else if (ev.key === 'Escape') {
+                ev.preventDefault();
+                quizModifyNewSchedaFormClose();
+            }
+        });
+    }
     var sav = document.getElementById('quiz-modify-btn-save');
     var dis = document.getElementById('quiz-modify-btn-discard');
     var rev = document.getElementById('quiz-modify-btn-revert');
@@ -15903,6 +16014,7 @@ function quizModifyOnRevertClick() {
 function quizModifyShellOpen() {
     quizModifyShellBindOnce();
     quizModifyCloseQuestionDetail();
+    quizModifyNewSchedaFormClose();
     quizModifyRebuildTablist();
     quizModifyEnsureShellSectionValid();
     quizModifyShellDirty = false;
