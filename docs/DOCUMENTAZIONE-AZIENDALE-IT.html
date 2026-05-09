@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Allegato tecnico — Istruzioni operative interattive</title>
+  <style>
+    body { font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.55; color: #1a1a1a; max-width: 52rem; margin: 0 auto; padding: 1.5rem 1.25rem 2.5rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.75rem; margin-bottom: 0.6rem; border-bottom: 1px solid #ccc; padding-bottom: 0.35rem; }
+    h3 { font-size: 1rem; margin-top: 1.25rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 0.75rem 0 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+    th { background: #fafafa; font-weight: 600; }
+    pre { background: #fafafa; border: 1px solid #ccc; padding: 0.85rem 1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.4; }
+    code { font-family: Consolas, "Segoe UI Mono", monospace; font-size: 0.9em; }
+    a { color: #0b57d0; }
+    ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    @media print { body { padding: 0; } a { color: #000; text-decoration: underline; } }
+  </style>
+</head>
+<body>
+
+  <h2>Premessa</h2>
+  <p>Il presente allegato illustra, in forma sintetica e tecnica, i componenti dell’applicazione web denominata «Istruzioni operative interattive», al fine di consentire ai Reparti competenti la valutazione della compatibilità con le policy di sicurezza perimetrale, di proxy e di gestione dei certificati, nonché l’eventuale configurazione di allowlist e regole di filtraggio.</p>
+  <p><strong>Origine applicativa (URL di produzione):</strong></p>
+  <p><a href="https://francescomendosa-create.github.io/Istruzioni-operative-interattive/">https://francescomendosa-create.github.io/Istruzioni-operative-interattive/</a></p>
+  <p><strong>Repository sorgente (GitHub):</strong> <a href="https://github.com/francescomendosa-create/Istruzioni-operative-interattive">github.com/francescomendosa-create/Istruzioni-operative-interattive</a></p>
+  <p><strong>Microsoft Entra ID (accesso con account aziendale Microsoft / SSO):</strong> nella versione attuale dell’applicazione <strong>non è integrato</strong>. Non è previsto login con credenziali dell’organizzazione; di conseguenza, per questa versione <strong>non si utilizzano</strong> Tenant ID, Application (client) ID o redirect URI Azure per l’accesso utente. Il meccanismo di autenticazione applicativo è solo quello indicato al § 3 (Firebase, modalità anonima). Un’eventuale integrazione futura con Entra ID sarà oggetto di una revisione tecnica separata e richiederà registrazione di un’app in Azure da parte dell’azienda.</p>
+
+  <h2>1. Descrizione sintetica dell’applicazione</h2>
+  <table>
+    <thead><tr><th>Elemento</th><th>Specifica</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Classificazione</td>
+        <td>Applicazione web statica (HTML, CSS, JavaScript), distribuita mediante GitHub Pages. Non è previsto, sulla piattaforma GitHub Pages, un runtime applicativo dedicato gestito dal titolare del repository oltre alla pubblicazione di file statici.</td>
+      </tr>
+      <tr>
+        <td>Finalità funzionale</td>
+        <td>Contenuti di natura didattica e formativa in ambito operativo su impianti di trattamento delle acque reflue; sono incluse modalità interattive (quiz, diagnostica, animazioni). L’applicazione non costituisce un sistema di supervisione o controllo di processo industriale.</td>
+      </tr>
+      <tr>
+        <td>Modalità di fruizione</td>
+        <td>Accesso tramite browser conforme agli standard web; è possibile l’installazione come Progressive Web Application (PWA). In ambiente Windows, un collegamento sul desktop può richiamare il browser (es. Google Chrome) in modalità applicazione dedicata tramite <code>chrome_proxy.exe</code> e identificativo <code>--app-id</code>, coerentemente con un’installazione PWA dell’origine HTTPS suddetta.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>2. Architettura logica</h2>
+  <p>Il traffico si articola principalmente come segue:</p>
+<pre>Client browser
+    │
+    ├─► HTTPS → hosting GitHub Pages (documento, risorse statiche, manifest, service worker)
+    │
+    ├─► HTTPS → infrastruttura Google (SDK Firebase da origine gstatic; API per autenticazione e Firestore)
+    │
+    ├─► HTTPS → servizi di terze parti (attivazione condizionale; riferimento § 4.3)
+    │
+    └─► API del browser (es. sintesi vocale locale) senza endpoint di rete dedicato obbligatorio</pre>
+  <p>Il service worker (<code>sw.js</code>) è impiegato per il ciclo di aggiornamento della PWA; la strategia implementata nel file corrente inoltra le richieste mediante <code>fetch</code> verso la rete, senza implementazione di una cache offline articolata lato service worker per gli asset principali.</p>
+
+  <h2>3. Backend SaaS — progetto Firebase (Google Cloud)</h2>
+  <p>L’applicazione utilizza il servizio Firebase con configurazione client esposta nel codice sorgente (modalità prevista per gli SDK web).</p>
+  <table>
+    <thead><tr><th>Parametro</th><th>Valore</th></tr></thead>
+    <tbody>
+      <tr><td>Project ID</td><td><code>istruzioni-operative</code> — <a href="https://console.firebase.google.com/project/istruzioni-operative/overview">Console Firebase (progetto)</a></td></tr>
+      <tr><td>Auth domain</td><td><a href="https://istruzioni-operative.firebaseapp.com/"><code>istruzioni-operative.firebaseapp.com</code></a></td></tr>
+      <tr><td>Storage bucket</td><td><a href="https://istruzioni-operative.firebasestorage.app/"><code>istruzioni-operative.firebasestorage.app</code></a></td></tr>
+    </tbody>
+  </table>
+  <p><strong>Autenticazione:</strong> è implementata l’autenticazione anonima Firebase (<code>signInAnonymously</code>), finalizzata all’attribuzione di un identificativo tecnico (<code>uid</code>) senza credenziali nominali. <strong>Non</strong> è integrata autenticazione federata SAML/OIDC con Identity Provider aziendale né login <strong>Microsoft Entra ID</strong> (né altro SSO); gli utenti non effettuano accesso con account Microsoft dell’organizzazione.</p>
+  <p><strong>Firestore:</strong> persistenza dei dati relativi alle funzionalità collaborative del quiz (esemplificativamente: classifica, presenza degli utenti connessi), secondo regole di sicurezza definite nella console Firebase del titolare del progetto cloud.</p>
+  <p><strong>Trasporto:</strong> nel codice risulta attivato <code>experimentalForceLongPolling: true</code> per il client Firestore, con traffico HTTPS, al fine di migliorare la compatibilità con alcuni ambienti dotati di proxy applicativi.</p>
+
+  <h2>4. Requisiti di connettività e destinatari di traffico</h2>
+  <h3>4.1 Origine principale</h3>
+  <table>
+    <thead><tr><th>Host</th><th>Protocollo / porta</th><th>Funzione</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://francescomendosa-create.github.io/Istruzioni-operative-interattive/"><code>francescomendosa-create.github.io</code></a></td><td>HTTPS (443)</td><td>Erogazione dell’applicazione statica tramite GitHub Pages</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 Infrastruttura Google (SDK Firebase e servizi associati)</h3>
+  <table>
+    <thead><tr><th>Host / pattern</th><th>Protocollo / porta</th><th>Funzione</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://www.gstatic.com/"><code>www.gstatic.com</code></a></td><td>HTTPS (443)</td><td>Recupero degli script JavaScript del SDK Firebase (moduli compat) — <a href="https://firebase.google.com/docs/web/setup">Documentazione Firebase Web</a></td></tr>
+      <tr><td><code>*.googleapis.com</code></td><td>HTTPS (443)</td><td>Endpoint API tipici (es. <a href="https://firestore.googleapis.com/"><code>firestore.googleapis.com</code></a>, <a href="https://securetoken.googleapis.com/"><code>securetoken.googleapis.com</code></a>, <a href="https://identitytoolkit.googleapis.com/"><code>identitytoolkit.googleapis.com</code></a>); elenco effettivo dipendente dalla versione del SDK</td></tr>
+      <tr><td><code>*.google.com</code></td><td>HTTPS (443)</td><td>Risorse correlate all’ecosistema Google — <a href="https://www.google.com/">google.com</a></td></tr>
+      <tr><td><a href="https://istruzioni-operative.firebaseapp.com/"><code>istruzioni-operative.firebaseapp.com</code></a></td><td>HTTPS (443)</td><td>Dominio Firebase associato al progetto</td></tr>
+    </tbody>
+  </table>
+  <p>Nel file di configurazione è presente un identificativo Google Analytics 4 (<code>measurementId</code>: <code>G-TVD7CDXW9M</code>). Qualora il codice inizializzi effettivamente Analytics, il traffico può estendersi agli host di raccolta dati Google pertinenti (<a href="https://analytics.google.com/">Google Analytics</a>). Per una verifica esaustiva in ambiente controllato, si può effettuare acquisizione del traffico di rete (strumenti di diagnostica del browser o proxy di laboratorio).</p>
+
+  <h3>4.3 Servizi opzionali o condizionali (costanti nel codice sorgente)</h3>
+  <table>
+    <thead><tr><th>Servizio</th><th>Host</th><th>Condizione di utilizzo</th></tr></thead>
+    <tbody>
+      <tr><td>Sintesi vocale remota (Piper su Render)</td><td><a href="https://quiz-piper-tts.onrender.com/tts"><code>quiz-piper-tts.onrender.com</code></a> (<code>/tts</code>)</td><td>Endpoint predefinito per richieste HTTPS nelle modalità che prevedono telecronaca vocale remota — <a href="https://render.com/">Render</a></td></tr>
+      <tr><td>Google AI (Gemini)</td><td><a href="https://generativelanguage.googleapis.com/"><code>generativelanguage.googleapis.com</code></a></td><td>Invocazione solo in presenza di chiave API configurata per la telecronaca basata su modello linguistico (tipicamente ambito funzionale avanzato / sviluppo) — <a href="https://ai.google.dev/">Google AI for Developers</a></td></tr>
+      <tr><td>Generazione immagine QR</td><td><a href="https://api.qrserver.com/"><code>api.qrserver.com</code></a></td><td>Richiesta GET per la generazione dell’immagine QR che codifica l’URL dell’applicazione dalla schermata Impostazioni</td></tr>
+    </tbody>
+  </table>
+  <p>Per le richieste verso Gemini, il payload riflette il contenuto testuale delle domande del quiz presentate nell’interfaccia utente. La decisione di autorizzare tale host deve essere correlata alla policy aziendale sul versemento di dati verso servizi di intelligenza artificiale esterni.</p>
+
+  <h2>5. Quadro informativo per il trattamento dei dati (Privacy)</h2>
+  <table>
+    <thead><tr><th>Categoria</th><th>Ubicazione</th><th>Note operative</th></tr></thead>
+    <tbody>
+      <tr><td>Identificativo tecnico anonimo</td><td>Firebase Authentication</td><td>UID generato dal meccanismo di autenticazione anonima</td></tr>
+      <tr><td>Testo libero per nome visualizzato / presenza</td><td>Firestore</td><td>Immesso dall’utente finale tramite interfaccia; lunghezza soggetta a limitazione nel codice applicativo</td></tr>
+      <tr><td>Dati di gioco (es. punteggi, classifica)</td><td>Firestore</td><td>Informazioni di contesto ludico, non parametri di impianto industriale</td></tr>
+      <tr><td>Telemetria web / GA4</td><td>Google (ove attivata)</td><td>Da correlare all’informativa privacy del titolare del sito e alla configurazione effettiva nel build distribuito</td></tr>
+    </tbody>
+  </table>
+  <p>L’applicazione non è descritta nel presente allegato come sistema di acquisizione dati di processo da impianto né come componente SCADA.</p>
+
+  <h2>6. Gestione degli errori TLS in ambiente corporate</h2>
+  <h3>6.1 Codice NET::ERR_CERT_AUTHORITY_INVALID in navigazione verso l’app su GitHub Pages</h3>
+  <p>Tale messaggio indica che il client non considera attendibile la catena di certificazione presentata durante la negoziazione TLS. Le cause più ricorrenti in ambito aziendale comprendono l’ispezione TLS del proxy senza distribuzione sul postazione di lavoro delle Certification Authority di fiducia, configurazioni MDM restrittive o anomalie di sincronizzazione dell’orologio di sistema.</p>
+  <p><strong>Interventi di competenza infrastrutturale (estranei alla sola modifica del codice applicativo):</strong></p>
+  <ol>
+    <li>Distribuzione sul client delle CA radice/intermedie necessarie alla validazione del certificato presentato dal proxy di ispezione.</li>
+    <li>Valutazione di esclusioni mirate dall’ispezione TLS o di percorsi di instradamento dedicati, ove compatibile con la policy di sicurezza.</li>
+    <li>Verifica dell’assenza di errori nella catena di firma e dell’allineamento temporale del sistema.</li>
+  </ol>
+  <p>L’endpoint GitHub Pages è comunemente servito con certificati considerati validi dalle CA pubbliche standard; l’insorgenza dell’errore su rete aziendale e non su rete domestica orienta la diagnosi verso i fattori ambientali sopra elencati.</p>
+
+  <h2>7. Protocolli e porte</h2>
+  <table>
+    <thead><tr><th>Protocollo</th><th>Porta standard</th><th>Impiego</th></tr></thead>
+    <tbody>
+      <tr><td>HTTPS</td><td>443</td><td>Traffico applicativo web e API REST descritte</td></tr>
+      <tr><td>DNS</td><td>53</td><td>Risoluzione dei nomi di dominio (secondo policy interne)</td></tr>
+    </tbody>
+  </table>
+  <p>Non risulta dal presente allegato la necessità di protocolli quali SMB o RDP ai fini dell’utilizzo dell’applicazione web.</p>
+
+  <h2>8. Procedure di verifica diagnostica (predisposizione ticket di escalation)</h2>
+  <ol>
+    <li>Ripetizione dell’accesso all’URL da rete non soggetta alle stesse policy (es. connessione alternativa conforme alla policy aziendale): esito positivo coerente con ipotesi di limitazione perimetrale o TLS inspection.</li>
+    <li>Registrazione degli errori rilevati tramite strumenti di diagnostica del browser (console applicativa, traccia richieste di rete) con indicazione di codici HTTP, messaggi <code>ERR_*</code> ed eventuali blocchi <code>CORS</code>.</li>
+    <li>Verifica comparativa tra browser aggiornati e controllo dell’eventuale interferenza di componenti aggiuntivi di sicurezza o estensioni che filtrano host <code>googleapis.com</code> o <code>gstatic.com</code>.</li>
+  </ol>
+
+  <h2>9. Riferimenti ai file sorgente (audit tecnico)</h2>
+  <table>
+    <thead><tr><th>Percorso relativo</th><th>Contenuto rilevante</th></tr></thead>
+    <tbody>
+      <tr><td><code>index.html</code></td><td>Logica applicativa, inizializzazione Firebase, costanti di versione e build</td></tr>
+      <tr><td><code>firebase-config.json</code></td><td>Parametri pubblici di configurazione Firebase</td></tr>
+      <tr><td><code>manifest.json</code></td><td>Metadati PWA (<code>start_url</code>, <code>scope</code>)</td></tr>
+      <tr><td><code>sw.js</code></td><td>Service worker e indicazione di build per il ciclo di aggiornamento</td></tr>
+    </tbody>
+  </table>
+  <p>La coerenza tra il valore di build definito in <code>index.html</code> (<code>APP_BUILD</code>) e il commento <code>build:</code> in <code>sw.js</code> è necessaria per il corretto aggiornamento dei client che utilizzano il service worker.</p>
+
+  <h2>10. Sintesi delle condizioni per l’abilitazione su rete aziendale</h2>
+  <p>Per il funzionamento delle funzionalità principali risultano in genere necessarie:</p>
+  <ol>
+    <li>Autorizzazione del traffico HTTPS verso <a href="https://francescomendosa-create.github.io/"><code>francescomendosa-create.github.io</code></a> (app: <a href="https://francescomendosa-create.github.io/Istruzioni-operative-interattive/">Istruzioni-operative-interattive</a>).</li>
+    <li>Autorizzazione del traffico HTTPS verso <a href="https://www.gstatic.com/"><code>www.gstatic.com</code></a>, verso il <a href="https://istruzioni-operative.firebaseapp.com/">dominio progetto Firebase</a> e verso gli endpoint Google APIs richiesti dal SDK (<code>*.googleapis.com</code>, es. <a href="https://firestore.googleapis.com/">Firestore</a>; affinamento possibile mediante analisi traffico).</li>
+    <li>Adeguamento della fiducia nei certificati sul client in presenza di proxy di ispezione TLS.</li>
+    <li>Estensione facoltativa dell’allowlist agli host di cui al § 4.3 qualora si richieda l’attivazione integrale delle funzionalità che dipendono da tali servizi.</li>
+  </ol>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════════
+ FORMATO NOTE / EMAIL — File digitale da copiare (Apple Note, Gmail,
+ Outlook, Blocco note). UTF-8. Non allegare questo .txt se il filtro
+ email lo blocca: usare il corpo sotto come incolla oppure il PDF.
+═══════════════════════════════════════════════════════════════════
+ RIMANDI — Non copiare questo blocco nell’email o nella Nota
+   • Dettaglio tecnico completo (allegato IT): DOCUMENTAZIONE-AZIENDALE-IT.pdf
+   • Stesso testo lungo (web/stampa): DOCUMENTAZIONE-AZIENDALE-IT.html
+   • Sorgente modificabile: DOCUMENTAZIONE-AZIENDALE-IT.md
+   • Stesso documento (copia): DOCUMENTAZIONE-AZIENDALE-EMAIL-NOTE.txt
+═══════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════
+ COPIARE DA QUI IN GIÙ → messaggio email oppure nuova Nota
+═══════════════════════════════════════════════════════════════════
+
+OGGETTO (email): Richiesta abilitazione accesso HTTPS — applicazione formativa «Istruzioni operative interattive» (GitHub Pages / Firebase)
+
+───────────────────────────────────────────────────────────────────
+
+Spett.le Ufficio IT / Helpdesk,
+
+con la presente si richiede la valutazione e, ove compatibile con le policy aziendali, l’abilitazione dell’accesso all’applicazione web di seguito descritta, utilizzata per finalità didattiche e formative.
+
+• Denominazione: Istruzioni operative interattive
+• Tipologia: applicazione web statica (HTML/CSS/JavaScript) ospitata su GitHub Pages; backend SaaS Google Firebase per funzioni collaborative del quiz (non è un sistema SCADA né di controllo processo).
+• Microsoft Entra ID / SSO con account aziendale: NON integrato nella versione attuale (nessun login dipendente tramite Microsoft; autenticazione applicativa solo Firebase anonima dove previsto — non sono richiesti Tenant ID né Client ID Azure per SSO).
+• URL di produzione (HTTPS):
+  https://francescomendosa-create.github.io/Istruzioni-operative-interattive/
+
+Si richiede in particolare il permesso di traffico HTTPS (porta 443) verso:
+
+  — francescomendosa-create.github.io          (origine applicativa GitHub Pages)
+  — www.gstatic.com                             (SDK Firebase lato browser)
+  — *.googleapis.com                            (API Firebase / Firestore / autenticazione)
+  — *.google.com                                (risorse Google correlate al caricamento)
+  — istruzioni-operative.firebaseapp.com       (dominio progetto Firebase)
+
+Identificativi progetto Firebase (Google Cloud):
+  — Project ID: istruzioni-operative
+  — Auth: autenticazione anonima Firebase (nessun SSO aziendale integrato)
+  — Storage bucket: istruzioni-operative.firebasestorage.app
+
+Host facoltativi se si richiedono tutte le funzioni avanzate dell’app (telecronaca vocale remota, QR in impostazioni, telecronaca AI se configurata):
+  — quiz-piper-tts.onrender.com
+  — generativelanguage.googleapis.com
+  — api.qrserver.com
+
+In presenza di proxy con ispezione TLS, l’apertura della pagina può fallire con errore NET::ERR_CERT_AUTHORITY_INVALID finché sul client non sono distribuite le Certification Authority attendibili per il certificato presentato dal proxy: si richiede verifica da parte dell’infrastruttura.
+
+Per maggior dettaglio tecnico è disponibile l’allegato PDF «DOCUMENTAZIONE-AZIENDALE-IT.pdf» (scheda completa per Sicurezza e Compliance).
+
+Cordiali saluti,
+
+[Nome e cognome]
+[Reparto / Contatto]
+
+═══════════════════════════════════════════════════════════════════
+ FINE TESTO DA INCOLLARE — Oggetto sopra; firma da completare
+═══════════════════════════════════════════════════════════════════
