@@ -5453,18 +5453,6 @@
             opacity: 0.82;
             font-weight: 400;
         }
-        .quiz-presence-tech-hint {
-            opacity: 0.72;
-            font-size: 0.82em;
-            letter-spacing: 0.02em;
-            font-weight: 400;
-        }
-        .quiz-presence-device-explainer {
-            margin: 0 0 10px;
-            font-size: 0.76rem;
-            color: #546e7a;
-            line-height: 1.45;
-        }
         .quiz-presence-history-status-dot--off {
             background: #c62828;
             box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.14);
@@ -8350,9 +8338,6 @@ function dismissAppSplash() {
                 <h4 id="quiz-presence-connected-title">Collegati ora</h4>
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
-            <p class="quiz-presence-device-explainer">
-                Solo <strong>la tua</strong> riga mostra <strong>dispositivo …</strong> (impronta di questa postazione); gli altri collegati compaiono con il <strong>solo nome</strong>. Se cambi solo il nome in «Chi sei?», il tuo codice resta uguale — puoi annotarlo. Può cambiare se cancelli i dati del sito o usi un altro browser o profilo.
-            </p>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
             <button type="button" id="quiz-presence-history-toggle" class="quiz-presence-history-toggle" onclick="quizPresenceToggleHistory24h()">
                 Mostra storico collegamenti (ultime 24 ore)
@@ -8536,7 +8521,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508mydev';
+const APP_BUILD = '20260508nopresdev';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9281,63 +9266,6 @@ function quizPresenceDisplayLabelForRow(row) {
     return 'Utente senza nome ' + String(quizPresenceStableUnnamedIndex(uid, sid));
 }
 
-/** Ultimi caratteri dell’uid Firebase (identificativo anonimo browser/profilo). */
-function quizPresenceUidSuffix(uid) {
-    var u = String(uid || '').trim();
-    if (!u) return '';
-    return u.length <= 6 ? u : u.slice(-6);
-}
-
-/** Suffisso breve della sessione dispositivo (localStorage). */
-function quizPresenceSessionSuffix(sessionId) {
-    var s = String(sessionId || '').trim();
-    if (!s) return '';
-    return s.length <= 4 ? s : s.slice(-4);
-}
-
-/** True se la riga presenza è questa sessione (uid Firebase + id dispositivo locale). */
-function quizPresenceRowIsLocalUser(row) {
-    try {
-        var auth = firebase && firebase.auth ? firebase.auth() : null;
-        var myUid = auth && auth.currentUser && auth.currentUser.uid ? String(auth.currentUser.uid) : '';
-        var mySid = quizPresenceGetDeviceId();
-        if (!row || !myUid || !mySid) return false;
-        return String(row.uid || '') === myUid && String(row.sessionId || '') === String(mySid);
-    } catch (eLoc) {
-        return false;
-    }
-}
-
-/** Hint «dispositivo»: stesso codice se cambia solo il nome in Chi sei? (tooltip con uid/session completi). */
-function quizPresenceAppendTechHint(li, row) {
-    var uid = String((row && row.uid) || '');
-    var sid = String((row && row.sessionId) || '');
-    var path = row && row.path != null ? String(row.path).trim() : '';
-    var us = quizPresenceUidSuffix(uid);
-    var ss = quizPresenceSessionSuffix(sid);
-    var body = '';
-    if (us && ss) body = 'dispositivo ' + us + '·' + ss;
-    else if (us) body = 'dispositivo ' + us;
-    else if (ss) body = 'dispositivo ·' + ss;
-    if (!body && path) body = path.length > 28 ? path.slice(0, 28) + '…' : path;
-    if (!body) return;
-    var hint = document.createElement('span');
-    hint.className = 'quiz-presence-tech-hint';
-    hint.textContent = ' · ' + body;
-    var tip = [];
-    tip.push(
-        'Impronta della postazione: se cambi solo il nome in «Chi sei?», questo codice resta uguale — annotalo per associarlo a una sala o PC (es. sala controllo).'
-    );
-    tip.push(
-        'Può cambiare se cancelli cookie/dati del sito o apri l’app da un altro browser o profilo.'
-    );
-    if (uid) tip.push('uid: ' + uid);
-    if (sid) tip.push('sessione: ' + sid);
-    if (path) tip.push('percorso pagina: ' + path);
-    hint.setAttribute('title', tip.join('\n'));
-    li.appendChild(hint);
-}
-
 function quizPresenceFillConnectedList() {
     var ul = document.getElementById('quiz-presence-connected-list');
     if (!ul) return;
@@ -9366,8 +9294,7 @@ function quizPresenceFillConnectedList() {
     rows.forEach(function (row) {
         var nm = quizPresenceDisplayLabelForRow(row);
         var li = document.createElement('li');
-        li.appendChild(document.createTextNode(nm));
-        if (quizPresenceRowIsLocalUser(row)) quizPresenceAppendTechHint(li, row);
+        li.textContent = nm;
         ul.appendChild(li);
     });
     if (quizPresenceHistoryExpanded) {
@@ -9451,7 +9378,6 @@ function quizPresenceRenderHistory24h() {
         dot.setAttribute('aria-hidden', 'true');
         li.appendChild(dot);
         li.appendChild(document.createTextNode(' ' + name));
-        if (quizPresenceRowIsLocalUser(r)) quizPresenceAppendTechHint(li, r);
         if (!isOnline) {
             var timeSpan = document.createElement('span');
             timeSpan.className = 'quiz-presence-history-time';
