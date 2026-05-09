@@ -8320,7 +8320,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605089</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605090</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8439,7 +8439,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605089</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605090</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8543,7 +8543,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605089';
+const APP_BUILD = '202605090';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13504,7 +13504,14 @@ function quizSettingsRefreshLineReset() {
     }
 }
 
-function showQuizSettingsModal() {
+async function showQuizSettingsModal() {
+    /* Prima il controllo build/rete (e possibile self-heal replace): così quizClear non cancella i marker
+     * mentre un altro quizCheck (timer ~1400 ms) ancora deve fare quizEnsureBuildNotStaleOnLaunch con keepReopen. */
+    try {
+        if (typeof quizCheckUpdateAvailableSilently === 'function') {
+            await quizCheckUpdateAvailableSilently();
+        }
+    } catch (eChk) { /* ignore */ }
     try {
         document.documentElement.classList.remove(
             'quiz-settings-reopen-pending',
@@ -13513,7 +13520,12 @@ function showQuizSettingsModal() {
         );
     } catch (eRm) { /* ignore */ }
     const overlay = document.getElementById('quiz-settings-overlay');
-    if (!overlay) return;
+    if (!overlay) {
+        try {
+            quizClearReopenSettingsIntentMarkers();
+        } catch (eCl0) { /* ignore */ }
+        return;
+    }
     syncSettingsQuizToggleUi();
     quizRefreshInProgress = false;
     quizSettingsRefreshLineReset();
@@ -13537,12 +13549,6 @@ function showQuizSettingsModal() {
     try {
         if (typeof quizPresenceOnSettingsOpen === 'function') quizPresenceOnSettingsOpen();
     } catch (ePres) { /* ignore */ }
-    try {
-        if (typeof quizCheckUpdateAvailableSilently === 'function') {
-            void quizCheckUpdateAvailableSilently();
-        }
-    } catch (eChk) { /* ignore */ }
-    /* Dopo il blocco sincrono di quizCheckUpdateAvailableSilently (es. self-heal refresh): se non c’è stato replace, togli intent. Prima di aprire non va pulito o si perde reopen con refresh_build. */
     try {
         quizClearReopenSettingsIntentMarkers();
     } catch (eCl) { /* ignore */ }
@@ -13591,7 +13597,7 @@ function quizApplyReopenSettingsIntent() {
         var wait = Math.max(0, minMs - (Date.now() - t0));
         window.setTimeout(function () {
             try {
-                showQuizSettingsModal();
+                void Promise.resolve(showQuizSettingsModal()).catch(function () {});
             } catch (e1) { /* ignore */ }
         }, wait);
     } catch (e0) { /* ignore */ }
@@ -19192,6 +19198,11 @@ document.addEventListener('toggle', function (ev) {
 
 (function quizAutoUpdateAvailabilityWatch() {
     async function runCheck() {
+        try {
+            if (typeof quizHasReopenSettingsIntent === 'function' && quizHasReopenSettingsIntent()) {
+                return;
+            }
+        } catch (eSkip) { /* ignore */ }
         await quizCheckUpdateAvailableSilently();
     }
     if (document.readyState === 'loading') {
