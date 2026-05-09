@@ -298,6 +298,11 @@
             border: 2px solid #fff;
             box-shadow: 0 0 0 2px rgba(255, 23, 68, 0.28);
         }
+        .btn-header-icon.quiz-advanced-active {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border-color: rgba(255, 255, 255, 0.58);
+            box-shadow: 0 4px 0 rgba(13, 71, 161, 0.35), 0 8px 16px rgba(13, 71, 161, 0.28), inset 0 1px 0 rgba(255,255,255,0.45);
+        }
         @keyframes quizUpdateNudge {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-1px); }
@@ -7815,7 +7820,7 @@ function dismissAppSplash() {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
-        <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
+        <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
     </div>
@@ -8335,7 +8340,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605099</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605100</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8394,12 +8399,12 @@ function dismissAppSplash() {
     <div id="quiz-lock-overlay" class="quiz-lock-overlay quiz-lock-overlay--producer" aria-hidden="true">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-label="Password Advanced mode · Sviluppatore">
             <h4 class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
-            <p class="quiz-lock-hint">Inserisci la password per accedere.</p>
+            <p id="quiz-lock-hint" class="quiz-lock-hint">Inserisci la password per accedere.</p>
             <input id="quiz-lock-input" class="quiz-lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="" maxlength="8">
             <p id="quiz-lock-error" class="quiz-lock-error"></p>
             <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="cancelQuizPasswordModal()">Annulla</button>
-                <button type="button" class="btn-side btn-report" onclick="confirmQuizPassword()">Entra</button>
+                <button type="button" id="quiz-lock-cancel-btn" class="btn-side btn-reset" onclick="cancelQuizPasswordModal()">Annulla</button>
+                <button type="button" id="quiz-lock-confirm-btn" class="btn-side btn-report" onclick="confirmQuizPassword()">Entra</button>
             </div>
         </div>
     </div>
@@ -8458,7 +8463,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605099</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605100</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8560,11 +8565,13 @@ let quizFeatureEnabled = false;
 let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
+const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605099';
+const APP_BUILD = '202605100';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
+let quizAdvancedModeEnabled = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 /** Nome mostrato solo in presenza online (Impostazioni → Chi sei?). Separato dalla classifica quiz. */
@@ -13812,6 +13819,30 @@ function openQuizProducerPasswordFromSettings() {
     showQuizPasswordModal();
 }
 
+function quizLoadAdvancedModeState() {
+    try {
+        quizAdvancedModeEnabled = localStorage.getItem(QUIZ_LS_ADVANCED_MODE) === '1';
+    } catch (e) {
+        quizAdvancedModeEnabled = false;
+    }
+    quizApplyAdvancedModeUi();
+}
+
+function quizSetAdvancedModeEnabled(on) {
+    quizAdvancedModeEnabled = !!on;
+    try {
+        if (quizAdvancedModeEnabled) localStorage.setItem(QUIZ_LS_ADVANCED_MODE, '1');
+        else localStorage.removeItem(QUIZ_LS_ADVANCED_MODE);
+    } catch (eLs) { /* ignore */ }
+    quizApplyAdvancedModeUi();
+}
+
+function quizApplyAdvancedModeUi() {
+    var btn = document.getElementById('header-settings-btn');
+    if (!btn) return;
+    btn.classList.toggle('quiz-advanced-active', !!quizAdvancedModeEnabled);
+}
+
 function showQuizModifyInDevelopmentPopup() {
     const overlay = document.getElementById('quiz-modify-dev-overlay');
     if (!overlay) return;
@@ -13840,13 +13871,33 @@ function showQuizPasswordModal() {
     const overlay = document.getElementById('quiz-lock-overlay');
     const input = document.getElementById('quiz-lock-input');
     const err = document.getElementById('quiz-lock-error');
-    if (!overlay || !input || !err) return;
-    err.textContent = '';
-    input.value = '';
+    const hint = document.getElementById('quiz-lock-hint');
+    const cancelBtn = document.getElementById('quiz-lock-cancel-btn');
+    const confirmBtn = document.getElementById('quiz-lock-confirm-btn');
+    if (!overlay || !input || !err || !hint || !cancelBtn || !confirmBtn) return;
+    if (quizAdvancedModeEnabled) {
+        hint.textContent = 'Modalità già attiva. Puoi aprire il pannello o uscire dalla modalità.';
+        input.style.display = 'none';
+        err.textContent = '';
+        err.style.display = 'none';
+        cancelBtn.textContent = 'Esci modalità';
+        confirmBtn.textContent = 'Apri pannello';
+    } else {
+        hint.textContent = 'Inserisci la password per accedere.';
+        input.style.display = '';
+        err.style.display = '';
+        err.textContent = '';
+        input.value = '';
+        cancelBtn.textContent = 'Annulla';
+        confirmBtn.textContent = 'Entra';
+    }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-password-open');
-    requestAnimationFrame(() => input.focus());
+    requestAnimationFrame(function () {
+        if (quizAdvancedModeEnabled) confirmBtn.focus();
+        else input.focus();
+    });
 }
 
 function hideQuizPasswordModal() {
@@ -13860,6 +13911,9 @@ function hideQuizPasswordModal() {
 }
 
 function cancelQuizPasswordModal() {
+    if (quizAdvancedModeEnabled) {
+        quizSetAdvancedModeEnabled(false);
+    }
     const resume = quizPasswordResumeSettings;
     quizPasswordResumeSettings = false;
     hideQuizPasswordModal();
@@ -13867,6 +13921,13 @@ function cancelQuizPasswordModal() {
 }
 
 function confirmQuizPassword() {
+    if (quizAdvancedModeEnabled) {
+        quizPasswordResumeSettings = false;
+        hideQuizPasswordModal();
+        hideQuizSettingsModal();
+        showQuizProducerModal();
+        return;
+    }
     const input = document.getElementById('quiz-lock-input');
     const err = document.getElementById('quiz-lock-error');
     const raw = input ? input.value.trim() : '';
@@ -13879,6 +13940,7 @@ function confirmQuizPassword() {
         }
         return;
     }
+    quizSetAdvancedModeEnabled(true);
     quizPasswordResumeSettings = false;
     hideQuizPasswordModal();
     hideQuizSettingsModal();
@@ -19111,6 +19173,7 @@ window.addEventListener('load', function initQuizProtection() {
         function finishQuizInit() {
             applyQuizVisibility();
             syncSettingsQuizToggleUi();
+            quizLoadAdvancedModeState();
             quizSyncSpeechUi();
             /** All’avvio mostriamo sempre home → istruzioni; il quiz si apre solo dal pulsante Quiz. */
             try {
