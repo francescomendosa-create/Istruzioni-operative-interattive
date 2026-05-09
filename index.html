@@ -6675,6 +6675,10 @@
         .quiz-lock-overlay--producer {
             z-index: 10030;
         }
+        /* Password Modifica contenuti: sopra Impostazioni, sotto il pannello Modifica aperto */
+        .quiz-lock-overlay--modify-auth {
+            z-index: 10035;
+        }
         .quiz-lock-box {
             width: min(92vw, 360px);
             border-radius: 14px;
@@ -9227,7 +9231,7 @@ function dismissAppSplash() {
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-modify-btn" onclick="showQuizModifyInDevelopmentPopup()" aria-label="Modifica · modalità in via di sviluppo" hidden aria-hidden="true">
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-modify-btn" onclick="showQuizModifyInDevelopmentPopup()" aria-label="Modifica contenuti" title="Modifica contenuti">
                 <span><strong>Modifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -9299,6 +9303,18 @@ function dismissAppSplash() {
             <div class="quiz-lock-actions">
                 <button type="button" id="quiz-lock-cancel-btn" class="btn-side btn-reset" onclick="cancelQuizPasswordModal()">Annulla</button>
                 <button type="button" id="quiz-lock-confirm-btn" class="btn-side btn-report" onclick="confirmQuizPassword()">Entra</button>
+            </div>
+        </div>
+    </div>
+    <div id="quiz-modify-auth-overlay" class="quiz-lock-overlay quiz-lock-overlay--modify-auth" aria-hidden="true" onclick="quizModifyAuthOverlayBackdrop(event)">
+        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-auth-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-modify-auth-title" class="quiz-lock-title">Autorizzazione Modifica</h4>
+            <p class="quiz-lock-hint">Inserisci la password per modificare i contenuti.</p>
+            <input id="quiz-modify-auth-input" class="quiz-lock-input" type="password" autocomplete="current-password" maxlength="80" placeholder="" aria-label="Password autorizzazione Modifica" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmQuizModifyAuth();}">
+            <p id="quiz-modify-auth-error" class="quiz-lock-error"></p>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-reset" onclick="cancelQuizModifyAuthModal()">Annulla</button>
+                <button type="button" class="btn-side btn-report" onclick="confirmQuizModifyAuth()">Continua</button>
             </div>
         </div>
     </div>
@@ -9631,12 +9647,14 @@ let quizFeatureEnabled = false;
 let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
+/** Password per aprire Modifica contenuti (se non si è già in Advanced mode sviluppatore). */
+const QUIZ_MODIFY_CONTENT_PASSWORD = 'simone';
 const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 /** Advanced mode: abilita funzioni collegate al tasto Modifica in Impostazioni (toggle nel menu sviluppatore). */
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605159';
+const APP_BUILD = '202605160';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13844,6 +13862,7 @@ function quizActivatorInSettingsFlow(el) {
         el.closest('#quiz-presence-whoami-overlay') ||
         el.closest('#quiz-presence-connected-overlay') ||
         el.closest('#quiz-lock-overlay') ||
+        el.closest('#quiz-modify-auth-overlay') ||
         el.closest('#quiz-speech-settings-overlay') ||
         el.closest('#quiz-info-overlay') ||
         el.closest('#quiz-app-overlay') ||
@@ -15395,23 +15414,15 @@ function quizSyncDeveloperModifyToggleUi() {
     }
 }
 
-/** Visibilità pulsante Modifica in Impostazioni: valore da locale + sync Firestore (`quiz_app_flags/ui`). */
+/** Pulsante Modifica in Impostazioni: sempre visibile per tutti (accesso protetto da password se non Advanced mode). */
 function quizSyncDeveloperModifySettingsRow() {
-    var on = quizDeveloperModifyFeaturesGet();
     var row = document.getElementById('quiz-settings-modify-btn');
     if (!row) return;
-    if (on) {
-        row.removeAttribute('hidden');
-        row.setAttribute('aria-hidden', 'false');
-        row.disabled = false;
-        row.setAttribute('aria-disabled', 'false');
-        row.setAttribute('title', 'Modifica · strumenti aggiuntivi');
-    } else {
-        row.setAttribute('hidden', 'hidden');
-        row.setAttribute('aria-hidden', 'true');
-        row.disabled = false;
-        row.removeAttribute('title');
-    }
+    row.removeAttribute('hidden');
+    row.setAttribute('aria-hidden', 'false');
+    row.disabled = false;
+    row.setAttribute('aria-disabled', 'false');
+    row.setAttribute('title', 'Modifica contenuti');
 }
 
 function quizDeveloperModifyToggleChanged(checked) {
@@ -15504,36 +15515,11 @@ function quizModifyDevBackClick() {
 }
 
 function showQuizModifyInDevelopmentPopup() {
-    if (!quizDeveloperModifyFeaturesGet()) {
+    if (quizAdvancedModeEnabled) {
+        quizModifyExecOpenShellAfterAuth();
         return;
     }
-    try {
-        var setOv = document.getElementById('quiz-settings-overlay');
-        var setBox = document.querySelector('#quiz-settings-overlay .quiz-settings-box');
-        if (setOv && setOv.classList.contains('visible') && setBox) {
-            quizModifySavedSettingsScrollTop = setBox.scrollTop;
-        } else {
-            quizModifySavedSettingsScrollTop = null;
-        }
-    } catch (eSc) {
-        quizModifySavedSettingsScrollTop = null;
-    }
-    const overlay = document.getElementById('quiz-modify-dev-overlay');
-    if (!overlay) return;
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('quiz-info-open');
-    try {
-        quizModifyShellOpen();
-    } catch (eSh) {
-        console.warn('[Modifica shell]', eSh);
-    }
-    requestAnimationFrame(function () {
-        try {
-            var btn = document.getElementById('quiz-modify-dev-back');
-            if (btn) btn.focus();
-        } catch (eF) { /* ignore */ }
-    });
+    showQuizModifyAuthModal();
 }
 
 function hideQuizModifyInDevelopmentPopup() {
@@ -15566,6 +15552,95 @@ function hideQuizModifyInDevelopmentPopup() {
 
 function quizModifyDevModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') quizModifyDevBackClick();
+}
+
+function quizModifyExecOpenShellAfterAuth() {
+    try {
+        var setOv = document.getElementById('quiz-settings-overlay');
+        var setBox = document.querySelector('#quiz-settings-overlay .quiz-settings-box');
+        if (setOv && setOv.classList.contains('visible') && setBox) {
+            quizModifySavedSettingsScrollTop = setBox.scrollTop;
+        } else {
+            quizModifySavedSettingsScrollTop = null;
+        }
+    } catch (eSc) {
+        quizModifySavedSettingsScrollTop = null;
+    }
+    var overlay = document.getElementById('quiz-modify-dev-overlay');
+    if (!overlay) return;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+    try {
+        quizModifyShellOpen();
+    } catch (eSh) {
+        console.warn('[Modifica shell]', eSh);
+    }
+    requestAnimationFrame(function () {
+        try {
+            var btn = document.getElementById('quiz-modify-dev-back');
+            if (btn) btn.focus();
+        } catch (eF) { /* ignore */ }
+    });
+}
+
+function showQuizModifyAuthModal() {
+    var overlay = document.getElementById('quiz-modify-auth-overlay');
+    var input = document.getElementById('quiz-modify-auth-input');
+    var err = document.getElementById('quiz-modify-auth-error');
+    if (!overlay) {
+        quizModifyExecOpenShellAfterAuth();
+        return;
+    }
+    if (err) {
+        err.textContent = '';
+        err.style.display = '';
+    }
+    if (input) input.value = '';
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-password-open');
+    requestAnimationFrame(function () {
+        try {
+            if (input) input.focus();
+        } catch (eF) { /* ignore */ }
+    });
+}
+
+function hideQuizModifyAuthModal() {
+    var overlay = document.getElementById('quiz-modify-auth-overlay');
+    var err = document.getElementById('quiz-modify-auth-error');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-password-open');
+    if (err) err.textContent = '';
+}
+
+function cancelQuizModifyAuthModal() {
+    hideQuizModifyAuthModal();
+}
+
+function confirmQuizModifyAuth() {
+    var input = document.getElementById('quiz-modify-auth-input');
+    var err = document.getElementById('quiz-modify-auth-error');
+    var raw = input ? String(input.value || '').trim() : '';
+    if (raw.toLowerCase() !== String(QUIZ_MODIFY_CONTENT_PASSWORD).toLowerCase()) {
+        if (err) err.textContent = 'Password errata.';
+        if (input) {
+            try {
+                input.focus();
+                input.select();
+            } catch (eI) { /* ignore */ }
+        }
+        return;
+    }
+    hideQuizModifyAuthModal();
+    quizModifyExecOpenShellAfterAuth();
+}
+
+function quizModifyAuthOverlayBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-modify-auth-overlay') cancelQuizModifyAuthModal();
 }
 
 /** Bozza editor Modifica: chiavi localStorage per override e cronologia (passi successivi). */
@@ -17883,9 +17958,20 @@ function setupQuizTitleToggle() {
         const info = document.getElementById('quiz-info-overlay');
         const prod = document.getElementById('quiz-producer-overlay');
         const lock = document.getElementById('quiz-lock-overlay');
+        const modifyAuth = document.getElementById('quiz-modify-auth-overlay');
         const devMenu = document.getElementById('quiz-developer-menu-overlay');
         const modifyDev = document.getElementById('quiz-modify-dev-overlay');
         const settings = document.getElementById('quiz-settings-overlay');
+        if (modifyAuth && modifyAuth.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                cancelQuizModifyAuthModal();
+            } else if (ev.key === 'Enter') {
+                ev.preventDefault();
+                confirmQuizModifyAuth();
+            }
+            return;
+        }
         if (devMenu && devMenu.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
