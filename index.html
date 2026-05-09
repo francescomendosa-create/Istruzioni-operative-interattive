@@ -5645,6 +5645,15 @@
         #quiz-settings-quiz-speech-btn .quiz-settings-info-chev {
             color: #1a1a1a;
         }
+        #quiz-settings-modify-btn.quiz-settings-row {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border: 1px solid #1565c0;
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.28);
+        }
+        #quiz-settings-modify-btn strong,
+        #quiz-settings-modify-btn .quiz-settings-info-chev {
+            color: #fff;
+        }
         .quiz-info-overlay {
             z-index: 10040;
             align-items: center;
@@ -5880,11 +5889,11 @@
             z-index: 10001;
         }
         .quiz-producer-panel.visible::before {
-            background: linear-gradient(180deg, #b71c1c 0%, #8e0000 42%, #6d0000 100%);
+            background: linear-gradient(180deg, #e3ecf7 0%, #f5f8fc 45%, #eef3f9 100%);
         }
         .quiz-producer-panel.visible .quiz-fs-topbar {
-            background: linear-gradient(180deg, #7f0000 0%, #4a0000 100%);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(180deg, #2f5d96 0%, #1f3f68 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
         }
         .quiz-producer-fs-scroll {
             flex: 1;
@@ -8316,7 +8325,7 @@ function dismissAppSplash() {
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-modify-btn" onclick="openQuizProducerPasswordFromSettings()" aria-label="Modifica · richiede password sviluppatore">
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-modify-btn" onclick="showQuizModifyInDevelopmentPopup()" aria-label="Modifica · modalità in via di sviluppo">
                 <span><strong>Modifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -8330,7 +8339,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Aggiorna app e build dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605092</span>
+                    Aggiorna · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605095</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8449,7 +8458,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605092</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605095</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8505,16 +8514,6 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-producer-intro-continue" class="btn-side btn-report" onclick="quizProducerIntroContinue()">Continua</button>
             </div>
             <div id="quiz-producer-work" class="quiz-producer-work" hidden>
-                <div id="quiz-producer-presence-box" class="quiz-producer-presence">
-                    <div class="quiz-producer-presence__title">Utenti online (stima)</div>
-                    <div class="quiz-producer-presence__row">
-                        <span id="quiz-producer-presence-count" class="quiz-producer-presence__num" aria-live="polite">—</span>
-                        <button type="button" class="btn-side btn-report quiz-producer-presence__btn" onclick="quizProducerRefreshPresence()">Aggiorna</button>
-                    </div>
-                    <p class="quiz-producer-presence__hint">
-                        Stesso conteggio del badge in Impostazioni. I nomi vengono da <strong>Impostazioni → Chi sei?</strong> (non dal nome in classifica del quiz). Presenza in tempo reale (Firestore, finestra ~1 min). Regole su <strong>quiz_presence</strong>.
-                    </p>
-                </div>
                 <div class="quiz-producer-add">
                     <input type="text" id="quiz-producer-name" maxlength="40" placeholder="Nome" aria-label="Nome">
                     <input type="number" id="quiz-producer-score" min="0" max="99999" placeholder="Pt" aria-label="Punteggio">
@@ -8553,7 +8552,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605092';
+const APP_BUILD = '202605095';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13781,6 +13780,10 @@ function openQuizProducerPasswordFromSettings() {
     quizPasswordResumeSettings = true;
     hideQuizSettingsModal();
     showQuizPasswordModal();
+}
+
+function showQuizModifyInDevelopmentPopup() {
+    alert('Modalita in via di sviluppo');
 }
 
 function showQuizPasswordModal() {
