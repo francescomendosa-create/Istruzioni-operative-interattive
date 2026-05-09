@@ -7001,8 +7001,8 @@
             animation: none !important;
             opacity: 0.35;
         }
+        /* Non usare pointer-events:none qui: i tap passano agli elementi sotto (tab vermi, ecc.) mentre il pulsante è ancora focus/cliccabile → rumore bolle ma ingresso che non completa. */
         #app-splash.app-splash--bursting .app-splash-enter {
-            pointer-events: none;
             opacity: 0.55;
             cursor: wait;
             filter: grayscale(0.2);
@@ -7737,20 +7737,28 @@ function playSplashBubblePop() {
         }
     } catch (e) {}
 }
-function finishDismissAppSplashToApp() {
+function finishDismissAppSplashToApp(onDone) {
     stopSplashHomeBioMusic();
     requestAnimationFrame(function () {
-        var KEY = 'io-splash-dismissed-session';
-        var sp = document.getElementById('app-splash');
-        if (sp) {
-            sp.classList.remove('app-splash--visible');
-            sp.setAttribute('aria-hidden', 'true');
-            sp.classList.remove('app-splash--bursting');
-        }
-        document.body.classList.remove('splash-active');
         try {
-            sessionStorage.setItem(KEY, '1');
-        } catch (e) {}
+            var KEY = 'io-splash-dismissed-session';
+            var sp = document.getElementById('app-splash');
+            if (sp) {
+                sp.classList.remove('app-splash--visible');
+                sp.setAttribute('aria-hidden', 'true');
+                sp.classList.remove('app-splash--bursting');
+            }
+            document.body.classList.remove('splash-active');
+            try {
+                sessionStorage.setItem(KEY, '1');
+            } catch (e) {}
+        } finally {
+            if (typeof onDone === 'function') {
+                try {
+                    onDone();
+                } catch (eD) { /* ignore */ }
+            }
+        }
     });
 }
 function splashSelectWorm(idx) {
@@ -7796,12 +7804,14 @@ function dismissAppSplash() {
     var finalize = function () {
         if (finished) return;
         finished = true;
-        dismissAppSplash._busy = false;
-        if (btn) {
-            btn.disabled = false;
-            btn.removeAttribute('aria-busy');
-        }
-        finishDismissAppSplashToApp();
+        /* Sblocca _busy e il pulsante solo dopo aver tolto lo splash dal DOM: prima si riabilitava il btn mentre restava pointer-events:none (bursting) e i tap finivano altrove. */
+        finishDismissAppSplashToApp(function () {
+            dismissAppSplash._busy = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.removeAttribute('aria-busy');
+            }
+        });
     };
     try {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -8626,7 +8636,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605105';
+const APP_BUILD = '202605106';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
