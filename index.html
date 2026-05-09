@@ -8698,7 +8698,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605117';
+const APP_BUILD = '202605118';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -10235,7 +10235,8 @@ function quizFetchModifyFeaturesFromFirestore(reason) {
     return quizEnsureFirebase()
         .then(function () {
             var ref = firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC);
-            return ref.get({ source: 'server' }).then(function (snap) {
+            /* default source: cache se offline / rete instabile; server quando disponibile */
+            return ref.get().then(function (snap) {
                 if (!snap.exists) return;
                 var d = snap.data() || {};
                 if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
@@ -13901,11 +13902,13 @@ async function showQuizSettingsModal() {
         } catch (eCl0) { /* ignore */ }
         return;
     }
+    /* Baseline locale prima del fetch: poi il cloud sovrascrive (mai il contrario dopo fetch:
+     * riscrivere da sola localStorage cancellava il flag applicato da Firestore su mobile/Safari senza storage affidabile). */
+    quizLoadDeveloperModifyFeaturesState();
     try {
         await quizFetchModifyFeaturesFromFirestore('settings-open');
     } catch (eFs) { /* ignore */ }
     syncSettingsQuizToggleUi();
-    quizLoadDeveloperModifyFeaturesState();
     quizSyncDeveloperModifySettingsRow();
     quizRefreshInProgress = false;
     quizSettingsRefreshLineReset();
