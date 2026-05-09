@@ -8578,7 +8578,10 @@ function dismissAppSplash() {
     <div id="quiz-producer-overlay" class="quiz-panel quiz-producer-panel" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Advanced mode · Sviluppatore">
         <div class="quiz-fs-topbar" style="justify-content: space-between;">
             <span style="color:#fff;font-weight:800;font-size:0.68rem;letter-spacing:0.06em;padding-left:4px;">ADVANCED MODE · SVILUPPATORE</span>
-            <button type="button" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <button type="button" id="quiz-producer-back-btn" class="quiz-fs-exit" style="display:none;" onclick="quizProducerBackToDeveloperMenu()" aria-label="Torna al menu sviluppatore">Indietro</button>
+                <button type="button" id="quiz-producer-exit-btn" class="quiz-fs-exit" onclick="hideQuizProducerModal()">Esci</button>
+            </div>
         </div>
         <div class="quiz-fs-scroll quiz-producer-fs-scroll" style="text-align:left;">
             <div id="quiz-producer-work" class="quiz-producer-work">
@@ -8623,11 +8626,13 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605104';
+const APP_BUILD = '202605105';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
 let quizDeveloperModifyFeaturesEnabled = false;
+/** True se la classifica (#quiz-producer-overlay) è stata aperta dal menu sviluppatore (mostra «Indietro»). */
+let quizDeveloperOpenedProducerFromMenu = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
 const QUIZ_LS_FEATURE = 'io-quiz-feature-enabled';
 /** Nome mostrato solo in presenza online (Impostazioni → Chi sei?). Separato dalla classifica quiz. */
@@ -13978,6 +13983,7 @@ function quizDeveloperMenuBackdrop(ev) {
 }
 
 function quizDeveloperOpenClassifica() {
+    quizDeveloperOpenedProducerFromMenu = true;
     hideQuizDeveloperMenuModal();
     showQuizProducerModal();
 }
@@ -14262,6 +14268,8 @@ function showQuizProducerModal() {
         el.setAttribute('aria-hidden', 'false');
     }
     document.body.classList.add('producer-open');
+    var backBtn = document.getElementById('quiz-producer-back-btn');
+    if (backBtn) backBtn.style.display = quizDeveloperOpenedProducerFromMenu ? '' : 'none';
     quizProducerRefreshTable();
     try {
         quizPresenceBootstrap();
@@ -14271,13 +14279,25 @@ function showQuizProducerModal() {
         const n = document.getElementById('quiz-producer-name');
         if (n) n.focus();
         else {
-            const x = document.querySelector('#quiz-producer-overlay .quiz-fs-exit');
-            if (x) x.focus();
+            const backB = document.getElementById('quiz-producer-back-btn');
+            if (backB && backB.style.display !== 'none') backB.focus();
+            else {
+                const x = document.getElementById('quiz-producer-exit-btn');
+                if (x) x.focus();
+            }
         }
     });
 }
 
+function quizProducerBackToDeveloperMenu() {
+    hideQuizProducerModal();
+    showQuizDeveloperMenuModal();
+}
+
 function hideQuizProducerModal() {
+    quizDeveloperOpenedProducerFromMenu = false;
+    var bb = document.getElementById('quiz-producer-back-btn');
+    if (bb) bb.style.display = 'none';
     quizProducerRemoveModalHide();
     quizProducerResetIntro();
     const el = document.getElementById('quiz-producer-overlay');
