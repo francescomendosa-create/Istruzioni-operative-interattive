@@ -5750,6 +5750,59 @@
             flex-direction: column;
             padding: 12px 14px 10px;
             box-sizing: border-box;
+            min-height: 0;
+        }
+        .quiz-modify-shell-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0 0 10px;
+            flex-shrink: 0;
+        }
+        .quiz-modify-shell-header .quiz-modify-shell-header__title {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+        .quiz-modify-dev-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 7px 12px 7px 9px;
+            border-radius: 999px;
+            border: 1px solid #b0bec5;
+            background: linear-gradient(180deg, #ffffff 0%, #eceff1 100%);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.78rem;
+            color: #1a237e;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+            box-sizing: border-box;
+            line-height: 1.2;
+        }
+        .quiz-modify-dev-back-btn:hover {
+            filter: brightness(1.04);
+        }
+        .quiz-modify-dev-back-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+        }
+        .quiz-modify-dev-back-btn__icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(26, 35, 126, 0.08);
+            color: #1a237e;
+        }
+        .quiz-modify-dev-back-btn__icon svg {
+            width: 18px;
+            height: 18px;
         }
         .quiz-modify-lead {
             margin: 0 0 10px;
@@ -5780,6 +5833,11 @@
         }
         #quiz-modify-view-list {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
         .quiz-modify-delete-confirm-layer {
             position: absolute;
@@ -5892,15 +5950,14 @@
             border-color: #1565c0;
         }
         .quiz-modify-list {
-            flex: 1;
+            flex: 1 1 auto;
+            min-height: 160px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             border: 1px solid #eceff1;
             border-radius: 10px;
             background: #fafafa;
-            min-height: 140px;
-            max-height: 38vh;
             padding: 6px 4px;
         }
         .quiz-modify-row {
@@ -5934,21 +5991,17 @@
             word-break: break-word;
         }
         .quiz-modify-hint {
-            margin: 8px 0 6px;
+            margin: 8px 0 0;
             font-size: 0.8rem;
             color: #78909c;
             line-height: 1.4;
+            flex-shrink: 0;
         }
         .quiz-modify-actions {
             flex-wrap: wrap;
             gap: 8px;
             justify-content: flex-end;
             margin-top: 8px;
-        }
-        /* Footer elenco Modifica contenuti: solo «Chiudi» (prova / barra ridotta). */
-        .quiz-modify-actions--footer-minimal #quiz-modify-dev-close {
-            width: 100%;
-            box-sizing: border-box;
         }
         .quiz-modify-actions .btn-side:disabled {
             opacity: 0.45;
@@ -5972,6 +6025,20 @@
         .quiz-modify-btn-create:active {
             transform: translateY(1px);
         }
+        #quiz-modify-view-list > .quiz-modify-lead,
+        #quiz-modify-view-list > .quiz-modify-new-scheda-row,
+        #quiz-modify-view-list > .quiz-modify-rename-inline,
+        #quiz-modify-view-list > .quiz-modify-tabs,
+        #quiz-modify-view-list > .quiz-modify-create-row {
+            flex-shrink: 0;
+        }
+        #quiz-modify-view-detail:not(.quiz-modify-view--hidden) {
+            display: flex !important;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
         .quiz-modify-view--hidden {
             display: none !important;
         }
@@ -5987,11 +6054,11 @@
         }
         .quiz-modify-detail-scroll {
             flex: 1;
+            min-height: 120px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            min-height: 120px;
-            max-height: min(52vh, 420px);
+            max-height: none;
             text-align: left;
         }
         .quiz-modify-block {
@@ -9095,7 +9162,18 @@ function dismissAppSplash() {
 
     <div id="quiz-modify-dev-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizModifyDevModalBackdrop(event)">
         <div class="quiz-lock-box quiz-modify-shell" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
-            <h4 id="quiz-modify-dev-title" class="quiz-lock-title">Modifica contenuti</h4>
+            <div class="quiz-modify-shell-header">
+                <h4 id="quiz-modify-dev-title" class="quiz-lock-title quiz-modify-shell-header__title">Modifica contenuti</h4>
+                <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn" onclick="hideQuizModifyInDevelopmentPopup()" aria-label="Torna indietro" title="Torna">
+                    <span class="quiz-modify-dev-back-btn__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M14 16l-4-4 4-4" />
+                        </svg>
+                    </span>
+                    <span class="quiz-modify-dev-back-btn__label">Torna</span>
+                </button>
+            </div>
 
             <div id="quiz-modify-view-list" class="quiz-modify-view">
                 <p class="quiz-modify-lead">
@@ -9138,9 +9216,6 @@ function dismissAppSplash() {
                 </div>
                 <div id="quiz-modify-list" class="quiz-modify-list" role="listbox" aria-label="Domande della sezione"></div>
                 <p id="quiz-modify-hint" class="quiz-modify-hint"></p>
-                <div class="quiz-lock-actions quiz-modify-actions quiz-modify-actions--footer-minimal">
-                    <button type="button" id="quiz-modify-dev-close" class="btn-side btn-report" onclick="hideQuizModifyInDevelopmentPopup()">Chiudi</button>
-                </div>
             </div>
 
             <div id="quiz-modify-view-detail" class="quiz-modify-view quiz-modify-view--hidden" aria-hidden="true">
@@ -9281,7 +9356,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605141';
+const APP_BUILD = '202605142';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15124,7 +15199,7 @@ function showQuizModifyInDevelopmentPopup() {
     }
     requestAnimationFrame(function () {
         try {
-            var btn = document.getElementById('quiz-modify-dev-close');
+            var btn = document.getElementById('quiz-modify-dev-back');
             if (btn) btn.focus();
         } catch (eF) { /* ignore */ }
     });
