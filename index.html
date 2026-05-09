@@ -9309,7 +9309,7 @@ function dismissAppSplash() {
     <div id="quiz-modify-auth-overlay" class="quiz-lock-overlay quiz-lock-overlay--modify-auth" aria-hidden="true" onclick="quizModifyAuthOverlayBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-auth-title" onclick="event.stopPropagation()">
             <h4 id="quiz-modify-auth-title" class="quiz-lock-title">Autorizzazione Modifica</h4>
-            <p class="quiz-lock-hint">Inserisci la password per modificare i contenuti.</p>
+            <p class="quiz-lock-hint">Inserisci la password per <strong>applicare</strong> modifiche (salva, modifica testi, ripristina, ecc.). Resta valida finché non chiudi il browser o la scheda.</p>
             <input id="quiz-modify-auth-input" class="quiz-lock-input" type="password" autocomplete="current-password" maxlength="80" placeholder="" aria-label="Password autorizzazione Modifica" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmQuizModifyAuth();}">
             <p id="quiz-modify-auth-error" class="quiz-lock-error"></p>
             <div class="quiz-lock-actions">
@@ -9649,16 +9649,20 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 /** Password per aprire Modifica contenuti (se non si è già in Advanced mode sviluppatore). */
 const QUIZ_MODIFY_CONTENT_PASSWORD = 'simone';
+/** sessionStorage: dopo password corretta, consenti modifiche fino a chiusura tab/browser. */
+const QUIZ_SS_MODIFY_WRITE_AUTH = 'io-modify-write-auth-session';
 const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 /** Advanced mode: abilita funzioni collegate al tasto Modifica in Impostazioni (toggle nel menu sviluppatore). */
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605160';
+const APP_BUILD = '202605161';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
 let quizDeveloperModifyFeaturesEnabled = false;
+/** Callback dopo password Modifica (azione salvata interrotta finché non autenticato). */
+let quizModifyWriteAuthPendingCallback = null;
 /** True se la classifica (#quiz-producer-overlay) è stata aperta dal menu sviluppatore (mostra «Indietro»). */
 let quizDeveloperOpenedProducerFromMenu = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -15515,10 +15519,31 @@ function quizModifyDevBackClick() {
 }
 
 function showQuizModifyInDevelopmentPopup() {
-    if (quizAdvancedModeEnabled) {
-        quizModifyExecOpenShellAfterAuth();
+    quizModifyExecOpenShellAfterAuth();
+}
+
+function quizModifyWriteAuthIsGranted() {
+    if (quizAdvancedModeEnabled) return true;
+    try {
+        return sessionStorage.getItem(QUIZ_SS_MODIFY_WRITE_AUTH) === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
+function quizModifyWriteAuthPersistOk() {
+    try {
+        sessionStorage.setItem(QUIZ_SS_MODIFY_WRITE_AUTH, '1');
+    } catch (e) { /* ignore */ }
+}
+
+function quizModifyRequireWriteAuth(doneFn) {
+    if (typeof doneFn !== 'function') return;
+    if (quizModifyWriteAuthIsGranted()) {
+        doneFn();
         return;
     }
+    quizModifyWriteAuthPendingCallback = doneFn;
     showQuizModifyAuthModal();
 }
 
@@ -15589,7 +15614,6 @@ function showQuizModifyAuthModal() {
     var input = document.getElementById('quiz-modify-auth-input');
     var err = document.getElementById('quiz-modify-auth-error');
     if (!overlay) {
-        quizModifyExecOpenShellAfterAuth();
         return;
     }
     if (err) {
@@ -15618,6 +15642,7 @@ function hideQuizModifyAuthModal() {
 }
 
 function cancelQuizModifyAuthModal() {
+    quizModifyWriteAuthPendingCallback = null;
     hideQuizModifyAuthModal();
 }
 
@@ -15635,8 +15660,15 @@ function confirmQuizModifyAuth() {
         }
         return;
     }
+    quizModifyWriteAuthPersistOk();
     hideQuizModifyAuthModal();
-    quizModifyExecOpenShellAfterAuth();
+    var cb = quizModifyWriteAuthPendingCallback;
+    quizModifyWriteAuthPendingCallback = null;
+    if (typeof cb === 'function') {
+        try {
+            cb();
+        } catch (eCb) { /* ignore */ }
+    }
 }
 
 function quizModifyAuthOverlayBackdrop(ev) {
@@ -16276,7 +16308,9 @@ function quizModifyDetailBindOnce() {
         var t = ev.target;
         if (t && t.id === 'quiz-modify-actions-add-row') {
             ev.preventDefault();
-            quizModifyActionsAppendEmptyRow();
+            quizModifyRequireWriteAuth(function () {
+                quizModifyActionsAppendEmptyRow();
+            });
             return;
         }
         var btn = t && t.closest ? t.closest('[data-quiz-mod-act]') : null;
@@ -16285,10 +16319,15 @@ function quizModifyDetailBindOnce() {
         var field = btn.getAttribute('data-quiz-mod-field');
         if (!field || !act) return;
         ev.preventDefault();
-        if (act === 'edit') quizModifyDetailEnterEdit(field);
-        else if (act === 'view') quizModifyDetailActionView(field);
-        else if (act === 'restore') quizModifyDetailActionRestore(field);
-        else if (act === 'save') quizModifyDetailActionSave(field);
+        if (act === 'view') {
+            quizModifyDetailActionView(field);
+            return;
+        }
+        quizModifyRequireWriteAuth(function () {
+            if (act === 'edit') quizModifyDetailEnterEdit(field);
+            else if (act === 'restore') quizModifyDetailActionRestore(field);
+            else if (act === 'save') quizModifyDetailActionSave(field);
+        });
     });
 }
 
@@ -16425,20 +16464,22 @@ function quizModifyOpenQuestionDetail(sectionKey, index) {
 }
 
 function quizModifyOnCreateQuestion() {
-    if (quizModifyIsCustomSectionKey(quizModifyShellSection)) {
+    quizModifyRequireWriteAuth(function () {
+        if (quizModifyIsCustomSectionKey(quizModifyShellSection)) {
+            try {
+                quizModifyAppendQuestionToCustomSection(quizModifyShellSection);
+            } catch (eA) { /* ignore */ }
+            quizModifyRenderQuestionList();
+            quizModifyUpdateActionButtons();
+            return;
+        }
         try {
-            quizModifyAppendQuestionToCustomSection(quizModifyShellSection);
-        } catch (eA) { /* ignore */ }
-        quizModifyRenderQuestionList();
-        quizModifyUpdateActionButtons();
-        return;
-    }
-    try {
-        window.alert(
-            'Per le schede «Chimico-fisico» e «Biologico MBBR» l’elenco segue i dati integrati nell’app.\n\n' +
-                'Per aggiungere domande con struttura libera, crea una scheda con «Crea nuova scheda» e usa «＋ Crea domanda» lì.'
-        );
-    } catch (eA2) { /* ignore */ }
+            window.alert(
+                'Per le schede «Chimico-fisico» e «Biologico MBBR» l’elenco segue i dati integrati nell’app.\n\n' +
+                    'Per aggiungere domande con struttura libera, crea una scheda con «Crea nuova scheda» e usa «＋ Crea domanda» lì.'
+            );
+        } catch (eA2) { /* ignore */ }
+    });
 }
 
 /** Testo domanda da HTML (senza troncamento): elenco completo come in dati. */
@@ -16782,11 +16823,13 @@ function quizModifyRenameDeleteClick() {
 
 function quizModifyDeleteConfirmOkClick() {
     var key = quizModifyRenameTargetKey;
-    quizModifyDeleteConfirmHide();
-    if (key && quizModifyIsCustomSectionKey(key)) {
-        quizModifyExecuteDeleteCustomSection(key);
-    }
-    quizModifyRenameFormClose();
+    quizModifyRequireWriteAuth(function () {
+        quizModifyDeleteConfirmHide();
+        if (key && quizModifyIsCustomSectionKey(key)) {
+            quizModifyExecuteDeleteCustomSection(key);
+        }
+        quizModifyRenameFormClose();
+    });
 }
 
 function quizModifyDeleteQuestionRowHighlightClear() {
@@ -16896,10 +16939,12 @@ function quizModifyExecuteDeleteCustomQuestion(sectionKey, index) {
 function quizModifyDeleteQuestionConfirmOkClick() {
     var ix = quizModifyDeleteQuestionPendingIndex;
     var sk = quizModifyShellSection;
-    quizModifyDeleteQuestionOverlayHide();
-    if (ix == null || typeof ix !== 'number' || ix < 0) return;
-    if (!quizModifyIsCustomSectionKey(sk)) return;
-    quizModifyExecuteDeleteCustomQuestion(sk, ix);
+    quizModifyRequireWriteAuth(function () {
+        quizModifyDeleteQuestionOverlayHide();
+        if (ix == null || typeof ix !== 'number' || ix < 0) return;
+        if (!quizModifyIsCustomSectionKey(sk)) return;
+        quizModifyExecuteDeleteCustomQuestion(sk, ix);
+    });
 }
 
 function quizModifyBindRowLongPressQuestionDelete(wrap, idx) {
@@ -16979,19 +17024,21 @@ function quizModifyRenameFormSave() {
         quizModifyRenameFormClose();
         return;
     }
-    var inp = document.getElementById('quiz-modify-rename-input');
-    var name = inp ? String(inp.value || '').trim() : '';
-    if (!name) name = 'Nuova scheda';
-    var d = quizModifyLoadCustomSchedario();
-    d.labels[key] = name;
-    quizModifySaveCustomSchedario(d);
-    try {
-        if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
-    } catch (eNav) { /* ignore */ }
-    quizModifyRebuildTablist();
-    quizModifyUpdateTabs();
-    quizModifyRenderQuestionList();
-    quizModifyRenameFormClose();
+    quizModifyRequireWriteAuth(function () {
+        var inp = document.getElementById('quiz-modify-rename-input');
+        var name = inp ? String(inp.value || '').trim() : '';
+        if (!name) name = 'Nuova scheda';
+        var d = quizModifyLoadCustomSchedario();
+        d.labels[key] = name;
+        quizModifySaveCustomSchedario(d);
+        try {
+            if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
+        } catch (eNav) { /* ignore */ }
+        quizModifyRebuildTablist();
+        quizModifyUpdateTabs();
+        quizModifyRenderQuestionList();
+        quizModifyRenameFormClose();
+    });
 }
 
 function quizModifyBindTabLongPressRename(btn, sectionKey) {
@@ -17184,8 +17231,10 @@ function quizModifyCreateNewSchedaWithName(name) {
 function quizModifyNewSchedaFormConfirm() {
     var inp = document.getElementById('quiz-modify-new-scheda-name');
     var name = inp ? inp.value : '';
-    quizModifyCreateNewSchedaWithName(name);
-    quizModifyNewSchedaFormClose();
+    quizModifyRequireWriteAuth(function () {
+        quizModifyCreateNewSchedaWithName(name);
+        quizModifyNewSchedaFormClose();
+    });
 }
 
 function quizModifyOnNewSchedaClick() {
@@ -17469,23 +17518,27 @@ function quizModifyShellBindOnce() {
 
 function quizModifyOnSaveClick() {
     if (!quizModifyShellDirty) return;
-    var ok = window.confirm(
-        'Salvare le modifiche ai contenuti delle istruzioni?\n\n' +
-            'In questa versione il salvataggio persistente (Firebase / memoria locale) è il passo successivo: ' +
-            'per ora confermi solo l’intenzione di workflow.'
-    );
-    if (!ok) return;
-    try {
-        console.info('[Modifica] Salvataggio persistente: da collegare a Firestore / override locale (`' + MODIFY_LS_OVERRIDES + '`).');
-    } catch (eL) { /* ignore */ }
+    quizModifyRequireWriteAuth(function () {
+        var ok = window.confirm(
+            'Salvare le modifiche ai contenuti delle istruzioni?\n\n' +
+                'In questa versione il salvataggio persistente (Firebase / memoria locale) è il passo successivo: ' +
+                'per ora confermi solo l’intenzione di workflow.'
+        );
+        if (!ok) return;
+        try {
+            console.info('[Modifica] Salvataggio persistente: da collegare a Firestore / override locale (`' + MODIFY_LS_OVERRIDES + '`).');
+        } catch (eL) { /* ignore */ }
+    });
 }
 
 function quizModifyOnDiscardClick() {
     if (!quizModifyShellDirty) return;
-    if (!window.confirm('Annullare le modifiche non salvate in questa sessione?')) return;
-    quizModifyShellDirty = false;
-    quizModifyRenderQuestionList();
-    quizModifyUpdateActionButtons();
+    quizModifyRequireWriteAuth(function () {
+        if (!window.confirm('Annullare le modifiche non salvate in questa sessione?')) return;
+        quizModifyShellDirty = false;
+        quizModifyRenderQuestionList();
+        quizModifyUpdateActionButtons();
+    });
 }
 
 function quizModifyOnRevertClick() {
@@ -17502,10 +17555,12 @@ function quizModifyOnRevertClick() {
         );
         return;
     }
-    if (!window.confirm('Ripristinare la versione precedente salvata in archivio?')) return;
-    try {
-        console.info('[Modifica] Ripristino da `' + MODIFY_LS_HISTORY_STACK + '` — implementazione in corso.');
-    } catch (e2) { /* ignore */ }
+    quizModifyRequireWriteAuth(function () {
+        if (!window.confirm('Ripristinare la versione precedente salvata in archivio?')) return;
+        try {
+            console.info('[Modifica] Ripristino da `' + MODIFY_LS_HISTORY_STACK + '` — implementazione in corso.');
+        } catch (e2) { /* ignore */ }
+    });
 }
 
 function quizModifyShellOpen() {
