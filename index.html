@@ -5399,23 +5399,8 @@
             color: #78909c;
             font-style: italic;
         }
-        .quiz-presence-history-toggle {
-            width: 100%;
-            border: 1px solid #bbdefb;
-            background: #f5fbff;
-            color: #0d47a1;
-            border-radius: 10px;
-            padding: 9px 12px;
-            font-size: 0.84rem;
-            font-weight: 800;
-            cursor: pointer;
-            text-align: left;
-            margin: 2px 0 8px;
-        }
-        .quiz-presence-history-toggle:hover { filter: brightness(0.99); }
-        .quiz-presence-history-wrap[hidden] { display: none !important; }
         .quiz-presence-history-wrap {
-            margin: 0 0 12px;
+            margin: 10px 0 12px;
             padding: 8px 10px;
             border: 1px solid #e3f2fd;
             border-radius: 10px;
@@ -7464,8 +7449,15 @@
 <script>
 (function splashInit() {
     var KEY = 'io-splash-dismissed-session';
+    var REOPEN = 'io-quiz-reopen-settings-after-reload';
     try {
-        if (sessionStorage.getItem(KEY) === '1') {
+        var reopen = sessionStorage.getItem(REOPEN) === '1';
+        if (reopen) {
+            try {
+                sessionStorage.setItem(KEY, '1');
+            } catch (eR) { /* ignore */ }
+        }
+        if (sessionStorage.getItem(KEY) === '1' || reopen) {
             document.body.classList.remove('splash-active');
             var sp = document.getElementById('app-splash');
             if (sp) {
@@ -8339,11 +8331,8 @@ function dismissAppSplash() {
                 <button type="button" id="quiz-presence-refresh-btn" class="quiz-presence-refresh-btn" onclick="quizPresenceRefreshConnectedNow(this)" aria-label="Aggiorna ora collegati" title="Aggiorna ora">↻</button>
             </div>
             <ul id="quiz-presence-connected-list" class="quiz-presence-connected-list"></ul>
-            <button type="button" id="quiz-presence-history-toggle" class="quiz-presence-history-toggle" onclick="quizPresenceToggleHistory24h()">
-                Mostra storico collegamenti (ultime 24 ore)
-            </button>
-            <div id="quiz-presence-history-wrap" class="quiz-presence-history-wrap" hidden>
-                <p class="quiz-presence-history-title">Storico 24 ore</p>
+            <div id="quiz-presence-history-wrap" class="quiz-presence-history-wrap">
+                <p class="quiz-presence-history-title">Storico collegamenti (ultime 24 ore)</p>
                 <ul id="quiz-presence-history-list" class="quiz-presence-history-list"></ul>
             </div>
             <button type="button" class="btn-side btn-report" style="width:100%;" onclick="quizPresenceHideConnectedModal()">Chiudi</button>
@@ -8521,7 +8510,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508nopresdev';
+const APP_BUILD = '20260508hist24';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8766,8 +8755,6 @@ let quizPresenceSubscribeRetryTimer = null;
 let quizPresenceConnectedPollTimer = null;
 let quizPresenceLastServerReadAt = 0;
 let quizPresenceLastMirrorReadAt = 0;
-let quizPresenceHistoryExpanded = false;
-
 /** Compatta le carte bonus uguali in un'unica voce con contatore (evita liste ripetitive nel dettaglio podio). */
 function quizNormalizeBonusCards(list, maxItems) {
     var arr = Array.isArray(list) ? list : [];
@@ -9289,6 +9276,7 @@ function quizPresenceFillConnectedList() {
     if (!rows.length) {
         ul.innerHTML =
             '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~1 min; ping automatico ogni 10 s).</li>';
+        quizPresenceRenderHistory24h();
         return;
     }
     rows.forEach(function (row) {
@@ -9297,9 +9285,7 @@ function quizPresenceFillConnectedList() {
         li.textContent = nm;
         ul.appendChild(li);
     });
-    if (quizPresenceHistoryExpanded) {
-        quizPresenceRenderHistory24h();
-    }
+    quizPresenceRenderHistory24h();
 }
 
 function quizPresenceCollectRowsMerged24h() {
@@ -9392,27 +9378,9 @@ function quizPresenceRenderHistory24h() {
     });
 }
 
-function quizPresenceToggleHistory24h() {
-    quizPresenceHistoryExpanded = !quizPresenceHistoryExpanded;
-    var wrap = document.getElementById('quiz-presence-history-wrap');
-    var btn = document.getElementById('quiz-presence-history-toggle');
-    if (wrap) wrap.hidden = !quizPresenceHistoryExpanded;
-    if (btn) {
-        btn.textContent = quizPresenceHistoryExpanded
-            ? 'Nascondi storico collegamenti (ultime 24 ore)'
-            : 'Mostra storico collegamenti (ultime 24 ore)';
-    }
-    if (quizPresenceHistoryExpanded) quizPresenceRenderHistory24h();
-}
-
 function quizPresenceOpenConnectedModal() {
     var overlay = document.getElementById('quiz-presence-connected-overlay');
     if (!overlay) return;
-    quizPresenceHistoryExpanded = false;
-    var hWrap = document.getElementById('quiz-presence-history-wrap');
-    if (hWrap) hWrap.hidden = true;
-    var hBtn = document.getElementById('quiz-presence-history-toggle');
-    if (hBtn) hBtn.textContent = 'Mostra storico collegamenti (ultime 24 ore)';
     quizPresencePing();
     Promise.all([quizPresenceReadCollectionRobust(), quizPresenceReadMirrorFromServerPreferred()])
         .then(function () {
@@ -9456,7 +9424,6 @@ function quizPresenceHideConnectedModal() {
     if (!overlay) return;
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
-    quizPresenceHistoryExpanded = false;
     quizPresenceStopConnectedPolling();
 }
 
@@ -13455,7 +13422,32 @@ function showQuizSettingsModal() {
     try {
         if (typeof quizPresenceOnSettingsOpen === 'function') quizPresenceOnSettingsOpen();
     } catch (ePres) { /* ignore */ }
+    try {
+        if (typeof quizCheckUpdateAvailableSilently === 'function') {
+            void quizCheckUpdateAvailableSilently();
+        }
+    } catch (eChk) { /* ignore */ }
 }
+
+/** Dopo «Aggiorna app»: riapri Impostazioni appena il DOM è pronto (non dopo Firebase), così il build è visibile e lo splash non copre il modale. */
+(function quizReopenSettingsAfterAppRefresh() {
+    function tryOpen() {
+        try {
+            if (sessionStorage.getItem(QUIZ_SS_REOPEN_SETTINGS) !== '1') return;
+            sessionStorage.removeItem(QUIZ_SS_REOPEN_SETTINGS);
+            requestAnimationFrame(function () {
+                try {
+                    showQuizSettingsModal();
+                } catch (e1) { /* ignore */ }
+            });
+        } catch (e0) { /* ignore */ }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', tryOpen);
+    } else {
+        tryOpen();
+    }
+})();
 
 /**
  * Da Impostazioni: massimo allineamento col server (oltre al pulsante, contano CDN,
@@ -18866,18 +18858,6 @@ window.addEventListener('load', function initQuizProtection() {
             if (infoV) infoV.textContent = APP_VERSION;
             const infoB = document.getElementById('quiz-info-build-label');
             if (infoB) infoB.textContent = APP_BUILD;
-            var reopenSettings = false;
-            try {
-                reopenSettings = sessionStorage.getItem(QUIZ_SS_REOPEN_SETTINGS) === '1';
-                if (reopenSettings) {
-                    sessionStorage.removeItem(QUIZ_SS_REOPEN_SETTINGS);
-                }
-            } catch (eRs) { /* ignore */ }
-            if (reopenSettings) {
-                requestAnimationFrame(function () {
-                    showQuizSettingsModal();
-                });
-            }
             try {
                 quizAdelfoWarmFrames();
             } catch (eAdW) { /* ignore */ }
