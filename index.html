@@ -5543,6 +5543,56 @@
             flex: 1;
             font-weight: 600;
         }
+        /* Interruttore stile iOS (menu Advanced · Sviluppatore) */
+        .quiz-dev-ios-switch {
+            position: relative;
+            flex-shrink: 0;
+            width: 51px;
+            height: 31px;
+        }
+        .quiz-dev-ios-switch-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            width: 51px;
+            height: 31px;
+            margin: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .quiz-dev-ios-switch-track {
+            display: block;
+            width: 51px;
+            height: 31px;
+            border-radius: 31px;
+            background: #e9e9ea;
+            transition: background 0.22s ease;
+            pointer-events: none;
+        }
+        .quiz-dev-ios-switch-input:checked + .quiz-dev-ios-switch-track {
+            background: #34c759;
+        }
+        .quiz-dev-ios-switch-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.12),
+                0 1px 2px rgba(0, 0, 0, 0.14);
+            transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+        .quiz-dev-ios-switch-input:checked + .quiz-dev-ios-switch-track .quiz-dev-ios-switch-thumb {
+            transform: translateX(20px);
+        }
+        .quiz-dev-ios-switch-input:focus-visible + .quiz-dev-ios-switch-track {
+            outline: 2px solid #1565c0;
+            outline-offset: 3px;
+        }
         .quiz-settings-row--action strong {
             color: #1565c0;
         }
@@ -8556,7 +8606,7 @@ function dismissAppSplash() {
     <div id="quiz-developer-menu-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizDeveloperMenuBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-developer-menu-title" onclick="event.stopPropagation()" style="width:min(94vw,420px);">
             <h4 id="quiz-developer-menu-title" class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
-            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;">Strumenti sviluppatore e abilitazione funzioni collegate al tasto <strong>Modifica</strong> in Impostazioni.</p>
+            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;">Interruttore <strong>Modifica</strong>: controlla se il tasto Modifica in Impostazioni è utilizzabile.</p>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;" onclick="quizDeveloperOpenClassifica()" aria-label="Apri classifica">
                 <span><strong>Classifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -8566,8 +8616,11 @@ function dismissAppSplash() {
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <label class="quiz-settings-row quiz-settings-row--toggle" style="width:100%;box-sizing:border-box;margin-top:10px;">
-                <span class="quiz-settings-row-text">Abilita funzioni <strong>Modifica</strong> (Impostazioni)</span>
-                <input type="checkbox" id="quiz-developer-modify-toggle" onchange="quizDeveloperModifyToggleChanged(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
+                <span class="quiz-settings-row-text">Modifica <span style="font-weight:500;color:#78909c;font-size:0.82rem;">(Impostazioni)</span></span>
+                <span class="quiz-dev-ios-switch">
+                    <input type="checkbox" id="quiz-developer-modify-toggle" class="quiz-dev-ios-switch-input" role="switch" aria-label="Abilita il tasto Modifica in Impostazioni" onchange="quizDeveloperModifyToggleChanged(this.checked)">
+                    <span class="quiz-dev-ios-switch-track"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                </span>
             </label>
             <div class="quiz-lock-actions" style="margin-top:14px;">
                 <button type="button" class="btn-side btn-report" onclick="hideQuizDeveloperMenuModal()">Chiudi</button>
@@ -8636,7 +8689,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605106';
+const APP_BUILD = '202605107';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13950,7 +14003,11 @@ function quizSetDeveloperModifyFeaturesEnabled(on) {
 
 function quizSyncDeveloperModifyToggleUi() {
     var cb = document.getElementById('quiz-developer-modify-toggle');
-    if (cb) cb.checked = quizDeveloperModifyFeaturesGet();
+    if (cb) {
+        var on = quizDeveloperModifyFeaturesGet();
+        cb.checked = on;
+        cb.setAttribute('aria-checked', on ? 'true' : 'false');
+    }
 }
 
 function quizSyncDeveloperModifySettingsRow() {
