@@ -8521,8 +8521,8 @@ let titleClickCount = 0;
 let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
-/** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260508reopen2';
+/** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). */
+const APP_BUILD = '202605082';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -13295,7 +13295,7 @@ function quizSetUpdateAvailable(remoteBuild) {
 }
 
 /**
- * Confronto build token (es. 20260511an):
+ * Confronto build: da ora solo token numerici (stringhe di cifre); resta compatibilità con vecchi token YYYYMMDD+suffisso lettere.
  * - > 0: remote più nuovo
  * - < 0: remote più vecchio
  * - = 0: uguali/indeterminati
@@ -13305,6 +13305,19 @@ function quizCompareBuildTokens(remoteBuild, localBuild) {
     var l = quizNormalizeBuildToken(localBuild);
     if (!r || !l) return 0;
     if (r === l) return 0;
+    var rNum = /^\d+$/.test(r);
+    var lNum = /^\d+$/.test(l);
+    if (rNum && lNum) {
+        try {
+            var br = BigInt(r);
+            var bl = BigInt(l);
+            if (br > bl) return 1;
+            if (br < bl) return -1;
+            return 0;
+        } catch (eBi) {
+            return r > l ? 1 : -1;
+        }
+    }
     var rx = /^(\d{8})([a-z]{0,4})$/i;
     var rm = r.match(rx);
     var lm = l.match(rx);
@@ -13317,12 +13330,26 @@ function quizCompareBuildTokens(remoteBuild, localBuild) {
         if (rSfx === lSfx) return 0;
         return rSfx > lSfx ? 1 : -1;
     }
+    if (rNum && lm) {
+        var lDate2 = Number(lm[1]) || 0;
+        var rHead = r.length >= 8 ? Number(r.slice(0, 8)) || 0 : 0;
+        if (rHead !== lDate2) return rHead > lDate2 ? 1 : -1;
+        return 1;
+    }
+    if (lNum && rm) {
+        var rDate2 = Number(rm[1]) || 0;
+        var lHead = l.length >= 8 ? Number(l.slice(0, 8)) || 0 : 0;
+        if (rDate2 !== lHead) return rDate2 > lHead ? 1 : -1;
+        return -1;
+    }
     return r > l ? 1 : -1;
 }
 
 function quizNormalizeBuildToken(v) {
-    var s = String(v || '').trim().toLowerCase();
+    var s = String(v || '').trim();
     if (!s) return '';
+    if (/^\d+$/.test(s)) return s;
+    s = s.toLowerCase();
     var m = s.match(/(\d{8}[a-z]{0,4})/i);
     return m ? String(m[1]).toLowerCase() : s;
 }
