@@ -5718,6 +5718,140 @@
         #quiz-settings-modify-btn[hidden] {
             display: none !important;
         }
+        /* Modifica contenuti: shell editor (MBR / chimico-fisico) */
+        .quiz-modify-shell.quiz-lock-box {
+            width: min(96vw, 520px);
+            max-height: min(90vh, 760px);
+            display: flex;
+            flex-direction: column;
+            padding: 12px 14px 10px;
+            box-sizing: border-box;
+        }
+        .quiz-modify-lead {
+            margin: 0 0 10px;
+            font-size: 0.88rem;
+            color: #546e7a;
+            line-height: 1.45;
+        }
+        .quiz-modify-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .quiz-modify-tab {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cfd8dc;
+            background: #f5f7fa;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #37474f;
+        }
+        .quiz-modify-tab[aria-selected="true"] {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            color: #fff;
+            border-color: #1565c0;
+        }
+        .quiz-modify-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+            min-height: 28px;
+            align-items: center;
+        }
+        .quiz-modify-tag {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #b0bec5;
+            background: #fff;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: #455a64;
+        }
+        .quiz-modify-tag--active {
+            background: #e3f2fd;
+            border-color: #1976d2;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        .quiz-modify-tag--all {
+            font-weight: 600;
+        }
+        .quiz-modify-list {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            border: 1px solid #eceff1;
+            border-radius: 10px;
+            background: #fafafa;
+            min-height: 140px;
+            max-height: 38vh;
+            padding: 6px 4px;
+        }
+        .quiz-modify-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            padding: 8px 10px;
+            margin: 0 4px 6px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #eceff1;
+            text-align: left;
+        }
+        .quiz-modify-row-num {
+            flex-shrink: 0;
+            font-weight: 700;
+            color: #1976d2;
+            font-size: 0.85rem;
+            min-width: 2rem;
+        }
+        .quiz-modify-row-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .quiz-modify-row-q {
+            font-size: 0.86rem;
+            color: #263238;
+            line-height: 1.35;
+            margin: 0 0 4px;
+        }
+        .quiz-modify-row-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.76rem;
+            color: #78909c;
+        }
+        .quiz-modify-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #eceff1;
+            color: #455a64;
+            font-weight: 600;
+        }
+        .quiz-modify-hint {
+            margin: 8px 0 6px;
+            font-size: 0.8rem;
+            color: #78909c;
+            line-height: 1.4;
+        }
+        .quiz-modify-actions {
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+        .quiz-modify-actions .btn-side:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
         .quiz-info-overlay {
             z-index: 10040;
             align-items: center;
@@ -8637,10 +8771,25 @@ function dismissAppSplash() {
     </div>
 
     <div id="quiz-modify-dev-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizModifyDevModalBackdrop(event)">
-        <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
-            <h4 id="quiz-modify-dev-title" class="quiz-lock-title">Modifica</h4>
-            <p id="quiz-modify-dev-body" style="margin:0;color:#37474f;font-size:0.92rem;">Modalità ancora in via di sviluppo.</p>
-            <div class="quiz-lock-actions">
+        <div class="quiz-lock-box quiz-modify-shell" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-modify-dev-title" class="quiz-lock-title">Modifica contenuti</h4>
+            <p class="quiz-modify-lead">
+                Schede <strong>Chimico-fisico</strong> e <strong>Biologico MBBR</strong>: elenco domande e tag come in istruzioni.
+                Editor testi, salvataggio e cronologia sono collegati al database nella prossima fase.
+            </p>
+            <div class="quiz-modify-tabs" role="tablist" aria-label="Sezione impianto">
+                <button type="button" class="quiz-modify-tab" role="tab" id="quiz-modify-tab-cf" aria-selected="true" aria-controls="quiz-modify-list">Chimico-fisico</button>
+                <button type="button" class="quiz-modify-tab" role="tab" id="quiz-modify-tab-mbr" aria-selected="false" aria-controls="quiz-modify-list">Biologico MBBR</button>
+            </div>
+            <div id="quiz-modify-tags" class="quiz-modify-tags" aria-label="Filtra per tag"></div>
+            <div id="quiz-modify-list" class="quiz-modify-list" role="listbox" aria-label="Domande della sezione"></div>
+            <p id="quiz-modify-hint" class="quiz-modify-hint"></p>
+            <div class="quiz-lock-actions quiz-modify-actions">
+                <button type="button" class="btn-side btn-reset" id="quiz-modify-btn-revert" disabled title="Ripristino versione precedente dopo cronologia salvataggi">
+                    Ripristina precedente
+                </button>
+                <button type="button" class="btn-side btn-reset" id="quiz-modify-btn-discard" disabled title="Annulla modifiche non salvate">Annulla bozza</button>
+                <button type="button" class="btn-side btn-report" id="quiz-modify-btn-save" disabled title="Salvataggio persistente (Firebase / locale) in arrivo">Salva</button>
                 <button type="button" id="quiz-modify-dev-close" class="btn-side btn-report" onclick="hideQuizModifyInDevelopmentPopup()">Chiudi</button>
             </div>
         </div>
@@ -8698,7 +8847,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605120';
+const APP_BUILD = '202605121';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14348,14 +14497,15 @@ function showQuizModifyInDevelopmentPopup() {
         return;
     }
     const overlay = document.getElementById('quiz-modify-dev-overlay');
-    const body = document.getElementById('quiz-modify-dev-body');
     if (!overlay) return;
-    if (body) {
-        body.textContent = 'Modalità ancora in via di sviluppo.';
-    }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
+    try {
+        quizModifyShellOpen();
+    } catch (eSh) {
+        console.warn('[Modifica shell]', eSh);
+    }
     requestAnimationFrame(function () {
         try {
             var btn = document.getElementById('quiz-modify-dev-close');
@@ -14374,6 +14524,263 @@ function hideQuizModifyInDevelopmentPopup() {
 
 function quizModifyDevModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') hideQuizModifyInDevelopmentPopup();
+}
+
+/** Bozza editor Modifica: chiavi localStorage per override e cronologia (passi successivi). */
+const MODIFY_LS_OVERRIDES = 'io-checklist-modify-overrides-v1';
+const MODIFY_LS_HISTORY_STACK = 'io-checklist-modify-history-stack-v1';
+
+let quizModifyShellSection = 'cf';
+let quizModifyShellTagFilter = null;
+let quizModifyShellDirty = false;
+let quizModifyShellListenersBound = false;
+
+function quizModifyPlainQuestionPreview(q) {
+    try {
+        var s = String(q == null ? '' : q).replace(/<br\s*\/?>/gi, ' ');
+        var tmp = typeof document !== 'undefined' ? document.createElement('div') : null;
+        if (tmp) {
+            tmp.innerHTML = s;
+            s = tmp.textContent || tmp.innerText || '';
+        } else {
+            s = s.replace(/<[^>]+>/g, ' ');
+        }
+        s = s.replace(/\s+/g, ' ').trim();
+        return s.length > 160 ? s.slice(0, 157) + '…' : s;
+    } catch (e) {
+        return '';
+    }
+}
+
+function quizModifyCollectTags(sectionKey) {
+    try {
+        var root = typeof db !== 'undefined' && db ? db[sectionKey] : null;
+        var arr = Array.isArray(root) ? root : [];
+        var map = {};
+        for (var i = 0; i < arr.length; i++) {
+            var t = arr[i] && arr[i].tag != null ? String(arr[i].tag).trim() : '';
+            if (t) map[t] = true;
+        }
+        return Object.keys(map).sort(function (a, b) {
+            return a.localeCompare(b, 'it');
+        });
+    } catch (eT) {
+        return [];
+    }
+}
+
+function quizModifyGetSectionRows(sectionKey) {
+    try {
+        var root = typeof db !== 'undefined' && db ? db[sectionKey] : null;
+        return Array.isArray(root) ? root : [];
+    } catch (eR) {
+        return [];
+    }
+}
+
+function quizModifyUpdateTabs() {
+    var tabCf = document.getElementById('quiz-modify-tab-cf');
+    var tabMbr = document.getElementById('quiz-modify-tab-mbr');
+    if (tabCf) {
+        tabCf.setAttribute('aria-selected', quizModifyShellSection === 'cf' ? 'true' : 'false');
+    }
+    if (tabMbr) {
+        tabMbr.setAttribute('aria-selected', quizModifyShellSection === 'mbr' ? 'true' : 'false');
+    }
+}
+
+function quizModifyRenderTagsAndList() {
+    var tagsEl = document.getElementById('quiz-modify-tags');
+    var listEl = document.getElementById('quiz-modify-list');
+    var hintEl = document.getElementById('quiz-modify-hint');
+    if (!tagsEl || !listEl) return;
+
+    var tags = quizModifyCollectTags(quizModifyShellSection);
+    var rows = quizModifyGetSectionRows(quizModifyShellSection);
+    var fragTags = document.createDocumentFragment();
+    var btnAll = document.createElement('button');
+    btnAll.type = 'button';
+    btnAll.className =
+        'quiz-modify-tag quiz-modify-tag--all' + (quizModifyShellTagFilter === null ? ' quiz-modify-tag--active' : '');
+    btnAll.textContent = 'Tutti';
+    btnAll.addEventListener('click', function () {
+        quizModifyShellTagFilter = null;
+        quizModifyRenderTagsAndList();
+    });
+    fragTags.appendChild(btnAll);
+    for (var t = 0; t < tags.length; t++) {
+        (function (tagName) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className =
+                'quiz-modify-tag' + (quizModifyShellTagFilter === tagName ? ' quiz-modify-tag--active' : '');
+            b.textContent = tagName;
+            b.addEventListener('click', function () {
+                quizModifyShellTagFilter = quizModifyShellTagFilter === tagName ? null : tagName;
+                quizModifyRenderTagsAndList();
+            });
+            fragTags.appendChild(b);
+        })(tags[t]);
+    }
+    tagsEl.innerHTML = '';
+    tagsEl.appendChild(fragTags);
+
+    var fragList = document.createDocumentFragment();
+    var shown = 0;
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i] || {};
+        var tg = row.tag != null ? String(row.tag).trim() : '';
+        if (quizModifyShellTagFilter !== null && tg !== quizModifyShellTagFilter) continue;
+        shown++;
+        var wrap = document.createElement('div');
+        wrap.className = 'quiz-modify-row';
+        wrap.setAttribute('role', 'option');
+        var num = document.createElement('div');
+        num.className = 'quiz-modify-row-num';
+        num.textContent = row.p != null ? '#' + String(row.p) : '—';
+        var body = document.createElement('div');
+        body.className = 'quiz-modify-row-body';
+        var pq = document.createElement('p');
+        pq.className = 'quiz-modify-row-q';
+        pq.textContent = quizModifyPlainQuestionPreview(row.q);
+        var meta = document.createElement('div');
+        meta.className = 'quiz-modify-row-meta';
+        if (tg) {
+            var bd = document.createElement('span');
+            bd.className = 'quiz-modify-badge';
+            bd.textContent = tg;
+            meta.appendChild(bd);
+        }
+        if (row.control) {
+            var cLab = document.createElement('span');
+            cLab.textContent = 'controllo';
+            meta.appendChild(cLab);
+        }
+        body.appendChild(pq);
+        body.appendChild(meta);
+        wrap.appendChild(num);
+        wrap.appendChild(body);
+        fragList.appendChild(wrap);
+    }
+    listEl.innerHTML = '';
+    listEl.appendChild(fragList);
+
+    if (!shown) {
+        var empty = document.createElement('p');
+        empty.style.margin = '12px';
+        empty.style.fontSize = '0.88rem';
+        empty.style.color = '#78909c';
+        empty.textContent =
+            quizModifyShellTagFilter !== null
+                ? 'Nessuna domanda con questo tag nella sezione selezionata.'
+                : 'Nessuna voce trovata nella sezione.';
+        listEl.appendChild(empty);
+    }
+
+    var secLab = quizModifyShellSection === 'cf' ? 'Chimico-fisico' : 'Biologico MBBR';
+    if (hintEl) {
+        hintEl.textContent =
+            secLab +
+            ' · ' +
+            shown +
+            (shown === 1 ? ' voce mostrata' : ' voci mostrate') +
+            (quizModifyShellTagFilter ? ' · tag: «' + quizModifyShellTagFilter + '»' : '') +
+            '. Editor testuale e conferma salvataggio in sviluppo.';
+    }
+}
+
+function quizModifyUpdateActionButtons() {
+    var sav = document.getElementById('quiz-modify-btn-save');
+    var dis = document.getElementById('quiz-modify-btn-discard');
+    var rev = document.getElementById('quiz-modify-btn-revert');
+    if (sav) sav.disabled = !quizModifyShellDirty;
+    if (dis) dis.disabled = !quizModifyShellDirty;
+    if (rev) {
+        var hasHist = false;
+        try {
+            hasHist = !!localStorage.getItem(MODIFY_LS_HISTORY_STACK);
+        } catch (eH) {
+            hasHist = false;
+        }
+        rev.disabled = !hasHist;
+        rev.title = hasHist
+            ? 'Torna alla copia salvata precedente'
+            : 'Disponibile dopo il primo salvataggio archiviato';
+    }
+}
+
+function quizModifySetSection(key) {
+    if (key !== 'cf' && key !== 'mbr') return;
+    quizModifyShellSection = key;
+    quizModifyShellTagFilter = null;
+    quizModifyUpdateTabs();
+    quizModifyRenderTagsAndList();
+}
+
+function quizModifyShellBindOnce() {
+    if (quizModifyShellListenersBound) return;
+    quizModifyShellListenersBound = true;
+    var tabCf = document.getElementById('quiz-modify-tab-cf');
+    var tabMbr = document.getElementById('quiz-modify-tab-mbr');
+    if (tabCf) tabCf.addEventListener('click', function () { quizModifySetSection('cf'); });
+    if (tabMbr) tabMbr.addEventListener('click', function () { quizModifySetSection('mbr'); });
+    var sav = document.getElementById('quiz-modify-btn-save');
+    var dis = document.getElementById('quiz-modify-btn-discard');
+    var rev = document.getElementById('quiz-modify-btn-revert');
+    if (sav) sav.addEventListener('click', quizModifyOnSaveClick);
+    if (dis) dis.addEventListener('click', quizModifyOnDiscardClick);
+    if (rev) rev.addEventListener('click', quizModifyOnRevertClick);
+}
+
+function quizModifyOnSaveClick() {
+    if (!quizModifyShellDirty) return;
+    var ok = window.confirm(
+        'Salvare le modifiche ai contenuti delle istruzioni?\n\n' +
+            'In questa versione il salvataggio persistente (Firebase / memoria locale) è il passo successivo: ' +
+            'per ora confermi solo l’intenzione di workflow.'
+    );
+    if (!ok) return;
+    try {
+        console.info('[Modifica] Salvataggio persistente: da collegare a Firestore / override locale (`' + MODIFY_LS_OVERRIDES + '`).');
+    } catch (eL) { /* ignore */ }
+}
+
+function quizModifyOnDiscardClick() {
+    if (!quizModifyShellDirty) return;
+    if (!window.confirm('Annullare le modifiche non salvate in questa sessione?')) return;
+    quizModifyShellDirty = false;
+    quizModifyRenderTagsAndList();
+    quizModifyUpdateActionButtons();
+}
+
+function quizModifyOnRevertClick() {
+    var hasHist = false;
+    try {
+        hasHist = !!localStorage.getItem(MODIFY_LS_HISTORY_STACK);
+    } catch (e) {
+        hasHist = false;
+    }
+    if (!hasHist) {
+        window.alert(
+            'Non è ancora disponibile una versione precedente.\n\n' +
+                'Dopo il primo salvataggio archiviato potrai tornare indietro in caso di errore.'
+        );
+        return;
+    }
+    if (!window.confirm('Ripristinare la versione precedente salvata in archivio?')) return;
+    try {
+        console.info('[Modifica] Ripristino da `' + MODIFY_LS_HISTORY_STACK + '` — implementazione in corso.');
+    } catch (e2) { /* ignore */ }
+}
+
+function quizModifyShellOpen() {
+    quizModifyShellBindOnce();
+    quizModifyShellSection = 'cf';
+    quizModifyShellTagFilter = null;
+    quizModifyShellDirty = false;
+    quizModifyUpdateTabs();
+    quizModifyRenderTagsAndList();
+    quizModifyUpdateActionButtons();
 }
 
 function showQuizPasswordModal() {
