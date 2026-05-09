@@ -5843,67 +5843,93 @@
         .quiz-modify-rename-inline {
             margin-bottom: 10px;
         }
+        .quiz-modify-rename-inline.quiz-modify-new-scheda-form {
+            padding: 10px 10px 12px;
+        }
         .quiz-modify-rename-delete-btn {
             width: 100%;
             box-sizing: border-box;
             margin-top: 10px;
         }
-        .quiz-modify-sched-preview-caption {
-            margin: 0 0 8px;
-            font-size: 0.72rem;
+        .quiz-modify-sched-live-label {
+            margin: 0 0 6px;
+            font-size: 0.68rem;
             font-weight: 700;
-            color: #546e7a;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
+            color: #78909c;
             text-align: center;
+            letter-spacing: 0.02em;
         }
-        .quiz-modify-sched-preview {
+        /* Stesso linguaggio grafico del pulsante Home (.nav-sec-btn): nome centrato + colore applicato al contenitore */
+        .quiz-modify-sched-live {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: min(420px, 92vw);
-            margin: 0 auto 14px;
-            padding: 9px 12px;
+            max-width: min(400px, 88vw);
+            margin: 0 auto 10px;
+            padding: 6px 10px;
             border: 2px solid rgba(255, 255, 255, 0.92);
             border-radius: 30px;
-            font-weight: bold;
-            font-size: 0.72rem;
-            line-height: 1.25;
-            text-align: center;
-            white-space: normal;
-            word-break: break-word;
             box-sizing: border-box;
             min-height: 44px;
             transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22), 0 10px 18px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.55);
         }
-        .quiz-modify-color-panel {
-            margin: 14px 0 12px;
-            padding: 12px 10px;
-            border-radius: 10px;
-            border: 1px solid #cfd8dc;
-            background: linear-gradient(180deg, #fafcfe 0%, #f0f4f8 100%);
+        .quiz-modify-sched-live:focus-within {
+            outline: 2px solid rgba(21, 101, 192, 0.45);
+            outline-offset: 2px;
+        }
+        .quiz-modify-sched-live-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            margin: 0;
+            padding: 6px 8px;
+            font: inherit;
+            font-weight: bold;
+            font-size: 0.72rem;
+            line-height: 1.25;
+            text-align: center;
+            color: inherit;
+            min-height: 30px;
+            box-sizing: border-box;
+            word-break: break-word;
+        }
+        .quiz-modify-sched-live-input::placeholder {
+            color: inherit;
+            opacity: 0.65;
+        }
+        .quiz-modify-sched-live-input:focus {
+            outline: none;
+        }
+        .quiz-modify-color-panel--compact {
+            margin: 8px 0 10px;
+            padding: 6px 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #e0e7ee;
+            background: #fafcfd;
             box-sizing: border-box;
         }
-        .quiz-modify-color-panel-title {
-            margin: 0 0 12px;
-            font-size: 0.84rem;
-            font-weight: 800;
-            color: #37474f;
+        .quiz-modify-color-panel--compact .quiz-modify-color-panel-title {
+            margin: 0 0 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #607d8b;
             text-align: center;
+            letter-spacing: 0.02em;
         }
-        .quiz-modify-color-swatches {
+        .quiz-modify-color-swatches--compact {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 5px 6px;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
+            max-height: none;
         }
-        .quiz-modify-color-swatch {
+        .quiz-modify-color-swatches--compact .quiz-modify-color-swatch {
             position: relative;
-            width: 52px;
-            height: 52px;
+            width: 22px;
+            height: 22px;
             padding: 0;
             border: none;
             background: transparent;
@@ -5912,34 +5938,34 @@
             flex-shrink: 0;
             -webkit-tap-highlight-color: transparent;
         }
-        .quiz-modify-color-swatch:focus-visible {
+        .quiz-modify-color-swatches--compact .quiz-modify-color-swatch:focus-visible {
             outline: 2px solid #1565c0;
-            outline-offset: 3px;
+            outline-offset: 1px;
         }
-        .quiz-modify-color-swatch-dot {
+        .quiz-modify-color-swatches--compact .quiz-modify-color-swatch-dot {
             display: block;
-            width: 46px;
-            height: 46px;
-            margin: 3px auto;
+            width: 14px;
+            height: 14px;
+            margin: 4px auto;
             border-radius: 50%;
-            box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 3px 10px rgba(0, 0, 0, 0.18);
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.2);
         }
-        .quiz-modify-color-swatch--selected .quiz-modify-color-swatch-dot {
+        .quiz-modify-color-swatches--compact .quiz-modify-color-swatch--selected .quiz-modify-color-swatch-dot {
             box-shadow:
-                inset 0 0 0 3px #fff,
-                0 0 0 3px #1565c0,
-                0 6px 16px rgba(21, 101, 192, 0.35);
+                inset 0 0 0 2px #fff,
+                0 0 0 2px #1565c0,
+                0 2px 6px rgba(21, 101, 192, 0.35);
         }
-        .quiz-modify-color-swatch-used {
+        .quiz-modify-color-swatches--compact .quiz-modify-color-swatch-used {
             position: absolute;
-            right: -1px;
-            top: -1px;
-            width: 20px;
-            height: 20px;
+            right: -3px;
+            top: -3px;
+            width: 11px;
+            height: 11px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(0, 0, 0, 0.14);
-            font-size: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            font-size: 7px;
             font-weight: 900;
             color: #2e7d32;
             display: flex;
@@ -5947,7 +5973,6 @@
             justify-content: center;
             line-height: 1;
             pointer-events: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
         #quiz-modify-view-list {
             position: relative;
@@ -9370,15 +9395,21 @@ function dismissAppSplash() {
                     </div>
                 </div>
                 <div id="quiz-modify-rename-inline" class="quiz-modify-new-scheda-form quiz-modify-rename-inline" hidden>
-                    <p class="quiz-modify-sched-preview-caption">Anteprima pulsante (come in Home)</p>
-                    <div id="quiz-modify-sched-preview" class="quiz-modify-sched-preview" aria-hidden="true">
-                        <span id="quiz-modify-sched-preview-text"></span>
+                    <label class="quiz-modify-sched-live-label" for="quiz-modify-rename-input">Come apparirà il pulsante in Home</label>
+                    <div id="quiz-modify-sched-live" class="quiz-modify-sched-live">
+                        <input
+                            type="text"
+                            id="quiz-modify-rename-input"
+                            class="quiz-modify-sched-live-input"
+                            maxlength="80"
+                            placeholder="Nome sulla tab"
+                            autocomplete="off"
+                            aria-label="Nome della scheda — testo e colore come in istruzioni operative"
+                        />
                     </div>
-                    <label class="quiz-modify-new-scheda-label" for="quiz-modify-rename-input">Nome della scheda</label>
-                    <input type="text" id="quiz-modify-rename-input" class="quiz-modify-new-scheda-input" maxlength="80" placeholder="Nome sulla tab in istruzioni operative" autocomplete="off" aria-label="Nome della scheda sulla tab" />
-                    <div class="quiz-modify-color-panel" aria-labelledby="quiz-modify-color-panel-title">
+                    <div class="quiz-modify-color-panel quiz-modify-color-panel--compact" aria-labelledby="quiz-modify-color-panel-title">
                         <p id="quiz-modify-color-panel-title" class="quiz-modify-color-panel-title">Scegli colore</p>
-                        <div id="quiz-modify-color-swatches" class="quiz-modify-color-swatches" role="group" aria-label="Palette colori tab"></div>
+                        <div id="quiz-modify-color-swatches" class="quiz-modify-color-swatches quiz-modify-color-swatches--compact" role="group" aria-label="Palette colori tab"></div>
                     </div>
                     <div class="quiz-modify-new-scheda-actions">
                         <button type="button" class="btn-side btn-reset" id="quiz-modify-rename-cancel">Annulla</button>
@@ -9547,7 +9578,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605152';
+const APP_BUILD = '202605153';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -16445,27 +16476,22 @@ function quizModifyRenderRenameColorSwatches() {
 }
 
 function quizModifyRenamePreviewUpdate() {
-    var prev = document.getElementById('quiz-modify-sched-preview');
-    var prevText = document.getElementById('quiz-modify-sched-preview-text');
-    var inp = document.getElementById('quiz-modify-rename-input');
-    if (!prev || !prevText) return;
-    var label = inp ? String(inp.value || '').trim() : '';
-    if (!label) label = 'Nome scheda';
-    prevText.textContent = label;
+    var live = document.getElementById('quiz-modify-sched-live');
+    if (!live) return;
     var hex = quizModifyRenamePendingAccentHex;
     if (hex) {
         var st = quizModifyAccentNavStyles(hex, true);
         if (st) {
-            prev.style.background = st.background;
-            prev.style.color = st.color;
-            prev.style.borderColor = st.borderColor;
-            prev.style.boxShadow = st.boxShadow;
+            live.style.background = st.background;
+            live.style.color = st.color;
+            live.style.borderColor = st.borderColor;
+            live.style.boxShadow = st.boxShadow;
         }
     } else {
-        prev.style.background = '';
-        prev.style.color = '';
-        prev.style.borderColor = '';
-        prev.style.boxShadow = '';
+        live.style.background = '';
+        live.style.color = '';
+        live.style.borderColor = '';
+        live.style.boxShadow = '';
     }
 }
 
