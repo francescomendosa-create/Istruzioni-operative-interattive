@@ -5848,6 +5848,107 @@
             box-sizing: border-box;
             margin-top: 10px;
         }
+        .quiz-modify-sched-preview-caption {
+            margin: 0 0 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #546e7a;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .quiz-modify-sched-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: min(420px, 92vw);
+            margin: 0 auto 14px;
+            padding: 9px 12px;
+            border: 2px solid rgba(255, 255, 255, 0.92);
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.72rem;
+            line-height: 1.25;
+            text-align: center;
+            white-space: normal;
+            word-break: break-word;
+            box-sizing: border-box;
+            min-height: 44px;
+            transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22), 0 10px 18px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+        .quiz-modify-color-panel {
+            margin: 14px 0 12px;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 1px solid #cfd8dc;
+            background: linear-gradient(180deg, #fafcfe 0%, #f0f4f8 100%);
+            box-sizing: border-box;
+        }
+        .quiz-modify-color-panel-title {
+            margin: 0 0 12px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: #37474f;
+            text-align: center;
+        }
+        .quiz-modify-color-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .quiz-modify-color-swatch {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 50%;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .quiz-modify-color-swatch:focus-visible {
+            outline: 2px solid #1565c0;
+            outline-offset: 3px;
+        }
+        .quiz-modify-color-swatch-dot {
+            display: block;
+            width: 46px;
+            height: 46px;
+            margin: 3px auto;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 3px 10px rgba(0, 0, 0, 0.18);
+        }
+        .quiz-modify-color-swatch--selected .quiz-modify-color-swatch-dot {
+            box-shadow:
+                inset 0 0 0 3px #fff,
+                0 0 0 3px #1565c0,
+                0 6px 16px rgba(21, 101, 192, 0.35);
+        }
+        .quiz-modify-color-swatch-used {
+            position: absolute;
+            right: -1px;
+            top: -1px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            font-size: 12px;
+            font-weight: 900;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            pointer-events: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
         #quiz-modify-view-list {
             position: relative;
             display: flex;
@@ -5895,6 +5996,36 @@
         }
         #quiz-modify-delete-question-layer.quiz-modify-delete-confirm-layer {
             z-index: 26;
+            /* Sfondo leggero: elenco e tab restano leggibili sotto il dialogo */
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        @keyframes quiz-modify-row-delete-pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 106, 93, 0.25);
+                background-color: #fff;
+                border-color: #eceff1;
+            }
+            50% {
+                box-shadow: 0 0 0 3px rgba(239, 106, 93, 0.35);
+                background-color: #fff5f5;
+                border-color: #ffcdd2;
+            }
+        }
+        .quiz-modify-row.quiz-modify-row--pending-delete {
+            animation: quiz-modify-row-delete-pulse 0.9s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-modify-row.quiz-modify-row--pending-delete {
+                animation: none;
+                outline: 2px solid #ef5350;
+                outline-offset: 2px;
+                background-color: #fff8f7;
+            }
         }
         .quiz-modify-delete-confirm-layer__box {
             width: 100%;
@@ -9225,7 +9356,7 @@ function dismissAppSplash() {
                 <p class="quiz-modify-lead">
                     Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda»
                     (struttura vuota pronta per nuove domande). Con Firebase configurato, le schede create si sincronizzano su <strong>tutti i dispositivi</strong> del progetto; resta comunque una copia in locale come cache.
-                    Su una scheda creata, <strong>tieni premuto il tab</strong> per cambiarne il nome.
+                    Su una scheda creata, <strong>tieni premuto il tab</strong> per aprire «Modifica scheda» (nome, colore, eliminazione).
                 </p>
                 <div class="quiz-modify-new-scheda-row" id="quiz-modify-new-scheda-host">
                     <button type="button" class="quiz-modify-btn-new-scheda" id="quiz-modify-btn-new-scheda" title="Aggiungi una scheda vuota con la stessa struttura delle altre">Crea nuova scheda</button>
@@ -9239,13 +9370,21 @@ function dismissAppSplash() {
                     </div>
                 </div>
                 <div id="quiz-modify-rename-inline" class="quiz-modify-new-scheda-form quiz-modify-rename-inline" hidden>
+                    <p class="quiz-modify-sched-preview-caption">Anteprima pulsante (come in Home)</p>
+                    <div id="quiz-modify-sched-preview" class="quiz-modify-sched-preview" aria-hidden="true">
+                        <span id="quiz-modify-sched-preview-text"></span>
+                    </div>
                     <label class="quiz-modify-new-scheda-label" for="quiz-modify-rename-input">Nome della scheda</label>
-                    <input type="text" id="quiz-modify-rename-input" class="quiz-modify-new-scheda-input" maxlength="80" placeholder="Nome visualizzato come Chimico-fisico / Biologico MBBR" autocomplete="off" aria-label="Nome scheda sulla tab" />
+                    <input type="text" id="quiz-modify-rename-input" class="quiz-modify-new-scheda-input" maxlength="80" placeholder="Nome sulla tab in istruzioni operative" autocomplete="off" aria-label="Nome della scheda sulla tab" />
+                    <div class="quiz-modify-color-panel" aria-labelledby="quiz-modify-color-panel-title">
+                        <p id="quiz-modify-color-panel-title" class="quiz-modify-color-panel-title">Scegli colore</p>
+                        <div id="quiz-modify-color-swatches" class="quiz-modify-color-swatches" role="group" aria-label="Palette colori tab"></div>
+                    </div>
                     <div class="quiz-modify-new-scheda-actions">
                         <button type="button" class="btn-side btn-reset" id="quiz-modify-rename-cancel">Annulla</button>
-                        <button type="button" class="btn-side btn-report" id="quiz-modify-rename-save">Salva nome</button>
+                        <button type="button" class="btn-side btn-report" id="quiz-modify-rename-save">Salva</button>
                     </div>
-                    <button type="button" class="btn-side btn-reset quiz-modify-rename-delete-btn" id="quiz-modify-rename-delete">Elimina scheda</button>
+                    <button type="button" class="btn-side btn-reset quiz-modify-rename-delete-btn" id="quiz-modify-rename-delete">Elimina intera scheda</button>
                 </div>
                 <div id="quiz-modify-delete-confirm-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
                     <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-labelledby="quiz-modify-delete-confirm-title" aria-modal="true">
@@ -9408,7 +9547,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605149';
+const APP_BUILD = '202605152';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15345,6 +15484,45 @@ const MODIFY_LS_OVERRIDES = 'io-checklist-modify-overrides-v1';
 /** Schede utente aggiunte in Modifica contenuti: elenco domande vuote/modificabili (locale). */
 const MODIFY_CUSTOM_SCHEDE_LS = 'io-checklist-modify-custom-schede-v1';
 const MODIFY_LS_HISTORY_STACK = 'io-checklist-modify-history-stack-v1';
+/** Palette colori per schede personalizzate (tab Home / Modifica). */
+var QUIZ_MODIFY_SCHED_PALETTE = [
+    '#e53935',
+    '#d81b60',
+    '#8e24aa',
+    '#5e35b1',
+    '#3949ab',
+    '#1e88e5',
+    '#039be5',
+    '#00acc1',
+    '#00897b',
+    '#43a047',
+    '#7cb342',
+    '#c0ca33',
+    '#fdd835',
+    '#ffb300',
+    '#fb8c00',
+    '#f4511e',
+    '#6d4c41',
+    '#546e7a',
+    '#263238',
+    '#ec407a',
+    '#ab47bc',
+    '#7e57c2',
+    '#5c6bc0',
+    '#42a5f5',
+    '#29b6f6',
+    '#26c6da',
+    '#26a69a',
+    '#66bb6a',
+    '#9ccc65',
+    '#d4e157',
+    '#ffee58',
+    '#ffca28',
+    '#ffa726',
+    '#ff7043',
+    '#8d6e63',
+    '#78909c'
+];
 /** sessionStorage: stack annulla «salvataggio precedente» per domanda (cf/mbr + indice). */
 function quizModifyUndoStackStorageKey(sectionKey, index) {
     return 'io-checklist-modify-undo-v1-' + String(sectionKey) + '-' + String(index);
@@ -15422,6 +15600,8 @@ let quizModifyShellDirty = false;
 let quizModifyShellListenersBound = false;
 /** Scheda personalizzata il cui nome è in modifica (tab con pressione prolungata). */
 let quizModifyRenameTargetKey = null;
+/** Colore accent (#hex) in modifica nel form «Modifica scheda» (salvato con Salva). */
+let quizModifyRenamePendingAccentHex = null;
 /** Indice domanda in attesa di conferma eliminazione (schede create). */
 let quizModifyDeleteQuestionPendingIndex = null;
 /** Scroll del riquadro Impostazioni salvato all’apertura di Modifica (ripristino chiusura). */
@@ -15968,7 +16148,7 @@ function quizModifyShellTitleSync() {
     try {
         var renameForm = document.getElementById('quiz-modify-rename-inline');
         if (renameForm && !renameForm.hidden) {
-            titleEl.textContent = 'Modifica nome scheda';
+            titleEl.textContent = 'Modifica scheda';
             return;
         }
     } catch (eR) { /* ignore */ }
@@ -16114,11 +16294,187 @@ function quizModifyQuestionPlainText(q) {
     }
 }
 
+function quizModifyNormalizeHex(hex) {
+    var h = String(hex || '').trim();
+    if (!h) return '';
+    if (h.charAt(0) === '#') h = h.slice(1);
+    if (h.length === 3) {
+        h = h
+            .split('')
+            .map(function (c) {
+                return c + c;
+            })
+            .join('');
+    }
+    if (h.length !== 6) return '';
+    return '#' + h.toLowerCase();
+}
+
+function quizModifyHexToRgb(hex) {
+    var h = quizModifyNormalizeHex(hex);
+    if (!h) return null;
+    var n = parseInt(h.slice(1), 16);
+    if (isNaN(n)) return null;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function quizModifyRelativeLuminance(rgb) {
+    function lin(c) {
+        c = c / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * lin(rgb.r) + 0.7152 * lin(rgb.g) + 0.0722 * lin(rgb.b);
+}
+
+/** Stile bottone tab (Home / Modifica) da colore accent. */
+function quizModifyAccentNavStyles(hex, isActive) {
+    var rgb = quizModifyHexToRgb(hex);
+    if (!rgb) return null;
+    function mix255(ch, t, toward) {
+        return Math.round(ch + (toward - ch) * t);
+    }
+    var lum = quizModifyRelativeLuminance(rgb);
+    var top = {
+        r: mix255(rgb.r, isActive ? 0.2 : 0.4, 255),
+        g: mix255(rgb.g, isActive ? 0.2 : 0.4, 255),
+        b: mix255(rgb.b, isActive ? 0.2 : 0.4, 255)
+    };
+    var bot = {
+        r: mix255(rgb.r, isActive ? 0.68 : 0.48, 0),
+        g: mix255(rgb.g, isActive ? 0.68 : 0.48, 0),
+        b: mix255(rgb.b, isActive ? 0.68 : 0.48, 0)
+    };
+    var fg = isActive ? '#ffffff' : lum > 0.58 ? '#1a237e' : '#ffffff';
+    var gTop = 'rgb(' + top.r + ',' + top.g + ',' + top.b + ')';
+    var gBot = 'rgb(' + bot.r + ',' + bot.g + ',' + bot.b + ')';
+    var shadow = isActive
+        ? '0 5px 0 rgba(10,25,45,0.38), 0 12px 22px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.22)'
+        : '0 5px 0 rgba(0,0,0,0.22), 0 10px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.55)';
+    return {
+        background: 'linear-gradient(180deg,' + gTop + ' 0%,' + gBot + ' 100%)',
+        color: fg,
+        borderColor: 'rgba(255,255,255,0.92)',
+        boxShadow: shadow
+    };
+}
+
+function quizModifyPickUnusedPaletteColor(d) {
+    var used = {};
+    if (d.colors && typeof d.colors === 'object') {
+        for (var k in d.colors) {
+            if (!Object.prototype.hasOwnProperty.call(d.colors, k)) continue;
+            var v = d.colors[k];
+            if (v) used[quizModifyNormalizeHex(v)] = true;
+        }
+    }
+    var i;
+    for (i = 0; i < QUIZ_MODIFY_SCHED_PALETTE.length; i++) {
+        var hn = quizModifyNormalizeHex(QUIZ_MODIFY_SCHED_PALETTE[i]);
+        if (!used[hn]) return hn;
+    }
+    return quizModifyNormalizeHex(QUIZ_MODIFY_SCHED_PALETTE[0]);
+}
+
+function quizModifyColorUsedByOtherScheda(normHex, excludeKey, d) {
+    if (!d || !d.colors || typeof d.colors !== 'object') return false;
+    for (var sid in d.colors) {
+        if (!Object.prototype.hasOwnProperty.call(d.colors, sid)) continue;
+        if (sid === excludeKey) continue;
+        var v = d.colors[sid];
+        if (!v) continue;
+        if (quizModifyNormalizeHex(v) === normHex) return true;
+    }
+    return false;
+}
+
+function quizApplyCustomNavAccentStyles(activeSectionKey) {
+    try {
+        document.querySelectorAll('.header-sec-area .nav-sec-btn[data-accent-color]').forEach(function (b) {
+            var hex = b.getAttribute('data-accent-color');
+            var key = b.getAttribute('data-quiz-section');
+            if (!hex || !key) return;
+            var st = quizModifyAccentNavStyles(hex, key === activeSectionKey);
+            if (!st) return;
+            b.style.background = st.background;
+            b.style.color = st.color;
+            b.style.borderColor = st.borderColor;
+            b.style.boxShadow = st.boxShadow;
+        });
+    } catch (eA) { /* ignore */ }
+}
+
+function quizModifyRenderRenameColorSwatches() {
+    var host = document.getElementById('quiz-modify-color-swatches');
+    if (!host) return;
+    var key = quizModifyRenameTargetKey;
+    var d = quizModifyLoadCustomSchedario();
+    host.innerHTML = '';
+    var curNorm = quizModifyRenamePendingAccentHex ? quizModifyNormalizeHex(quizModifyRenamePendingAccentHex) : '';
+    var pi;
+    for (pi = 0; pi < QUIZ_MODIFY_SCHED_PALETTE.length; pi++) {
+        (function (hex) {
+            var norm = quizModifyNormalizeHex(hex);
+            var usedOther = quizModifyColorUsedByOtherScheda(norm, key, d);
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'quiz-modify-color-swatch';
+            b.setAttribute('data-hex', hex);
+            b.setAttribute('aria-label', 'Colore ' + norm);
+            b.setAttribute('aria-pressed', norm === curNorm ? 'true' : 'false');
+            if (norm === curNorm) b.classList.add('quiz-modify-color-swatch--selected');
+            var dot = document.createElement('span');
+            dot.className = 'quiz-modify-color-swatch-dot';
+            dot.style.background = norm;
+            b.appendChild(dot);
+            if (usedOther) {
+                var mk = document.createElement('span');
+                mk.className = 'quiz-modify-color-swatch-used';
+                mk.setAttribute('aria-hidden', 'true');
+                mk.textContent = '✓';
+                b.title = 'Già usato su un’altra scheda';
+                b.appendChild(mk);
+            }
+            b.addEventListener('click', function () {
+                quizModifyRenamePendingAccentHex = norm;
+                quizModifyRenderRenameColorSwatches();
+                quizModifyRenamePreviewUpdate();
+            });
+            host.appendChild(b);
+        })(QUIZ_MODIFY_SCHED_PALETTE[pi]);
+    }
+}
+
+function quizModifyRenamePreviewUpdate() {
+    var prev = document.getElementById('quiz-modify-sched-preview');
+    var prevText = document.getElementById('quiz-modify-sched-preview-text');
+    var inp = document.getElementById('quiz-modify-rename-input');
+    if (!prev || !prevText) return;
+    var label = inp ? String(inp.value || '').trim() : '';
+    if (!label) label = 'Nome scheda';
+    prevText.textContent = label;
+    var hex = quizModifyRenamePendingAccentHex;
+    if (hex) {
+        var st = quizModifyAccentNavStyles(hex, true);
+        if (st) {
+            prev.style.background = st.background;
+            prev.style.color = st.color;
+            prev.style.borderColor = st.borderColor;
+            prev.style.boxShadow = st.boxShadow;
+        }
+    } else {
+        prev.style.background = '';
+        prev.style.color = '';
+        prev.style.borderColor = '';
+        prev.style.boxShadow = '';
+    }
+}
+
 function quizNormalizeSchedarioObject(raw) {
     var d = raw && typeof raw === 'object' ? raw : {};
     if (!Array.isArray(d.order)) d.order = [];
     if (!d.labels || typeof d.labels !== 'object') d.labels = {};
     if (!d.items || typeof d.items !== 'object') d.items = {};
+    if (!d.colors || typeof d.colors !== 'object') d.colors = {};
     return d;
 }
 
@@ -16192,6 +16548,7 @@ function quizModifyRenameFormClose() {
     quizModifyDeleteQuestionOverlayHide();
     quizModifyDeleteConfirmHide();
     quizModifyRenameTargetKey = null;
+    quizModifyRenamePendingAccentHex = null;
     var form = document.getElementById('quiz-modify-rename-inline');
     var inp = document.getElementById('quiz-modify-rename-input');
     if (form) form.hidden = true;
@@ -16212,6 +16569,9 @@ function quizModifyRenameFormOpen(sectionKey) {
     var inp = document.getElementById('quiz-modify-rename-input');
     var d = quizModifyLoadCustomSchedario();
     var lab = (d.labels && d.labels[sectionKey]) ? String(d.labels[sectionKey]) : '';
+    var storedCol = d.colors && d.colors[sectionKey] ? quizModifyNormalizeHex(d.colors[sectionKey]) : '';
+    if (storedCol && !quizModifyHexToRgb(storedCol)) storedCol = '';
+    quizModifyRenamePendingAccentHex = storedCol || quizModifyPickUnusedPaletteColor(d);
     if (form) form.hidden = false;
     quizModifyRenameModeUiApply(true);
     if (inp) {
@@ -16221,6 +16581,10 @@ function quizModifyRenameFormOpen(sectionKey) {
             inp.select();
         } catch (eRn) { /* ignore */ }
     }
+    try {
+        quizModifyRenderRenameColorSwatches();
+        quizModifyRenamePreviewUpdate();
+    } catch (eSw) { /* ignore */ }
     if (form) {
         try {
             form.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -16263,7 +16627,16 @@ function quizModifyDeleteConfirmOkClick() {
     quizModifyRenameFormClose();
 }
 
+function quizModifyDeleteQuestionRowHighlightClear() {
+    try {
+        document.querySelectorAll('.quiz-modify-row--pending-delete').forEach(function (el) {
+            el.classList.remove('quiz-modify-row--pending-delete');
+        });
+    } catch (eCl) { /* ignore */ }
+}
+
 function quizModifyDeleteQuestionOverlayHide() {
+    quizModifyDeleteQuestionRowHighlightClear();
     quizModifyDeleteQuestionPendingIndex = null;
     var lay = document.getElementById('quiz-modify-delete-question-layer');
     if (lay) {
@@ -16273,11 +16646,20 @@ function quizModifyDeleteQuestionOverlayHide() {
 }
 
 function quizModifyDeleteQuestionOverlayShow(idx) {
+    quizModifyDeleteQuestionRowHighlightClear();
     quizModifyDeleteQuestionPendingIndex = typeof idx === 'number' ? idx : null;
     var lay = document.getElementById('quiz-modify-delete-question-layer');
     if (!lay) return;
     lay.hidden = false;
     lay.setAttribute('aria-hidden', 'false');
+    try {
+        var listEl = document.getElementById('quiz-modify-list');
+        var row =
+            listEl &&
+            quizModifyDeleteQuestionPendingIndex != null &&
+            listEl.querySelector('[data-quiz-modify-row-index="' + quizModifyDeleteQuestionPendingIndex + '"]');
+        if (row) row.classList.add('quiz-modify-row--pending-delete');
+    } catch (eHi) { /* ignore */ }
     try {
         var btn = document.getElementById('quiz-modify-delete-question-cancel');
         if (btn) btn.focus();
@@ -16414,6 +16796,7 @@ function quizModifyExecuteDeleteCustomSection(sectionKey) {
     });
     if (d.labels) delete d.labels[sectionKey];
     if (d.items) delete d.items[sectionKey];
+    if (d.colors) delete d.colors[sectionKey];
     quizModifySaveCustomSchedario(d);
     quizModifyStripOverridesForSection(sectionKey);
     quizModifyClearUndoStacksForSection(sectionKey);
@@ -16439,7 +16822,14 @@ function quizModifyRenameFormSave() {
     if (!name) name = 'Nuova scheda';
     var d = quizModifyLoadCustomSchedario();
     d.labels[key] = name;
+    if (quizModifyRenamePendingAccentHex) {
+        if (!d.colors) d.colors = {};
+        d.colors[key] = quizModifyNormalizeHex(quizModifyRenamePendingAccentHex);
+    }
     quizModifySaveCustomSchedario(d);
+    try {
+        if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
+    } catch (eNav) { /* ignore */ }
     quizModifyRebuildTablist();
     quizModifyUpdateTabs();
     quizModifyRenderQuestionList();
@@ -16497,7 +16887,7 @@ function quizModifyRebuildTablist() {
     var host = document.getElementById('quiz-modify-tablist');
     if (!host) return;
     host.innerHTML = '';
-    function addTab(key, label) {
+    function addTab(key, label, accentHex) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'quiz-modify-tab';
@@ -16507,6 +16897,10 @@ function quizModifyRebuildTablist() {
         var safeId = String(key).replace(/[^a-zA-Z0-9_-]/g, '_');
         b.id = 'quiz-modify-tab-' + safeId;
         b.textContent = label;
+        if (accentHex) {
+            b.setAttribute('data-tab-accent', accentHex);
+            b.classList.add('quiz-modify-tab--accent');
+        }
         host.appendChild(b);
     }
     addTab('cf', 'Chimico-fisico');
@@ -16516,7 +16910,8 @@ function quizModifyRebuildTablist() {
     for (var i = 0; i < ord.length; i++) {
         var cid = ord[i];
         var lab = (d.labels && d.labels[cid]) ? String(d.labels[cid]) : cid;
-        addTab(cid, lab);
+        var col = d.colors && d.colors[cid] ? quizModifyNormalizeHex(d.colors[cid]) : '';
+        addTab(cid, lab, col || '');
     }
     host.querySelectorAll('[data-quiz-modify-section]').forEach(function (tb) {
         var k = tb.getAttribute('data-quiz-modify-section');
@@ -16562,6 +16957,11 @@ function quizRebuildHeaderSectionNav() {
                 btn.setAttribute('data-quiz-section', sid);
                 btn.setAttribute('aria-label', lab);
                 btn.textContent = lab;
+                var accent = d.colors && d.colors[sid] ? quizModifyNormalizeHex(d.colors[sid]) : '';
+                if (accent) {
+                    btn.setAttribute('data-accent-color', accent);
+                    btn.classList.add('nav-sec-btn--custom-accent');
+                }
                 btn.addEventListener('click', function () {
                     scrollToSec(sid);
                 });
@@ -16570,6 +16970,9 @@ function quizRebuildHeaderSectionNav() {
         }
         host.appendChild(row);
     }
+    try {
+        if (typeof setupScrollObserver === 'function') setupScrollObserver();
+    } catch (eSo) { /* ignore */ }
 }
 
 function quizModifyEnsureShellSectionValid() {
@@ -16621,7 +17024,12 @@ function quizModifyCreateNewSchedaWithName(name) {
     d.order.push(id);
     d.labels[id] = name;
     d.items[id] = [quizModifyNewEmptyQuestionRow(1)];
+    if (!d.colors) d.colors = {};
+    d.colors[id] = quizModifyPickUnusedPaletteColor(d);
     quizModifySaveCustomSchedario(d);
+    try {
+        if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
+    } catch (eNav2) { /* ignore */ }
     quizModifyRebuildTablist();
     quizModifyUpdateTabs();
     quizModifySetSection(id);
@@ -16657,7 +17065,23 @@ function quizModifyUpdateTabs() {
     if (!host) return;
     host.querySelectorAll('[data-quiz-modify-section]').forEach(function (btn) {
         var k = btn.getAttribute('data-quiz-modify-section');
-        btn.setAttribute('aria-selected', k === quizModifyShellSection ? 'true' : 'false');
+        var sel = k === quizModifyShellSection;
+        btn.setAttribute('aria-selected', sel ? 'true' : 'false');
+        var hex = btn.getAttribute('data-tab-accent');
+        if (hex) {
+            var st = quizModifyAccentNavStyles(hex, sel);
+            if (st) {
+                btn.style.background = st.background;
+                btn.style.color = st.color;
+                btn.style.borderColor = st.borderColor;
+                btn.style.boxShadow = st.boxShadow;
+            }
+        } else {
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+            btn.style.boxShadow = '';
+        }
     });
 }
 
@@ -16674,6 +17098,7 @@ function quizModifyRenderQuestionList() {
             var row = rows[idx] || {};
             var wrap = document.createElement('div');
             wrap.className = 'quiz-modify-row';
+            wrap.setAttribute('data-quiz-modify-row-index', String(idx));
             wrap.setAttribute('role', 'button');
             wrap.tabIndex = 0;
             wrap.style.cursor = 'pointer';
@@ -16712,6 +17137,13 @@ function quizModifyRenderQuestionList() {
     }
     listEl.innerHTML = '';
     listEl.appendChild(fragList);
+    try {
+        var pendIx = quizModifyDeleteQuestionPendingIndex;
+        if (pendIx != null && typeof pendIx === 'number') {
+            var pendRow = listEl.querySelector('[data-quiz-modify-row-index="' + pendIx + '"]');
+            if (pendRow) pendRow.classList.add('quiz-modify-row--pending-delete');
+        }
+    } catch (ePh) { /* ignore */ }
 
     if (!shown) {
         var empty = document.createElement('p');
@@ -16827,6 +17259,11 @@ function quizModifyShellBindOnce() {
     var inpRename = document.getElementById('quiz-modify-rename-input');
     if (inpRename && inpRename.dataset.modifyBound !== '1') {
         inpRename.dataset.modifyBound = '1';
+        inpRename.addEventListener('input', function () {
+            try {
+                quizModifyRenamePreviewUpdate();
+            } catch (ePv) { /* ignore */ }
+        });
         inpRename.addEventListener('keydown', function (ev) {
             if (ev.key === 'Enter') {
                 ev.preventDefault();
@@ -22281,6 +22718,9 @@ function updateNav(s) {
         var key = b.getAttribute('data-quiz-section');
         b.classList.toggle('active', key === s);
     });
+    try {
+        if (typeof quizApplyCustomNavAccentStyles === 'function') quizApplyCustomNavAccentStyles(s);
+    } catch (eNav) { /* ignore */ }
 }
 
 let quizScrollNavListenerBound = false;
