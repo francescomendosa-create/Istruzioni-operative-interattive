@@ -5906,7 +5906,7 @@
             text-align: center;
             letter-spacing: 0.02em;
         }
-        /* Stesso linguaggio grafico del pulsante Home (.nav-sec-btn): nome centrato + colore applicato al contenitore */
+        /* Anteprima nome tab: stesso aspetto dei tab Home (.nav-sec-btn non attivo), senza tinte personalizzate */
         .quiz-modify-sched-live {
             display: flex;
             align-items: center;
@@ -5921,6 +5921,17 @@
             min-height: 44px;
             transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22), 0 10px 18px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+        .quiz-modify-sched-live--nav-default {
+            background: linear-gradient(180deg, #ffffff 0%, #e8ecf3 55%, #dce3ee 100%);
+            color: var(--primary);
+            border: 2px solid rgba(255, 255, 255, 0.98);
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.92),
+                inset 0 -5px 10px rgba(20, 35, 55, 0.08),
+                0 8px 0 rgba(14, 18, 28, 0.52),
+                0 16px 28px rgba(0, 0, 0, 0.26),
+                0 3px 10px rgba(0, 0, 0, 0.12);
         }
         .quiz-modify-sched-live:focus-within {
             outline: 2px solid rgba(21, 101, 192, 0.45);
@@ -9451,10 +9462,10 @@ function dismissAppSplash() {
                             maxlength="80"
                             placeholder="Nome sulla tab"
                             autocomplete="off"
-                            aria-label="Nome della scheda — testo e colore come in istruzioni operative"
+                            aria-label="Nome della scheda — come apparirà nella Home"
                         />
                     </div>
-                    <div class="quiz-modify-color-panel quiz-modify-color-panel--compact" aria-labelledby="quiz-modify-color-panel-title">
+                    <div class="quiz-modify-color-panel quiz-modify-color-panel--compact" id="quiz-modify-color-panel" hidden aria-hidden="true">
                         <p id="quiz-modify-color-panel-title" class="quiz-modify-color-panel-title">Scegli colore</p>
                         <div id="quiz-modify-color-swatches" class="quiz-modify-color-swatches quiz-modify-color-swatches--compact" role="group" aria-label="Palette colori tab"></div>
                     </div>
@@ -9625,7 +9636,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605158';
+const APP_BUILD = '202605159';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -16533,21 +16544,11 @@ function quizModifyRenderRenameColorSwatches() {
 function quizModifyRenamePreviewUpdate() {
     var live = document.getElementById('quiz-modify-sched-live');
     if (!live) return;
-    var hex = quizModifyRenamePendingAccentHex;
-    if (hex) {
-        var st = quizModifyAccentNavStyles(hex, true);
-        if (st) {
-            live.style.background = st.background;
-            live.style.color = st.color;
-            live.style.borderColor = st.borderColor;
-            live.style.boxShadow = st.boxShadow;
-        }
-    } else {
-        live.style.background = '';
-        live.style.color = '';
-        live.style.borderColor = '';
-        live.style.boxShadow = '';
-    }
+    live.classList.add('quiz-modify-sched-live--nav-default');
+    live.style.background = '';
+    live.style.color = '';
+    live.style.borderColor = '';
+    live.style.boxShadow = '';
 }
 
 function quizNormalizeSchedarioObject(raw) {
@@ -16630,6 +16631,14 @@ function quizModifyRenameFormClose() {
     quizModifyDeleteConfirmHide();
     quizModifyRenameTargetKey = null;
     quizModifyRenamePendingAccentHex = null;
+    var live = document.getElementById('quiz-modify-sched-live');
+    if (live) {
+        live.classList.remove('quiz-modify-sched-live--nav-default');
+        live.style.background = '';
+        live.style.color = '';
+        live.style.borderColor = '';
+        live.style.boxShadow = '';
+    }
     var form = document.getElementById('quiz-modify-rename-inline');
     var inp = document.getElementById('quiz-modify-rename-input');
     if (form) form.hidden = true;
@@ -16646,13 +16655,11 @@ function quizModifyRenameFormOpen(sectionKey) {
     } catch (eDet) { /* ignore */ }
     quizModifyNewSchedaFormClose();
     quizModifyRenameTargetKey = sectionKey;
+    quizModifyRenamePendingAccentHex = null;
     var form = document.getElementById('quiz-modify-rename-inline');
     var inp = document.getElementById('quiz-modify-rename-input');
     var d = quizModifyLoadCustomSchedario();
     var lab = (d.labels && d.labels[sectionKey]) ? String(d.labels[sectionKey]) : '';
-    var storedCol = d.colors && d.colors[sectionKey] ? quizModifyNormalizeHex(d.colors[sectionKey]) : '';
-    if (storedCol && !quizModifyHexToRgb(storedCol)) storedCol = '';
-    quizModifyRenamePendingAccentHex = storedCol || quizModifyPickUnusedPaletteColor(d);
     if (form) form.hidden = false;
     quizModifyRenameModeUiApply(true);
     if (inp) {
@@ -16663,7 +16670,6 @@ function quizModifyRenameFormOpen(sectionKey) {
         } catch (eRn) { /* ignore */ }
     }
     try {
-        quizModifyRenderRenameColorSwatches();
         quizModifyRenamePreviewUpdate();
     } catch (eSw) { /* ignore */ }
     if (form) {
@@ -16903,10 +16909,6 @@ function quizModifyRenameFormSave() {
     if (!name) name = 'Nuova scheda';
     var d = quizModifyLoadCustomSchedario();
     d.labels[key] = name;
-    if (quizModifyRenamePendingAccentHex) {
-        if (!d.colors) d.colors = {};
-        d.colors[key] = quizModifyNormalizeHex(quizModifyRenamePendingAccentHex);
-    }
     quizModifySaveCustomSchedario(d);
     try {
         if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
@@ -16968,7 +16970,7 @@ function quizModifyRebuildTablist() {
     var host = document.getElementById('quiz-modify-tablist');
     if (!host) return;
     host.innerHTML = '';
-    function addTab(key, label, accentHex) {
+    function addTab(key, label) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'quiz-modify-tab';
@@ -16978,10 +16980,6 @@ function quizModifyRebuildTablist() {
         var safeId = String(key).replace(/[^a-zA-Z0-9_-]/g, '_');
         b.id = 'quiz-modify-tab-' + safeId;
         b.textContent = label;
-        if (accentHex) {
-            b.setAttribute('data-tab-accent', accentHex);
-            b.classList.add('quiz-modify-tab--accent');
-        }
         host.appendChild(b);
     }
     addTab('cf', 'Chimico-fisico');
@@ -16991,8 +16989,7 @@ function quizModifyRebuildTablist() {
     for (var i = 0; i < ord.length; i++) {
         var cid = ord[i];
         var lab = (d.labels && d.labels[cid]) ? String(d.labels[cid]) : cid;
-        var col = d.colors && d.colors[cid] ? quizModifyNormalizeHex(d.colors[cid]) : '';
-        addTab(cid, lab, col || '');
+        addTab(cid, lab);
     }
     host.querySelectorAll('[data-quiz-modify-section]').forEach(function (tb) {
         var k = tb.getAttribute('data-quiz-modify-section');
@@ -17038,11 +17035,6 @@ function quizRebuildHeaderSectionNav() {
                 btn.setAttribute('data-quiz-section', sid);
                 btn.setAttribute('aria-label', lab);
                 btn.textContent = lab;
-                var accent = d.colors && d.colors[sid] ? quizModifyNormalizeHex(d.colors[sid]) : '';
-                if (accent) {
-                    btn.setAttribute('data-accent-color', accent);
-                    btn.classList.add('nav-sec-btn--custom-accent');
-                }
                 btn.addEventListener('click', function () {
                     scrollToSec(sid);
                 });
@@ -17105,8 +17097,6 @@ function quizModifyCreateNewSchedaWithName(name) {
     d.order.push(id);
     d.labels[id] = name;
     d.items[id] = [quizModifyNewEmptyQuestionRow(1)];
-    if (!d.colors) d.colors = {};
-    d.colors[id] = quizModifyPickUnusedPaletteColor(d);
     quizModifySaveCustomSchedario(d);
     try {
         if (typeof quizRebuildHeaderSectionNav === 'function') quizRebuildHeaderSectionNav();
