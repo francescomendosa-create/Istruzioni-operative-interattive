@@ -5733,13 +5733,33 @@
             color: #546e7a;
             line-height: 1.45;
         }
+        .quiz-modify-new-scheda-row {
+            margin-bottom: 10px;
+        }
+        .quiz-modify-btn-new-scheda {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px dashed #1565c0;
+            background: #e3f2fd;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #0d47a1;
+            box-sizing: border-box;
+        }
+        .quiz-modify-btn-new-scheda:hover {
+            background: #bbdefb;
+        }
         .quiz-modify-tabs {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 10px;
         }
         .quiz-modify-tab {
             flex: 1;
+            min-width: min(140px, 100%);
             padding: 10px 12px;
             border-radius: 10px;
             border: 1px solid #cfd8dc;
@@ -8951,13 +8971,13 @@ function dismissAppSplash() {
 
             <div id="quiz-modify-view-list" class="quiz-modify-view">
                 <p class="quiz-modify-lead">
-                    <strong>Chimico-fisico</strong> o <strong>Biologico MBBR</strong>: tutte le domande della sezione scelta.
-                    Editor e salvataggio sono collegati al database nella prossima fase.
+                    Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda»
+                    (struttura vuota pronta per nuove domande, salvata in locale sul dispositivo).
                 </p>
-                <div class="quiz-modify-tabs" role="tablist" aria-label="Sezione impianto">
-                    <button type="button" class="quiz-modify-tab" role="tab" id="quiz-modify-tab-cf" aria-selected="true" aria-controls="quiz-modify-list">Chimico-fisico</button>
-                    <button type="button" class="quiz-modify-tab" role="tab" id="quiz-modify-tab-mbr" aria-selected="false" aria-controls="quiz-modify-list">Biologico MBBR</button>
+                <div class="quiz-modify-new-scheda-row">
+                    <button type="button" class="quiz-modify-btn-new-scheda" id="quiz-modify-btn-new-scheda" title="Aggiungi una scheda vuota con la stessa struttura delle altre">Crea nuova scheda</button>
                 </div>
+                <div class="quiz-modify-tabs" id="quiz-modify-tablist" role="tablist" aria-label="Sezione impianto e schede personalizzate"></div>
                 <div class="quiz-modify-create-row">
                     <button type="button" class="quiz-modify-btn-create" id="quiz-modify-btn-create">＋ Crea domanda</button>
                 </div>
@@ -8984,7 +9004,7 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="q">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="q" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="q">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="q" title="Ripristina questo blocco allo stato memorizzato all’apertura del pannello; aggiorna anche il salvataggio locale.">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="q" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-q" class="quiz-modify-html-block quiz-modify-field-view"></div>
@@ -8997,7 +9017,7 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="si">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="si" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="si">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="si" title="Ripristina questo blocco allo stato memorizzato all’apertura del pannello; aggiorna anche il salvataggio locale.">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="si" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-si" class="quiz-modify-html-block quiz-modify-field-view"></div>
@@ -9010,7 +9030,7 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="no">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="no" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="no">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="no" title="Ripristina questo blocco allo stato memorizzato all’apertura del pannello; aggiorna anche il salvataggio locale.">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="no" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-no" class="quiz-modify-html-block quiz-modify-field-view"></div>
@@ -9023,7 +9043,7 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="actions">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="actions" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="actions">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="actions" title="Ripristina questo blocco allo stato memorizzato all’apertura del pannello; aggiorna anche il salvataggio locale.">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="actions" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-actions" class="quiz-modify-field-view quiz-modify-actions-view"></div>
@@ -9040,7 +9060,7 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="risk">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="risk" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="risk">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="risk" title="Ripristina questo blocco allo stato memorizzato all’apertura del pannello; aggiorna anche il salvataggio locale.">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="risk" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-risk" class="quiz-modify-html-block quiz-modify-field-view"></div>
@@ -9111,7 +9131,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605132';
+const APP_BUILD = '202605134';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14860,7 +14880,59 @@ function quizModifyDevModalBackdrop(ev) {
 
 /** Bozza editor Modifica: chiavi localStorage per override e cronologia (passi successivi). */
 const MODIFY_LS_OVERRIDES = 'io-checklist-modify-overrides-v1';
+/** Schede utente aggiunte in Modifica contenuti: elenco domande vuote/modificabili (locale). */
+const MODIFY_CUSTOM_SCHEDE_LS = 'io-checklist-modify-custom-schede-v1';
 const MODIFY_LS_HISTORY_STACK = 'io-checklist-modify-history-stack-v1';
+/** sessionStorage: stack annulla «salvataggio precedente» per domanda (cf/mbr + indice). */
+function quizModifyUndoStackStorageKey(sectionKey, index) {
+    return 'io-checklist-modify-undo-v1-' + String(sectionKey) + '-' + String(index);
+}
+
+function quizModifyUndoStackRead(sectionKey, index) {
+    try {
+        var raw = sessionStorage.getItem(quizModifyUndoStackStorageKey(sectionKey, index));
+        var arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+    } catch (eR) {
+        return [];
+    }
+}
+
+function quizModifyUndoStackWrite(sectionKey, index, arr) {
+    try {
+        var trimmed = arr.slice(-25);
+        sessionStorage.setItem(quizModifyUndoStackStorageKey(sectionKey, index), JSON.stringify(trimmed));
+    } catch (eW) { /* ignore */ }
+}
+
+function quizModifyUndoStackClear(sectionKey, index) {
+    try {
+        sessionStorage.removeItem(quizModifyUndoStackStorageKey(sectionKey, index));
+    } catch (eC) { /* ignore */ }
+}
+
+/** Prima di Salva: stato effettivamente salvato (locale + db) prima della nuova scrittura. */
+function quizModifyPushUndoSnapshotBeforeSave() {
+    if (!quizModifyDetailCtx) return;
+    var sk = quizModifyDetailCtx.sectionKey;
+    var ix = quizModifyDetailCtx.index;
+    var snap = quizModifyDeepCloneFields(quizModifyGetMergedItem(sk, ix));
+    var arr = quizModifyUndoStackRead(sk, ix);
+    arr.push(snap);
+    quizModifyUndoStackWrite(sk, ix, arr);
+}
+
+/** Ripristina ultimo salvataggio annullato (LIFO). */
+function quizModifyUndoStackPopToWorking() {
+    if (!quizModifyDetailCtx) return null;
+    var sk = quizModifyDetailCtx.sectionKey;
+    var ix = quizModifyDetailCtx.index;
+    var arr = quizModifyUndoStackRead(sk, ix);
+    if (!arr.length) return null;
+    var v = arr.pop();
+    quizModifyUndoStackWrite(sk, ix, arr);
+    return quizModifyDeepCloneFields(v);
+}
 
 let quizModifyShellSection = 'cf';
 let quizModifyShellDirty = false;
@@ -14951,6 +15023,7 @@ function quizModifyPersistWorkingToStorage() {
         if (!all.mbr) all.mbr = {};
         var sk = quizModifyDetailCtx.sectionKey;
         var ix = String(quizModifyDetailCtx.index);
+        if (!all[sk]) all[sk] = {};
         all[sk][ix] = quizModifyDeepCloneFields(quizModifyDetailWorking);
         localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
     } catch (eS) {
@@ -15272,31 +15345,35 @@ function quizModifyDetailActionView(field) {
     quizModifyDetailUpdateSaveButtons();
 }
 
-/** Ripristina il blocco da quizModifyDetailBaseline (snapshot all’apertura) e salva in locale. */
+/**
+ * Ripristina: 1) ultimo stato salvato prima dell’ultimo «Salva» (stack); 2) se vuoto, stato all’apertura del pannello.
+ * Tutti i pulsanti Ripristina applicano l’intera domanda (versione precedente coerente).
+ */
 function quizModifyDetailActionRestore(field) {
-    if (!quizModifyDetailBaseline || !quizModifyDetailWorking) return;
+    if (!quizModifyDetailWorking || !quizModifyDetailCtx) return;
     quizModifyDetailLeaveAllEdits();
-    if (field === 'actions') {
-        quizModifyDetailWorking.actions = quizModifyCloneActionsArray(quizModifyDetailBaseline.actions);
-    } else if (field === 'risk') {
-        quizModifyDetailWorking.risk_list = (quizModifyDetailBaseline.risk_list || []).slice();
-        quizModifyDetailWorking.correlation_update =
-            quizModifyDetailBaseline.correlation_update != null
-                ? String(quizModifyDetailBaseline.correlation_update)
-                : '';
-    } else if (field === 'q' || field === 'si' || field === 'no') {
-        quizModifyDetailWorking[field] =
-            quizModifyDetailBaseline[field] != null ? String(quizModifyDetailBaseline[field]) : '';
+    var prev = quizModifyUndoStackPopToWorking();
+    if (prev) {
+        quizModifyDetailWorking = prev;
+        quizModifyFillViewsFromWorking();
+        quizModifyPersistWorkingToStorage();
+        checklistTouchDomAfterModifyPersist();
+        quizModifyDetailUpdateSaveButtons();
+        return;
     }
+    if (!quizModifyDetailBaseline) return;
+    quizModifyDetailWorking = quizModifyDeepCloneFields(quizModifyDetailBaseline);
     quizModifyFillViewsFromWorking();
     quizModifyPersistWorkingToStorage();
     checklistTouchDomAfterModifyPersist();
+    quizModifyDetailUpdateSaveButtons();
 }
 
 function quizModifyDetailActionSave(field) {
     if (!quizModifyDetailWorking || !quizModifyDetailCtx) return;
     if (field === 'actions') {
         if (!quizModifyDetailEditing.actions) return;
+        quizModifyPushUndoSnapshotBeforeSave();
         quizModifyDetailWorking.actions = quizModifyCollectActionsFromEditHost();
         quizModifyDetailEditing.actions = false;
         var actView = document.getElementById('quiz-modify-detail-actions');
@@ -15307,6 +15384,7 @@ function quizModifyDetailActionSave(field) {
         if (actView) actView.style.display = '';
     } else if (field === 'risk') {
         if (!quizModifyDetailEditing.risk) return;
+        quizModifyPushUndoSnapshotBeforeSave();
         var linesEl = document.getElementById('quiz-modify-edit-risk-lines');
         var corrEl = document.getElementById('quiz-modify-edit-risk-corr');
         var raw = linesEl ? String(linesEl.value || '') : '';
@@ -15327,6 +15405,7 @@ function quizModifyDetailActionSave(field) {
         if (riskView) riskView.style.display = '';
     } else if (field === 'q' || field === 'si' || field === 'no') {
         if (!quizModifyDetailEditing[field]) return;
+        quizModifyPushUndoSnapshotBeforeSave();
         var ta = document.getElementById('quiz-modify-edit-' + field);
         quizModifyDetailWorking[field] = ta ? String(ta.value || '') : '';
         quizModifyDetailEditing[field] = false;
@@ -15441,6 +15520,7 @@ function quizModifyCloseQuestionDetail() {
 function quizModifyOpenQuestionDetail(sectionKey, index) {
     var rows = quizModifyGetSectionRows(sectionKey);
     if (index < 0 || index >= rows.length) return;
+    quizModifyUndoStackClear(sectionKey, index);
     quizModifyDetailBindOnce();
     var item = rows[index] || {};
     var base = quizModifyCloneFieldsFromItem(item);
@@ -15460,7 +15540,7 @@ function quizModifyOpenQuestionDetail(sectionKey, index) {
         detV.removeAttribute('aria-hidden');
     }
     var num = index + 1;
-    var secLabel = sectionKey === 'cf' ? 'Chimico-fisico' : 'Biologico MBBR';
+    var secLabel = quizModifySectionDisplayLabel(sectionKey);
     var sub = document.getElementById('quiz-modify-detail-title');
     if (sub) {
         sub.textContent = 'Domanda ' + num + ' · ' + secLabel;
@@ -15478,15 +15558,20 @@ function quizModifyOpenQuestionDetail(sectionKey, index) {
 }
 
 function quizModifyOnCreateQuestion() {
-    var sec = quizModifyShellSection === 'mbr' ? 'Biologico MBBR' : 'Chimico-fisico';
+    if (quizModifyIsCustomSectionKey(quizModifyShellSection)) {
+        try {
+            quizModifyAppendQuestionToCustomSection(quizModifyShellSection);
+        } catch (eA) { /* ignore */ }
+        quizModifyRenderQuestionList();
+        quizModifyUpdateActionButtons();
+        return;
+    }
     try {
         window.alert(
-            '«Crea domanda» — prossimo passo: bozza nuova voce in questa sezione (' +
-                sec +
-                ') con campi modificabili e salvataggio.\n\n' +
-                'Per ora l’elenco mostra solo le domande già presenti nel codice.'
+            'Per le schede «Chimico-fisico» e «Biologico MBBR» l’elenco segue i dati integrati nell’app.\n\n' +
+                'Per aggiungere domande con struttura libera, crea una scheda con «Crea nuova scheda» e usa «＋ Crea domanda» lì.'
         );
-    } catch (eA) { /* ignore */ }
+    } catch (eA2) { /* ignore */ }
 }
 
 /** Testo domanda da HTML (senza troncamento): elenco completo come in dati. */
@@ -15506,24 +15591,141 @@ function quizModifyQuestionPlainText(q) {
     }
 }
 
+function quizModifyLoadCustomSchedario() {
+    try {
+        var raw = localStorage.getItem(MODIFY_CUSTOM_SCHEDE_LS);
+        if (!raw) return { order: [], labels: {}, items: {} };
+        var d = JSON.parse(raw);
+        if (!d || typeof d !== 'object') return { order: [], labels: {}, items: {} };
+        if (!Array.isArray(d.order)) d.order = [];
+        if (!d.labels || typeof d.labels !== 'object') d.labels = {};
+        if (!d.items || typeof d.items !== 'object') d.items = {};
+        return d;
+    } catch (eL) {
+        return { order: [], labels: {}, items: {} };
+    }
+}
+
+function quizModifySaveCustomSchedario(d) {
+    try {
+        localStorage.setItem(MODIFY_CUSTOM_SCHEDE_LS, JSON.stringify(d));
+    } catch (eS) { /* ignore */ }
+}
+
+/** Riga domanda vuota (stessi campi editabili delle schede integrate). */
+function quizModifyNewEmptyQuestionRow(pointNum) {
+    var p = Math.max(1, parseInt(pointNum, 10) || 1);
+    return {
+        p: p,
+        q: '',
+        si: '',
+        no: '',
+        actions: [],
+        risk_list: [],
+        correlation_update: '',
+        tag: 'Scheda'
+    };
+}
+
+function quizModifyIsCustomSectionKey(sectionKey) {
+    var d = quizModifyLoadCustomSchedario();
+    return !!(d.order && d.order.indexOf(sectionKey) >= 0);
+}
+
+function quizModifyIsValidSectionKey(sectionKey) {
+    if (sectionKey === 'cf' || sectionKey === 'mbr') return true;
+    return quizModifyIsCustomSectionKey(sectionKey);
+}
+
+function quizModifySectionDisplayLabel(sectionKey) {
+    if (sectionKey === 'cf') return 'Chimico-fisico';
+    if (sectionKey === 'mbr') return 'Biologico MBBR';
+    var d = quizModifyLoadCustomSchedario();
+    var lab = d.labels && d.labels[sectionKey];
+    return lab && String(lab).trim() ? String(lab).trim() : 'Scheda personalizzata';
+}
+
+function quizModifyRebuildTablist() {
+    var host = document.getElementById('quiz-modify-tablist');
+    if (!host) return;
+    host.innerHTML = '';
+    function addTab(key, label) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'quiz-modify-tab';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('data-quiz-modify-section', key);
+        b.setAttribute('aria-controls', 'quiz-modify-list');
+        var safeId = String(key).replace(/[^a-zA-Z0-9_-]/g, '_');
+        b.id = 'quiz-modify-tab-' + safeId;
+        b.textContent = label;
+        host.appendChild(b);
+    }
+    addTab('cf', 'Chimico-fisico');
+    addTab('mbr', 'Biologico MBBR');
+    var d = quizModifyLoadCustomSchedario();
+    var ord = d.order || [];
+    for (var i = 0; i < ord.length; i++) {
+        var cid = ord[i];
+        var lab = (d.labels && d.labels[cid]) ? String(d.labels[cid]) : cid;
+        addTab(cid, lab);
+    }
+}
+
+function quizModifyEnsureShellSectionValid() {
+    if (quizModifyIsValidSectionKey(quizModifyShellSection)) return;
+    quizModifyShellSection = 'cf';
+}
+
+function quizModifyAppendQuestionToCustomSection(sectionKey) {
+    var d = quizModifyLoadCustomSchedario();
+    var rows = Array.isArray(d.items[sectionKey]) ? d.items[sectionKey].slice() : [];
+    var maxP = 0;
+    for (var i = 0; i < rows.length; i++) {
+        var pp = rows[i] && rows[i].p;
+        if (typeof pp === 'number' && pp > maxP) maxP = pp;
+    }
+    rows.push(quizModifyNewEmptyQuestionRow(maxP + 1));
+    d.items[sectionKey] = rows;
+    quizModifySaveCustomSchedario(d);
+}
+
+function quizModifyOnNewSchedaClick() {
+    var name = window.prompt('Nome della nuova scheda:', 'Nuova scheda');
+    if (name === null) return;
+    name = String(name).trim() || 'Nuova scheda';
+    var id = 'cs-' + Date.now();
+    var d = quizModifyLoadCustomSchedario();
+    d.order.push(id);
+    d.labels[id] = name;
+    d.items[id] = [quizModifyNewEmptyQuestionRow(1)];
+    quizModifySaveCustomSchedario(d);
+    quizModifyRebuildTablist();
+    quizModifyUpdateTabs();
+    quizModifySetSection(id);
+}
+
 function quizModifyGetSectionRows(sectionKey) {
     try {
-        var root = typeof db !== 'undefined' && db ? db[sectionKey] : null;
-        return Array.isArray(root) ? root : [];
+        if (sectionKey === 'cf' || sectionKey === 'mbr') {
+            var root = typeof db !== 'undefined' && db ? db[sectionKey] : null;
+            return Array.isArray(root) ? root : [];
+        }
+        var custom = quizModifyLoadCustomSchedario();
+        var rows = custom.items && custom.items[sectionKey];
+        return Array.isArray(rows) ? rows : [];
     } catch (eR) {
         return [];
     }
 }
 
 function quizModifyUpdateTabs() {
-    var tabCf = document.getElementById('quiz-modify-tab-cf');
-    var tabMbr = document.getElementById('quiz-modify-tab-mbr');
-    if (tabCf) {
-        tabCf.setAttribute('aria-selected', quizModifyShellSection === 'cf' ? 'true' : 'false');
-    }
-    if (tabMbr) {
-        tabMbr.setAttribute('aria-selected', quizModifyShellSection === 'mbr' ? 'true' : 'false');
-    }
+    var host = document.getElementById('quiz-modify-tablist');
+    if (!host) return;
+    host.querySelectorAll('[data-quiz-modify-section]').forEach(function (btn) {
+        var k = btn.getAttribute('data-quiz-modify-section');
+        btn.setAttribute('aria-selected', k === quizModifyShellSection ? 'true' : 'false');
+    });
 }
 
 function quizModifyRenderQuestionList() {
@@ -15584,14 +15786,16 @@ function quizModifyRenderQuestionList() {
         listEl.appendChild(empty);
     }
 
-    var secLab = quizModifyShellSection === 'cf' ? 'Chimico-fisico' : 'Biologico MBBR';
+    var secLab = quizModifySectionDisplayLabel(quizModifyShellSection);
     if (hintEl) {
         hintEl.textContent =
             secLab +
             ' · ' +
             shown +
             (shown === 1 ? ' domanda' : ' domande') +
-            '. Editor e salvataggio in sviluppo.';
+            (quizModifyIsCustomSectionKey(quizModifyShellSection)
+                ? ' · scheda personale (solo Modifica / questo dispositivo).'
+                : '.');
     }
 }
 
@@ -15616,7 +15820,7 @@ function quizModifyUpdateActionButtons() {
 }
 
 function quizModifySetSection(key) {
-    if (key !== 'cf' && key !== 'mbr') return;
+    if (!quizModifyIsValidSectionKey(key)) return;
     quizModifyCloseQuestionDetail();
     quizModifyShellSection = key;
     quizModifyUpdateTabs();
@@ -15626,10 +15830,23 @@ function quizModifySetSection(key) {
 function quizModifyShellBindOnce() {
     if (quizModifyShellListenersBound) return;
     quizModifyShellListenersBound = true;
-    var tabCf = document.getElementById('quiz-modify-tab-cf');
-    var tabMbr = document.getElementById('quiz-modify-tab-mbr');
-    if (tabCf) tabCf.addEventListener('click', function () { quizModifySetSection('cf'); });
-    if (tabMbr) tabMbr.addEventListener('click', function () { quizModifySetSection('mbr'); });
+    var tablist = document.getElementById('quiz-modify-tablist');
+    if (tablist && tablist.dataset.modifyTablistDelegated !== '1') {
+        tablist.dataset.modifyTablistDelegated = '1';
+        tablist.addEventListener('click', function (ev) {
+            var t = ev.target && ev.target.closest ? ev.target.closest('[data-quiz-modify-section]') : null;
+            if (!t || !tablist.contains(t)) return;
+            ev.preventDefault();
+            quizModifySetSection(t.getAttribute('data-quiz-modify-section'));
+        });
+    }
+    var btnNewScheda = document.getElementById('quiz-modify-btn-new-scheda');
+    if (btnNewScheda && btnNewScheda.dataset.modifyBound !== '1') {
+        btnNewScheda.dataset.modifyBound = '1';
+        btnNewScheda.addEventListener('click', function () {
+            quizModifyOnNewSchedaClick();
+        });
+    }
     var sav = document.getElementById('quiz-modify-btn-save');
     var dis = document.getElementById('quiz-modify-btn-discard');
     var rev = document.getElementById('quiz-modify-btn-revert');
@@ -15686,7 +15903,8 @@ function quizModifyOnRevertClick() {
 function quizModifyShellOpen() {
     quizModifyShellBindOnce();
     quizModifyCloseQuestionDetail();
-    quizModifyShellSection = 'cf';
+    quizModifyRebuildTablist();
+    quizModifyEnsureShellSectionValid();
     quizModifyShellDirty = false;
     quizModifyUpdateTabs();
     quizModifyRenderQuestionList();
