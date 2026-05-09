@@ -206,11 +206,18 @@
             gap: 10px;
             align-items: stretch;
         }
-        .header-custom-row--single .nav-sec-btn {
-            grid-column: 1 / -1;
+        /* Una sola scheda custom: stessa larghezza di un tab CF/MBR, centrata (non tutta la riga). */
+        .header-custom-row.header-custom-row--single {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 0;
+        }
+        .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
             width: calc((100% - 10px) / 2);
-            max-width: 100%;
-            justify-self: center;
+            max-width: calc((100% - 10px) / 2);
+            flex: 0 0 calc((100% - 10px) / 2);
+            box-sizing: border-box;
         }
 
         .header-sec-row .nav-sec-btn {
@@ -5526,6 +5533,10 @@
         }
         .quiz-settings-box {
             width: min(92vw, 440px);
+            max-height: min(88vh, 620px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
             border-radius: 14px;
             padding: 18px 16px 14px;
             background: #fff;
@@ -5854,6 +5865,9 @@
         }
         .quiz-modify-delete-confirm-layer[hidden] {
             display: none !important;
+        }
+        #quiz-modify-delete-question-layer.quiz-modify-delete-confirm-layer {
+            z-index: 26;
         }
         .quiz-modify-delete-confirm-layer__box {
             width: 100%;
@@ -6635,6 +6649,11 @@
             .header-sec-area .header-sec-grid,
             .header-sec-area .header-custom-row {
                 gap: 8px;
+            }
+            .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
+                width: calc((100% - 8px) / 2);
+                max-width: calc((100% - 8px) / 2);
+                flex: 0 0 calc((100% - 8px) / 2);
             }
             .header-sec-area {
                 margin-top: 8px;
@@ -9164,7 +9183,7 @@ function dismissAppSplash() {
         <div class="quiz-lock-box quiz-modify-shell" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
             <div class="quiz-modify-shell-header">
                 <h4 id="quiz-modify-dev-title" class="quiz-lock-title quiz-modify-shell-header__title">Modifica contenuti</h4>
-                <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn" onclick="hideQuizModifyInDevelopmentPopup()" aria-label="Torna indietro" title="Torna">
+                <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn" onclick="quizModifyDevBackClick()" aria-label="Torna indietro" title="Torna">
                     <span class="quiz-modify-dev-back-btn__icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10" />
@@ -9207,6 +9226,15 @@ function dismissAppSplash() {
                         <div class="quiz-modify-delete-confirm-layer__actions">
                             <button type="button" class="btn-side btn-reset" id="quiz-modify-delete-confirm-cancel">Annulla</button>
                             <button type="button" class="btn-side btn-report" id="quiz-modify-delete-confirm-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Elimina</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="quiz-modify-delete-question-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
+                    <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-labelledby="quiz-modify-delete-question-title" aria-modal="true">
+                        <p id="quiz-modify-delete-question-title" class="quiz-modify-delete-confirm-layer__text">Eliminare questa domanda?</p>
+                        <div class="quiz-modify-delete-confirm-layer__actions">
+                            <button type="button" class="btn-side btn-reset" id="quiz-modify-delete-question-cancel">Annulla</button>
+                            <button type="button" class="btn-side btn-report" id="quiz-modify-delete-question-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Elimina domanda</button>
                         </div>
                     </div>
                 </div>
@@ -9356,7 +9384,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605142';
+const APP_BUILD = '202605145';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15183,9 +15211,60 @@ function quizDeveloperOpenClassifica() {
     showQuizProducerModal();
 }
 
+function quizModifyDevBackClick() {
+    try {
+        var qLay = document.getElementById('quiz-modify-delete-question-layer');
+        if (qLay && !qLay.hidden) {
+            quizModifyDeleteQuestionOverlayHide();
+            return;
+        }
+        var delLay = document.getElementById('quiz-modify-delete-confirm-layer');
+        if (delLay && !delLay.hidden) {
+            quizModifyDeleteConfirmHide();
+            return;
+        }
+        var renameForm = document.getElementById('quiz-modify-rename-inline');
+        if (renameForm && !renameForm.hidden) {
+            quizModifyRenameFormClose();
+            return;
+        }
+        var newSchedaForm = document.getElementById('quiz-modify-new-scheda-form');
+        if (newSchedaForm && !newSchedaForm.hidden) {
+            quizModifyNewSchedaFormClose();
+            return;
+        }
+        if (typeof quizModifyIsDetailOpen === 'function' && quizModifyIsDetailOpen()) {
+            quizModifyCloseQuestionDetail();
+            requestAnimationFrame(function () {
+                try {
+                    var btn = document.getElementById('quiz-modify-dev-back');
+                    if (btn) btn.focus();
+                } catch (eF) { /* ignore */ }
+            });
+            return;
+        }
+        hideQuizModifyInDevelopmentPopup();
+    } catch (eBk) {
+        try {
+            hideQuizModifyInDevelopmentPopup();
+        } catch (e2) { /* ignore */ }
+    }
+}
+
 function showQuizModifyInDevelopmentPopup() {
     if (!quizDeveloperModifyFeaturesGet()) {
         return;
+    }
+    try {
+        var setOv = document.getElementById('quiz-settings-overlay');
+        var setBox = document.querySelector('#quiz-settings-overlay .quiz-settings-box');
+        if (setOv && setOv.classList.contains('visible') && setBox) {
+            quizModifySavedSettingsScrollTop = setBox.scrollTop;
+        } else {
+            quizModifySavedSettingsScrollTop = null;
+        }
+    } catch (eSc) {
+        quizModifySavedSettingsScrollTop = null;
     }
     const overlay = document.getElementById('quiz-modify-dev-overlay');
     if (!overlay) return;
@@ -15218,10 +15297,23 @@ function hideQuizModifyInDevelopmentPopup() {
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-info-open');
+    try {
+        var setOv = document.getElementById('quiz-settings-overlay');
+        var setBox = document.querySelector('#quiz-settings-overlay .quiz-settings-box');
+        var st = quizModifySavedSettingsScrollTop;
+        if (setBox && setOv && setOv.classList.contains('visible') && st != null && typeof st === 'number') {
+            requestAnimationFrame(function () {
+                try {
+                    setBox.scrollTop = st;
+                } catch (eRs) { /* ignore */ }
+            });
+        }
+    } catch (eRest) { /* ignore */ }
+    quizModifySavedSettingsScrollTop = null;
 }
 
 function quizModifyDevModalBackdrop(ev) {
-    if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') hideQuizModifyInDevelopmentPopup();
+    if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') quizModifyDevBackClick();
 }
 
 /** Bozza editor Modifica: chiavi localStorage per override e cronologia (passi successivi). */
@@ -15306,6 +15398,10 @@ let quizModifyShellDirty = false;
 let quizModifyShellListenersBound = false;
 /** Scheda personalizzata il cui nome è in modifica (tab con pressione prolungata). */
 let quizModifyRenameTargetKey = null;
+/** Indice domanda in attesa di conferma eliminazione (schede create). */
+let quizModifyDeleteQuestionPendingIndex = null;
+/** Scroll del riquadro Impostazioni salvato all’apertura di Modifica (ripristino chiusura). */
+let quizModifySavedSettingsScrollTop = null;
 
 /** Contesto pannello domanda: sezione + indice nell'array `db`. */
 let quizModifyDetailCtx = null;
@@ -16039,6 +16135,7 @@ function quizModifySectionDisplayLabel(sectionKey) {
 }
 
 function quizModifyRenameFormClose() {
+    quizModifyDeleteQuestionOverlayHide();
     quizModifyDeleteConfirmHide();
     quizModifyRenameTargetKey = null;
     var form = document.getElementById('quiz-modify-rename-inline');
@@ -16049,6 +16146,7 @@ function quizModifyRenameFormClose() {
 
 function quizModifyRenameFormOpen(sectionKey) {
     if (!quizModifyIsCustomSectionKey(sectionKey)) return;
+    quizModifyDeleteQuestionOverlayHide();
     quizModifyNewSchedaFormClose();
     quizModifyRenameTargetKey = sectionKey;
     var form = document.getElementById('quiz-modify-rename-inline');
@@ -16102,6 +16200,144 @@ function quizModifyDeleteConfirmOkClick() {
         quizModifyExecuteDeleteCustomSection(key);
     }
     quizModifyRenameFormClose();
+}
+
+function quizModifyDeleteQuestionOverlayHide() {
+    quizModifyDeleteQuestionPendingIndex = null;
+    var lay = document.getElementById('quiz-modify-delete-question-layer');
+    if (lay) {
+        lay.hidden = true;
+        lay.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizModifyDeleteQuestionOverlayShow(idx) {
+    quizModifyDeleteQuestionPendingIndex = typeof idx === 'number' ? idx : null;
+    var lay = document.getElementById('quiz-modify-delete-question-layer');
+    if (!lay) return;
+    lay.hidden = false;
+    lay.setAttribute('aria-hidden', 'false');
+    try {
+        var btn = document.getElementById('quiz-modify-delete-question-cancel');
+        if (btn) btn.focus();
+    } catch (eF) { /* ignore */ }
+}
+
+function quizModifyShiftOverridesAfterQuestionDelete(sectionKey, deletedIndex) {
+    try {
+        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
+        if (!raw) return;
+        var all = JSON.parse(raw);
+        if (!all || typeof all !== 'object') return;
+        var sec = all[sectionKey];
+        if (!sec || typeof sec !== 'object') return;
+        var next = {};
+        for (var key in sec) {
+            if (!Object.prototype.hasOwnProperty.call(sec, key)) continue;
+            var n = parseInt(key, 10);
+            if (isNaN(n)) continue;
+            if (n < deletedIndex) next[String(n)] = sec[key];
+            else if (n > deletedIndex) next[String(n - 1)] = sec[key];
+        }
+        all[sectionKey] = next;
+        localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+    } catch (eSh) { /* ignore */ }
+}
+
+function quizModifyShiftUndoStacksAfterDelete(sectionKey, deletedIndex, lenBefore) {
+    try {
+        sessionStorage.removeItem(quizModifyUndoStackStorageKey(sectionKey, deletedIndex));
+        for (var i = deletedIndex + 1; i < lenBefore; i++) {
+            var kOld = quizModifyUndoStackStorageKey(sectionKey, i);
+            var kNew = quizModifyUndoStackStorageKey(sectionKey, i - 1);
+            var val = sessionStorage.getItem(kOld);
+            sessionStorage.removeItem(kOld);
+            if (val != null) sessionStorage.setItem(kNew, val);
+        }
+    } catch (eU) { /* ignore */ }
+}
+
+function quizModifyExecuteDeleteCustomQuestion(sectionKey, index) {
+    if (!sectionKey || !quizModifyIsCustomSectionKey(sectionKey)) return;
+    if (typeof index !== 'number' || index < 0) return;
+    var d = quizModifyLoadCustomSchedario();
+    var rows = Array.isArray(d.items[sectionKey]) ? d.items[sectionKey].slice() : [];
+    if (index >= rows.length) return;
+    var lenBefore = rows.length;
+    rows.splice(index, 1);
+    for (var r = 0; r < rows.length; r++) {
+        if (rows[r] && typeof rows[r] === 'object') rows[r].p = r + 1;
+    }
+    d.items[sectionKey] = rows;
+    quizModifySaveCustomSchedario(d);
+    quizModifyShiftOverridesAfterQuestionDelete(sectionKey, index);
+    quizModifyShiftUndoStacksAfterDelete(sectionKey, index, lenBefore);
+    if (quizModifyDetailCtx && quizModifyDetailCtx.sectionKey === sectionKey) {
+        var ci = quizModifyDetailCtx.index;
+        if (ci === index) {
+            quizModifyCloseQuestionDetail();
+        } else if (ci > index) {
+            quizModifyOpenQuestionDetail(sectionKey, ci - 1);
+        }
+    }
+    quizModifyShellDirty = true;
+    quizModifyRenderQuestionList();
+    quizModifyUpdateActionButtons();
+    try {
+        if (typeof render === 'function') render();
+    } catch (eRen) { /* ignore */ }
+}
+
+function quizModifyDeleteQuestionConfirmOkClick() {
+    var ix = quizModifyDeleteQuestionPendingIndex;
+    var sk = quizModifyShellSection;
+    quizModifyDeleteQuestionOverlayHide();
+    if (ix == null || typeof ix !== 'number' || ix < 0) return;
+    if (!quizModifyIsCustomSectionKey(sk)) return;
+    quizModifyExecuteDeleteCustomQuestion(sk, ix);
+}
+
+function quizModifyBindRowLongPressQuestionDelete(wrap, idx) {
+    var holdMs = 520;
+    var tid = null;
+    var longPressDone = false;
+    function clearTimer() {
+        if (tid) {
+            clearTimeout(tid);
+            tid = null;
+        }
+    }
+    wrap.addEventListener(
+        'pointerdown',
+        function (ev) {
+            if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+            longPressDone = false;
+            clearTimer();
+            tid = setTimeout(function () {
+                tid = null;
+                longPressDone = true;
+                try {
+                    if (navigator.vibrate) navigator.vibrate([20, 45, 22]);
+                } catch (vib) { /* ignore */ }
+                quizModifyDeleteQuestionOverlayShow(idx);
+            }, holdMs);
+        },
+        { passive: true }
+    );
+    wrap.addEventListener('pointerup', clearTimer);
+    wrap.addEventListener('pointercancel', clearTimer);
+    wrap.addEventListener('pointerleave', clearTimer);
+    wrap.addEventListener(
+        'click',
+        function (ev) {
+            if (longPressDone) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                longPressDone = false;
+            }
+        },
+        true
+    );
 }
 
 function quizModifyExecuteDeleteCustomSection(sectionKey) {
@@ -16407,6 +16643,9 @@ function quizModifyRenderQuestionList() {
                     openEv();
                 }
             });
+            if (quizModifyIsCustomSectionKey(quizModifyShellSection)) {
+                quizModifyBindRowLongPressQuestionDelete(wrap, idx);
+            }
             fragList.appendChild(wrap);
         })(i);
     }
@@ -16558,6 +16797,20 @@ function quizModifyShellBindOnce() {
             quizModifyDeleteConfirmOkClick();
         });
     }
+    var btnQDelCancel = document.getElementById('quiz-modify-delete-question-cancel');
+    if (btnQDelCancel && btnQDelCancel.dataset.modifyBound !== '1') {
+        btnQDelCancel.dataset.modifyBound = '1';
+        btnQDelCancel.addEventListener('click', function () {
+            quizModifyDeleteQuestionOverlayHide();
+        });
+    }
+    var btnQDelOk = document.getElementById('quiz-modify-delete-question-ok');
+    if (btnQDelOk && btnQDelOk.dataset.modifyBound !== '1') {
+        btnQDelOk.dataset.modifyBound = '1';
+        btnQDelOk.addEventListener('click', function () {
+            quizModifyDeleteQuestionConfirmOkClick();
+        });
+    }
     var sav = document.getElementById('quiz-modify-btn-save');
     var dis = document.getElementById('quiz-modify-btn-discard');
     var rev = document.getElementById('quiz-modify-btn-revert');
@@ -16614,6 +16867,7 @@ function quizModifyOnRevertClick() {
 function quizModifyShellOpen() {
     quizModifyShellBindOnce();
     quizModifyCloseQuestionDetail();
+    quizModifyDeleteQuestionOverlayHide();
     quizModifyNewSchedaFormClose();
     quizModifyRenameFormClose();
     quizModifyRebuildTablist();
@@ -17072,16 +17326,7 @@ function setupQuizTitleToggle() {
         if (modifyDev && modifyDev.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
-                var delLay = document.getElementById('quiz-modify-delete-confirm-layer');
-                if (delLay && !delLay.hidden) {
-                    quizModifyDeleteConfirmHide();
-                    return;
-                }
-                if (typeof quizModifyIsDetailOpen === 'function' && quizModifyIsDetailOpen()) {
-                    quizModifyCloseQuestionDetail();
-                } else {
-                    hideQuizModifyInDevelopmentPopup();
-                }
+                quizModifyDevBackClick();
             }
             return;
         }
