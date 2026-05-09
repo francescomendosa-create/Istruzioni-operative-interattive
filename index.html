@@ -8282,11 +8282,11 @@ function dismissAppSplash() {
                 <div class="quiz-fs-topbar__center-inner">
                     <span class="quiz-fs-topbar__mode-title">MODALITÀ QUIZ</span>
                     <div class="quiz-fs-topbar-audio-cluster" id="quiz-intro-game-cluster" aria-label="Musica schermata intro">
-                        <button type="button" class="quiz-fs-audio" id="quiz-intro-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
+                        <button type="button" class="quiz-fs-audio" id="quiz-intro-game-audio" aria-label="Silenzia sigla schermata intro" title="Silenzia sigla schermata intro">
                             <span id="quiz-intro-game-icon" aria-hidden="true">🎵</span>
                         </button>
                         <div class="quiz-fs-vol-slot">
-                            <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="100" aria-label="Volume musica schermata intro (sigla)" title="Volume musica schermata intro (sigla)">
+                            <input type="range" class="quiz-fs-vol-slider" id="quiz-intro-game-vol" min="0" max="100" step="1" value="10" aria-label="Volume musica schermata intro (sigla)" title="Volume musica schermata intro (sigla)">
                             <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
                         </div>
                     </div>
@@ -8294,7 +8294,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-fs-topbar__end">
                 <div class="quiz-fs-topbar-audio-cluster" id="quiz-topbar-game-cluster" aria-label="Musica durante il gioco">
-                    <button type="button" class="quiz-fs-audio" id="quiz-topbar-game-audio" aria-label="Silenzia musica ed effetti" title="Silenzia musica ed effetti">
+                    <button type="button" class="quiz-fs-audio" id="quiz-topbar-game-audio" aria-label="Silenzia musica domande e sottofondo" title="Silenzia musica domande e sottofondo">
                         <span id="quiz-topbar-game-icon" aria-hidden="true">🎵</span>
                     </button>
                     <div class="quiz-fs-vol-slot">
@@ -8307,7 +8307,7 @@ function dismissAppSplash() {
                         <span id="quiz-topbar-speech-icon" aria-hidden="true">🎙️</span>
                     </button>
                     <div class="quiz-fs-vol-slot">
-                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="100" aria-label="Volume telecronaca" title="Volume telecronaca">
+                        <input type="range" class="quiz-fs-vol-slider" id="quiz-topbar-speech-vol" min="0" max="100" step="1" value="20" aria-label="Volume telecronaca" title="Volume telecronaca">
                         <div class="quiz-fs-vol-touchpad" aria-hidden="true" tabindex="-1"></div>
                     </div>
                 </div>
@@ -9111,7 +9111,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605127';
+const APP_BUILD = '202605132';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -9128,8 +9128,17 @@ const QUIZ_LS_SPEECH_ENABLED = 'io-quiz-speech-enabled';
 const QUIZ_LS_SPEECH_RATE = 'io-quiz-speech-rate';
 const QUIZ_LS_SPEECH_MUTED = 'io-quiz-speech-muted';
 const QUIZ_LS_GAMEAUDIO_MUTED = 'io-quiz-gameaudio-muted';
+/** Mute solo sigla schermata intro «Modalità quiz» (indipendente da musica domande). */
+const QUIZ_LS_INTRO_MUSIC_MUTED = 'io-quiz-intro-music-muted';
 const QUIZ_LS_COMMENTARY_VOL = 'io-quiz-commentary-vol';
 const QUIZ_LS_GAMEAUDIO_VOL = 'io-quiz-gameaudio-vol';
+/**
+ * Default se non c’è valore in localStorage:
+ * sigla schermata «Modalità quiz» 10%; in partita musica/sottofondo 100%, telecronaca 20%.
+ */
+const QUIZ_DEFAULT_INTRO_MUSIC_LINEAR_VOL = 0.1;
+const QUIZ_DEFAULT_GAMEAUDIO_LINEAR_VOL = 1;
+const QUIZ_DEFAULT_COMMENTARY_LINEAR_VOL = 0.2;
 /** Volume musica schermata intro «Modalità quiz» (sigla intro-1 / intro-2), indipendente dalla musica durante le domande. */
 const QUIZ_LS_INTRO_MUSIC_VOL = 'io-quiz-intro-music-vol';
 const QUIZ_LS_GEMINI_KEY = 'io-quiz-gemini-key';
@@ -9273,10 +9282,12 @@ const QUIZ_LS_KEY = 'checklist_quiz_leaderboard_v1';
 let quizSpeechEnabled = true;
 let quizSpeechMutedTopbar = false;
 let quizGameAudioMuted = false;
-let quizCommentaryVolume = 1;
-let quizGameAudioVolume = 1;
+/** Silenzia solo intro-1 / intro-2 sulla prima schermata quiz; non influenza sottofondo domande. */
+let quizIntroMusicMuted = false;
+let quizCommentaryVolume = QUIZ_DEFAULT_COMMENTARY_LINEAR_VOL;
+let quizGameAudioVolume = QUIZ_DEFAULT_GAMEAUDIO_LINEAR_VOL;
 /** Musica solo sulla schermata intro quiz (file intro-1 / intro-2); il gioco usa `quizGameAudioVolume`. */
-let quizIntroMusicVolume = 1;
+let quizIntroMusicVolume = QUIZ_DEFAULT_INTRO_MUSIC_LINEAR_VOL;
 let quizSuspenseDucked = false;
 /** >0 durante «Test voce» in impostazioni: musica molto bassa, telecronaca a volume pieno; ripristino a fine audio. */
 let quizSettingsVoiceTestDepth = 0;
@@ -11581,15 +11592,19 @@ function quizLoadStoredPreference() {
         /* Ogni apertura app: audio musica/effetti e telecronaca sempre attivi (non silenziati); l’utente può silenziare dopo. */
         quizSpeechMutedTopbar = false;
         quizGameAudioMuted = false;
+        quizIntroMusicMuted = false;
         try {
             localStorage.setItem(QUIZ_LS_SPEECH_MUTED, '0');
             localStorage.setItem(QUIZ_LS_GAMEAUDIO_MUTED, '0');
+            localStorage.setItem(QUIZ_LS_INTRO_MUSIC_MUTED, '0');
         } catch (eMuteOpen) { /* ignore */ }
         try {
             const cvl = localStorage.getItem(QUIZ_LS_COMMENTARY_VOL);
             if (cvl != null && cvl !== '') {
                 const c = Number(cvl);
                 if (isFinite(c) && c >= 0 && c <= 1) quizCommentaryVolume = c;
+            } else {
+                quizCommentaryVolume = QUIZ_DEFAULT_COMMENTARY_LINEAR_VOL;
             }
         } catch (eCv) { /* ignore */ }
         try {
@@ -11597,6 +11612,8 @@ function quizLoadStoredPreference() {
             if (gvl != null && gvl !== '') {
                 const g = Number(gvl);
                 if (isFinite(g) && g >= 0 && g <= 1) quizGameAudioVolume = g;
+            } else {
+                quizGameAudioVolume = QUIZ_DEFAULT_GAMEAUDIO_LINEAR_VOL;
             }
         } catch (eGv) { /* ignore */ }
         try {
@@ -11605,7 +11622,7 @@ function quizLoadStoredPreference() {
                 const iv = Number(ivl);
                 if (isFinite(iv) && iv >= 0 && iv <= 1) quizIntroMusicVolume = iv;
             } else {
-                quizIntroMusicVolume = quizGameAudioVolume;
+                quizIntroMusicVolume = QUIZ_DEFAULT_INTRO_MUSIC_LINEAR_VOL;
                 try {
                     localStorage.setItem(QUIZ_LS_INTRO_MUSIC_VOL, String(quizIntroMusicVolume));
                 } catch (eMig) { /* ignore */ }
@@ -11795,9 +11812,9 @@ function quizGetGameAudioLinearVolume() {
     return base;
 }
 
-/** Volume musica schermata intro (sigla): stesso silenzio globale musica + Test voce in impostazioni. */
+/** Volume musica schermata intro (sigla): mute dedicato + Test voce in impostazioni. */
 function quizGetIntroMusicLinearVolume() {
-    if (quizGameAudioMuted) return 0;
+    if (quizIntroMusicMuted) return 0;
     const v = Number(quizIntroMusicVolume);
     var base = (!(v >= 0) || v > 1) ? 1 : Math.max(0, Math.min(1, v));
     if (quizSettingsVoiceTestDepth > 0) base *= QUIZ_SETTINGS_VOICE_TEST_BGM_MULT;
@@ -11968,6 +11985,16 @@ function quizEnsurePlayMusicPlaying() {
         }
         if (!quizIsPlayScreenActive()) return;
         if (quizGetGameAudioLinearVolume() <= 0) return;
+        /* Modalità Vero/Falso: suspense è disattivato; serve solo il BGM dedicato. */
+        if (quizVfActive) {
+            if (quizVfBgmAudioEl && quizVfBgmAudioEl.src) {
+                try {
+                    if (!quizVfBgmAudioEl.paused && !quizVfBgmAudioEl.ended) return;
+                } catch (eVf) { /* ignore */ }
+            }
+            quizPlayVfModeMusic();
+            return;
+        }
         if (quizSuspenseAudioEl && quizSuspenseAudioEl.src) {
             try {
                 if (!quizSuspenseAudioEl.paused && !quizSuspenseAudioEl.ended) return;
@@ -11979,12 +12006,16 @@ function quizEnsurePlayMusicPlaying() {
 
 let quizIntroMusicResumeGesturesBound = false;
 
-/** Registra una tantum: dopo interazione utente riprova la musica intro se serve (policy autoplay). */
+/**
+ * Registra una tantum: dopo interazione utente riprova musica intro e sottofondo partita (policy autoplay).
+ * Prima veniva ripresa solo la sigla intro: in gioco il browser poteva bloccare `.play()` e non si riattivava mai.
+ */
 function quizBindIntroMusicResumeGestures() {
     if (quizIntroMusicResumeGesturesBound) return;
     quizIntroMusicResumeGesturesBound = true;
     const resume = function () {
         quizEnsureIntroMusicPlaying();
+        quizEnsurePlayMusicPlaying();
     };
     document.addEventListener('pointerdown', resume, { capture: true, passive: true });
     document.addEventListener('keydown', resume, { capture: true, passive: true });
@@ -12088,7 +12119,11 @@ function quizPlayVfModeMusic() {
         a.loop = true;
         quizVfBgmAudioEl = a;
         a.volume = QUIZ_VF_BGM_VOLUME * quizGetGameAudioLinearVolume();
-        a.play().catch(function () { /* autoplay */ });
+        a.play().catch(function () {
+            try {
+                quizBindIntroMusicResumeGestures();
+            } catch (eB) { /* ignore */ }
+        });
     } catch (eP) { /* ignore */ }
 }
 
@@ -12787,12 +12822,20 @@ function quizPlaySuspenseAlternating(opts) {
     quizSuspenseAudioEl = a;
     quizSuspenseDucked = false;
     quizApplySuspenseVolumes();
-    a.play().catch(function () { /* autoplay */ });
+    a.play().catch(function () {
+        try {
+            quizBindIntroMusicResumeGestures();
+        } catch (eB) { /* ignore */ }
+    });
     const lay = new Audio(quizResolveMediaUrl(QUIZ_SUSPENSE_AUDIO_LAYER));
     lay.loop = true;
     quizSuspenseLayerAudioEl = lay;
     quizApplySuspenseVolumes();
-    lay.play().catch(function () { /* autoplay */ });
+    lay.play().catch(function () {
+        try {
+            quizBindIntroMusicResumeGestures();
+        } catch (eL) { /* ignore */ }
+    });
 }
 
 function quizPlayCorrectAnswerSfx() {
@@ -13319,7 +13362,8 @@ function quizSyncSpeechUi() {
             rateTxt +
             'x';
         if (quizSpeechMutedTopbar) tip += ' · telecronaca silenziata';
-        if (quizGameAudioMuted) tip += ' · musica silenziata';
+        if (quizGameAudioMuted) tip += ' · musica gioco silenziata';
+        if (quizIntroMusicMuted) tip += ' · sigla intro silenziata';
         speechSettingsBtn.setAttribute('title', tip);
     }
     const gIco = document.getElementById('quiz-topbar-game-icon');
@@ -13327,15 +13371,18 @@ function quizSyncSpeechUi() {
     const gBtn = document.getElementById('quiz-topbar-game-audio');
     const gBtnIntro = document.getElementById('quiz-intro-game-audio');
     const gameMuteIcon = quizGameAudioMuted ? '🔇' : '🎵';
+    const introMuteIcon = quizIntroMusicMuted ? '🔇' : '🎵';
     if (gIco) gIco.textContent = gameMuteIcon;
-    if (gIcoIntro) gIcoIntro.textContent = gameMuteIcon;
+    if (gIcoIntro) gIcoIntro.textContent = introMuteIcon;
     if (gBtn) {
-        var gl = quizGameAudioMuted ? 'Riattiva musica ed effetti' : 'Silenzia musica ed effetti';
+        var gl = quizGameAudioMuted
+            ? 'Riattiva musica domande e sottofondo'
+            : 'Silenzia musica domande e sottofondo';
         gBtn.setAttribute('aria-label', gl);
         gBtn.setAttribute('title', gl);
     }
     if (gBtnIntro) {
-        var glI = quizGameAudioMuted ? 'Riattiva musica ed effetti' : 'Silenzia musica ed effetti';
+        var glI = quizIntroMusicMuted ? 'Riattiva sigla schermata intro' : 'Silenzia sigla schermata intro';
         gBtnIntro.setAttribute('aria-label', glI);
         gBtnIntro.setAttribute('title', glI);
     }
@@ -13937,10 +13984,10 @@ function quizEnsureTopbarAudioBinding() {
         });
     }
     const gBtnIntro = document.getElementById('quiz-intro-game-audio');
-    if (gBtnIntro && gBtnIntro.dataset.boundGameMute !== '1') {
-        gBtnIntro.dataset.boundGameMute = '1';
+    if (gBtnIntro && gBtnIntro.dataset.boundIntroMute !== '1') {
+        gBtnIntro.dataset.boundIntroMute = '1';
         quizBindIosFriendlyAudioButton(gBtnIntro, function () {
-            quizSetGameAudioMuteState(!quizGameAudioMuted);
+            quizSetIntroMusicMuteState(!quizIntroMusicMuted);
         });
     }
     const sBtn = document.getElementById('quiz-topbar-speech-audio');
@@ -13982,6 +14029,23 @@ function quizEnsureTopbarAudioBinding() {
     }
 }
 
+function quizSetIntroMusicMuteState(muted) {
+    quizIntroMusicMuted = !!muted;
+    try {
+        localStorage.setItem(QUIZ_LS_INTRO_MUSIC_MUTED, quizIntroMusicMuted ? '1' : '0');
+    } catch (e) {}
+    quizSyncSpeechUi();
+    quizRefreshLiveAudioVolumes();
+    if (quizIntroMusicMuted) {
+        quizStopIntroMusic();
+    } else {
+        const intro = document.getElementById('quiz-screen-intro');
+        if (intro && intro.style.display !== 'none') {
+            quizPlayIntroMusicAlternating({ resumeOnly: true });
+        }
+    }
+}
+
 function quizSetGameAudioMuteState(muted) {
     quizGameAudioMuted = !!muted;
     try {
@@ -13990,15 +14054,16 @@ function quizSetGameAudioMuteState(muted) {
     quizSyncSpeechUi();
     quizRefreshLiveAudioVolumes();
     if (quizGameAudioMuted) {
-        quizStopIntroMusic();
         quizStopSuspenseMusic();
+        quizStopVfModeMusic();
     } else {
-        const intro = document.getElementById('quiz-screen-intro');
         const play = document.getElementById('quiz-screen-play');
-        if (intro && intro.style.display !== 'none') {
-            quizPlayIntroMusicAlternating({ resumeOnly: true });
-        } else if (play && play.style.display !== 'none') {
-            quizPlaySuspenseAlternating({ resumeOnly: true });
+        if (play && play.style.display !== 'none') {
+            if (quizVfActive) {
+                quizPlayVfModeMusic();
+            } else {
+                quizPlaySuspenseAlternating({ resumeOnly: true });
+            }
         }
     }
 }
