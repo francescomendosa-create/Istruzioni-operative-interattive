@@ -8522,7 +8522,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). */
-const APP_BUILD = '202605082';
+const APP_BUILD = '202605083';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -9027,20 +9027,26 @@ function quizPresenceCollectRowsFromSnapshotWithWindow(snap, windowMs) {
     return out;
 }
 
+/** Una riga per uid Firebase: evita «2 online» con un solo PC (sessioni duplicate in `sessions`, mirror+Firestore con sid diversi, ecc.). */
+function quizPresenceCollapseRowsByUid(rows) {
+    var arr = Array.isArray(rows) ? rows : [];
+    var best = {};
+    arr.forEach(function (r) {
+        var uid = String((r && r.uid) || '').trim();
+        if (!uid) return;
+        var t = Number((r && r.lastSeenMs) || 0) || 0;
+        var prev = best[uid];
+        if (!prev || t >= (Number(prev.lastSeenMs) || 0)) best[uid] = r;
+    });
+    return Object.keys(best).map(function (k) {
+        return best[k];
+    });
+}
+
 function quizPresenceCountFromSnapshot(snap) {
     var fromPresence = quizPresenceCollectOnlineRowsFromSnapshot(snap);
     var fromMirror = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows : [];
-    var dedup = {};
-    var out = 0;
-    fromPresence.concat(fromMirror).forEach(function (r) {
-        var uid = String((r && r.uid) || '');
-        var sid = String((r && r.sessionId) || '');
-        var key = uid + '|' + sid;
-        if (dedup[key]) return;
-        dedup[key] = 1;
-        out += 1;
-    });
-    return out;
+    return quizPresenceCollapseRowsByUid(fromPresence.concat(fromMirror)).length;
 }
 
 function quizPresenceCollectRowsMerged() {
@@ -9064,7 +9070,7 @@ function quizPresenceCollectRowsMerged() {
             };
         }
     });
-    return Object.keys(map).map(function (k) { return map[k]; });
+    return quizPresenceCollapseRowsByUid(Object.keys(map).map(function (k) { return map[k]; }));
 }
 
 function quizPresenceCountMergedNow() {
@@ -9279,16 +9285,6 @@ function quizPresenceFillConnectedList() {
         var lb = quizPresenceDisplayLabelForRow(b);
         return la.localeCompare(lb, 'it', { sensitivity: 'base' });
     });
-    var dedupRows = [];
-    var seenNamed = {};
-    rows.forEach(function (row) {
-        var nm = quizPresenceDisplayLabelForRow(row);
-        var k = nm.toLowerCase();
-        if (seenNamed[k]) return;
-        seenNamed[k] = 1;
-        dedupRows.push(row);
-    });
-    rows = dedupRows;
     if (!rows.length) {
         ul.innerHTML =
             '<li class="quiz-presence-connected-list__empty">Nessuno nella finestra online (validita presenza: ~1 min; ping automatico ogni 10 s).</li>';
@@ -9345,7 +9341,7 @@ function quizPresenceCollectRowsMerged24h() {
             };
         }
     });
-    return Object.keys(map).map(function (k) { return map[k]; });
+    return quizPresenceCollapseRowsByUid(Object.keys(map).map(function (k) { return map[k]; }));
 }
 
 /** Tempo relativo dall’ultimo contatto (storico presenza). */
