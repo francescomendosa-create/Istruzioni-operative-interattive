@@ -116,17 +116,23 @@
             height: 18px;
         }
 
-        /* Presenza utenti: nel modale Impostazioni, a destra del titolo */
+        /* Presenza utenti + Chiudi: stessa riga del titolo, in coda a destra */
         .quiz-settings-heading-row {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
             margin: 0 0 14px;
         }
         .quiz-settings-heading-row h4 {
             margin: 0;
+        }
+        .quiz-settings-heading-row__tail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
         }
         .quiz-settings-presence-badge {
             display: inline-flex;
@@ -5850,6 +5856,27 @@
             min-height: 0;
             overflow: hidden;
         }
+        /* Pressione prolungata sul tab: solo form rinomina (niente elenco domande / tab / intro). */
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > .quiz-modify-lead,
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > .quiz-modify-new-scheda-row,
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > .quiz-modify-tabs,
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > .quiz-modify-create-row,
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > #quiz-modify-list,
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode > .quiz-modify-hint {
+            display: none !important;
+        }
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode {
+            justify-content: center;
+        }
+        #quiz-modify-view-list.quiz-modify-view-list--rename-mode #quiz-modify-rename-inline:not([hidden]) {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 0;
+            min-height: min(42vh, 280px);
+            box-sizing: border-box;
+        }
         .quiz-modify-delete-confirm-layer {
             position: absolute;
             inset: 0;
@@ -8970,10 +8997,13 @@ function dismissAppSplash() {
         <div class="quiz-settings-box" role="dialog" aria-modal="true" aria-labelledby="quiz-settings-title">
             <div class="quiz-settings-heading-row">
                 <h4 id="quiz-settings-title">Impostazioni</h4>
-                <button type="button" id="header-presence-btn" class="quiz-settings-presence-badge quiz-settings-presence-badge--btn" hidden onclick="quizPresenceOpenConnectedModal()" title="Utenti online: clic per vedere chi è collegato" aria-label="Utenti online: apri elenco">
-                    <span class="header-presence-icon" aria-hidden="true">👤</span>
-                    <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
-                </button>
+                <div class="quiz-settings-heading-row__tail">
+                    <button type="button" id="header-presence-btn" class="quiz-settings-presence-badge quiz-settings-presence-badge--btn" hidden onclick="quizPresenceOpenConnectedModal()" title="Utenti online: clic per vedere chi è collegato" aria-label="Utenti online: apri elenco">
+                        <span class="header-presence-icon" aria-hidden="true">👤</span>
+                        <span id="header-presence-count" class="header-presence-num" aria-live="polite">—</span>
+                    </button>
+                    <button type="button" id="quiz-settings-close-btn" class="btn-side btn-reset" onclick="hideQuizSettingsModal()" aria-label="Chiudi impostazioni">Chiudi</button>
+                </div>
             </div>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei?">
                 <span><strong>Chi sei?</strong></span>
@@ -9015,9 +9045,6 @@ function dismissAppSplash() {
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
-            <div class="quiz-lock-actions" style="margin-top:14px;">
-                <button type="button" class="btn-side btn-reset" onclick="hideQuizSettingsModal()">Chiudi</button>
-            </div>
         </div>
     </div>
 
@@ -9212,7 +9239,7 @@ function dismissAppSplash() {
                     </div>
                 </div>
                 <div id="quiz-modify-rename-inline" class="quiz-modify-new-scheda-form quiz-modify-rename-inline" hidden>
-                    <label class="quiz-modify-new-scheda-label" for="quiz-modify-rename-input">Nome della scheda (tab)</label>
+                    <label class="quiz-modify-new-scheda-label" for="quiz-modify-rename-input">Nome della scheda</label>
                     <input type="text" id="quiz-modify-rename-input" class="quiz-modify-new-scheda-input" maxlength="80" placeholder="Nome visualizzato come Chimico-fisico / Biologico MBBR" autocomplete="off" aria-label="Nome scheda sulla tab" />
                     <div class="quiz-modify-new-scheda-actions">
                         <button type="button" class="btn-side btn-reset" id="quiz-modify-rename-cancel">Annulla</button>
@@ -9325,9 +9352,6 @@ function dismissAppSplash() {
                         </div>
                     </section>
                 </div>
-                <div class="quiz-lock-actions quiz-modify-actions" style="margin-top:10px;">
-                    <button type="button" class="btn-side btn-report" id="quiz-modify-detail-close" onclick="quizModifyCloseQuestionDetail()">Chiudi pannello</button>
-                </div>
             </div>
         </div>
     </div>
@@ -9384,7 +9408,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605145';
+const APP_BUILD = '202605149';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15937,6 +15961,26 @@ function quizModifyIsDetailOpen() {
     return !!(d && !d.classList.contains('quiz-modify-view--hidden'));
 }
 
+/** Titolo finestra Modifica: elenco / singola domanda / rinomina tab scheda. */
+function quizModifyShellTitleSync() {
+    var titleEl = document.getElementById('quiz-modify-dev-title');
+    if (!titleEl) return;
+    try {
+        var renameForm = document.getElementById('quiz-modify-rename-inline');
+        if (renameForm && !renameForm.hidden) {
+            titleEl.textContent = 'Modifica nome scheda';
+            return;
+        }
+    } catch (eR) { /* ignore */ }
+    try {
+        if (typeof quizModifyIsDetailOpen === 'function' && quizModifyIsDetailOpen()) {
+            titleEl.textContent = 'Modifica domanda';
+            return;
+        }
+    } catch (eD) { /* ignore */ }
+    titleEl.textContent = 'Modifica contenuti';
+}
+
 function quizModifySetHtmlContent(el, htmlOrText, emptyLabel) {
     if (!el) return;
     var s = htmlOrText == null ? '' : String(htmlOrText);
@@ -15992,6 +16036,7 @@ function quizModifyCloseQuestionDetail() {
     }
     var sub = document.getElementById('quiz-modify-detail-title');
     if (sub) sub.textContent = '';
+    quizModifyShellTitleSync();
 }
 
 function quizModifyOpenQuestionDetail(sectionKey, index) {
@@ -16032,6 +16077,7 @@ function quizModifyOpenQuestionDetail(sectionKey, index) {
             } catch (eB) { /* ignore */ }
         }
     });
+    quizModifyShellTitleSync();
 }
 
 function quizModifyOnCreateQuestion() {
@@ -16134,6 +16180,14 @@ function quizModifySectionDisplayLabel(sectionKey) {
     return lab && String(lab).trim() ? String(lab).trim() : 'Scheda personalizzata';
 }
 
+function quizModifyRenameModeUiApply(enabled) {
+    var listV = document.getElementById('quiz-modify-view-list');
+    if (listV) {
+        if (enabled) listV.classList.add('quiz-modify-view-list--rename-mode');
+        else listV.classList.remove('quiz-modify-view-list--rename-mode');
+    }
+}
+
 function quizModifyRenameFormClose() {
     quizModifyDeleteQuestionOverlayHide();
     quizModifyDeleteConfirmHide();
@@ -16142,11 +16196,16 @@ function quizModifyRenameFormClose() {
     var inp = document.getElementById('quiz-modify-rename-input');
     if (form) form.hidden = true;
     if (inp) inp.value = '';
+    quizModifyRenameModeUiApply(false);
+    quizModifyShellTitleSync();
 }
 
 function quizModifyRenameFormOpen(sectionKey) {
     if (!quizModifyIsCustomSectionKey(sectionKey)) return;
     quizModifyDeleteQuestionOverlayHide();
+    try {
+        quizModifyCloseQuestionDetail();
+    } catch (eDet) { /* ignore */ }
     quizModifyNewSchedaFormClose();
     quizModifyRenameTargetKey = sectionKey;
     var form = document.getElementById('quiz-modify-rename-inline');
@@ -16154,6 +16213,7 @@ function quizModifyRenameFormOpen(sectionKey) {
     var d = quizModifyLoadCustomSchedario();
     var lab = (d.labels && d.labels[sectionKey]) ? String(d.labels[sectionKey]) : '';
     if (form) form.hidden = false;
+    quizModifyRenameModeUiApply(true);
     if (inp) {
         inp.value = lab;
         try {
@@ -16166,6 +16226,7 @@ function quizModifyRenameFormOpen(sectionKey) {
             form.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         } catch (eSc) { /* ignore */ }
     }
+    quizModifyShellTitleSync();
 }
 
 function quizModifyDeleteConfirmHide() {
@@ -16876,6 +16937,7 @@ function quizModifyShellOpen() {
     quizModifyUpdateTabs();
     quizModifyRenderQuestionList();
     quizModifyUpdateActionButtons();
+    quizModifyShellTitleSync();
 }
 
 function showQuizPasswordModal() {
