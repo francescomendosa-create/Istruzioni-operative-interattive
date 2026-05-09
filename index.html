@@ -8446,7 +8446,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605111</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605112</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8569,7 +8569,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605111</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605112</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8614,7 +8614,7 @@ function dismissAppSplash() {
     <div id="quiz-developer-menu-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizDeveloperMenuBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-developer-menu-title" onclick="event.stopPropagation()" style="width:min(94vw,420px);">
             <h4 id="quiz-developer-menu-title" class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
-            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;">Interruttore <strong>Modifica</strong>: controlla se il tasto Modifica in Impostazioni è utilizzabile.</p>
+            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;">Interruttore <strong>Modifica</strong>: acceso = pulsante visibile in Impostazioni; spento = nascosto.</p>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;" onclick="quizDeveloperOpenClassifica()" aria-label="Apri classifica">
                 <span><strong>Classifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -8622,7 +8622,7 @@ function dismissAppSplash() {
             <label class="quiz-settings-row quiz-settings-row--toggle" style="width:100%;box-sizing:border-box;margin-top:10px;">
                 <span class="quiz-settings-row-text">Modifica <span style="font-weight:500;color:#78909c;font-size:0.82rem;">(Impostazioni)</span></span>
                 <span class="quiz-dev-ios-switch">
-                    <input type="checkbox" id="quiz-developer-modify-toggle" class="quiz-dev-ios-switch-input" role="switch" aria-label="Abilita il tasto Modifica in Impostazioni" onchange="quizDeveloperModifyToggleChanged(this.checked)">
+                    <input type="checkbox" id="quiz-developer-modify-toggle" class="quiz-dev-ios-switch-input" role="switch" aria-label="Mostra o nasconde Modifica in Impostazioni" onchange="quizDeveloperModifyToggleChanged(this.checked)">
                     <span class="quiz-dev-ios-switch-track"><span class="quiz-dev-ios-switch-thumb"></span></span>
                 </span>
             </label>
@@ -8694,7 +8694,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605111';
+const APP_BUILD = '202605112';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14081,16 +14081,14 @@ function quizDeveloperOpenClassifica() {
 }
 
 function showQuizModifyInDevelopmentPopup() {
+    if (!quizDeveloperModifyFeaturesGet()) {
+        return;
+    }
     const overlay = document.getElementById('quiz-modify-dev-overlay');
     const body = document.getElementById('quiz-modify-dev-body');
     if (!overlay) return;
     if (body) {
-        if (!quizDeveloperModifyFeaturesGet()) {
-            body.textContent =
-                'Abilita prima le funzioni Modifica: Impostazioni → Advanced mode · Sviluppatore, attiva l\'interruttore Modifica.';
-        } else {
-            body.textContent = 'Modalità ancora in via di sviluppo.';
-        }
+        body.textContent = 'Modalità ancora in via di sviluppo.';
     }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
