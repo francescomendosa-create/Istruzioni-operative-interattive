@@ -5453,6 +5453,12 @@
             opacity: 0.82;
             font-weight: 400;
         }
+        .quiz-presence-tech-hint {
+            opacity: 0.72;
+            font-size: 0.82em;
+            letter-spacing: 0.02em;
+            font-weight: 400;
+        }
         .quiz-presence-history-status-dot--off {
             background: #c62828;
             box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.14);
@@ -8521,7 +8527,7 @@ let titleClickTimer = null;
 const QUIZ_PASSWORD_PRODUCER = '1629';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). */
-const APP_BUILD = '20260509opeturbo';
+const APP_BUILD = '20260508ph';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 /** Preferenze quiz in localStorage: restano dopo aggiornamento pagina / deploy. */
@@ -8732,13 +8738,6 @@ const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
 const QUIZ_PRESENCE_ONLINE_WINDOW_MS = 60000;
 const QUIZ_LS_PRESENCE_DEVICE_ID = 'io-presence-device-id';
-/**
- * Solo per il PC di lavoro «pc opeturbo» (Chi sei?): memorizza uid|sessionId → prima etichetta vista;
- * se qualcuno cambia o cancella quel nome su Firestore, su questo browser resta «pc opeturbo» (o com’era scritto).
- * Tutti gli altri: nome sempre aggiornato da server (o «Utente senza nome N» stabile).
- */
-const QUIZ_LS_PRESENCE_PINNED_OPER = 'io-presence-pin-pc-opeturbo-v1';
-const QUIZ_PRESENCE_PINNED_OPER_MAX = 32;
 /** Classifica condivisa: solo i primi 10 (Firestore, cache locale, UI, modale nome). */
 const QUIZ_LEADERBOARD_TOP_N = 10;
 let quizPrefsRemoteApply = false;
@@ -9012,7 +9011,8 @@ function quizPresenceCollectRowsFromSnapshotWithWindow(snap, windowMs) {
                     label: s.displayName != null ? String(s.displayName).trim() : '',
                     uid: String(doc.id || ''),
                     sessionId: String(sid || ''),
-                    lastSeenMs: t
+                    lastSeenMs: t,
+                    path: s.path != null ? String(s.path).slice(0, 160) : ''
                 });
             });
         }
@@ -9023,7 +9023,8 @@ function quizPresenceCollectRowsFromSnapshotWithWindow(snap, windowMs) {
             label: d.displayName != null ? String(d.displayName).trim() : '',
             uid: String(doc.id || ''),
             sessionId: '',
-            lastSeenMs: tLegacy
+            lastSeenMs: tLegacy,
+            path: d.path != null ? String(d.path).slice(0, 160) : ''
         });
     });
     return out;
@@ -9061,7 +9062,8 @@ function quizPresenceCollectRowsMerged() {
                 label: r && r.label ? String(r.label).trim() : '',
                 uid: uid,
                 sessionId: sid,
-                lastSeenMs: t
+                lastSeenMs: t,
+                path: r && r.path != null ? String(r.path).slice(0, 160) : ''
             };
         }
     });
@@ -9095,7 +9097,8 @@ function quizPresenceExtractMirrorRowsFromLeaderboardDocWithWindow(d, windowMs) 
             label: item.displayName != null ? String(item.displayName).trim() : '',
             uid: uid,
             sessionId: sid,
-            lastSeenMs: t
+            lastSeenMs: t,
+            path: item.path != null ? String(item.path).slice(0, 160) : ''
         });
     };
     if (root) {
@@ -9258,78 +9261,53 @@ function quizPresenceStableUnnamedIndex(uid, sessionId) {
     return 1 + (Math.abs(h) % 9998);
 }
 
-/** Riconosce il nome del PC di lavoro (es. «pc opeturbo»): confronto senza distinzione maiuscole/minuscole. */
-function quizPresenceLabelIsPcOpeturboTarget(label) {
-    var t = String(label || '').trim().toLowerCase();
-    if (!t) return false;
-    return t.indexOf('opeturbo') !== -1;
-}
-
-function quizPresencePinnedOperRead() {
-    try {
-        var s = localStorage.getItem(QUIZ_LS_PRESENCE_PINNED_OPER);
-        if (!s) return {};
-        var o = JSON.parse(s);
-        return o && typeof o === 'object' ? o : {};
-    } catch (eR) {
-        return {};
-    }
-}
-
-function quizPresencePinnedOperWrite(map) {
-    try {
-        var keys = Object.keys(map);
-        if (keys.length > QUIZ_PRESENCE_PINNED_OPER_MAX) {
-            var arr = keys.map(function (k) {
-                var e = map[k];
-                var at = e && typeof e === 'object' && e.at != null ? Number(e.at) : 0;
-                return { k: k, at: at };
-            });
-            arr.sort(function (a, b) { return a.at - b.at; });
-            var drop = keys.length - QUIZ_PRESENCE_PINNED_OPER_MAX;
-            for (var i = 0; i < drop; i += 1) {
-                delete map[arr[i].k];
-            }
-        }
-        localStorage.setItem(QUIZ_LS_PRESENCE_PINNED_OPER, JSON.stringify(map));
-    } catch (eW) { /* ignore */ }
-}
-
-/**
- * Etichetta presenza: tutti seguono il nome server (o «Utente senza nome N» stabile), tranne
- * uid|sessionId che hanno mai usato un nome che contiene «opeturbo» (pc di lavoro): su questo browser
- * quell’etichetta resta fissa se poi cambiano o cancellano il nome.
- * La propria sessione (stesso uid Auth): sempre nome aggiornato da server.
- */
+/** Etichetta lista presenza: nome da Firestore oppure «Utente senza nome N» (N stabile per uid|sessionId). */
 function quizPresenceDisplayLabelForRow(row) {
+    var raw = row && row.label ? String(row.label).trim() : '';
+    if (raw) return raw;
     var uid = String((row && row.uid) || '');
     var sid = String((row && row.sessionId) || '');
-    var stableKey = quizPresenceStableIdentityKey(uid, sid);
-    if (!stableKey || stableKey === '|') return 'Utente senza nome';
-    var myUid = '';
-    try {
-        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-            myUid = String(firebase.auth().currentUser.uid || '');
-        }
-    } catch (eA) { /* ignore */ }
-    var isSelf = myUid && uid === myUid;
-    if (isSelf) {
-        var rawSelf = row && row.label ? String(row.label).trim() : '';
-        return rawSelf || ('Utente senza nome ' + String(quizPresenceStableUnnamedIndex(uid, sid)));
-    }
-    var map = quizPresencePinnedOperRead();
-    var ent = map[stableKey];
-    if (ent && typeof ent === 'object' && ent.label != null) {
-        var lab = String(ent.label).trim();
-        if (lab) return lab;
-    }
-    var raw = row && row.label ? String(row.label).trim() : '';
-    var chosen = raw || ('Utente senza nome ' + String(quizPresenceStableUnnamedIndex(uid, sid)));
-    if (quizPresenceLabelIsPcOpeturboTarget(raw)) {
-        map[stableKey] = { label: chosen, at: Date.now() };
-        quizPresencePinnedOperWrite(map);
-    }
-    return chosen;
+    var sk = quizPresenceStableIdentityKey(uid, sid);
+    if (!sk || sk === '|') return 'Utente senza nome';
+    return 'Utente senza nome ' + String(quizPresenceStableUnnamedIndex(uid, sid));
+}
+
+/** Ultimi caratteri dell’uid Firebase (identificativo anonimo browser/profilo). */
+function quizPresenceUidSuffix(uid) {
+    var u = String(uid || '').trim();
+    if (!u) return '';
+    return u.length <= 6 ? u : u.slice(-6);
+}
+
+/** Suffisso breve della sessione dispositivo (localStorage). */
+function quizPresenceSessionSuffix(sessionId) {
+    var s = String(sessionId || '').trim();
+    if (!s) return '';
+    return s.length <= 4 ? s : s.slice(-4);
+}
+
+/** Hint secondario: uid/session/path (tooltip con valori completi). */
+function quizPresenceAppendTechHint(li, row) {
+    var uid = String((row && row.uid) || '');
+    var sid = String((row && row.sessionId) || '');
+    var path = row && row.path != null ? String(row.path).trim() : '';
+    var us = quizPresenceUidSuffix(uid);
+    var ss = quizPresenceSessionSuffix(sid);
+    var bits = [];
+    if (us) bits.push('…' + us);
+    if (ss) bits.push('sess …' + ss);
+    var body = bits.join(' ');
+    if (!body && path) body = path.length > 28 ? path.slice(0, 28) + '…' : path;
+    if (!body) return;
+    var hint = document.createElement('span');
+    hint.className = 'quiz-presence-tech-hint';
+    hint.textContent = ' · ' + body;
+    var tip = [];
+    if (uid) tip.push('uid: ' + uid);
+    if (sid) tip.push('sessione: ' + sid);
+    if (path) tip.push('percorso pagina: ' + path);
+    if (tip.length) hint.setAttribute('title', tip.join('\n'));
+    li.appendChild(hint);
 }
 
 function quizPresenceFillConnectedList() {
@@ -9360,7 +9338,8 @@ function quizPresenceFillConnectedList() {
     rows.forEach(function (row) {
         var nm = quizPresenceDisplayLabelForRow(row);
         var li = document.createElement('li');
-        li.textContent = nm;
+        li.appendChild(document.createTextNode(nm));
+        quizPresenceAppendTechHint(li, row);
         ul.appendChild(li);
     });
     if (quizPresenceHistoryExpanded) {
@@ -9382,7 +9361,8 @@ function quizPresenceCollectRowsMerged24h() {
             label: r && r.label ? String(r.label).trim() : '',
             uid: uid,
             sessionId: sid,
-            lastSeenMs: Number((r && r.lastSeenMs) || 0) || 0
+            lastSeenMs: Number((r && r.lastSeenMs) || 0) || 0,
+            path: r && r.path != null ? String(r.path).slice(0, 160) : ''
         };
     });
     mirrorRows24.forEach(function (r) {
@@ -9397,7 +9377,8 @@ function quizPresenceCollectRowsMerged24h() {
                 label: r && r.label ? String(r.label).trim() : '',
                 uid: uid,
                 sessionId: sid,
-                lastSeenMs: t
+                lastSeenMs: t,
+                path: r && r.path != null ? String(r.path).slice(0, 160) : ''
             };
         }
     });
@@ -9442,6 +9423,7 @@ function quizPresenceRenderHistory24h() {
         dot.setAttribute('aria-hidden', 'true');
         li.appendChild(dot);
         li.appendChild(document.createTextNode(' ' + name));
+        quizPresenceAppendTechHint(li, r);
         if (!isOnline) {
             var timeSpan = document.createElement('span');
             timeSpan.className = 'quiz-presence-history-time';
