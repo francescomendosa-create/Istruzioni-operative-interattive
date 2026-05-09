@@ -8450,7 +8450,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605113</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605115</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -8573,7 +8573,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605113</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605115</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -8618,7 +8618,7 @@ function dismissAppSplash() {
     <div id="quiz-developer-menu-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizDeveloperMenuBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-developer-menu-title" onclick="event.stopPropagation()" style="width:min(94vw,420px);">
             <h4 id="quiz-developer-menu-title" class="quiz-lock-title">Advanced mode · Sviluppatore</h4>
-            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;"><strong>Modifica</strong> nella schermata Impostazioni normale: con interruttore <strong>spento</strong> il pulsante non c’è; con interruttore <strong>acceso</strong> il pulsante compare per chi apre Impostazioni (stessa app / browser su questo dispositivo).</p>
+            <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;"><strong>Modifica</strong> in Impostazioni: spento = pulsante assente; acceso = visibile. Con Firebase configurato, lo stato si aggiorna su <strong>tutti i dispositivi</strong> del progetto (tempo reale).</p>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;" onclick="quizDeveloperOpenClassifica()" aria-label="Apri classifica">
                 <span><strong>Classifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -8698,7 +8698,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605113';
+const APP_BUILD = '202605115';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -8791,6 +8791,8 @@ const QUIZ_SFX_BONUS_FANGO = 'assets/quiz-sfx/bonus-fango.mp3';
 /** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
 const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
 const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
+/** Impostazioni e modali collegate (clic 1 dedicato; file in repo). */
+const UI_SFX_CLICK_SETTINGS = 'assets/sounds/ui-click.mp3';
 const QUIZ_BONUS_TRIGGER_START = 3;
 const QUIZ_BONUS_TRIGGER_STEP = 5;
 const QUIZ_BONUS_CARD_TOTAL = 12;
@@ -8916,6 +8918,9 @@ const QUIZ_FS_LEADERBOARD = 'quiz_leaderboard';
 const QUIZ_FS_LEADERBOARD_DOC = 'global';
 /** Presenza online (heartbeat Auth anonimo → doc per uid). Richiede regole Firestore su `quiz_presence`. */
 const QUIZ_FS_PRESENCE = 'quiz_presence';
+/** Un solo doc per progetto: visibilità pulsante Modifica in Impostazioni su tutti i dispositivi (listener tempo reale). */
+const QUIZ_FS_APP_FLAGS = 'quiz_app_flags';
+const QUIZ_FS_APP_FLAGS_DOC = 'ui';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
@@ -8945,6 +8950,8 @@ let quizPresenceMirrorRows = [];
 let quizPresenceMirrorRawDoc = null;
 /** unsubscribe onSnapshot presenza */
 let quizPresenceRealtimeUnsub = null;
+/** unsubscribe flag Modifica condiviso (quiz_app_flags/ui) */
+let quizModifyFeaturesUnsub = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
 let quizPresenceStaleTickerId = null;
 /** Ultimo errore lettura presenza (tooltip). */
@@ -10211,6 +10218,83 @@ function quizPullPrefsFromFirestoreAndApply() {
         .catch(function (e) {
             console.warn('[quiz Firestore load]', e);
         });
+}
+
+/*
+ * Flag UI condiviso (stesso comportamento su tutti i client del progetto Firebase).
+ * Regole Firestore suggerite:
+ *   match /quiz_app_flags/{docId} {
+ *     allow read: if request.auth != null;
+ *     allow create, update: if request.auth != null;
+ *   }
+ */
+function quizApplyModifyFeaturesFromRemote(want) {
+    want = !!want;
+    quizDeveloperModifyFeaturesEnabled = want;
+    try {
+        if (want) {
+            localStorage.setItem(QUIZ_LS_DEVELOPER_MODIFY_FEATURES, '1');
+        } else {
+            localStorage.removeItem(QUIZ_LS_DEVELOPER_MODIFY_FEATURES);
+        }
+    } catch (eLs) { /* ignore */ }
+    quizSyncDeveloperModifyToggleUi();
+    quizSyncDeveloperModifySettingsRow();
+}
+
+function quizPushModifyFeaturesGlobal() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC).set(
+                {
+                    modifyFeaturesEnabled: !!quizDeveloperModifyFeaturesEnabled,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                },
+                { merge: true }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz app flags write]', e);
+        });
+}
+
+function quizSubscribeModifyFeaturesFlag() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            if (quizModifyFeaturesUnsub) {
+                try {
+                    quizModifyFeaturesUnsub();
+                } catch (eU) { /* ignore */ }
+                quizModifyFeaturesUnsub = null;
+            }
+            var ref = firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC);
+            return ref
+                .get()
+                .then(function (snap) {
+                    if (snap.exists) {
+                        var d = snap.data() || {};
+                        if (typeof d.modifyFeaturesEnabled === 'boolean') {
+                            quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+                        }
+                    }
+                })
+                .then(function () {
+                    quizModifyFeaturesUnsub = ref.onSnapshot(
+                        function (snap) {
+                            if (!snap.exists) return;
+                            var d = snap.data() || {};
+                            if (typeof d.modifyFeaturesEnabled !== 'boolean') return;
+                            quizApplyModifyFeaturesFromRemote(d.modifyFeaturesEnabled);
+                        },
+                        function (err) {
+                            console.warn('[quiz_app_flags]', err);
+                        }
+                    );
+                });
+        })
+        .catch(function () {});
 }
 
 function quizSaveLeaderboardLocalOnly(rows) {
@@ -12391,6 +12475,16 @@ function quizEnsureUiSfxCtx() {
     return quizUiSfxCtx;
 }
 
+/** iPhone/Safari: dopo cambio tab o stand‑by l’AudioContext resta «suspended» e i clic smettono di suonare. */
+function quizResumeUiSfxAudioIfNeeded() {
+    try {
+        const ctx = quizEnsureUiSfxCtx();
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(function () {});
+        }
+    } catch (eR) { /* ignore */ }
+}
+
 function quizLoadUiSfxBuffer(relPath) {
     const key = String(relPath || '');
     if (!key) return;
@@ -12435,10 +12529,14 @@ function quizGetUiSfxVoices(relPath) {
     if (quizUiSfxPool[key]) return quizUiSfxPool[key];
     const url = quizResolveMediaUrl(key);
     const voices = [];
-    for (let i = 0; i < 2; i++) {
+    var n = key === UI_SFX_CLICK_SETTINGS ? 4 : 2;
+    for (let i = 0; i < n; i++) {
         try {
             const a = new Audio(url);
             a.preload = 'auto';
+            try {
+                a.setAttribute('playsinline', '');
+            } catch (ePl) { /* ignore */ }
             try { a.load(); } catch (eL) { /* ignore */ }
             voices.push(a);
         } catch (eA) { /* ignore */ }
@@ -12451,11 +12549,13 @@ function quizPrimeUiSfxPool() {
     quizEnsureBonusSceltaAudio();
     quizGetUiSfxVoices(UI_SFX_CLICK_DOMANDE);
     quizGetUiSfxVoices(UI_SFX_CLICK_UI);
+    quizGetUiSfxVoices(UI_SFX_CLICK_SETTINGS);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_OK);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_WIN);
     quizGetUiSfxVoices(QUIZ_SFX_BONUS_FANGO);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_SETTINGS);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
@@ -12482,6 +12582,7 @@ function quizUnlockUiSfxOnce() {
     } catch (eAll) { /* ignore */ }
     quizLoadUiSfxBuffer(UI_SFX_CLICK_DOMANDE);
     quizLoadUiSfxBuffer(UI_SFX_CLICK_UI);
+    quizLoadUiSfxBuffer(UI_SFX_CLICK_SETTINGS);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_OK);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_WIN);
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
@@ -12489,6 +12590,7 @@ function quizUnlockUiSfxOnce() {
 
 function quizPlayUiSfxFast(relPath, gain) {
     try {
+        quizResumeUiSfxAudioIfNeeded();
         const gv = typeof quizGetGameAudioLinearVolume === 'function' ? quizGetGameAudioLinearVolume() : 1;
         if (gv <= 0) return;
         const outGain = Math.max(0, Math.min(1, (Number(gain) || 1) * gv));
@@ -12515,9 +12617,31 @@ function playUiClickGenericoSfx() {
     quizPlayUiSfxFast(UI_SFX_CLICK_UI, 0.78);
 }
 
+function playUiClickSettingsSfx() {
+    quizPlayUiSfxFast(UI_SFX_CLICK_SETTINGS, 0.82);
+}
+
+/** True se il clic è dentro Impostazioni o una modale aperta dal flusso Impostazioni (Password, Quiz voce, Info, App, Advanced…). */
+function quizActivatorInSettingsFlow(el) {
+    if (!el || typeof el.closest !== 'function') return false;
+    return !!(
+        el.closest('#quiz-settings-overlay') ||
+        el.closest('#quiz-presence-whoami-overlay') ||
+        el.closest('#quiz-presence-connected-overlay') ||
+        el.closest('#quiz-lock-overlay') ||
+        el.closest('#quiz-speech-settings-overlay') ||
+        el.closest('#quiz-info-overlay') ||
+        el.closest('#quiz-app-overlay') ||
+        el.closest('#quiz-developer-menu-overlay') ||
+        el.closest('#quiz-modify-dev-overlay') ||
+        el.closest('#quiz-producer-overlay')
+    );
+}
+
 /**
  * Clic 1: pulsanti nelle sezioni #cf-content / #mbr-content (domande e contenuti generati).
- * Clic 2: header, impostazioni, quiz (senza suoni dedicati), splash, report, ecc.
+ * Clic Impostazioni: assets/sounds/ui-click.mp3 per il flusso Impostazioni e modali collegate.
+ * Altre UI: clic-2 (header, splash dove applicabile, report, ecc.).
  */
 function initIstruzioniUiClickSounds() {
     if (initIstruzioniUiClickSounds._done) return;
@@ -12581,11 +12705,32 @@ function initIstruzioniUiClickSounds() {
                 return;
             }
             quizUiSfxLastPlayAt = now;
-            playUiClickGenericoSfx();
+            if (quizActivatorInSettingsFlow(activator)) {
+                playUiClickSettingsSfx();
+            } else {
+                playUiClickGenericoSfx();
+            }
     };
 
     quizPrimeUiSfxPool();
+    document.addEventListener(
+        'visibilitychange',
+        function () {
+            if (document.visibilityState === 'visible') {
+                quizResumeUiSfxAudioIfNeeded();
+            }
+        },
+        { passive: true }
+    );
+    window.addEventListener(
+        'pageshow',
+        function (ev) {
+            quizResumeUiSfxAudioIfNeeded();
+        },
+        { passive: true }
+    );
     const onPressStart = function (ev) {
+        quizResumeUiSfxAudioIfNeeded();
         const now = Date.now();
         let raw = ev.target;
         if (raw && raw.nodeType === 3) raw = raw.parentElement;
@@ -14015,6 +14160,7 @@ function quizSetDeveloperModifyFeaturesEnabled(on) {
     } catch (eLs) { /* ignore */ }
     quizSyncDeveloperModifyToggleUi();
     quizSyncDeveloperModifySettingsRow();
+    quizPushModifyFeaturesGlobal();
 }
 
 function quizSyncDeveloperModifyToggleUi() {
@@ -14026,7 +14172,7 @@ function quizSyncDeveloperModifyToggleUi() {
     }
 }
 
-/** Visibilità pulsante Modifica in Impostazioni (solo flag locale Advanced): ON = visibile a tutti in quella schermata; OFF = assente (hidden). */
+/** Visibilità pulsante Modifica in Impostazioni: valore da locale + sync Firestore (`quiz_app_flags/ui`). */
 function quizSyncDeveloperModifySettingsRow() {
     var on = quizDeveloperModifyFeaturesGet();
     var row = document.getElementById('quiz-settings-modify-btn');
@@ -19478,6 +19624,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizPresenceBootstrap();
             } catch (ePres) { /* ignore */ }
+            try {
+                quizSubscribeModifyFeaturesFlag();
+            } catch (eMf) { /* ignore */ }
         }
         if (quizFirestoreConfigured()) {
             Promise.all([
