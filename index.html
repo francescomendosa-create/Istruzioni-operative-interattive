@@ -5773,6 +5773,52 @@
         .quiz-modify-rename-inline {
             margin-bottom: 10px;
         }
+        .quiz-modify-rename-delete-btn {
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+        #quiz-modify-view-list {
+            position: relative;
+        }
+        .quiz-modify-delete-confirm-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            box-sizing: border-box;
+            background: rgba(250, 251, 252, 0.94);
+            backdrop-filter: blur(4px);
+            border-radius: 8px;
+        }
+        .quiz-modify-delete-confirm-layer[hidden] {
+            display: none !important;
+        }
+        .quiz-modify-delete-confirm-layer__box {
+            width: 100%;
+            max-width: 320px;
+            padding: 16px 16px 14px;
+            border-radius: 12px;
+            border: 1px solid #cfd8dc;
+            background: #fff;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .quiz-modify-delete-confirm-layer__text {
+            margin: 0 0 14px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: #37474f;
+        }
+        .quiz-modify-delete-confirm-layer__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
         .quiz-modify-new-scheda-label {
             display: block;
             font-size: 0.78rem;
@@ -9075,6 +9121,16 @@ function dismissAppSplash() {
                         <button type="button" class="btn-side btn-reset" id="quiz-modify-rename-cancel">Annulla</button>
                         <button type="button" class="btn-side btn-report" id="quiz-modify-rename-save">Salva nome</button>
                     </div>
+                    <button type="button" class="btn-side btn-reset quiz-modify-rename-delete-btn" id="quiz-modify-rename-delete">Elimina scheda</button>
+                </div>
+                <div id="quiz-modify-delete-confirm-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
+                    <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-labelledby="quiz-modify-delete-confirm-title" aria-modal="true">
+                        <p id="quiz-modify-delete-confirm-title" class="quiz-modify-delete-confirm-layer__text">Sei sicuro di voler eliminare la scheda?</p>
+                        <div class="quiz-modify-delete-confirm-layer__actions">
+                            <button type="button" class="btn-side btn-reset" id="quiz-modify-delete-confirm-cancel">Annulla</button>
+                            <button type="button" class="btn-side btn-report" id="quiz-modify-delete-confirm-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Elimina</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="quiz-modify-tabs" id="quiz-modify-tablist" role="tablist" aria-label="Sezione impianto e schede personalizzate"></div>
                 <div class="quiz-modify-create-row">
@@ -9225,7 +9281,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605139';
+const APP_BUILD = '202605141';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15020,12 +15076,18 @@ async function showQuizDeveloperMenuModal() {
     document.body.classList.add('quiz-info-open');
 }
 
-function hideQuizDeveloperMenuModal() {
+function hideQuizDeveloperMenuModal(opts) {
+    var skipResume = !!(opts && opts.skipResumeSettings);
     var o = document.getElementById('quiz-developer-menu-overlay');
     if (!o) return;
     o.classList.remove('visible');
     o.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-info-open');
+    if (!skipResume) {
+        try {
+            showQuizSettingsModal();
+        } catch (eSet) { /* ignore */ }
+    }
 }
 
 function quizProducerModalBackdrop(ev) {
@@ -15042,7 +15104,7 @@ function quizDeveloperMenuBackdrop(ev) {
 
 function quizDeveloperOpenClassifica() {
     quizDeveloperOpenedProducerFromMenu = true;
-    hideQuizDeveloperMenuModal();
+    hideQuizDeveloperMenuModal({ skipResumeSettings: true });
     showQuizProducerModal();
 }
 
@@ -15095,6 +15157,27 @@ const MODIFY_LS_HISTORY_STACK = 'io-checklist-modify-history-stack-v1';
 /** sessionStorage: stack annulla «salvataggio precedente» per domanda (cf/mbr + indice). */
 function quizModifyUndoStackStorageKey(sectionKey, index) {
     return 'io-checklist-modify-undo-v1-' + String(sectionKey) + '-' + String(index);
+}
+
+function quizModifyStripOverridesForSection(sectionKey) {
+    try {
+        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
+        if (!raw) return;
+        var all = JSON.parse(raw);
+        if (!all || typeof all !== 'object') return;
+        delete all[sectionKey];
+        localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+    } catch (eStr) { /* ignore */ }
+}
+
+function quizModifyClearUndoStacksForSection(sectionKey) {
+    try {
+        var prefix = 'io-checklist-modify-undo-v1-' + String(sectionKey) + '-';
+        for (var i = sessionStorage.length - 1; i >= 0; i--) {
+            var k = sessionStorage.key(i);
+            if (k && k.indexOf(prefix) === 0) sessionStorage.removeItem(k);
+        }
+    } catch (eCl) { /* ignore */ }
 }
 
 function quizModifyUndoStackRead(sectionKey, index) {
@@ -15881,6 +15964,7 @@ function quizModifySectionDisplayLabel(sectionKey) {
 }
 
 function quizModifyRenameFormClose() {
+    quizModifyDeleteConfirmHide();
     quizModifyRenameTargetKey = null;
     var form = document.getElementById('quiz-modify-rename-inline');
     var inp = document.getElementById('quiz-modify-rename-input');
@@ -15909,6 +15993,67 @@ function quizModifyRenameFormOpen(sectionKey) {
             form.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         } catch (eSc) { /* ignore */ }
     }
+}
+
+function quizModifyDeleteConfirmHide() {
+    var lay = document.getElementById('quiz-modify-delete-confirm-layer');
+    if (lay) {
+        lay.hidden = true;
+        lay.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function quizModifyDeleteConfirmShow() {
+    var lay = document.getElementById('quiz-modify-delete-confirm-layer');
+    if (!lay) return;
+    lay.hidden = false;
+    lay.setAttribute('aria-hidden', 'false');
+    try {
+        var btn = document.getElementById('quiz-modify-delete-confirm-cancel');
+        if (btn) btn.focus();
+    } catch (eFc) { /* ignore */ }
+}
+
+function quizModifyRenameDeleteClick() {
+    var key = quizModifyRenameTargetKey;
+    if (!key || !quizModifyIsCustomSectionKey(key)) return;
+    quizModifyDeleteConfirmShow();
+}
+
+function quizModifyDeleteConfirmOkClick() {
+    var key = quizModifyRenameTargetKey;
+    quizModifyDeleteConfirmHide();
+    if (key && quizModifyIsCustomSectionKey(key)) {
+        quizModifyExecuteDeleteCustomSection(key);
+    }
+    quizModifyRenameFormClose();
+}
+
+function quizModifyExecuteDeleteCustomSection(sectionKey) {
+    if (!sectionKey || !quizModifyIsCustomSectionKey(sectionKey)) return;
+    try {
+        if (quizModifyDetailCtx && quizModifyDetailCtx.sectionKey === sectionKey) {
+            quizModifyCloseQuestionDetail();
+        }
+    } catch (eDet) { /* ignore */ }
+    var d = quizModifyLoadCustomSchedario();
+    d.order = (d.order || []).filter(function (id) {
+        return id !== sectionKey;
+    });
+    if (d.labels) delete d.labels[sectionKey];
+    if (d.items) delete d.items[sectionKey];
+    quizModifySaveCustomSchedario(d);
+    quizModifyStripOverridesForSection(sectionKey);
+    quizModifyClearUndoStacksForSection(sectionKey);
+    if (quizModifyShellSection === sectionKey) {
+        quizModifyShellSection = 'cf';
+    }
+    quizModifyRebuildTablist();
+    quizModifyUpdateTabs();
+    quizModifyRenderQuestionList();
+    try {
+        if (typeof render === 'function') render();
+    } catch (eRen) { /* ignore */ }
 }
 
 function quizModifyRenameFormSave() {
@@ -15951,7 +16096,7 @@ function quizModifyBindTabLongPressRename(btn, sectionKey) {
                 tid = null;
                 longPressDone = true;
                 try {
-                    if (navigator.vibrate) navigator.vibrate(12);
+                    if (navigator.vibrate) navigator.vibrate([24, 58, 28, 52, 20]);
                 } catch (vib) { /* ignore */ }
                 quizModifyRenameFormOpen(sectionKey);
             }, holdMs);
@@ -16315,6 +16460,27 @@ function quizModifyShellBindOnce() {
                 ev.preventDefault();
                 quizModifyRenameFormClose();
             }
+        });
+    }
+    var btnRenameDel = document.getElementById('quiz-modify-rename-delete');
+    if (btnRenameDel && btnRenameDel.dataset.modifyBound !== '1') {
+        btnRenameDel.dataset.modifyBound = '1';
+        btnRenameDel.addEventListener('click', function () {
+            quizModifyRenameDeleteClick();
+        });
+    }
+    var btnDelCancel = document.getElementById('quiz-modify-delete-confirm-cancel');
+    if (btnDelCancel && btnDelCancel.dataset.modifyBound !== '1') {
+        btnDelCancel.dataset.modifyBound = '1';
+        btnDelCancel.addEventListener('click', function () {
+            quizModifyDeleteConfirmHide();
+        });
+    }
+    var btnDelOk = document.getElementById('quiz-modify-delete-confirm-ok');
+    if (btnDelOk && btnDelOk.dataset.modifyBound !== '1') {
+        btnDelOk.dataset.modifyBound = '1';
+        btnDelOk.addEventListener('click', function () {
+            quizModifyDeleteConfirmOkClick();
         });
     }
     var sav = document.getElementById('quiz-modify-btn-save');
@@ -16831,6 +16997,11 @@ function setupQuizTitleToggle() {
         if (modifyDev && modifyDev.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
+                var delLay = document.getElementById('quiz-modify-delete-confirm-layer');
+                if (delLay && !delLay.hidden) {
+                    quizModifyDeleteConfirmHide();
+                    return;
+                }
                 if (typeof quizModifyIsDetailOpen === 'function' && quizModifyIsDetailOpen()) {
                     quizModifyCloseQuestionDetail();
                 } else {
