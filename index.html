@@ -5859,6 +5859,73 @@
             background: #fff;
             border: 1px solid #e0e0e0;
         }
+        .quiz-modify-block-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .quiz-modify-block-head .quiz-modify-block-title {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+        }
+        .quiz-modify-block-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+            max-width: 52%;
+        }
+        .quiz-modify-mini-btn {
+            padding: 4px 8px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid #b0bec5;
+            background: #eceff1;
+            color: #37474f;
+            cursor: pointer;
+            line-height: 1.2;
+        }
+        .quiz-modify-mini-btn:hover {
+            background: #dfe4e8;
+        }
+        .quiz-modify-mini-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .quiz-modify-mini-btn--primary {
+            border-color: #1565c0;
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .quiz-modify-field-edit {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            background: #fafcff;
+        }
+        .quiz-modify-risk-edit-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .quiz-modify-edit-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #546e7a;
+            margin: 0;
+        }
         .quiz-modify-block-title {
             margin: 0 0 8px;
             font-size: 0.82rem;
@@ -5899,6 +5966,66 @@
         }
         .quiz-modify-risk-list li {
             margin-bottom: 6px;
+        }
+        .quiz-modify-actions-view {
+            overflow-x: auto;
+        }
+        .quiz-modify-actions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+        .quiz-modify-actions-table th,
+        .quiz-modify-actions-table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 10px;
+            vertical-align: top;
+            text-align: left;
+        }
+        .quiz-modify-actions-table th {
+            background: #eceff1;
+            font-weight: 700;
+            color: #37474f;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .quiz-modify-actions-table td {
+            background: #fff;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .quiz-modify-actions-edit-wrap .quiz-modify-edit-hint {
+            margin: 0 0 10px;
+            font-size: 0.78rem;
+            color: #78909c;
+            line-height: 1.4;
+        }
+        .quiz-modify-actions-edit-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        .quiz-modify-actions-edit-row:last-of-type {
+            border-bottom: none;
+            margin-bottom: 8px;
+            padding-bottom: 0;
+        }
+        .quiz-modify-actions-pair {
+            flex: 1;
+            min-width: min(160px, 100%);
+        }
+        .quiz-modify-actions-row-remove {
+            flex: 0 0 auto;
+            margin-top: 1.4rem;
+        }
+        #quiz-modify-actions-add-row {
+            margin-top: 4px;
         }
         .quiz-info-overlay {
             z-index: 10040;
@@ -8849,22 +8976,75 @@ function dismissAppSplash() {
             <div id="quiz-modify-view-detail" class="quiz-modify-view quiz-modify-view--hidden" aria-hidden="true">
                 <button type="button" class="btn-side btn-reset quiz-modify-back" id="quiz-modify-detail-back">← Elenco domande</button>
                 <h4 id="quiz-modify-detail-title" class="quiz-modify-detail-title"></h4>
-                <div class="quiz-modify-detail-scroll">
+                <div class="quiz-modify-detail-scroll" id="quiz-modify-detail-scroll">
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-q">
-                        <h5 id="quiz-modify-lbl-q" class="quiz-modify-block-title">Testo domanda</h5>
-                        <div id="quiz-modify-detail-q" class="quiz-modify-html-block"></div>
+                        <div class="quiz-modify-block-head">
+                            <h5 id="quiz-modify-lbl-q" class="quiz-modify-block-title">Testo domanda</h5>
+                            <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="q">Modifica</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="q">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="q">Salva</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-detail-q" class="quiz-modify-html-block quiz-modify-field-view"></div>
+                        <textarea id="quiz-modify-edit-q" class="quiz-modify-field-edit" hidden rows="10" spellcheck="true" aria-label="Modifica testo domanda"></textarea>
                     </section>
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-si">
-                        <h5 id="quiz-modify-lbl-si" class="quiz-modify-block-title">Se sì</h5>
-                        <div id="quiz-modify-detail-si" class="quiz-modify-html-block"></div>
+                        <div class="quiz-modify-block-head">
+                            <h5 id="quiz-modify-lbl-si" class="quiz-modify-block-title">Se sì</h5>
+                            <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="si">Modifica</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="si">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="si">Salva</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-detail-si" class="quiz-modify-html-block quiz-modify-field-view"></div>
+                        <textarea id="quiz-modify-edit-si" class="quiz-modify-field-edit" hidden rows="10" spellcheck="true" aria-label="Modifica testo se sì"></textarea>
                     </section>
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-no">
-                        <h5 id="quiz-modify-lbl-no" class="quiz-modify-block-title">Se no</h5>
-                        <div id="quiz-modify-detail-no" class="quiz-modify-html-block"></div>
+                        <div class="quiz-modify-block-head">
+                            <h5 id="quiz-modify-lbl-no" class="quiz-modify-block-title">Se no</h5>
+                            <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="no">Modifica</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="no">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="no">Salva</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-detail-no" class="quiz-modify-html-block quiz-modify-field-view"></div>
+                        <textarea id="quiz-modify-edit-no" class="quiz-modify-field-edit" hidden rows="8" spellcheck="true" aria-label="Modifica testo se no"></textarea>
+                    </section>
+                    <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-actions">
+                        <div class="quiz-modify-block-head">
+                            <h5 id="quiz-modify-lbl-actions" class="quiz-modify-block-title">Controllo e azioni</h5>
+                            <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="actions">Modifica</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="actions">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="actions">Salva</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-detail-actions" class="quiz-modify-field-view quiz-modify-actions-view"></div>
+                        <div id="quiz-modify-actions-edit-wrap" class="quiz-modify-actions-edit-wrap" hidden>
+                            <p class="quiz-modify-edit-hint">Tabella come in istruzioni: una riga per coppia <strong>controllo</strong> e <strong>azione</strong>.</p>
+                            <div id="quiz-modify-actions-edit-host"></div>
+                            <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-actions-add-row">＋ Aggiungi riga</button>
+                        </div>
                     </section>
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-risk">
-                        <h5 id="quiz-modify-lbl-risk" class="quiz-modify-block-title">Attenzione · rischio associato</h5>
-                        <div id="quiz-modify-detail-risk" class="quiz-modify-html-block"></div>
+                        <div class="quiz-modify-block-head">
+                            <h5 id="quiz-modify-lbl-risk" class="quiz-modify-block-title">Attenzione · rischio associato</h5>
+                            <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="risk">Modifica</button>
+                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="risk">Ripristina</button>
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="risk">Salva</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-detail-risk" class="quiz-modify-html-block quiz-modify-field-view"></div>
+                        <div id="quiz-modify-risk-edit-wrap" class="quiz-modify-risk-edit-wrap" hidden>
+                            <label class="quiz-modify-edit-label" for="quiz-modify-edit-risk-lines">Elenco rischi (una riga per punto)</label>
+                            <textarea id="quiz-modify-edit-risk-lines" class="quiz-modify-field-edit" rows="8" spellcheck="true" aria-label="Elenco punti rischio"></textarea>
+                            <label class="quiz-modify-edit-label" for="quiz-modify-edit-risk-corr">Correlazioni / testo aggiuntivo (HTML)</label>
+                            <textarea id="quiz-modify-edit-risk-corr" class="quiz-modify-field-edit" rows="6" spellcheck="true" aria-label="Correlazioni HTML"></textarea>
+                        </div>
                     </section>
                 </div>
                 <div class="quiz-lock-actions quiz-modify-actions" style="margin-top:10px;">
@@ -8926,7 +9106,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605123';
+const APP_BUILD = '202605125';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14616,6 +14796,415 @@ let quizModifyShellSection = 'cf';
 let quizModifyShellDirty = false;
 let quizModifyShellListenersBound = false;
 
+/** Contesto pannello domanda: sezione + indice nell'array `db`. */
+let quizModifyDetailCtx = null;
+/** Copia di lavoro (modificabile) dei campi q/si/no/rischio. */
+let quizModifyDetailWorking = null;
+/** Snapshot all’apertura del pannello (per Ripristina = stato precedente in memoria). */
+let quizModifyDetailBaseline = null;
+let quizModifyDetailEditing = { q: false, si: false, no: false, actions: false, risk: false };
+let quizModifyDetailPanelBound = false;
+
+function quizModifyCloneActionsArray(arr) {
+    if (!Array.isArray(arr)) return [];
+    return arr.map(function (row) {
+        var r = row || {};
+        return {
+            c: r.c != null ? String(r.c) : '',
+            a: r.a != null ? String(r.a) : ''
+        };
+    });
+}
+
+function quizModifyDeepCloneFields(f) {
+    if (!f) {
+        return { q: '', si: '', no: '', actions: [], risk_list: [], correlation_update: '' };
+    }
+    return {
+        q: f.q != null ? String(f.q) : '',
+        si: f.si != null ? String(f.si) : '',
+        no: f.no != null ? String(f.no) : '',
+        actions: quizModifyCloneActionsArray(f.actions),
+        risk_list: Array.isArray(f.risk_list) ? f.risk_list.map(function (x) { return String(x); }) : [],
+        correlation_update: f.correlation_update != null ? String(f.correlation_update) : ''
+    };
+}
+
+function quizModifyCloneFieldsFromItem(item) {
+    var it = item || {};
+    return {
+        q: it.q != null ? String(it.q) : '',
+        si: it.si != null ? String(it.si) : '',
+        no: it.no != null ? String(it.no) : '',
+        actions: quizModifyCloneActionsArray(it.actions),
+        risk_list: Array.isArray(it.risk_list) ? it.risk_list.map(function (x) { return String(x); }) : [],
+        correlation_update: it.correlation_update != null ? String(it.correlation_update) : ''
+    };
+}
+
+function quizModifyMergeFields(base, patch) {
+    var out = quizModifyDeepCloneFields(base);
+    if (!patch || typeof patch !== 'object') return out;
+    if (patch.q != null) out.q = String(patch.q);
+    if (patch.si != null) out.si = String(patch.si);
+    if (patch.no != null) out.no = String(patch.no);
+    if (patch.correlation_update != null) out.correlation_update = String(patch.correlation_update);
+    if (Array.isArray(patch.risk_list)) {
+        out.risk_list = patch.risk_list.map(function (x) { return String(x); });
+    }
+    if (Array.isArray(patch.actions)) {
+        out.actions = quizModifyCloneActionsArray(patch.actions);
+    }
+    return out;
+}
+
+function quizModifyLoadStoredPatch(sectionKey, index) {
+    try {
+        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
+        if (!raw) return null;
+        var all = JSON.parse(raw);
+        var sec = all && all[sectionKey];
+        if (!sec) return null;
+        var key = String(index);
+        return sec[key] != null ? sec[key] : null;
+    } catch (eP) {
+        return null;
+    }
+}
+
+function quizModifyPersistWorkingToStorage() {
+    if (!quizModifyDetailCtx || !quizModifyDetailWorking) return;
+    try {
+        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
+        var all = raw ? JSON.parse(raw) : {};
+        if (!all.cf) all.cf = {};
+        if (!all.mbr) all.mbr = {};
+        var sk = quizModifyDetailCtx.sectionKey;
+        var ix = String(quizModifyDetailCtx.index);
+        all[sk][ix] = quizModifyDeepCloneFields(quizModifyDetailWorking);
+        localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+    } catch (eS) {
+        try {
+            console.warn('[Modifica] salvataggio locale', eS);
+        } catch (eL) { /* ignore */ }
+    }
+}
+
+function quizModifyGetMergedItem(sectionKey, index) {
+    var rows = quizModifyGetSectionRows(sectionKey);
+    var item = rows[index] || {};
+    var base = quizModifyCloneFieldsFromItem(item);
+    var patch = quizModifyLoadStoredPatch(sectionKey, index);
+    return quizModifyMergeFields(base, patch);
+}
+
+function quizModifyFillViewsFromWorking() {
+    var w = quizModifyDetailWorking;
+    if (!w) return;
+    quizModifySetHtmlContent(
+        document.getElementById('quiz-modify-detail-q'),
+        w.q,
+        'Testo domanda non definito.'
+    );
+    quizModifySetHtmlContent(
+        document.getElementById('quiz-modify-detail-si'),
+        w.si,
+        'Contenuto «Se sì» non presente.'
+    );
+    quizModifySetHtmlContent(
+        document.getElementById('quiz-modify-detail-no'),
+        w.no,
+        'Contenuto «Se no» non presente.'
+    );
+    quizModifyFillActionsTable(document.getElementById('quiz-modify-detail-actions'), w.actions);
+    quizModifyFillRiskBlock(document.getElementById('quiz-modify-detail-risk'), {
+        risk_list: w.risk_list,
+        correlation_update: w.correlation_update
+    });
+}
+
+function quizModifyFillActionsTable(el, actions) {
+    if (!el) return;
+    var rows = Array.isArray(actions) ? actions : [];
+    if (!rows.length) {
+        el.innerHTML =
+            '<p class="quiz-modify-empty">Nessun controllo / azione (percorso «no»).</p>';
+        return;
+    }
+    var h =
+        '<table class="quiz-modify-actions-table"><thead><tr><th scope="col">Controllo</th><th scope="col">Azione</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++) {
+        var r = rows[i] || {};
+        h +=
+            '<tr><td>' +
+            quizModifyEscapeForInnerHtml(String(r.c || '')) +
+            '</td><td>' +
+            quizModifyEscapeForInnerHtml(String(r.a || '')) +
+            '</td></tr>';
+    }
+    h += '</tbody></table>';
+    el.innerHTML = h;
+}
+
+function quizModifyRenderActionsEditHost() {
+    var host = document.getElementById('quiz-modify-actions-edit-host');
+    if (!host) return;
+    var arr =
+        quizModifyDetailWorking && Array.isArray(quizModifyDetailWorking.actions)
+            ? quizModifyDetailWorking.actions
+            : [];
+    var list = arr.length ? quizModifyCloneActionsArray(arr) : [{ c: '', a: '' }];
+    host.innerHTML = '';
+    for (var i = 0; i < list.length; i++) {
+        var row = list[i] || { c: '', a: '' };
+        var wrap = document.createElement('div');
+        wrap.className = 'quiz-modify-actions-edit-row';
+        wrap.innerHTML =
+            '<div class="quiz-modify-actions-pair">' +
+            '<label class="quiz-modify-edit-label">Controllo</label>' +
+            '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true"></textarea>' +
+            '</div>' +
+            '<div class="quiz-modify-actions-pair">' +
+            '<label class="quiz-modify-edit-label">Azione</label>' +
+            '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true"></textarea>' +
+            '</div>' +
+            '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
+        wrap.querySelector('.quiz-modify-actions-ta-c').value = row.c || '';
+        wrap.querySelector('.quiz-modify-actions-ta-a').value = row.a || '';
+        (function (rowEl) {
+            rowEl.querySelector('.quiz-modify-actions-row-remove').addEventListener('click', function () {
+                var n = host.querySelectorAll('.quiz-modify-actions-edit-row').length;
+                if (n <= 1) return;
+                rowEl.remove();
+            });
+        })(wrap);
+        host.appendChild(wrap);
+    }
+}
+
+function quizModifyCollectActionsFromEditHost() {
+    var host = document.getElementById('quiz-modify-actions-edit-host');
+    if (!host) return [];
+    var out = [];
+    host.querySelectorAll('.quiz-modify-actions-edit-row').forEach(function (rowEl) {
+        var tc = rowEl.querySelector('.quiz-modify-actions-ta-c');
+        var ta = rowEl.querySelector('.quiz-modify-actions-ta-a');
+        var c = tc ? String(tc.value || '') : '';
+        var a = ta ? String(ta.value || '') : '';
+        if (String(c).trim() === '' && String(a).trim() === '') return;
+        out.push({ c: c, a: a });
+    });
+    return out;
+}
+
+function quizModifyActionsAppendEmptyRow() {
+    var host = document.getElementById('quiz-modify-actions-edit-host');
+    if (!host) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'quiz-modify-actions-edit-row';
+    wrap.innerHTML =
+        '<div class="quiz-modify-actions-pair">' +
+        '<label class="quiz-modify-edit-label">Controllo</label>' +
+        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true"></textarea>' +
+        '</div>' +
+        '<div class="quiz-modify-actions-pair">' +
+        '<label class="quiz-modify-edit-label">Azione</label>' +
+        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true"></textarea>' +
+        '</div>' +
+        '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
+    (function (rowEl) {
+        rowEl.querySelector('.quiz-modify-actions-row-remove').addEventListener('click', function () {
+            var n = host.querySelectorAll('.quiz-modify-actions-edit-row').length;
+            if (n <= 1) return;
+            rowEl.remove();
+        });
+    })(wrap);
+    host.appendChild(wrap);
+    try {
+        var ta = wrap.querySelector('.quiz-modify-actions-ta-c');
+        if (ta) ta.focus();
+    } catch (eF) { /* ignore */ }
+}
+
+function quizModifyDetailLeaveAllEdits() {
+    ['q', 'si', 'no'].forEach(function (fld) {
+        var ta = document.getElementById('quiz-modify-edit-' + fld);
+        var view = document.getElementById('quiz-modify-detail-' + fld);
+        if (ta) {
+            ta.hidden = true;
+            ta.value = '';
+        }
+        if (view) view.style.display = '';
+    });
+    var wrap = document.getElementById('quiz-modify-risk-edit-wrap');
+    var lines = document.getElementById('quiz-modify-edit-risk-lines');
+    var corr = document.getElementById('quiz-modify-edit-risk-corr');
+    var riskView = document.getElementById('quiz-modify-detail-risk');
+    if (wrap) wrap.hidden = true;
+    if (lines) lines.value = '';
+    if (corr) corr.value = '';
+    if (riskView) riskView.style.display = '';
+    var actView = document.getElementById('quiz-modify-detail-actions');
+    var actWrap = document.getElementById('quiz-modify-actions-edit-wrap');
+    var actHost = document.getElementById('quiz-modify-actions-edit-host');
+    if (actWrap) actWrap.hidden = true;
+    if (actHost) actHost.innerHTML = '';
+    if (actView) actView.style.display = '';
+    quizModifyDetailEditing = { q: false, si: false, no: false, actions: false, risk: false };
+    quizModifyDetailUpdateSaveButtons();
+}
+
+function quizModifyDetailUpdateSaveButtons() {
+    var det = document.getElementById('quiz-modify-view-detail');
+    if (!det) return;
+    det.querySelectorAll('[data-quiz-mod-act="save"]').forEach(function (btn) {
+        var f = btn.getAttribute('data-quiz-mod-field');
+        var on =
+            f === 'risk'
+                ? quizModifyDetailEditing.risk
+                : f === 'actions'
+                  ? quizModifyDetailEditing.actions
+                  : !!quizModifyDetailEditing[f];
+        btn.disabled = !on;
+    });
+}
+
+function quizModifyDetailEnterEdit(field) {
+    if (!quizModifyDetailWorking) return;
+    quizModifyDetailLeaveAllEdits();
+    if (field === 'actions') {
+        quizModifyDetailEditing.actions = true;
+        var actView = document.getElementById('quiz-modify-detail-actions');
+        var actWrap = document.getElementById('quiz-modify-actions-edit-wrap');
+        if (actView) actView.style.display = 'none';
+        if (actWrap) actWrap.hidden = false;
+        quizModifyRenderActionsEditHost();
+        try {
+            var host = document.getElementById('quiz-modify-actions-edit-host');
+            var firstTa = host && host.querySelector('.quiz-modify-actions-ta-c');
+            if (firstTa) firstTa.focus();
+        } catch (eAc) { /* ignore */ }
+    } else if (field === 'risk') {
+        quizModifyDetailEditing.risk = true;
+        var wrap = document.getElementById('quiz-modify-risk-edit-wrap');
+        var riskView = document.getElementById('quiz-modify-detail-risk');
+        var lines = document.getElementById('quiz-modify-edit-risk-lines');
+        var corr = document.getElementById('quiz-modify-edit-risk-corr');
+        if (riskView) riskView.style.display = 'none';
+        if (wrap) wrap.hidden = false;
+        if (lines) lines.value = (quizModifyDetailWorking.risk_list || []).join('\n');
+        if (corr) corr.value = quizModifyDetailWorking.correlation_update || '';
+        try {
+            if (lines) lines.focus();
+        } catch (eF) { /* ignore */ }
+    } else if (field === 'q' || field === 'si' || field === 'no') {
+        quizModifyDetailEditing[field] = true;
+        var ta = document.getElementById('quiz-modify-edit-' + field);
+        var view = document.getElementById('quiz-modify-detail-' + field);
+        if (view) view.style.display = 'none';
+        if (ta) {
+            ta.hidden = false;
+            ta.value = quizModifyDetailWorking[field] || '';
+            try {
+                ta.focus();
+            } catch (e2) { /* ignore */ }
+        }
+    }
+    quizModifyDetailUpdateSaveButtons();
+}
+
+function quizModifyDetailActionRestore(field) {
+    if (!quizModifyDetailBaseline || !quizModifyDetailWorking) return;
+    quizModifyDetailLeaveAllEdits();
+    if (field === 'actions') {
+        quizModifyDetailWorking.actions = quizModifyCloneActionsArray(quizModifyDetailBaseline.actions);
+    } else if (field === 'risk') {
+        quizModifyDetailWorking.risk_list = (quizModifyDetailBaseline.risk_list || []).slice();
+        quizModifyDetailWorking.correlation_update =
+            quizModifyDetailBaseline.correlation_update != null
+                ? String(quizModifyDetailBaseline.correlation_update)
+                : '';
+    } else if (field === 'q' || field === 'si' || field === 'no') {
+        quizModifyDetailWorking[field] =
+            quizModifyDetailBaseline[field] != null ? String(quizModifyDetailBaseline[field]) : '';
+    }
+    quizModifyFillViewsFromWorking();
+    quizModifyPersistWorkingToStorage();
+}
+
+function quizModifyDetailActionSave(field) {
+    if (!quizModifyDetailWorking || !quizModifyDetailCtx) return;
+    if (field === 'actions') {
+        if (!quizModifyDetailEditing.actions) return;
+        quizModifyDetailWorking.actions = quizModifyCollectActionsFromEditHost();
+        quizModifyDetailEditing.actions = false;
+        var actView = document.getElementById('quiz-modify-detail-actions');
+        var actWrap = document.getElementById('quiz-modify-actions-edit-wrap');
+        var actHost = document.getElementById('quiz-modify-actions-edit-host');
+        if (actWrap) actWrap.hidden = true;
+        if (actHost) actHost.innerHTML = '';
+        if (actView) actView.style.display = '';
+    } else if (field === 'risk') {
+        if (!quizModifyDetailEditing.risk) return;
+        var linesEl = document.getElementById('quiz-modify-edit-risk-lines');
+        var corrEl = document.getElementById('quiz-modify-edit-risk-corr');
+        var raw = linesEl ? String(linesEl.value || '') : '';
+        var arr = raw
+            .split(/\r?\n/)
+            .map(function (l) {
+                return l.trim();
+            })
+            .filter(function (l) {
+                return l.length > 0;
+            });
+        quizModifyDetailWorking.risk_list = arr;
+        quizModifyDetailWorking.correlation_update = corrEl ? String(corrEl.value || '') : '';
+        quizModifyDetailEditing.risk = false;
+        var wrap = document.getElementById('quiz-modify-risk-edit-wrap');
+        var riskView = document.getElementById('quiz-modify-detail-risk');
+        if (wrap) wrap.hidden = true;
+        if (riskView) riskView.style.display = '';
+    } else if (field === 'q' || field === 'si' || field === 'no') {
+        if (!quizModifyDetailEditing[field]) return;
+        var ta = document.getElementById('quiz-modify-edit-' + field);
+        quizModifyDetailWorking[field] = ta ? String(ta.value || '') : '';
+        quizModifyDetailEditing[field] = false;
+        var v = document.getElementById('quiz-modify-detail-' + field);
+        if (ta) {
+            ta.hidden = true;
+            ta.value = '';
+        }
+        if (v) v.style.display = '';
+    }
+    quizModifyFillViewsFromWorking();
+    quizModifyPersistWorkingToStorage();
+    quizModifyDetailUpdateSaveButtons();
+}
+
+function quizModifyDetailBindOnce() {
+    if (quizModifyDetailPanelBound) return;
+    quizModifyDetailPanelBound = true;
+    var det = document.getElementById('quiz-modify-view-detail');
+    if (!det) return;
+    det.addEventListener('click', function (ev) {
+        var t = ev.target;
+        if (t && t.id === 'quiz-modify-actions-add-row') {
+            ev.preventDefault();
+            quizModifyActionsAppendEmptyRow();
+            return;
+        }
+        var btn = t && t.closest ? t.closest('[data-quiz-mod-act]') : null;
+        if (!btn || !det.contains(btn)) return;
+        var act = btn.getAttribute('data-quiz-mod-act');
+        var field = btn.getAttribute('data-quiz-mod-field');
+        if (!field || !act) return;
+        ev.preventDefault();
+        if (act === 'edit') quizModifyDetailEnterEdit(field);
+        else if (act === 'restore') quizModifyDetailActionRestore(field);
+        else if (act === 'save') quizModifyDetailActionSave(field);
+    });
+}
+
 function quizModifyEscapeForInnerHtml(s) {
     return String(s || '')
         .replace(/&/g, '&amp;')
@@ -14665,26 +15254,13 @@ function quizModifyFillRiskBlock(el, item) {
     el.innerHTML = chunks.join('');
 }
 
-function quizModifyFillDetailPanel(item) {
-    quizModifySetHtmlContent(
-        document.getElementById('quiz-modify-detail-q'),
-        item && item.q != null ? String(item.q) : '',
-        'Testo domanda non definito.'
-    );
-    quizModifySetHtmlContent(
-        document.getElementById('quiz-modify-detail-si'),
-        item && item.si != null ? String(item.si) : '',
-        'Contenuto «Se sì» non presente.'
-    );
-    quizModifySetHtmlContent(
-        document.getElementById('quiz-modify-detail-no'),
-        item && item.no != null ? String(item.no) : '',
-        'Contenuto «Se no» non presente.'
-    );
-    quizModifyFillRiskBlock(document.getElementById('quiz-modify-detail-risk'), item || {});
-}
-
 function quizModifyCloseQuestionDetail() {
+    try {
+        quizModifyDetailLeaveAllEdits();
+    } catch (eL) { /* ignore */ }
+    quizModifyDetailCtx = null;
+    quizModifyDetailWorking = null;
+    quizModifyDetailBaseline = null;
     var listV = document.getElementById('quiz-modify-view-list');
     var detV = document.getElementById('quiz-modify-view-detail');
     if (listV) {
@@ -14702,7 +15278,14 @@ function quizModifyCloseQuestionDetail() {
 function quizModifyOpenQuestionDetail(sectionKey, index) {
     var rows = quizModifyGetSectionRows(sectionKey);
     if (index < 0 || index >= rows.length) return;
+    quizModifyDetailBindOnce();
     var item = rows[index] || {};
+    var base = quizModifyCloneFieldsFromItem(item);
+    var patch = quizModifyLoadStoredPatch(sectionKey, index);
+    quizModifyDetailWorking = quizModifyMergeFields(base, patch);
+    quizModifyDetailBaseline = quizModifyDeepCloneFields(quizModifyDetailWorking);
+    quizModifyDetailCtx = { sectionKey: sectionKey, index: index };
+    quizModifyDetailLeaveAllEdits();
     var listV = document.getElementById('quiz-modify-view-list');
     var detV = document.getElementById('quiz-modify-view-detail');
     if (listV) {
@@ -14719,7 +15302,8 @@ function quizModifyOpenQuestionDetail(sectionKey, index) {
     if (sub) {
         sub.textContent = 'Domanda ' + num + ' · ' + secLabel;
     }
-    quizModifyFillDetailPanel(item);
+    quizModifyFillViewsFromWorking();
+    quizModifyDetailUpdateSaveButtons();
     requestAnimationFrame(function () {
         var back = document.getElementById('quiz-modify-detail-back');
         if (back) {
@@ -14802,7 +15386,13 @@ function quizModifyRenderQuestionList() {
             body.className = 'quiz-modify-row-body';
             var pq = document.createElement('p');
             pq.className = 'quiz-modify-row-q';
-            pq.textContent = quizModifyQuestionPlainText(row.q);
+            try {
+                pq.textContent = quizModifyQuestionPlainText(
+                    quizModifyGetMergedItem(quizModifyShellSection, idx).q
+                );
+            } catch (eMq) {
+                pq.textContent = quizModifyQuestionPlainText(row.q);
+            }
             body.appendChild(pq);
             wrap.appendChild(num);
             wrap.appendChild(body);
