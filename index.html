@@ -41,8 +41,13 @@
             --hot: #e67e22;
             --o2-low: #7f8c8d;
             --o2-high: #2980b9;
-            /* Larghezza utile desktop: su monitor grandi si allarga automaticamente */
-            --app-desktop-max: min(94vw, 1220px);
+            /* Base sicura (portatile); su monitor grandi si amplia via media query */
+            --app-desktop-max: 900px;
+        }
+        @media (min-width: 1600px) {
+            :root {
+                --app-desktop-max: min(94vw, 1220px);
+            }
         }
 
         html {
@@ -9698,7 +9703,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605169';
+const APP_BUILD = '202605170';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
