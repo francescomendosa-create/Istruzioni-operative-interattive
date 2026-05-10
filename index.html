@@ -9574,7 +9574,7 @@ function dismissAppSplash() {
     <div class="header-quiz-row">
         <div class="header-quiz-actions">
             <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
-            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal()" title="Domande test e verifiche" aria-label="Apri domande test e verifiche">Test</button>
+            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal(false)" title="Domande test e verifiche" aria-label="Apri domande test e verifiche">Test</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -10081,7 +10081,7 @@ function dismissAppSplash() {
                 <span><strong>Modifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-gestione-test-btn" onclick="showQuizGestioneTestVerificheModal()" aria-label="Gestione, test e verifiche" title="Gestione, test e verifiche">
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-gestione-test-btn" onclick="showQuizGestioneTestVerificheModal(true)" aria-label="Gestione, test e verifiche" title="Gestione, test e verifiche">
                 <span><strong>Gestione, test e verifiche</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -10223,7 +10223,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605205</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605206</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10270,12 +10270,12 @@ function dismissAppSplash() {
             <div class="quiz-gestione-test-head">
                 <h4 id="quiz-gestione-domande-title" class="quiz-lock-title quiz-gestione-test-title">Domande</h4>
                 <div class="quiz-gestione-test-toolbar">
-                    <button type="button" class="btn-side btn-gestione-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
-                    <button type="button" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
+                    <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
                 </div>
             </div>
             <div class="quiz-gestione-test-intro">
-                <p class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
+                <p id="quiz-gestione-test-lead" class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
             </div>
             <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
             <div class="quiz-lock-actions quiz-gestione-test-footer">
@@ -10524,7 +10524,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605205';
+const APP_BUILD = '202605206';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19303,11 +19303,36 @@ function gestioneGeneraDomandeClick() {
     gestioneDomandeRender();
 }
 
-function showQuizGestioneTestVerificheModal() {
+/** false = aperto da barra principale (Test): niente Genera; alla chiusura non si riapre Impostazioni. true = da Impostazioni. */
+var quizGestioneDomandeEditorCompleto = true;
+
+function showQuizGestioneTestVerificheModal(fromImpostazioni) {
+    var editorCompleto = fromImpostazioni !== false;
+    quizGestioneDomandeEditorCompleto = editorCompleto;
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
+    var genBtn = document.getElementById('quiz-gestione-btn-genera');
+    var leadEl = document.getElementById('quiz-gestione-test-lead');
+    var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
+    if (genBtn) genBtn.hidden = !editorCompleto;
+    if (leadEl) {
+        leadEl.innerHTML = editorCompleto
+            ? 'Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.'
+            : 'Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi consultare o modificare domande e risposte. Salva ogni scheda o tutto insieme.';
+    }
+    if (tornaBtn) {
+        if (editorCompleto) {
+            tornaBtn.textContent = 'Torna';
+            tornaBtn.setAttribute('title', 'Torna alle Impostazioni');
+            tornaBtn.setAttribute('aria-label', 'Torna alle Impostazioni');
+        } else {
+            tornaBtn.textContent = 'Chiudi';
+            tornaBtn.setAttribute('title', 'Chiudi');
+            tornaBtn.setAttribute('aria-label', 'Chiudi');
+        }
+    }
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
@@ -19323,8 +19348,10 @@ function hideQuizGestioneTestVerificheModal() {
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-info-open');
+    var tornaAImpostazioni = quizGestioneDomandeEditorCompleto;
+    quizGestioneDomandeEditorCompleto = true;
     try {
-        if (typeof showQuizSettingsModal === 'function') void showQuizSettingsModal();
+        if (tornaAImpostazioni && typeof showQuizSettingsModal === 'function') void showQuizSettingsModal();
     } catch (eGs) { /* ignore */ }
 }
 
