@@ -112,10 +112,27 @@
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
             color: #fff;
         }
-        @media (min-width: 821px) {
-            .header-title-bar .header-main-title {
-                transform: translateY(-3px);
-            }
+        .header-title-stack {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            text-align: center;
+        }
+        /* Solo smartphone: niente seconda riga (tipicamente viewport < 768px in portrait). */
+        .header-subtitle {
+            display: none;
+            margin: 0;
+            padding: 0;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            line-height: 1.15;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
         }
 
         .btn-header-icon--sm {
@@ -7095,6 +7112,25 @@
                 min-width: 78px;
             }
         }
+        /* Tablet e PC (≥768px): titolo + «Sistema biologico» il più possibile in alto. */
+        @media (min-width: 768px) {
+            .fixed-header {
+                padding: max(3px, env(safe-area-inset-top, 0px)) 14px 12px;
+            }
+            body {
+                padding-top: 210px;
+            }
+            .header-subtitle {
+                display: block;
+            }
+            .header-title-stack {
+                gap: 0;
+            }
+            .header-title-bar .header-main-title {
+                transform: translateY(-5px);
+                line-height: 1.16;
+            }
+        }
         @media (max-width: 430px) {
             body {
                 padding-top: 212px;
@@ -8767,7 +8803,10 @@ function dismissAppSplash() {
         <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
-        <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
+        <div class="header-title-stack">
+            <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
+            <p class="header-subtitle">Sistema biologico</p>
+        </div>
         <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
@@ -9402,7 +9441,7 @@ function dismissAppSplash() {
                         <option value="naturale">Naturale (consigliata)</option>
                         <option value="telecronaca">Telecronaca</option>
                         <option value="chiara">Chiara e lenta</option>
-                        <option value="profonda">Maschile profonda</option>
+                        <option value="profonda" selected>Maschile profonda</option>
                     </select>
                     <p style="margin:6px 0 0;font-size:0.72rem;color:#546e7a;">Endpoint Piper impostato automaticamente per tutti i dispositivi.</p>
                 </div>
@@ -9707,7 +9746,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605171';
+const APP_BUILD = '202605173';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -9744,6 +9783,8 @@ const QUIZ_LS_VOICE_ENGINE = 'io-quiz-voice-engine';
 const QUIZ_LS_PIPER_VOICE = 'io-quiz-piper-voice';
 const QUIZ_LS_READ_MODE = 'io-quiz-read-mode';
 const QUIZ_DEFAULT_VOICE_ENGINE = 'piper';
+/** Voce Piper all’avvio (prima salva in localStorage); modificabile in Impostazioni Quiz. */
+const QUIZ_DEFAULT_PIPER_VOICE = 'profonda';
 const QUIZ_DEFAULT_PIPER_URL = 'https://quiz-piper-tts.onrender.com/tts';
 const QUIZ_LOCAL_AUDIO_BASE = 'assets/quiz-audio';
 const QUIZ_LOCAL_AUDIO_BASE_Q = 'assets/quiz-audio-q';
@@ -9893,7 +9934,7 @@ let quizSpeechRate = 1;
 let quizGeminiApiKey = '';
 let quizVoiceEngine = QUIZ_DEFAULT_VOICE_ENGINE; // gemini | piper
 let quizPiperUrl = QUIZ_DEFAULT_PIPER_URL;
-let quizPiperVoice = 'naturale';
+let quizPiperVoice = QUIZ_DEFAULT_PIPER_VOICE;
 let quizReadMode = 'qa'; // q | qa
 let quizSpeechRunId = 0;
 let quizAiAudioEl = null;
@@ -12058,7 +12099,7 @@ function quizSaveAiVoiceConfig() {
     if (gm && gm.value === 'new') quizGeminiApiKey = g ? String(g.value || '').trim() : '';
     quizVoiceEngine = engineSel ? String(engineSel.value || QUIZ_DEFAULT_VOICE_ENGINE) : QUIZ_DEFAULT_VOICE_ENGINE;
     quizPiperUrl = QUIZ_DEFAULT_PIPER_URL;
-    quizPiperVoice = piperVoiceEl ? String(piperVoiceEl.value || 'naturale') : 'naturale';
+    quizPiperVoice = piperVoiceEl ? String(piperVoiceEl.value || QUIZ_DEFAULT_PIPER_VOICE) : QUIZ_DEFAULT_PIPER_VOICE;
     quizReadMode = readModeEl ? String(readModeEl.value || 'qa') : 'qa';
     if (!/^(q|qa)$/.test(quizReadMode)) quizReadMode = 'qa';
     try {
@@ -12344,8 +12385,8 @@ function quizLoadStoredPreference() {
         quizVoiceEngine = String(localStorage.getItem(QUIZ_LS_VOICE_ENGINE) || QUIZ_DEFAULT_VOICE_ENGINE);
         if (!/^(gemini|piper)$/.test(quizVoiceEngine)) quizVoiceEngine = QUIZ_DEFAULT_VOICE_ENGINE;
         quizPiperUrl = QUIZ_DEFAULT_PIPER_URL;
-        quizPiperVoice = String(localStorage.getItem(QUIZ_LS_PIPER_VOICE) || 'naturale');
-        if (!/^(naturale|telecronaca|chiara|profonda)$/.test(quizPiperVoice)) quizPiperVoice = 'naturale';
+        quizPiperVoice = String(localStorage.getItem(QUIZ_LS_PIPER_VOICE) || QUIZ_DEFAULT_PIPER_VOICE);
+        if (!/^(naturale|telecronaca|chiara|profonda)$/.test(quizPiperVoice)) quizPiperVoice = QUIZ_DEFAULT_PIPER_VOICE;
         quizReadMode = String(localStorage.getItem(QUIZ_LS_READ_MODE) || 'qa');
         if (!/^(q|qa)$/.test(quizReadMode)) quizReadMode = 'qa';
         try { localStorage.setItem('io-quiz-ai-comment-style', 'standard'); } catch (eLs) {}
@@ -12847,7 +12888,7 @@ async function quizSpeakLocalVfFileIfAvailable(vf, runId) {
     try {
         if (!vf || !vf.ref) return { ok: false, error: 'vf_missing' };
         const refFile = String(vf.ref).trim() + '.mp3';
-        const pv = String(quizPiperVoice || 'naturale').trim().toLowerCase();
+        const pv = String(quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE).trim().toLowerCase();
         const candidates = [];
         const rm = String(quizReadMode || 'qa').toLowerCase();
         const bases = rm === 'q' ? [QUIZ_LOCAL_AUDIO_BASE_Q, QUIZ_LOCAL_AUDIO_BASE] : [QUIZ_LOCAL_AUDIO_BASE, QUIZ_LOCAL_AUDIO_BASE_Q];
@@ -14132,7 +14173,7 @@ function quizSyncSpeechUi() {
     quizVoiceEngineChanged(quizVoiceEngine || QUIZ_DEFAULT_VOICE_ENGINE);
     quizPiperUrl = QUIZ_DEFAULT_PIPER_URL;
     const piperVoiceEl = document.getElementById('quiz-piper-voice-select');
-    if (piperVoiceEl && document.activeElement !== piperVoiceEl) piperVoiceEl.value = quizPiperVoice || 'naturale';
+    if (piperVoiceEl && document.activeElement !== piperVoiceEl) piperVoiceEl.value = quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE;
     const readModeEl = document.getElementById('quiz-read-mode-select');
     if (readModeEl && document.activeElement !== readModeEl) readModeEl.value = quizReadMode || 'qa';
     const st = document.getElementById('quiz-ai-voice-status');
@@ -14177,7 +14218,7 @@ async function quizPlayOfflineSessionIntroThenQuestion() {
         return;
     }
     const introBase = String(quizReadMode || 'qa').toLowerCase() === 'q' ? QUIZ_LOCAL_AUDIO_BASE_Q : QUIZ_LOCAL_AUDIO_BASE;
-    const pv = String(quizPiperVoice || 'naturale').trim().toLowerCase();
+    const pv = String(quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE).trim().toLowerCase();
     const introCandidates = [];
     if (/^(naturale|telecronaca|chiara|profonda)$/.test(pv)) {
         introCandidates.push(introBase + '/' + pv + '/' + QUIZ_LOCAL_INTRO_FILENAME);
@@ -14266,7 +14307,7 @@ async function quizSpeakLocalFileIfAvailable(q, runId) {
         if (!q) return { ok: false, error: 'local_audio_no_question' };
         const currentReadMode = String(quizReadMode || 'qa').toLowerCase();
         const fileName = quizBuildLocalAudioPathForQuestion(q, undefined, currentReadMode).split('/').pop();
-        const preferredVoice = String(quizPiperVoice || 'naturale');
+        const preferredVoice = String(quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE);
         const candidates = [];
         candidates.push(quizBuildLocalAudioPathForQuestion(q, preferredVoice, currentReadMode));
         if (preferredVoice !== 'naturale') candidates.push(quizBuildLocalAudioPathForQuestion(q, 'naturale', currentReadMode));
@@ -14464,7 +14505,7 @@ async function quizSpeakWithPiper(rawText, runId) {
             res = await fetchWithTimeout(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: rawText, voice: quizPiperVoice || 'naturale' })
+                body: JSON.stringify({ text: rawText, voice: quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE })
             }, 9000);
         } catch (ePost) {
             if (String((ePost && ePost.message) || '') === 'piper_timeout') throw ePost;
@@ -14474,7 +14515,7 @@ async function quizSpeakWithPiper(rawText, runId) {
             const sep = endpoint.indexOf('?') >= 0 ? '&' : '?';
             try {
                 res = await fetchWithTimeout(
-                    endpoint + sep + 'text=' + encodeURIComponent(rawText) + '&voice=' + encodeURIComponent(quizPiperVoice || 'naturale'),
+                    endpoint + sep + 'text=' + encodeURIComponent(rawText) + '&voice=' + encodeURIComponent(quizPiperVoice || QUIZ_DEFAULT_PIPER_VOICE),
                     {
                     method: 'GET'
                     },
