@@ -5369,9 +5369,12 @@
         .quiz-lock-overlay.visible { display: flex; }
         /* Modifica contenuti (Impostazioni): pannello grande come colonna principale */
         #quiz-modify-dev-overlay.quiz-lock-overlay--modify-full {
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
-            padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-right: max(12px, env(safe-area-inset-right, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            padding-left: max(12px, env(safe-area-inset-left, 0px));
             box-sizing: border-box;
             background: rgba(0, 0, 0, 0.45);
         }
@@ -5832,7 +5835,8 @@
         /* Modifica contenuti: dimensioni simili alla pagina principale */
         .quiz-modify-shell.quiz-lock-box {
             width: min(96vw, 900px);
-            max-height: min(92vh, calc(100dvh - 24px));
+            height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+            max-height: none;
             display: flex;
             flex-direction: column;
             padding: 12px 14px 10px;
@@ -9703,7 +9707,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605170';
+const APP_BUILD = '202605171';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
