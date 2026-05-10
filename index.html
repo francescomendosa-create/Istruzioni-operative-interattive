@@ -10223,7 +10223,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605202</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605204</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10524,7 +10524,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605202';
+const APP_BUILD = '202605204';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18833,23 +18833,80 @@ function gestioneCardModifica(idx) {
     }
 }
 
-/**
- * Altezza textarea = solo il testo (1 riga → compatto; più righe → si espande).
- * align-self:flex-start sulla risposta evita che il flex «tiri» l’altezza al massimo della riga.
- */
+/** Mirror fuori schermo: altezza allineata al testo reale (scrollHeight sulle textarea aggiunge spesso una riga «vuota»). */
+var gestioneDomandeMirrorEl = null;
+
+function gestioneDomandeEnsureMirror() {
+    if (gestioneDomandeMirrorEl && gestioneDomandeMirrorEl.parentNode) return gestioneDomandeMirrorEl;
+    var d = document.createElement('div');
+    d.id = 'gestione-domande-ta-mirror';
+    d.setAttribute('aria-hidden', 'true');
+    d.style.cssText =
+        'position:absolute;left:-99999px;top:0;width:80px;visibility:hidden;pointer-events:none;' +
+        'overflow:hidden;margin:0;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;' +
+        'max-height:none;resize:none;';
+    document.body.appendChild(d);
+    gestioneDomandeMirrorEl = d;
+    return gestioneDomandeMirrorEl;
+}
+
 function gestioneDomandeFitTextareaToContent(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
+    var mirror = gestioneDomandeEnsureMirror();
+    var cs = window.getComputedStyle(el);
+    var ow = el.offsetWidth;
+    if (!ow || ow < 16) {
+        try {
+            ow = el.getBoundingClientRect().width;
+        } catch (eW) { /* ignore */ }
+    }
+    mirror.style.width = Math.max(16, ow) + 'px';
+    mirror.style.boxSizing = cs.boxSizing || 'border-box';
+    mirror.style.fontFamily = cs.fontFamily;
+    mirror.style.fontSize = cs.fontSize;
+    mirror.style.fontWeight = cs.fontWeight;
+    mirror.style.fontStyle = cs.fontStyle;
+    mirror.style.lineHeight = cs.lineHeight;
+    mirror.style.letterSpacing = cs.letterSpacing;
+    mirror.style.padding = cs.padding;
+    mirror.style.border = cs.border;
+    mirror.style.wordBreak = cs.wordBreak || '';
+
+    /* Altezza «una riga» misurata sullo stesso mirror (evita formula vs. rendering ≠ e la «riga fantasma»). */
+    mirror.innerHTML = '';
+    mirror.appendChild(document.createTextNode('My'));
+    var oneRowPx = mirror.offsetHeight;
+    if (!isFinite(oneRowPx) || oneRowPx < 12) {
+        var lhPx = parseFloat(cs.lineHeight);
+        var fsPx = parseFloat(cs.fontSize);
+        if (!isFinite(fsPx) || fsPx <= 0) fsPx = 14;
+        if (!isFinite(lhPx) || lhPx <= 0) lhPx = fsPx * 1.45;
+        else if (lhPx > 0 && lhPx < 4) lhPx *= fsPx;
+        var pt = parseFloat(cs.paddingTop) || 0;
+        var pb = parseFloat(cs.paddingBottom) || 0;
+        var bt = parseFloat(cs.borderTopWidth) || 0;
+        var bb = parseFloat(cs.borderBottomWidth) || 0;
+        oneRowPx = Math.ceil(lhPx + pt + pb + bt + bb);
+    }
+
+    var val = el.value;
+    mirror.innerHTML = '';
+    if (val.length) {
+        var lines = val.split('\n');
+        for (var li = 0; li < lines.length; li++) {
+            if (li > 0) mirror.appendChild(document.createElement('br'));
+            mirror.appendChild(document.createTextNode(lines[li]));
+        }
+    }
+
+    var target = val.length ? mirror.offsetHeight : oneRowPx;
+    if (!isFinite(target)) target = oneRowPx;
+    target = Math.max(target, oneRowPx);
+
     el.style.overflow = 'hidden';
-    el.style.height = '0px';
     el.style.minHeight = '0';
     el.style.maxHeight = 'none';
-    try {
-        void el.offsetHeight;
-    } catch (eOf) { /* ignore */ }
-    var h = el.scrollHeight;
-    el.style.height = (isFinite(h) && h > 0 ? h : 0) + 'px';
-    el.style.minHeight = '';
-    el.style.maxHeight = '';
+    el.style.height = target + 'px';
 }
 
 function gestioneDomandeFitQuestionTextarea(el) {
@@ -18975,12 +19032,33 @@ function gestioneDomandeBuildCard(i, slot) {
     ta.setAttribute('aria-label', 'Testo domanda ' + (i + 1));
     ta.value = slot.q || '';
     ta.addEventListener('input', function () {
-        gestioneDomandeFitQuestionTextarea(ta);
+        gestioneDomandeFitTextareaToContent(ta);
+        requestAnimationFrame(function () {
+            gestioneDomandeFitTextareaToContent(ta);
+        });
     });
     ta.addEventListener('paste', function () {
         setTimeout(function () {
-            gestioneDomandeFitQuestionTextarea(ta);
+            gestioneDomandeFitTextareaToContent(ta);
+            requestAnimationFrame(function () {
+                gestioneDomandeFitTextareaToContent(ta);
+            });
         }, 0);
+    });
+    ta.addEventListener('cut', function () {
+        requestAnimationFrame(function () {
+            gestioneDomandeFitTextareaToContent(ta);
+        });
+    });
+    ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            requestAnimationFrame(function () {
+                gestioneDomandeFitTextareaToContent(ta);
+                requestAnimationFrame(function () {
+                    gestioneDomandeFitTextareaToContent(ta);
+                });
+            });
+        }
     });
     secQ.appendChild(ta);
     body.appendChild(secQ);
@@ -18999,7 +19077,7 @@ function gestioneDomandeBuildCard(i, slot) {
     list.className = 'gestione-answers-list';
 
     var ci = Math.min(4, Math.max(0, parseInt(slot.correctIndex, 10) || 0));
-    for (var k = 0; k < 5; k++) {
+    for (let k = 0; k < 5; k++) {
         var slotWrap = document.createElement('div');
         slotWrap.className = 'gestione-answer-slot';
         if (ci === k) slotWrap.classList.add('gestione-answer-slot--selected');
@@ -19016,7 +19094,7 @@ function gestioneDomandeBuildCard(i, slot) {
         rad.id = 'gestione-corr-' + i + '-' + k;
         if (ci === k) rad.checked = true;
 
-        var inp = document.createElement('textarea');
+        let inp = document.createElement('textarea');
         inp.className = 'gestione-a-text';
         inp.rows = 1;
         inp.id = 'gestione-a-' + i + '-' + k;
@@ -19026,12 +19104,33 @@ function gestioneDomandeBuildCard(i, slot) {
         );
         inp.value = slot.answers && slot.answers[k] ? slot.answers[k] : '';
         inp.addEventListener('input', function () {
-            gestioneDomandeFitAnswerTextarea(inp);
+            gestioneDomandeFitTextareaToContent(inp);
+            requestAnimationFrame(function () {
+                gestioneDomandeFitTextareaToContent(inp);
+            });
         });
         inp.addEventListener('paste', function () {
             setTimeout(function () {
-                gestioneDomandeFitAnswerTextarea(inp);
+                gestioneDomandeFitTextareaToContent(inp);
+                requestAnimationFrame(function () {
+                    gestioneDomandeFitTextareaToContent(inp);
+                });
             }, 0);
+        });
+        inp.addEventListener('cut', function () {
+            requestAnimationFrame(function () {
+                gestioneDomandeFitTextareaToContent(inp);
+            });
+        });
+        inp.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                requestAnimationFrame(function () {
+                    gestioneDomandeFitTextareaToContent(inp);
+                    requestAnimationFrame(function () {
+                        gestioneDomandeFitTextareaToContent(inp);
+                    });
+                });
+            }
         });
 
         rad.addEventListener('change', function () {
