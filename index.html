@@ -10588,7 +10588,7 @@ function dismissAppSplash() {
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
                         <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni: sempre prima il fallback offline; con rete e chiave Gemini le risposte errate migliori si salvano in locale per uso offline" aria-label="Genera domande da Controlli e azioni">Genera</button>
-                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Scarica in locale risposte articolate da Gemini per tutte le domande già presenti (serve chiave API e connessione)" aria-label="Prepara cache risposte intelligenti per uso offline">Prepara offline IA</button>
+                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Con connessione e chiave Gemini: scarica risposte articulate da Gemini per le domande già salvate (cache locale e Firestore)" aria-label="Scarica risposte online da Gemini">Scarica risposte online</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
@@ -10878,7 +10878,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605223';
+const APP_BUILD = '202605224';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20402,7 +20402,7 @@ function gestioneGeneraBusyHide() {
 async function gestioneMcqPrefetchArticulatedClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
     if (!quizResolveAiConfig().textKey) {
-        console.warn('[Prepara offline IA] configurare la chiave API Gemini (telecronaca).');
+        console.warn('[Scarica risposte online] configurare la chiave API Gemini (telecronaca).');
         return;
     }
     var cfg = gestioneConfigLoad();
@@ -20413,7 +20413,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
     var nq = cfg.numQuestions;
     var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
-    gestioneGeneraBusyShow('Preparazione risposte IA per offline…', 'Attendere…');
+    gestioneGeneraBusyShow('Scaricamento risposte da Gemini…', 'Attendere…');
     if (prefBtn) {
         prefBtn.disabled = true;
         prefBtn.setAttribute('aria-busy', 'true');
@@ -20422,7 +20422,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
     try {
         for (var i = 0; i < nq; i++) {
             gestioneGeneraBusySetLines(
-                'Preparazione risposte IA per offline…',
+                'Scaricamento risposte da Gemini…',
                 'Domanda ' + (i + 1) + ' di ' + nq
             );
             var it = items[i];
@@ -20436,14 +20436,14 @@ async function gestioneMcqPrefetchArticulatedClick() {
             var cacheKey = gestioneMcqGeminiCacheMakeKey(stemForKey, corr, numWrong, '');
             if (!gestioneMcqGeminiCacheNeedsRefresh(cacheKey, numWrong)) continue;
             if (!gestioneCanReachGemini()) {
-                console.warn('[Prepara offline IA] connessione assente: interrompo.');
+                console.warn('[Scarica risposte online] connessione assente: interrompo.');
                 break;
             }
             try {
                 var pack = await gestioneGeminiFetchArticulatedMcq(qtext, corr, '', '', numWrong);
                 gestioneMcqGeminiCacheSetFull(cacheKey, pack.wrong, pack.correct);
             } catch (ePf) {
-                console.warn('[Prepara offline IA] slot ' + (i + 1), ePf);
+                console.warn('[Scarica risposte online] slot ' + (i + 1), ePf);
             }
             await new Promise(function (r) {
                 window.setTimeout(r, 450);
