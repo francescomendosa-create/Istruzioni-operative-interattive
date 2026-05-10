@@ -10126,7 +10126,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605195</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605196</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10172,15 +10172,17 @@ function dismissAppSplash() {
         <div class="quiz-lock-box quiz-app-box quiz-gestione-test-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-domande-title" onclick="event.stopPropagation()">
             <div class="quiz-gestione-test-head">
                 <h4 id="quiz-gestione-domande-title" class="quiz-lock-title quiz-gestione-test-title">Domande</h4>
-                <button type="button" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                <div class="quiz-gestione-test-toolbar">
+                    <button type="button" class="btn-side btn-gestione-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
+                    <button type="button" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                </div>
             </div>
             <div class="quiz-gestione-test-intro">
                 <p class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
             </div>
             <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
-            <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
-                <button type="button" class="btn-side btn-report" onclick="hideQuizGestioneTestVerificheModal()">Chiudi</button>
+            <div class="quiz-lock-actions quiz-gestione-test-footer">
+                <button type="button" class="btn-side btn-report btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
             </div>
         </div>
     </div>
@@ -10424,7 +10426,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605195';
+const APP_BUILD = '202605196';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
