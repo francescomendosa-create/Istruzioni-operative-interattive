@@ -10878,7 +10878,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605228';
+const APP_BUILD = '202605229';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19195,7 +19195,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v5';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v6';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -20156,20 +20156,38 @@ function gestioneMcqGeminiCacheSetFull(key, wrongArr, correctArt) {
 function gestioneMcqGeminiCacheNeedsRefresh(key, numWrong) {
     if (numWrong < 1) return false;
     var e = gestioneMcqGeminiCacheGetEntry(key);
-    if (!e || !e.wrong || e.wrong.length < numWrong) return true;
-    if (!e.correctArt || gestioneGeminiCorrectArticulationTooWeak(e.correctArt)) return true;
-    return false;
+    if (!e) return true;
+    return !gestioneMcqCacheEntryIsArticulated(
+        { correctArt: e.correctArt, wrong: e.wrong },
+        numWrong
+    );
 }
 
-/** Risposta corretta troppo simile a un’etichetta (es. solo «linea mandata»): va rigenerata. */
-function gestioneGeminiCorrectArticulationTooWeak(text) {
+/**
+ * Opzione troppo sintetica / nominale (es. solo «linea mandata»): niente verbo operativo o troppo corta.
+ */
+function gestioneGeminiOptionArticulationTooWeak(text) {
     var t = String(text || '').trim();
-    if (t.length < 72) return true;
+    if (t.length < 100) return true;
     var words = t.split(/\s+/).filter(function (w) {
         return w.length > 0;
     });
-    if (words.length < 10) return true;
+    if (words.length < 14) return true;
+    var verbCue =
+        /\b(verific|controll|accert|monitor|interven|registr|conferm|assicur|regolar|misur|osserv|ispezion|avviar|effettu|esegu|garant|mantener|coordinar|comunicar|segnalar|azzerar|interromper|riavviar|taratur|campione|documentar|ispettar|controllare|verificare)\w*\b/i.test(
+            t
+        );
+    if (!verbCue && t.length < 240) return true;
     return false;
+}
+
+function gestioneMcqCacheEntryIsArticulated(entry, numWrong) {
+    if (!entry || !entry.wrong || entry.wrong.length < numWrong) return false;
+    if (!entry.correctArt || gestioneGeminiOptionArticulationTooWeak(entry.correctArt)) return false;
+    for (var i = 0; i < numWrong; i++) {
+        if (gestioneGeminiOptionArticulationTooWeak(entry.wrong[i])) return false;
+    }
+    return true;
 }
 
 function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
@@ -20187,8 +20205,11 @@ function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
     }
     var corrS = String(corr == null ? '' : corr).trim();
     if (corrS.length < 8) throw new Error('gestione_gemini_no_correct');
-    if (gestioneGeminiCorrectArticulationTooWeak(corrS)) throw new Error('gestione_gemini_correct_too_terse');
+    if (gestioneGeminiOptionArticulationTooWeak(corrS)) throw new Error('gestione_gemini_correct_too_terse');
     if (outW.length < numWrong) throw new Error('gestione_gemini_short');
+    for (var wi = 0; wi < numWrong; wi++) {
+        if (gestioneGeminiOptionArticulationTooWeak(outW[wi])) throw new Error('gestione_gemini_wrong_terse');
+    }
     var corrNorm = gestioneNormalizeAnswerPhrase(corrS);
     var wrongNorm = outW.slice(0, numWrong).map(function (w) {
         return gestioneNormalizeAnswerPhrase(w);
@@ -20212,19 +20233,25 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
     }, 52000);
     var prompt =
         'Sei un senior negli ambiti di procedure operative, controlli di processo, impianti chimico-industriali, HSEQ e continuità produttiva (lingua: italiano).\n' +
-        'Contesto: «istruzioni operative interattive» — le opzioni devono essere comprensibili da un operatore senza indovinare jargon incomprensibile.\n' +
+        'Contesto: «istruzioni operative interattive» — ogni opzione deve essere un MICRO-DISCORSO operativo, non un’etichetta.\n' +
+        '\nSTRUTTURA OBBLIGATORIA (ogni stringa in "correct" e in ogni elemento di "wrong"):\n' +
+        '1) Includi almeno un VERBO operativo ESPLICITO all’inizio o nel primo periodo (infinito o forma chiara: Verificare, Controllare, Accertarsi che, Monitorare, Intervenire su, Registrare…).\n' +
+        '2) Collega il componente citato dalla scheda con ARTICOLI e AGGETTIVI (es. «la linea di mandata del coagulante», non solo «linea mandata»).\n' +
+        '3) Aggiungi COSA verificare e IN QUALE LOGICA rispetto alla domanda (tenuta, regime, corrispondenza alla scheda, assenza di anomalie prima di…).\n' +
+        '\nESEMPIO DI COSA È VIETATO:\n' +
+        '- «Linea mandata» / «Dosaggio acido» / «Vasca 3» (solo etichette: INACCETTABILE).\n' +
+        '\nESEMPIO DI FORMATO ATTESO (senza copiarlo paro paro):\n' +
+        '- «Verificare che la linea di mandata del coagulante sia integralmente in servizio, priva di perdite e conforme alla scheda prima di ritenere soddisfatto l’arrivo in vasca.»\n' +
         '\nREGOLE PER IL CAMPO "correct" (RISPOSTA GIUSTA — priorità massima):\n' +
-        '- NON scrivere mai solo etichette o sintagmi nominali brevi (vietato es.: solo «linea mandata», «vasca», «OK», «controllo temperatura»).\n' +
-        '- DEVI produrre una o due FRASI COMPLETE, intuitive, concrete: soggetto operativo implicito (l’operatore), VERBO d’azione (verificare, controllare, confermare che, accertarsi che, monitorare, intervenire su, registrare, allineare…), OGGETTO tecnico QUALIFICATO con aggettivi o specificazioni dove servono (es. «la linea di mandata del polietilene», «il regime di pompaggio nominale», «la tenuta degli agganci previsti dalla scheda»).\n' +
-        '- Spiega in modo sintetico COSA controllare e PERCHÉ è coerente con la domanda (senza divagare).\n' +
-        '- Lunghezza indicativa di "correct": almeno ~180–520 caratteri; se la fonte ufficiale è cortissima, ESPANDI comunque in istruzione operativa fedele al senso.\n' +
+        '- NON elencare mai solo il nome dell’elemento di impianto (vietato: solo «linea mandata», «mandata», «coagulante», «vasca»).\n' +
+        '- Lunghezza minima indicativa: ~200–560 caratteri; due frasi collegate se serve.\n' +
         '- Mantieni il significato della RISPOSTA CORRETTA UFFICIALE: non contraddirla, non indebolire sicurezza o conformità.\n' +
-        '- Regolazione pH / dosaggio chimico: se il contenuto riguarda correzione con acido e **soda** (non «base» generica), usa nella frase la forma esatta **dosaggio acido / soda** (spazi prima e dopo lo slash / ), integrata nel discorso operativo. Vietato «acido/base» e «dosaggio acido/base» per questo contesto.\n' +
+        '- Regolazione pH / dosaggio chimico: se pertinente, usa **dosaggio acido / soda** (spazi attorno allo slash), mai solo «acido/base».\n' +
         '\nREGOLE PER IL CAMPO "wrong" (alternative SBAGLIATE):\n' +
         '- ESATTAMENTE ' +
         numWrong +
-        ' testi, stesso livello di articolazione (frasi complete, verbi, contesto), plausibili in stabilimento ma SBAGLIATI o insufficienti per la domanda.\n' +
-        '- Evita etichette da una sola riga troppo corte anche qui.\n' +
+        ' testi con LA STESSA STRUTTURA articolata delle corrette (verbo + oggetto qualificato + contesto), ma SBAGLIATI o insufficienti rispetto alla domanda.\n' +
+        '- Anche qui vietate le sole etichette corte.\n' +
         '\nFormato: niente prefissi "A)" / numeri; nessun markdown.\n' +
         '- Tutte le wrong devono essere distinte tra loro e da "correct".\n' +
         'Tag scheda: ' +
@@ -20241,36 +20268,71 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         numWrong +
         ' elementi in "wrong".';
 
+    var retrySuffix =
+        '\n\n⚠ RIPROVA OBBLIGATORIA: l’output precedente era troppo sintetico o privo di verbi operativi espliciti. Ogni stringa in "correct" e in "wrong" deve:\n' +
+        '- avere almeno ~100 caratteri e ~14 parole;\n' +
+        '- contenere un verbo operativo chiaro (Verificare, Controllare, Accertarsi che…);\n' +
+        '- qualificare l’elemento di impianto (es. «la linea di mandata del coagulante»), mai solo l’etichetta dell’elemento.\n' +
+        'Rispondi di nuovo con JSON valido {"correct":"...","wrong":[...]} rispettando tutte le regole del prompt principale.';
+
     var gemUrl =
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
         encodeURIComponent(cfg.textKey);
-    var reqBody = JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.52, maxOutputTokens: 8192 }
-    });
-    var res = null;
+    var lastTerseErr = null;
     try {
-        for (var attempt = 0; attempt < 3; attempt += 1) {
-            res = await fetch(gemUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: reqBody,
-                signal: ctrl.signal
+        for (var genTry = 0; genTry < 2; genTry += 1) {
+            if (genTry > 0) {
+                try {
+                    window.clearTimeout(tid);
+                } catch (eT0) { /* ignore */ }
+                ctrl = new AbortController();
+                tid = window.setTimeout(function () {
+                    try {
+                        ctrl.abort();
+                    } catch (eAb2) { /* ignore */ }
+                }, 52000);
+            }
+            var promptUse = genTry === 0 ? prompt : prompt + retrySuffix;
+            var reqBody = JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: promptUse }] }],
+                generationConfig: {
+                    temperature: genTry === 0 ? 0.52 : 0.42,
+                    maxOutputTokens: 8192
+                }
             });
-            if (res.ok || res.status !== 503 || attempt === 2) break;
-            await new Promise(function (r) {
-                window.setTimeout(r, 500 * (attempt + 1));
-            });
+            var res = null;
+            for (var attempt = 0; attempt < 3; attempt += 1) {
+                res = await fetch(gemUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: reqBody,
+                    signal: ctrl.signal
+                });
+                if (res.ok || res.status !== 503 || attempt === 2) break;
+                await new Promise(function (r) {
+                    window.setTimeout(r, 500 * (attempt + 1));
+                });
+            }
+            window.clearTimeout(tid);
+            if (!res.ok) throw new Error('gestione_gemini_http_' + String(res.status || 0));
+            var json = await res.json();
+            var rawOut = String(
+                ((((json || {}).candidates || [])[0] || {}).content &&
+                    ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text) || ''
+            ).trim();
+            if (!rawOut) throw new Error('gestione_gemini_empty');
+            try {
+                return gestioneGeminiParseArticulatedMcqJson(rawOut, numWrong);
+            } catch (pe) {
+                var em = String(pe && pe.message ? pe.message : pe);
+                if (genTry === 0 && /gestione_gemini_(correct_too_terse|wrong_terse)/.test(em)) {
+                    lastTerseErr = pe;
+                    continue;
+                }
+                throw pe;
+            }
         }
-        window.clearTimeout(tid);
-        if (!res.ok) throw new Error('gestione_gemini_http_' + String(res.status || 0));
-        var json = await res.json();
-        var rawOut = String(
-            ((((json || {}).candidates || [])[0] || {}).content &&
-                ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text) || ''
-        ).trim();
-        if (!rawOut) throw new Error('gestione_gemini_empty');
-        return gestioneGeminiParseArticulatedMcqJson(rawOut, numWrong);
+        throw lastTerseErr || new Error('gestione_gemini_parse_retry_exhausted');
     } catch (e) {
         try {
             window.clearTimeout(tid);
@@ -20342,30 +20404,10 @@ async function gestioneGeneraBuildFromDb() {
             var cacheKey = gestioneMcqGeminiCacheMakeKey(stemDisp, correct, numWrong, tagLine);
             var cachedEnt = gestioneMcqGeminiCacheGetEntry(cacheKey);
             var correctDisplay = correct;
-            if (
-                cachedEnt &&
-                cachedEnt.wrong &&
-                cachedEnt.wrong.length >= numWrong &&
-                cachedEnt.correctArt &&
-                !gestioneGeminiCorrectArticulationTooWeak(cachedEnt.correctArt)
-            ) {
+            if (cachedEnt && gestioneMcqCacheEntryIsArticulated(cachedEnt, numWrong)) {
                 correctDisplay = String(cachedEnt.correctArt).trim();
                 built = gestioneGeneraBuildAnswersLocal(
                     correctDisplay,
-                    numWrong,
-                    distractors,
-                    acts,
-                    cachedEnt.wrong.slice(0, numWrong)
-                );
-            } else if (
-                cachedEnt &&
-                cachedEnt.wrong &&
-                cachedEnt.wrong.length >= numWrong &&
-                (!cachedEnt.correctArt || gestioneGeminiCorrectArticulationTooWeak(cachedEnt.correctArt))
-            ) {
-                /* Cache incompleta o corretta troppo sintetica: usa testo corretto grezzo dalla scheda */
-                built = gestioneGeneraBuildAnswersLocal(
-                    correct,
                     numWrong,
                     distractors,
                     acts,
