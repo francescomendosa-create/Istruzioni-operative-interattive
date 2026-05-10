@@ -5827,11 +5827,11 @@
         #quiz-settings-modify-btn[hidden] {
             display: none !important;
         }
-        /* Gestione, test e verifiche (Impostazioni): marrone */
+        /* Gestione, test e verifiche (Impostazioni): viola */
         #quiz-settings-gestione-test-btn.quiz-settings-row {
-            background: linear-gradient(180deg, #8d6e63 0%, #5d4037 100%);
-            border: 1px solid #4e342e;
-            box-shadow: 0 4px 10px rgba(62, 39, 35, 0.32);
+            background: linear-gradient(180deg, #9575cd 0%, #5e35b1 100%);
+            border: 1px solid #4527a0;
+            box-shadow: 0 4px 10px rgba(69, 39, 160, 0.35);
         }
         #quiz-settings-gestione-test-btn strong,
         #quiz-settings-gestione-test-btn .quiz-settings-info-chev {
@@ -6658,16 +6658,23 @@
             padding-top: 8px;
             background: #fff;
         }
-        /* Popup Domande (Gestione test e verifiche): più largo, scroll elenco */
+        /* Popup Domande (Gestione test e verifiche): stesse dimensioni di Modifica contenuti */
         #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
-            width: min(96vw, 720px);
-            max-width: min(96vw, 720px);
-            max-height: min(92dvh, calc(100dvh - 24px));
-            padding: 12px 12px 10px;
+            width: min(96vw, 900px);
+            max-width: min(96vw, 900px);
+            height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+            max-height: none;
+            padding: 12px 14px 10px;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            min-height: 0;
             overflow: hidden;
+        }
+        @media (min-width: 900px) {
+            #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
+                padding: 14px 16px 12px;
+            }
         }
         .quiz-gestione-test-head {
             display: flex;
@@ -6747,7 +6754,8 @@
         }
         .gestione-q-text {
             width: 100%;
-            min-height: 72px;
+            min-height: 3.6em;
+            max-height: none;
             box-sizing: border-box;
             padding: 8px 10px;
             border: 1px solid #b0bec5;
@@ -6756,7 +6764,8 @@
             line-height: 1.45;
             margin-bottom: 10px;
             font-family: inherit;
-            resize: vertical;
+            resize: none;
+            overflow: hidden;
         }
         .gestione-answer-row {
             display: flex;
@@ -9898,7 +9907,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605188</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605191</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10194,7 +10203,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605188';
+const APP_BUILD = '202605191';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18359,11 +18368,44 @@ function gestioneCardModifica(idx) {
     card.classList.add('is-editing');
     var ta = document.getElementById('gestione-q-text-' + idx);
     if (ta) {
+        gestioneDomandeFitQuestionTextarea(ta);
         ta.focus();
         try {
             ta.select();
         } catch (e) { /* ignore */ }
     }
+}
+
+/** Altezza del campo domanda = tutto il testo visibile (nessuna barra di scorrimento nel riquadro). */
+function gestioneDomandeFitQuestionTextarea(el) {
+    if (!el || el.tagName !== 'TEXTAREA') return;
+    el.style.height = 'auto';
+    var h = el.scrollHeight;
+    el.style.height = Math.max(h, 48) + 'px';
+}
+
+function gestioneDomandeFitAllQuestionTextareas() {
+    for (var i = 0; i < 10; i++) {
+        var ta = document.getElementById('gestione-q-text-' + i);
+        if (ta) gestioneDomandeFitQuestionTextarea(ta);
+    }
+}
+
+function gestioneDomandeEnsureResizeListener() {
+    if (window._gestioneDomandeResizeFitBound) return;
+    window._gestioneDomandeResizeFitBound = true;
+    var resizeTimer = null;
+    window.addEventListener(
+        'resize',
+        function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                var o = document.getElementById('quiz-gestione-test-overlay');
+                if (o && o.classList.contains('visible')) gestioneDomandeFitAllQuestionTextareas();
+            }, 120);
+        },
+        { passive: true }
+    );
 }
 
 function gestioneDomandeBuildCard(i, slot) {
@@ -18405,6 +18447,14 @@ function gestioneDomandeBuildCard(i, slot) {
     ta.id = 'gestione-q-text-' + i;
     ta.setAttribute('aria-label', 'Testo domanda ' + (i + 1));
     ta.value = slot.q || '';
+    ta.addEventListener('input', function () {
+        gestioneDomandeFitQuestionTextarea(ta);
+    });
+    ta.addEventListener('paste', function () {
+        setTimeout(function () {
+            gestioneDomandeFitQuestionTextarea(ta);
+        }, 0);
+    });
     card.appendChild(ta);
 
     var labIntro = document.createElement('div');
@@ -18442,6 +18492,12 @@ function gestioneDomandeRender() {
     for (var i = 0; i < 10; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
+    requestAnimationFrame(function () {
+        gestioneDomandeFitAllQuestionTextareas();
+        requestAnimationFrame(function () {
+            gestioneDomandeFitAllQuestionTextareas();
+        });
+    });
 }
 
 function gestioneCollectGlobalActionPool() {
@@ -18579,6 +18635,7 @@ function showQuizGestioneTestVerificheModal() {
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
+    gestioneDomandeEnsureResizeListener();
     try {
         gestioneDomandeRender();
     } catch (eR) { /* ignore */ }
