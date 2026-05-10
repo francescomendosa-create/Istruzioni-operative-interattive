@@ -10956,7 +10956,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605235';
+const APP_BUILD = '202605236';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19280,7 +19280,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v9';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v11';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -20296,32 +20296,26 @@ function gestioneMergeSavedSlotsIntoGenerated(prev, out) {
 }
 
 /**
- * Pool offline / salvataggi: espande nominali corti (es. «fanghi», «refluo») in frasi operative collegate allo stem,
- * così le MCQ restano leggibili anche senza Gemini.
+ * Pool offline: espande nominali corti in frasi operative sul campo (mandata, pescaggio, vasca…),
+ * senza boilerplate «confrontare letture con scheda / confermare conformità».
  */
 function gestioneExpandTerseMcqOption(text, stemDisp, role) {
     var t = String(text || '').trim();
     if (!gestioneGeminiOptionArticulationTooWeak(t)) {
         return gestioneNormalizeAnswerPhrase(t);
     }
-    var stem = String(stemDisp || '').trim();
-    if (!stem || stem === '—') stem = 'il punto di controllo indicato nella domanda';
-    var stemCut = stem.length > 100 ? stem.substring(0, 97) + '…' : stem;
+    void stemDisp;
     var core = t.replace(/\s+/g, ' ');
-    if (!core) core = 'elemento indicato in scheda';
-    if (core.length > 56) core = core.substring(0, 53) + '…';
+    if (!core) core = 'intervento previsto dalla richiesta';
+    if (core.length > 72) core = core.substring(0, 69) + '…';
     var out =
         role === 'correct'
-            ? 'Verificare quanto previsto per «' +
+            ? 'Verificare «' +
               core +
-              '» nel contesto («' +
-              stemCut +
-              '»), confrontando letture con la scheda prima di confermare la conformità.'
-            : 'Valutare «' +
+              '»: stato della mandata e del pescaggio, tenuta delle linee e arrivo effettivo del reagente in vasca (controllo visivo e regime operativo).'
+            : 'Considerare sufficiente «' +
               core +
-              '» rispetto alla domanda («' +
-              stemCut +
-              '»): controllare coerenza con strumentazione e procedure, senza fermarsi a etichette.';
+              '» senza controllare mandata, pescaggio o arrivo reale in vasca — intervento tipicamente incongruente con la domanda.';
     return gestioneNormalizeAnswerPhrase(out);
 }
 
@@ -20358,9 +20352,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     }
     while (wrong.length < numWrong) {
         wrong.push(
-            'Analizzare trend strumentali e documentazione di turno prima di modificare set-point o dosaggio (' +
-                (wrong.length + 1) +
-                ').'
+            'Verificare portate e tenuta linee dosaggio prima di modificare set-point (' + (wrong.length + 1) + ').'
         );
     }
 
@@ -20378,8 +20370,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     }
     while (wrongFin.length < numWrong) {
         var padIx = wrongFin.length + 1;
-        var pad =
-            'Coordinare con cabina/responsabile verifica su log e allarmi (complemento ' + padIx + ').';
+        var pad = 'Verificare livelli e allarmi di reparto prima di intervenire sul dosaggio (complemento ' + padIx + ').';
         var padUse = usedFin[pad] ? pad + ' — variante ' + padIx + '.' : pad;
         usedFin[padUse] = 1;
         wrongFin.push(padUse);
@@ -20397,7 +20388,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     });
     while (uniq.length < na) {
         uniq.push(
-            'Coordinare verifica su log e campionamenti secondo procedure approvate (opzione ' + uniq.length + ').'
+            'Controllare campionamento e letture strumentali sul punto prima di validare l’intervento (opzione ' + uniq.length + ').'
         );
     }
     answers = uniq.slice(0, na);
@@ -20546,14 +20537,32 @@ function gestioneGeminiOptionArticulationTooLong(text) {
     return String(text || '').trim().length > 280;
 }
 
+/**
+ * Meta-risposte vuote: solo «leggi scheda / conferma conformità» senza azione tecnica sul campo.
+ */
+function gestioneGeminiOptionSoundsBoilerplate(text) {
+    var t = String(text || '').trim();
+    var tl = t.toLowerCase();
+    if (/confrontando\s+(le\s+)?letture/i.test(t)) return true;
+    if (/confrontare\s+.{0,120}(letture|scheda)/i.test(t)) return true;
+    if (/prima\s+di\s+confermare\s+(la\s+)?conformità/i.test(t)) return true;
+    if (/confermare\s+la\s+conformità/i.test(t)) return true;
+    if (/visualizzare\s+(le\s+)?sched/i.test(tl)) return true;
+    if (/solo\s+(consultando|leggendo)\s+(la\s+)?scheda/i.test(tl)) return true;
+    if (/verificare\s+quanto\s+previsto\s+per\s+«/i.test(tl) && /nel\s+contesto\s*\(/i.test(t)) return true;
+    return false;
+}
+
 function gestioneMcqCacheEntryIsArticulated(entry, numWrong) {
     if (!entry || !entry.wrong || entry.wrong.length < numWrong) return false;
     if (!entry.correctArt) return false;
     if (gestioneGeminiOptionArticulationTooWeak(entry.correctArt)) return false;
     if (gestioneGeminiOptionArticulationTooLong(entry.correctArt)) return false;
+    if (gestioneGeminiOptionSoundsBoilerplate(entry.correctArt)) return false;
     for (var i = 0; i < numWrong; i++) {
         if (gestioneGeminiOptionArticulationTooWeak(entry.wrong[i])) return false;
         if (gestioneGeminiOptionArticulationTooLong(entry.wrong[i])) return false;
+        if (gestioneGeminiOptionSoundsBoilerplate(entry.wrong[i])) return false;
     }
     return true;
 }
@@ -20571,7 +20580,7 @@ function gestioneMcqRawCacheEntryIsArticulated(ent) {
 }
 
 /**
- * Elimina dalla mappa cache le voci non conformi (troppo corte/lunghe): così al prossimo
+ * Elimina dalla mappa cache le voci non conformi (troppo corte/lunghe/boilerplate): così al prossimo
  * «Scarica risposte online» / «Genera» vengono rigenerate.
  */
 function gestioneMcqGeminiCacheMapDropWeak(map) {
@@ -20601,10 +20610,12 @@ function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
     if (corrS.length < 8) throw new Error('gestione_gemini_no_correct');
     if (gestioneGeminiOptionArticulationTooWeak(corrS)) throw new Error('gestione_gemini_correct_too_terse');
     if (gestioneGeminiOptionArticulationTooLong(corrS)) throw new Error('gestione_gemini_correct_too_long');
+    if (gestioneGeminiOptionSoundsBoilerplate(corrS)) throw new Error('gestione_gemini_correct_boilerplate');
     if (outW.length < numWrong) throw new Error('gestione_gemini_short');
     for (var wi = 0; wi < numWrong; wi++) {
         if (gestioneGeminiOptionArticulationTooWeak(outW[wi])) throw new Error('gestione_gemini_wrong_terse');
         if (gestioneGeminiOptionArticulationTooLong(outW[wi])) throw new Error('gestione_gemini_wrong_too_long');
+        if (gestioneGeminiOptionSoundsBoilerplate(outW[wi])) throw new Error('gestione_gemini_wrong_boilerplate');
     }
     var corrNorm = gestioneNormalizeAnswerPhrase(corrS);
     var wrongNorm = outW.slice(0, numWrong).map(function (w) {
@@ -20628,28 +20639,24 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         } catch (eAb) { /* ignore */ }
     }, 52000);
     var prompt =
-        'Sei un senior negli ambiti di procedure operative, controlli di processo, impianti chimico-industriali, HSEQ e continuità produttiva (lingua: italiano).\n' +
-        'Contesto: «istruzioni operative interattive» — ogni opzione è una o due FRASI OPERATIVE COMPATTE (non paragrafi), mai una sola etichetta.\n' +
-        '\nLUNGHEZZA (obbligatoria per "correct" e ogni "wrong"):\n' +
-        '- Target: circa 90–220 caratteri per stringa; massimo assoluto ~280 caratteri. Vietati testi lunghi o ripetitivi.\n' +
-        '- Una frase può bastare se completa; al massimo due frasi brevi.\n' +
-        '\nSTRUTTURA (ogni stringa):\n' +
-        '1) Verbo operativo chiaro (Verificare, Controllare, Accertarsi che…).\n' +
-        '2) Oggetto qualificato (es. «linea di mandata del coagulante», non solo «linea mandata»).\n' +
-        '3) Collegamento sintetico alla domanda (cosa controllare / perché).\n' +
-        '\nVIETATO:\n' +
-        '- Sole parole tipo «fanghi», «linea mandata», «vasca» senza verbo e contesto.\n' +
-        '\nESEMPIO DI STILE (non copiare):\n' +
-        '- «Verificare che la linea di mandata del coagulante sia in servizio, senza perdite e coerente con la scheda prima dell’arrivo in vasca.»\n' +
-        '\nREGOLE "correct":\n' +
-        '- Fedele alla RISPOSTA CORRETTA UFFICIALE; non indebolire sicurezza o conformità.\n' +
-        '- Dosaggio chimico: se pertinente usa **dosaggio acido / soda** (slash con spazi), non «acido/base» generico.\n' +
-        '\nREGOLE "wrong":\n' +
-        '- ESATTAMENTE ' +
+        'Sei un senior negli ambiti di procedure operative, impianti di depurazione/trattamento, HSEQ (lingua: italiano).\n' +
+        'Obiettivo: ogni opzione MCQ descrive un INTERVENTO CONCRETO SUL CAMPO, non un invito a «leggere la scheda» o «confermare la conformità».\n' +
+        '\nLUNGHEZZA: ~90–220 caratteri per stringa, massimo ~280. Una o due frasi brevi.\n' +
+        '\nCONTENUTO OBBLIGATORIO (corretta e errate):\n' +
+        '- Nominare azioni e punti fisici dell’impianto pertinenti alla DOMANDA e alla RISPOSTA UFFICIALE: mandata, pescaggio, pompa dosatrice, linea del reagente, valvole, livello vasca, miscelazione, portata visibile, perdite, campione visivo, turbidità, ecc.\n' +
+        '- La CORRETTA deve tradurre la RISPOSTA UFFICIALE in verifica operativa (cosa controllare/misurare/osservare sul campo).\n' +
+        '\nVIETATO (se compare, la risposta è INVALIDA):\n' +
+        '- Frasi solo burocratiche: «confrontare le letture con la scheda», «confermare la conformità», «prima di confermare la conformità», «solo consultando la scheda», meta-discorsi sulla documentazione senza azione tecnica.\n' +
+        '- Etichette sole («fanghi», «Pescaggio») senza verbo e senza oggetto tecnico.\n' +
+        '- Ripetere il testo della domanda tra parentesi come riempitivo.\n' +
+        '\nESEMPIO DI BUONO STILE (adatta al caso; non copiare):\n' +
+        '- «Verificare mandata e pescaggio del polielettrolita: linee in pressione, dosaggio attivo e arrivo visibile in vasca senza anomalie.»\n' +
+        '\nREGOLE "correct": fedele al senso della RISPOSTA CORRETTA UFFICIALE. Dosaggio chimico: se pertinente **dosaggio acido / soda** (slash con spazi).\n' +
+        '\nREGOLE "wrong": ESATTAMENTE ' +
         numWrong +
-        ' alternative, stesso livello di compattezza delle corrette, ma SBAGLIATE o insufficienti.\n' +
-        '\nFormato: niente prefissi "A)" / numeri; nessun markdown.\n' +
-        '- Tutte le wrong devono essere distinte tra loro e da "correct".\n' +
+        ' alternative plausibili ma SBAGLIATE per la domanda, stesso registro tecnico-operativo delle corrette.\n' +
+        '\nFormato: niente prefissi "A)" o numeri; nessun markdown.\n' +
+        '- Tutte le wrong distinte tra loro e da "correct".\n' +
         'Tag scheda: ' +
         String(tagLine || '—').substring(0, 260) +
         '\nEstratti contestuali (documentazione / azioni): ' +
@@ -20665,11 +20672,11 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         ' elementi in "wrong".';
 
     var retrySuffix =
-        '\n\n⚠ RIPROVA: l’output non era nel formato richiesto. Ogni stringa in "correct" e "wrong" deve essere COMPATTA:\n' +
-        '- circa 72–280 caratteri (no paragrafi lunghi), ~9–22 parole;\n' +
-        '- verbo operativo + oggetto qualificato;\n' +
-        '- se prima era troppo lunga: dimezza il testo mantenendo il senso.\n' +
-        'Rispondi solo con JSON {"correct":"...","wrong":[...]}.';
+        '\n\n⚠ RIPROVA: vietato rispondere con inviti generici a leggere documentazione o «confermare conformità». Ogni stringa deve:\n' +
+        '- descrivere un controllo o intervento sul campo (mandata, pescaggio, dosaggio, tenuta, livello, perdite, regime);\n' +
+        '- restare tra ~72 e ~280 caratteri;\n' +
+        '- non contenere «confrontare letture», «confermare la conformità», «solo consultando la scheda».\n' +
+        'Solo JSON {"correct":"...","wrong":[...]}.';
 
     var gemUrl =
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
@@ -20723,7 +20730,9 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
                 var em = String(pe && pe.message ? pe.message : pe);
                 if (
                     genTry === 0 &&
-                    /gestione_gemini_(correct_too_terse|wrong_terse|correct_too_long|wrong_too_long)/.test(em)
+                    /gestione_gemini_(correct_too_terse|wrong_terse|correct_too_long|wrong_too_long|correct_boilerplate|wrong_boilerplate)/.test(
+                        em
+                    )
                 ) {
                     lastTerseErr = pe;
                     continue;
