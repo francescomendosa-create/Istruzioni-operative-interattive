@@ -6704,11 +6704,6 @@
             font-weight: 800;
             letter-spacing: -0.03em;
         }
-        #quiz-gestione-test-overlay .quiz-gestione-test-lead,
-        #quiz-gestione-test-overlay .quiz-gestione-test-intro {
-            font-family: inherit;
-            letter-spacing: 0.01em;
-        }
         #quiz-gestione-test-overlay .gestione-q-card-head strong,
         #quiz-gestione-test-overlay .gestione-q-section-label {
             font-family: inherit;
@@ -6790,7 +6785,7 @@
             flex-wrap: wrap;
             flex-shrink: 0;
         }
-        /* Stessi colori / rilievo dei tab CHIMICO-FISICO · BIOLOGICO MBBR (.nav-sec-btn) */
+        /* Tab non selezionati: pill rialzata; selezionato = stesso viola del pulsante Genera (.btn-gestione-genera) */
         .quiz-gestione-test-segments {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -6844,29 +6839,28 @@
             transition-duration: 0.06s;
         }
         .quiz-gestione-test-tab--active {
-            background: linear-gradient(180deg, #254d7a 0%, #1a3558 48%, #142a48 100%);
-            color: white;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(180deg, #9575cd 0%, #5e35b1 100%);
+            color: #fff;
+            border: 1px solid #4527a0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
             box-shadow:
-                inset 0 10px 26px rgba(0, 0, 0, 0.52),
-                inset 0 -4px 14px rgba(120, 170, 230, 0.14),
-                inset 0 2px 3px rgba(255, 255, 255, 0.14),
-                0 1px 4px rgba(0, 0, 0, 0.38),
-                0 0 0 1px rgba(0, 0, 0, 0.12);
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                inset 0 -6px 14px rgba(49, 27, 96, 0.18),
+                0 4px 14px rgba(69, 39, 160, 0.35);
         }
         .quiz-gestione-test-tab--active:hover {
-            filter: brightness(1.09);
+            filter: brightness(1.06);
         }
         .quiz-gestione-test-tab--active:active {
-            filter: brightness(1.04);
+            filter: brightness(0.98);
+            transform: translateY(1px);
             box-shadow:
-                inset 0 12px 30px rgba(0, 0, 0, 0.58),
-                inset 0 -3px 10px rgba(130, 180, 255, 0.12),
-                0 1px 3px rgba(0, 0, 0, 0.42);
+                inset 0 3px 10px rgba(49, 27, 96, 0.28),
+                0 2px 10px rgba(69, 39, 160, 0.32);
             transition-duration: 0.07s;
         }
         .quiz-gestione-test-tab:focus-visible {
-            outline: 3px solid rgba(100, 181, 246, 0.85);
+            outline: 3px solid rgba(149, 117, 205, 0.9);
             outline-offset: 3px;
         }
         @media (prefers-reduced-motion: reduce) {
@@ -6907,6 +6901,125 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        .quiz-gestione-crea-domande-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .quiz-gestione-settings-icon-btn {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 1px solid rgba(94, 53, 177, 0.35);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #5e35b1;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.08);
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                color 0.15s ease;
+        }
+        .quiz-gestione-settings-icon-btn:hover {
+            background: #fff;
+            border-color: #7e57c2;
+            color: #4527a0;
+        }
+        .quiz-gestione-settings-icon-btn:focus-visible {
+            outline: 3px solid rgba(149, 117, 205, 0.55);
+            outline-offset: 2px;
+        }
+        .quiz-gestione-settings-icon-btn:active {
+            transform: translateY(1px);
+        }
+        #quiz-gestione-test-overlay.quiz-gestione--solo-utente .quiz-gestione-settings-icon-btn {
+            display: none !important;
+        }
+        #quiz-gestione-config-overlay .quiz-gestione-config-modal {
+            width: min(94vw, 420px);
+            max-width: min(94vw, 420px);
+            padding: 16px 18px 14px;
+            box-sizing: border-box;
+        }
+        .quiz-gestione-config-hint {
+            margin: 0 0 16px;
+            font-size: 0.84rem;
+            color: #546e7a;
+            line-height: 1.5;
+        }
+        .quiz-gestione-config-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .quiz-gestione-config-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #37474f;
+        }
+        .quiz-gestione-config-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(94, 53, 177, 0.22);
+            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.06);
+        }
+        .quiz-gestione-config-step {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: linear-gradient(180deg, #faf8fc 0%, #ede7f6 100%);
+            color: #4527a0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .quiz-gestione-config-step:hover {
+            background: linear-gradient(180deg, #fff 0%, #f3e5f5 100%);
+        }
+        .quiz-gestione-config-step:active {
+            filter: brightness(0.96);
+        }
+        .quiz-gestione-config-step:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .quiz-gestione-config-val {
+            min-width: 3rem;
+            padding: 0 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #311b92;
+            background: rgba(255, 255, 255, 0.95);
+            height: 44px;
+            line-height: 44px;
+            border-left: 1px solid rgba(94, 53, 177, 0.12);
+            border-right: 1px solid rgba(94, 53, 177, 0.12);
+            box-sizing: border-box;
+        }
+        .quiz-gestione-config-actions {
+            margin-top: 8px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(94, 53, 177, 0.12);
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .quiz-gestione-verifica-body {
             flex: 1 1 auto;
@@ -6950,28 +7063,6 @@
         }
         .btn-gestione-genera:active {
             transform: translateY(1px);
-        }
-        .quiz-gestione-test-intro {
-            flex: 0 0 auto;
-            flex-shrink: 0;
-            margin: 0 0 14px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(94, 53, 177, 0.15);
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 14px rgba(49, 27, 96, 0.06);
-        }
-        .quiz-gestione-test-lead {
-            margin: 0;
-            font-size: 0.82rem;
-            color: #455a64;
-            line-height: 1.5;
-            text-align: left;
-        }
-        .quiz-gestione-test-lead strong {
-            color: #5e35b1;
-            font-weight: 700;
         }
         #quiz-gestione-test-list {
             flex: 1 1 auto;
@@ -10368,7 +10459,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605211</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605214</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10424,13 +10515,15 @@ function dismissAppSplash() {
             </div>
             <div id="quiz-gestione-panel-crea" class="quiz-gestione-test-panel quiz-gestione-test-panel--crea" role="tabpanel" aria-labelledby="quiz-gestione-tab-crea">
                 <div class="quiz-gestione-crea-domande-row">
-                    <h5 id="quiz-gestione-crea-domande-title" class="quiz-gestione-crea-domande-title">Domande</h5>
-                    <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                    <div class="quiz-gestione-crea-domande-title-wrap">
+                        <h5 id="quiz-gestione-crea-domande-title" class="quiz-gestione-crea-domande-title">Domande</h5>
+                        <button type="button" id="quiz-gestione-btn-settings" class="quiz-gestione-settings-icon-btn" onclick="gestioneConfigPopupOpen()" title="Impostazioni numero domande e risposte" aria-label="Impostazioni domande e generazione">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        </button>
                     </div>
-                </div>
-                <div class="quiz-gestione-test-intro">
-                    <p id="quiz-gestione-test-lead" class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
+                    <div class="quiz-gestione-crea-domande-toolbar">
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                    </div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
                 <div class="quiz-lock-actions quiz-gestione-test-footer">
@@ -10442,6 +10535,33 @@ function dismissAppSplash() {
                 <div class="quiz-gestione-verifica-body">
                     <p class="quiz-gestione-verifica-lead">Sezione <strong>Verifica</strong>: qui potrai usare gli strumenti di verifica del test. Contenuto e funzioni saranno definiti nel prossimo passaggio.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-gestione-config-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneConfigPopupBackdrop(event)">
+        <div class="quiz-lock-box quiz-app-box quiz-gestione-config-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-config-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-gestione-config-title" class="quiz-lock-title">Impostazioni domande</h4>
+            <p class="quiz-gestione-config-hint">Numero di domande e di opzioni di risposta per l’elenco e per <strong>Genera</strong>. Valori salvati automaticamente su questo dispositivo.</p>
+            <div class="quiz-gestione-config-field">
+                <span class="quiz-gestione-config-label" id="gestione-config-nq-label">Numero domande</span>
+                <div class="quiz-gestione-config-stepper">
+                    <button type="button" class="quiz-gestione-config-step" id="gestione-config-nq-minus" onclick="gestioneConfigDeltaNq(-1)" aria-label="Diminuisci numero domande">−</button>
+                    <span class="quiz-gestione-config-val" id="gestione-config-nq-val" aria-live="polite">10</span>
+                    <button type="button" class="quiz-gestione-config-step" id="gestione-config-nq-plus" onclick="gestioneConfigDeltaNq(1)" aria-label="Aumenta numero domande">+</button>
+                </div>
+            </div>
+            <div class="quiz-gestione-config-field">
+                <span class="quiz-gestione-config-label" id="gestione-config-na-label">Risposte per domanda (max 5)</span>
+                <div class="quiz-gestione-config-stepper">
+                    <button type="button" class="quiz-gestione-config-step" id="gestione-config-na-minus" onclick="gestioneConfigDeltaNa(-1)" aria-label="Diminuisci numero risposte">−</button>
+                    <span class="quiz-gestione-config-val" id="gestione-config-na-val" aria-live="polite">5</span>
+                    <button type="button" class="quiz-gestione-config-step" id="gestione-config-na-plus" onclick="gestioneConfigDeltaNa(1)" aria-label="Aumenta numero risposte">+</button>
+                </div>
+            </div>
+            <div class="quiz-lock-actions quiz-gestione-config-actions">
+                <button type="button" class="btn-side btn-reset" onclick="gestioneConfigPopupClose()">Chiudi</button>
+                <button type="button" class="btn-side btn-report btn-gestione-genera" onclick="gestioneConfigPopupGeneraClick()">Genera</button>
             </div>
         </div>
     </div>
@@ -10685,7 +10805,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605211';
+const APP_BUILD = '202605215';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18858,18 +18978,141 @@ function quizAppModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-app-overlay') hideQuizAppModal();
 }
 
-/** Gestione test e verifiche — 10 domande MCQ (localStorage + Firestore), generazione da db.cf Controlli e azioni */
+/** Gestione test e verifiche — domande MCQ (localStorage + Firestore), generazione da db.cf Controlli e azioni */
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 /** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
+/** Numero domande / opzioni per domanda (persistente). */
+var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
+var GESTIONE_CONFIG_NQ_MIN = 1;
+var GESTIONE_CONFIG_NQ_MAX = 50;
+var GESTIONE_CONFIG_NA_MIN = 1;
+var GESTIONE_CONFIG_NA_MAX = 5;
+
+function gestioneConfigDefaults() {
+    return { numQuestions: 10, numAnswers: 5 };
+}
+
+function gestioneConfigNormalize(cfg) {
+    var d = gestioneConfigDefaults();
+    var nq = cfg && parseInt(cfg.numQuestions, 10);
+    var na = cfg && parseInt(cfg.numAnswers, 10);
+    if (!isFinite(nq)) nq = d.numQuestions;
+    if (!isFinite(na)) na = d.numAnswers;
+    nq = Math.min(GESTIONE_CONFIG_NQ_MAX, Math.max(GESTIONE_CONFIG_NQ_MIN, nq));
+    na = Math.min(GESTIONE_CONFIG_NA_MAX, Math.max(GESTIONE_CONFIG_NA_MIN, na));
+    return { numQuestions: nq, numAnswers: na };
+}
+
+function gestioneConfigLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_CONFIG_LS);
+        if (!raw) return gestioneConfigDefaults();
+        var p = JSON.parse(raw);
+        return gestioneConfigNormalize(p);
+    } catch (eCfg) {
+        return gestioneConfigDefaults();
+    }
+}
+
+function gestioneConfigSave(cfg) {
+    cfg = gestioneConfigNormalize(cfg || {});
+    try {
+        localStorage.setItem(
+            GESTIONE_CONFIG_LS,
+            JSON.stringify({ v: 1, numQuestions: cfg.numQuestions, numAnswers: cfg.numAnswers })
+        );
+    } catch (eS) { /* ignore */ }
+}
+
+function gestioneAfterConfigChangeResync() {
+    try {
+        var items = gestioneDomandeLoad();
+        gestioneDomandePersist(items);
+        gestioneUtentePersist(gestioneUtenteLoad());
+        var ov = document.getElementById('quiz-gestione-test-overlay');
+        if (ov && ov.classList.contains('visible')) gestioneDomandeRender();
+    } catch (eR) { /* ignore */ }
+}
+
+function gestioneConfigRefreshPopupDisplay() {
+    var cfg = gestioneConfigLoad();
+    var nqEl = document.getElementById('gestione-config-nq-val');
+    var naEl = document.getElementById('gestione-config-na-val');
+    if (nqEl) nqEl.textContent = String(cfg.numQuestions);
+    if (naEl) naEl.textContent = String(cfg.numAnswers);
+    var nqm = document.getElementById('gestione-config-nq-minus');
+    var nqp = document.getElementById('gestione-config-nq-plus');
+    var nam = document.getElementById('gestione-config-na-minus');
+    var nap = document.getElementById('gestione-config-na-plus');
+    if (nqm) nqm.disabled = cfg.numQuestions <= GESTIONE_CONFIG_NQ_MIN;
+    if (nqp) nqp.disabled = cfg.numQuestions >= GESTIONE_CONFIG_NQ_MAX;
+    if (nam) nam.disabled = cfg.numAnswers <= GESTIONE_CONFIG_NA_MIN;
+    if (nap) nap.disabled = cfg.numAnswers >= GESTIONE_CONFIG_NA_MAX;
+}
+
+function gestioneConfigDeltaNq(delta) {
+    var cfg = gestioneConfigLoad();
+    cfg.numQuestions = Math.min(
+        GESTIONE_CONFIG_NQ_MAX,
+        Math.max(GESTIONE_CONFIG_NQ_MIN, cfg.numQuestions + delta)
+    );
+    gestioneConfigSave(cfg);
+    gestioneConfigRefreshPopupDisplay();
+    gestioneAfterConfigChangeResync();
+}
+
+function gestioneConfigDeltaNa(delta) {
+    var cfg = gestioneConfigLoad();
+    cfg.numAnswers = Math.min(
+        GESTIONE_CONFIG_NA_MAX,
+        Math.max(GESTIONE_CONFIG_NA_MIN, cfg.numAnswers + delta)
+    );
+    gestioneConfigSave(cfg);
+    gestioneConfigRefreshPopupDisplay();
+    gestioneAfterConfigChangeResync();
+}
+
+function gestioneConfigPopupOpen() {
+    if (!quizGestioneDomandeEditorCompleto) return;
+    gestioneConfigRefreshPopupDisplay();
+    var ov = document.getElementById('quiz-gestione-config-overlay');
+    if (!ov) return;
+    ov.classList.add('visible');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function gestioneConfigPopupClose() {
+    var ov = document.getElementById('quiz-gestione-config-overlay');
+    if (!ov) return;
+    ov.classList.remove('visible');
+    ov.setAttribute('aria-hidden', 'true');
+    var go = document.getElementById('quiz-gestione-test-overlay');
+    if (!go || !go.classList.contains('visible')) {
+        document.body.classList.remove('quiz-info-open');
+    }
+}
+
+function gestioneConfigPopupBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-gestione-config-overlay') gestioneConfigPopupClose();
+}
+
+function gestioneConfigPopupGeneraClick() {
+    gestioneConfigPopupClose();
+    gestioneGeneraDomandeClick();
+}
 
 function gestioneUtentePicksNormalize(picks) {
+    var cfg = gestioneConfigLoad();
+    var nSlots = cfg.numQuestions;
+    var maxIx = Math.max(0, cfg.numAnswers - 1);
     if (!Array.isArray(picks)) picks = [];
-    while (picks.length < 10) picks.push(null);
-    return picks.slice(0, 10).map(function (x) {
+    while (picks.length < nSlots) picks.push(null);
+    return picks.slice(0, nSlots).map(function (x) {
         if (x === null || x === undefined || x === '') return null;
         var n = parseInt(x, 10);
-        if (!isFinite(n) || n < 0 || n > 4) return null;
+        if (!isFinite(n) || n < 0 || n > maxIx) return null;
         return n;
     });
 }
@@ -18895,8 +19138,9 @@ function gestioneUtentePersist(picks) {
 }
 
 function gestioneUtentePersistFromDom() {
+    var nq = gestioneConfigLoad().numQuestions;
     var picks = [];
-    for (var ui = 0; ui < 10; ui++) {
+    for (var ui = 0; ui < nq; ui++) {
         var ur = document.querySelector('input[name="gestione-corr-' + ui + '"]:checked');
         picks.push(ur ? parseInt(ur.value, 10) : null);
     }
@@ -18911,7 +19155,10 @@ function gestioneUtentePickSaveOne(slotIdx) {
 }
 
 function gestioneDomandeEmptySlot() {
-    return { q: '', answers: ['', '', '', '', ''], correctIndex: 0 };
+    var na = gestioneConfigLoad().numAnswers;
+    var ans = [];
+    for (var ai = 0; ai < na; ai++) ans.push('');
+    return { q: '', answers: ans, correctIndex: 0 };
 }
 
 function gestioneStripHtml(s) {
@@ -18936,20 +19183,26 @@ function gestioneShuffle(arr) {
 }
 
 function gestioneDomandeDefaultPack() {
+    var nq = gestioneConfigLoad().numQuestions;
     var out = [];
-    for (var i = 0; i < 10; i++) out.push(gestioneDomandeEmptySlot());
+    for (var i = 0; i < nq; i++) out.push(gestioneDomandeEmptySlot());
     return out;
 }
 
 function gestioneDomandeNormalizeItems(items) {
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    var na = cfg.numAnswers;
     if (!Array.isArray(items)) items = [];
-    while (items.length < 10) items.push(gestioneDomandeEmptySlot());
-    return items.slice(0, 10).map(function (it) {
-        var ans = (it && it.answers ? it.answers : []).slice(0, 5);
-        while (ans.length < 5) ans.push('');
-        var ci = parseInt(it && it.correctIndex, 10);
-        if (!isFinite(ci) || ci < 0 || ci > 4) ci = 0;
-        return { q: String((it && it.q) || ''), answers: ans, correctIndex: ci };
+    while (items.length < nq) items.push(null);
+    return items.slice(0, nq).map(function (it) {
+        it = it || {};
+        var ans = (it.answers ? it.answers.slice(0, na) : []).slice();
+        while (ans.length < na) ans.push('');
+        ans = ans.slice(0, na);
+        var ci = parseInt(it.correctIndex, 10);
+        if (!isFinite(ci) || ci < 0 || ci >= na) ci = 0;
+        return { q: String(it.q || ''), answers: ans, correctIndex: ci };
     });
 }
 
@@ -18989,12 +19242,15 @@ function gestioneDomandePersist(items) {
 }
 
 function gestioneReadSlotsFromDom() {
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    var na = cfg.numAnswers;
     var items = [];
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < nq; i++) {
         var ta = document.getElementById('gestione-q-text-' + i);
         var q = ta ? ta.value : '';
         var answers = [];
-        for (var k = 0; k < 5; k++) {
+        for (var k = 0; k < na; k++) {
             var inp = document.getElementById('gestione-a-' + i + '-' + k);
             answers.push(inp ? inp.value : '');
         }
@@ -19011,6 +19267,11 @@ function gestioneDomandeSaveAllClick() {
         return;
     }
     gestioneDomandePersist(gestioneReadSlotsFromDom());
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eClr) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
 }
 
 /** Salva tutto e invio immediato su Firestore (oltre al salvataggio locale). */
@@ -19032,26 +19293,13 @@ function gestioneDomandeSaveSlotClick(idx) {
         return;
     }
     gestioneDomandePersist(gestioneReadSlotsFromDom());
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eClr2) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
     var card = document.getElementById('gestione-card-' + idx);
     if (card) card.classList.remove('is-editing');
-}
-
-function gestioneCardModifica(idx) {
-    var card = document.getElementById('gestione-card-' + idx);
-    if (!card) return;
-    card.classList.add('is-editing');
-    var ta = document.getElementById('gestione-q-text-' + idx);
-    if (ta) {
-        gestioneDomandeFitQuestionTextarea(ta);
-        ta.focus();
-        try {
-            ta.select();
-        } catch (e) { /* ignore */ }
-    }
-    for (var ka = 0; ka < 5; ka++) {
-        var at = document.getElementById('gestione-a-' + idx + '-' + ka);
-        if (at) gestioneDomandeFitAnswerTextarea(at);
-    }
 }
 
 /** Mirror fuori schermo: altezza allineata al testo reale (scrollHeight sulle textarea aggiunge spesso una riga «vuota»). */
@@ -19175,7 +19423,8 @@ function gestioneDomandeFitQuestionTextarea(el) {
 }
 
 function gestioneDomandeFitAllQuestionTextareas() {
-    for (var i = 0; i < 10; i++) {
+    var nq = gestioneConfigLoad().numQuestions;
+    for (var i = 0; i < nq; i++) {
         var ta = document.getElementById('gestione-q-text-' + i);
         if (ta) gestioneDomandeFitQuestionTextarea(ta);
     }
@@ -19186,8 +19435,11 @@ function gestioneDomandeFitAnswerTextarea(el) {
 }
 
 function gestioneDomandeFitAllAnswerTextareas() {
-    for (var i = 0; i < 10; i++) {
-        for (var k = 0; k < 5; k++) {
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    for (var i = 0; i < nq; i++) {
+        for (var k = 0; k < na; k++) {
             var el = document.getElementById('gestione-a-' + i + '-' + k);
             if (el) gestioneDomandeFitAnswerTextarea(el);
         }
@@ -19234,6 +19486,7 @@ function gestioneDomandeSyncAnswerRows(card) {
 
 function gestioneDomandeBuildCard(i, slot) {
     slot = slot || gestioneDomandeEmptySlot();
+    var naCfg = gestioneConfigLoad().numAnswers;
     var editor = quizGestioneDomandeEditorCompleto;
     var picksUtente = editor ? null : gestioneUtenteLoad();
     var userPick =
@@ -19263,26 +19516,19 @@ function gestioneDomandeBuildCard(i, slot) {
 
     var actions = document.createElement('div');
     actions.className = 'gestione-q-card-actions';
-    var bMod = document.createElement('button');
-    bMod.type = 'button';
-    bMod.className = 'btn-side btn-reset';
-    bMod.textContent = 'Modifica';
-    bMod.setAttribute('aria-label', 'Modifica domanda ' + (i + 1));
-    bMod.onclick = function () {
-        gestioneCardModifica(i);
-    };
     var bSav = document.createElement('button');
     bSav.type = 'button';
     bSav.className = 'btn-side btn-report';
     bSav.textContent = 'Salva';
     bSav.setAttribute(
         'aria-label',
-        editor ? 'Salva domanda ' + (i + 1) : 'Salva la risposta scelta per la domanda ' + (i + 1)
+        editor
+            ? 'Salva domanda e risposte ' + (i + 1) + ' su cloud'
+            : 'Salva la risposta scelta per la domanda ' + (i + 1)
     );
     bSav.onclick = function () {
         gestioneDomandeSaveSlotClick(i);
     };
-    if (editor) actions.appendChild(bMod);
     actions.appendChild(bSav);
     head.appendChild(titleRow);
     head.appendChild(actions);
@@ -19352,8 +19598,11 @@ function gestioneDomandeBuildCard(i, slot) {
     var list = document.createElement('div');
     list.className = 'gestione-answers-list';
 
-    var ci = Math.min(4, Math.max(0, parseInt(slot.correctIndex, 10) || 0));
-    for (let k = 0; k < 5; k++) {
+    var ci = Math.min(
+        Math.max(0, naCfg - 1),
+        Math.max(0, parseInt(slot.correctIndex, 10) || 0)
+    );
+    for (let k = 0; k < naCfg; k++) {
         var slotWrap = document.createElement('div');
         slotWrap.className = 'gestione-answer-slot';
         if (editor) {
@@ -19448,8 +19697,9 @@ function gestioneDomandeRender() {
     var root = document.getElementById('quiz-gestione-test-list');
     if (!root) return;
     var data = gestioneDomandeLoad();
+    var nq = gestioneConfigLoad().numQuestions;
     root.innerHTML = '';
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < nq; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
     requestAnimationFrame(function () {
@@ -19494,26 +19744,60 @@ function gestioneCollectGlobalActionPool() {
     return pool;
 }
 
+/** Se il testo domanda (stem normalizzato) coincide con una slot già salvata, ripristina q/risposte/indice corretto da quella slot. */
+function gestioneMergeSavedSlotsIntoGenerated(prev, out) {
+    if (!Array.isArray(prev) || !Array.isArray(out)) return out;
+    var cfg = gestioneConfigLoad();
+    var na = cfg.numAnswers;
+    var minStemLen = 8;
+    for (var i = 0; i < out.length; i++) {
+        if (i >= prev.length) break;
+        var po = prev[i];
+        var oo = out[i];
+        if (!po || !oo) continue;
+        var ps = gestioneStripHtml(po.q || '');
+        var os = gestioneStripHtml(oo.q || '');
+        if (ps.length < minStemLen || os.length < minStemLen) continue;
+        if (ps !== os) continue;
+        var normPrev = gestioneDomandeNormalizeItems([po])[0];
+        oo.q = normPrev.q;
+        oo.answers = normPrev.answers.slice(0, na);
+        while (oo.answers.length < na) oo.answers.push('');
+        oo.correctIndex = normPrev.correctIndex;
+    }
+    return out;
+}
+
 function gestioneGeneraBuildFromDb() {
+    var prevSaved = gestioneDomandeLoad();
+    var cfg = gestioneConfigLoad();
+    var nTotal = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    var numWrong = Math.max(0, na - 1);
+    var letters = ['A', 'B', 'C', 'D', 'E'];
     var out = [];
     var pool = gestioneCollectGlobalActionPool();
     var rows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
     if (!rows.length) {
-        for (var z = 0; z < 10; z++) {
+        for (var z = 0; z < nTotal; z++) {
             var sl = gestioneDomandeEmptySlot();
             sl.q = 'Definire la domanda ' + (z + 1) + ' (database Controlli non disponibile in questo contesto)';
-            sl.answers = ['Opzione A — da completare', 'Opzione B — da completare', 'Opzione C — da completare', 'Opzione D — da completare', 'Opzione E — da completare'];
+            var ansPl = [];
+            for (var ze = 0; ze < na; ze++) {
+                ansPl.push('Opzione ' + letters[ze] + ' — da completare');
+            }
+            sl.answers = ansPl;
             sl.correctIndex = 0;
             out.push(sl);
         }
-        return out;
+        return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
     }
     var order = gestioneShuffle(rows.map(function (_, idx) {
         return idx;
     }));
     var distractors = gestioneShuffle(pool.slice());
 
-    for (var n = 0; n < 10; n++) {
+    for (var n = 0; n < nTotal; n++) {
         var row = rows[order[n % order.length]];
         var qStem = gestioneStripHtml(row.q || '').substring(0, 420);
         var acts = (row.actions || []).map(function (a) {
@@ -19529,27 +19813,27 @@ function gestioneGeneraBuildFromDb() {
         var wrong = [];
         var used = {};
         used[correct] = 1;
-        for (var d = 0; d < distractors.length && wrong.length < 8; d++) {
+        for (var d = 0; d < distractors.length && wrong.length < numWrong; d++) {
             var cand = distractors[d];
             if (!cand || used[cand] || acts.indexOf(cand) >= 0) continue;
             used[cand] = 1;
             wrong.push(cand);
         }
-        while (wrong.length < 4) {
+        while (wrong.length < numWrong) {
             wrong.push('Controllo incrociato su parametri di linea e registrazioni (' + (wrong.length + 1) + ')');
         }
-        var answers = gestioneShuffle([correct].concat(wrong.slice(0, 4)));
+        var answers = gestioneShuffle([correct].concat(wrong.slice(0, numWrong)));
         var uniq = [];
         var seenA = {};
         answers.forEach(function (x) {
-            var k = x || '';
-            if (!seenA[k]) {
-                seenA[k] = 1;
-                uniq.push(k);
+            var kx = x || '';
+            if (!seenA[kx]) {
+                seenA[kx] = 1;
+                uniq.push(kx);
             }
         });
-        while (uniq.length < 5) uniq.push('Alternativa operativa plausibile (' + uniq.length + ')');
-        answers = uniq.slice(0, 5);
+        while (uniq.length < na) uniq.push('Alternativa operativa plausibile (' + uniq.length + ')');
+        answers = uniq.slice(0, na);
         var ci = answers.indexOf(correct);
         if (ci < 0) ci = 0;
 
@@ -19565,11 +19849,12 @@ function gestioneGeneraBuildFromDb() {
             correctIndex: ci
         });
     }
-    return out;
+    return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
 }
 
 function gestioneGeneraDomandeClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    var nq = gestioneConfigLoad().numQuestions;
     var hasContent = false;
     try {
         var cur = gestioneReadSlotsFromDom();
@@ -19578,16 +19863,31 @@ function gestioneGeneraDomandeClick() {
                 hasContent = true;
                 break;
             }
-            for (var j = 0; j < 5; j++) {
-                if ((cur[i].answers[j] || '').trim()) {
+            var al = cur[i].answers || [];
+            for (var j = 0; j < al.length; j++) {
+                if ((al[j] || '').trim()) {
                     hasContent = true;
                     break;
                 }
             }
         }
     } catch (e) { /* ignore */ }
-    if (hasContent && !window.confirm('Sostituire le 10 domande attuali con nuove domande generate dai contenuti «Controlli e azioni»?')) return;
+    if (
+        hasContent &&
+        !window.confirm(
+            'Sostituire le ' +
+                nq +
+                ' domande attuali con nuove domande generate dai contenuti «Controlli e azioni»?'
+        )
+    ) {
+        return;
+    }
     gestioneDomandePersist(gestioneGeneraBuildFromDb());
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eGen) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
     gestioneDomandeRender();
 }
 
@@ -19627,14 +19927,10 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
-    var leadEl = document.getElementById('quiz-gestione-test-lead');
+    var setBtn = document.getElementById('quiz-gestione-btn-settings');
     var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
     if (genBtn) genBtn.hidden = !editorCompleto;
-    if (leadEl) {
-        leadEl.innerHTML = editorCompleto
-            ? 'Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.'
-            : 'Dieci domande a risposta multipla. Domande e opzioni sono solo lettura: scegli la tua risposta con il pallino e usa <strong>Salva</strong> sulla scheda per registrare la risposta sul dispositivo. Non viene indicata la risposta corretta.';
-    }
+    if (setBtn) setBtn.hidden = !editorCompleto;
     if (tornaBtn) {
         if (editorCompleto) {
             tornaBtn.textContent = 'Torna';
@@ -19657,6 +19953,11 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
 }
 
 function hideQuizGestioneTestVerificheModal() {
+    var cfgOv = document.getElementById('quiz-gestione-config-overlay');
+    if (cfgOv) {
+        cfgOv.classList.remove('visible');
+        cfgOv.setAttribute('aria-hidden', 'true');
+    }
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     if (!overlay) return;
     overlay.classList.remove('visible');
@@ -19985,6 +20286,14 @@ function setupQuizTitleToggle() {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
                 quizModifyDevBackClick();
+            }
+            return;
+        }
+        const gestioneCfgOv = document.getElementById('quiz-gestione-config-overlay');
+        if (gestioneCfgOv && gestioneCfgOv.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                gestioneConfigPopupClose();
             }
             return;
         }
