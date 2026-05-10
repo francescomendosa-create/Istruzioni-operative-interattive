@@ -10878,7 +10878,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605224';
+const APP_BUILD = '202605228';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19195,7 +19195,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v3';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v5';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -19402,6 +19402,21 @@ function gestioneDomandeDefaultPack() {
     return out;
 }
 
+/** Correzioni terminologiche sul testo delle opzioni (pH: soda; forma richiesta «dosaggio acido / soda»). */
+function gestioneNormalizeAnswerPhrase(s) {
+    if (s == null || typeof s !== 'string') return s;
+    var t = s;
+    var canonDos = 'dosaggio acido / soda';
+    var canonPair = 'acido / soda';
+    t = t.replace(/\bdosaggio\s+acido\s*\/\s*base\b/gi, canonDos);
+    t = t.replace(/\bdosaggio\s+acido\s+slash\s+base\b/gi, canonDos);
+    t = t.replace(/\bdosaggio\s+acido\s*\/\s*soda\b/gi, canonDos);
+    t = t.replace(/\bacido\s*\/\s*base\b/gi, canonPair);
+    t = t.replace(/\bacido\s+slash\s+base\b/gi, canonPair);
+    t = t.replace(/\bacido\s*[-–]\s*base\b/gi, canonPair);
+    return t;
+}
+
 function gestioneDomandeNormalizeItems(items) {
     var cfg = gestioneConfigLoad();
     var nq = cfg.numQuestions;
@@ -19412,7 +19427,9 @@ function gestioneDomandeNormalizeItems(items) {
         it = it || {};
         var ans = (it.answers ? it.answers.slice(0, na) : []).slice();
         while (ans.length < na) ans.push('');
-        ans = ans.slice(0, na);
+        ans = ans.slice(0, na).map(function (a) {
+            return gestioneNormalizeAnswerPhrase(String(a || ''));
+        });
         var ci = parseInt(it.correctIndex, 10);
         if (!isFinite(ci) || ci < 0 || ci >= na) ci = 0;
         return { q: String(it.q || ''), answers: ans, correctIndex: ci };
@@ -20140,7 +20157,18 @@ function gestioneMcqGeminiCacheNeedsRefresh(key, numWrong) {
     if (numWrong < 1) return false;
     var e = gestioneMcqGeminiCacheGetEntry(key);
     if (!e || !e.wrong || e.wrong.length < numWrong) return true;
-    if (!e.correctArt || String(e.correctArt).trim().length < 12) return true;
+    if (!e.correctArt || gestioneGeminiCorrectArticulationTooWeak(e.correctArt)) return true;
+    return false;
+}
+
+/** Risposta corretta troppo simile a un’etichetta (es. solo «linea mandata»): va rigenerata. */
+function gestioneGeminiCorrectArticulationTooWeak(text) {
+    var t = String(text || '').trim();
+    if (t.length < 72) return true;
+    var words = t.split(/\s+/).filter(function (w) {
+        return w.length > 0;
+    });
+    if (words.length < 10) return true;
     return false;
 }
 
@@ -20159,8 +20187,13 @@ function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
     }
     var corrS = String(corr == null ? '' : corr).trim();
     if (corrS.length < 8) throw new Error('gestione_gemini_no_correct');
+    if (gestioneGeminiCorrectArticulationTooWeak(corrS)) throw new Error('gestione_gemini_correct_too_terse');
     if (outW.length < numWrong) throw new Error('gestione_gemini_short');
-    return { correct: corrS, wrong: outW.slice(0, numWrong) };
+    var corrNorm = gestioneNormalizeAnswerPhrase(corrS);
+    var wrongNorm = outW.slice(0, numWrong).map(function (w) {
+        return gestioneNormalizeAnswerPhrase(w);
+    });
+    return { correct: corrNorm, wrong: wrongNorm };
 }
 
 /**
@@ -20178,22 +20211,29 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         } catch (eAb) { /* ignore */ }
     }, 52000);
     var prompt =
-        'Sei un senior negli ambiti di procedure operative, controlli di processo, HSEQ e continuità produttiva (lingua: italiano).\n' +
-        'Contesto applicativo: «istruzioni operative interattive» con schede controllo, azioni previste e priorità di sicurezza.\n' +
-        'Compito: per la domanda a scelta multipla sotto, devi produrre testi RICCHI e ARTICOLATI (non slogan), come linee guida operative brevi.\n' +
-        '- Campo "correct": riformula in modo chiaro e professionale la RISPOSTA CORRETTA UFFICIALE fornita, SENZA contraddirla né attenuare i vincoli normativi o di sicurezza. Una o due frasi unite (circa 120–420 caratteri). Usa verbi operativi, riferimenti a verifica, registrazione, allarmi o escalation quando pertinente.\n' +
-        '- Campo "wrong": ESATTAMENTE ' +
+        'Sei un senior negli ambiti di procedure operative, controlli di processo, impianti chimico-industriali, HSEQ e continuità produttiva (lingua: italiano).\n' +
+        'Contesto: «istruzioni operative interattive» — le opzioni devono essere comprensibili da un operatore senza indovinare jargon incomprensibile.\n' +
+        '\nREGOLE PER IL CAMPO "correct" (RISPOSTA GIUSTA — priorità massima):\n' +
+        '- NON scrivere mai solo etichette o sintagmi nominali brevi (vietato es.: solo «linea mandata», «vasca», «OK», «controllo temperatura»).\n' +
+        '- DEVI produrre una o due FRASI COMPLETE, intuitive, concrete: soggetto operativo implicito (l’operatore), VERBO d’azione (verificare, controllare, confermare che, accertarsi che, monitorare, intervenire su, registrare, allineare…), OGGETTO tecnico QUALIFICATO con aggettivi o specificazioni dove servono (es. «la linea di mandata del polietilene», «il regime di pompaggio nominale», «la tenuta degli agganci previsti dalla scheda»).\n' +
+        '- Spiega in modo sintetico COSA controllare e PERCHÉ è coerente con la domanda (senza divagare).\n' +
+        '- Lunghezza indicativa di "correct": almeno ~180–520 caratteri; se la fonte ufficiale è cortissima, ESPANDI comunque in istruzione operativa fedele al senso.\n' +
+        '- Mantieni il significato della RISPOSTA CORRETTA UFFICIALE: non contraddirla, non indebolire sicurezza o conformità.\n' +
+        '- Regolazione pH / dosaggio chimico: se il contenuto riguarda correzione con acido e **soda** (non «base» generica), usa nella frase la forma esatta **dosaggio acido / soda** (spazi prima e dopo lo slash / ), integrata nel discorso operativo. Vietato «acido/base» e «dosaggio acido/base» per questo contesto.\n' +
+        '\nREGOLE PER IL CAMPO "wrong" (alternative SBAGLIATE):\n' +
+        '- ESATTAMENTE ' +
         numWrong +
-        ' alternative SBAGLIATE rispetto alla domanda, altrettanto articolate (120–420 caratteri ciascuna), plausibili in stabilimento ma incoerenti o insufficienti rispetto alla domanda o alla scheda.\n' +
-        '- Ogni stringa è autoconclusa; niente prefissi "A)" / "Opzione". Nessun markdown.\n' +
-        '- Tutte le wrong devono essere distinte tra loro e sostanzialmente distinte da "correct" (niente copia o sinonimo stretto).\n' +
+        ' testi, stesso livello di articolazione (frasi complete, verbi, contesto), plausibili in stabilimento ma SBAGLIATI o insufficienti per la domanda.\n' +
+        '- Evita etichette da una sola riga troppo corte anche qui.\n' +
+        '\nFormato: niente prefissi "A)" / numeri; nessun markdown.\n' +
+        '- Tutte le wrong devono essere distinte tra loro e da "correct".\n' +
         'Tag scheda: ' +
         String(tagLine || '—').substring(0, 260) +
         '\nEstratti contestuali (documentazione / azioni): ' +
         String(actsPreview || '—').substring(0, 1800) +
         '\n\nDOMANDA:\n' +
         String(questionText || '').substring(0, 3800) +
-        '\n\nRISPOSTA CORRETTA UFFICIALE (parafrasi fedele in "correct", non eludere il senso):\n' +
+        '\n\nRISPOSTA CORRETTA UFFICIALE (espandi in "correct" come discorso operativo completo; fedele al senso):\n' +
         String(sourceCorrectOfficial || '').substring(0, 1600) +
         '\n\nRispondi SOLO con JSON valido:\n' +
         '{"correct":"...","wrong":["...","..."]}\n' +
@@ -20206,7 +20246,7 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         encodeURIComponent(cfg.textKey);
     var reqBody = JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.48, maxOutputTokens: 8192 }
+        generationConfig: { temperature: 0.52, maxOutputTokens: 8192 }
     });
     var res = null;
     try {
@@ -20307,7 +20347,7 @@ async function gestioneGeneraBuildFromDb() {
                 cachedEnt.wrong &&
                 cachedEnt.wrong.length >= numWrong &&
                 cachedEnt.correctArt &&
-                String(cachedEnt.correctArt).trim().length >= 12
+                !gestioneGeminiCorrectArticulationTooWeak(cachedEnt.correctArt)
             ) {
                 correctDisplay = String(cachedEnt.correctArt).trim();
                 built = gestioneGeneraBuildAnswersLocal(
@@ -20321,9 +20361,9 @@ async function gestioneGeneraBuildFromDb() {
                 cachedEnt &&
                 cachedEnt.wrong &&
                 cachedEnt.wrong.length >= numWrong &&
-                (!cachedEnt.correctArt || String(cachedEnt.correctArt).trim().length < 12)
+                (!cachedEnt.correctArt || gestioneGeminiCorrectArticulationTooWeak(cachedEnt.correctArt))
             ) {
-                /* Cache solo distrattori (legacy): usa corretta grezza */
+                /* Cache incompleta o corretta troppo sintetica: usa testo corretto grezzo dalla scheda */
                 built = gestioneGeneraBuildAnswersLocal(
                     correct,
                     numWrong,
