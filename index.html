@@ -7272,15 +7272,37 @@
             font-weight: 700;
             white-space: nowrap;
         }
+        .quiz-gestione-sperimentale-launch {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .quiz-gestione-sperimentale-caption {
+            font-size: 0.64rem;
+            line-height: 1.15;
+            color: #78909c;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            max-width: 11em;
+            text-align: right;
+        }
         #quiz-gestione-sperimentale-overlay .quiz-gestione-sperimentale-modal {
-            width: min(94vw, 440px);
-            max-width: min(94vw, 440px);
+            width: min(94vw, 480px);
+            max-width: min(94vw, 480px);
             padding: 14px 16px 12px;
             box-sizing: border-box;
         }
         .quiz-gestione-sperimentale-lead {
-            margin: 0 0 14px;
+            margin: 0 0 10px;
             font-size: 0.82rem;
+            line-height: 1.45;
+            color: #546e7a;
+        }
+        .quiz-gestione-sperimentale-note {
+            margin: 0 0 14px;
+            font-size: 0.78rem;
             line-height: 1.45;
             color: #546e7a;
         }
@@ -10951,8 +10973,11 @@ function dismissAppSplash() {
                         </button>
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Costruisce l’elenco domande solo in base a Impostazioni domande (flussi offline: generiche da scheda e/o banco Controlli/Azioni/Rischi). Per i testi articolati da rete usa Sperimentale → Scarica / Applica." aria-label="Genera domande">Genera</button>
-                        <button type="button" id="quiz-gestione-btn-sperimentale" class="btn-side btn-reset btn-gestione-sperimentale" onclick="gestioneSperimentaleModalOpen()" title="Strumenti sperimentali: scarica e applica risposte articulate (Gemini / cache)" aria-label="Sperimentale">Sperimentale</button>
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Costruisce l’elenco domande solo in base a Impostazioni domande (flussi offline: generiche da scheda e/o banco Controlli/Azioni/Rischi). Per i testi articolati da rete usa Scarica flusso → Scarica / Applica." aria-label="Genera domande">Genera</button>
+                        <div class="quiz-gestione-sperimentale-launch">
+                            <span id="quiz-gestione-sperimentale-caption" class="quiz-gestione-sperimentale-caption">Sperimentale</span>
+                            <button type="button" id="quiz-gestione-btn-sperimentale" class="btn-side btn-reset btn-gestione-sperimentale" onclick="gestioneSperimentaleModalOpen()" title="Apre Genera domande IA (sperimentale): scarica in cache e applica risposte articulate tramite API (Gemini)." aria-describedby="quiz-gestione-sperimentale-caption" aria-label="Apri Genera domande IA (sperimentale): scarica e applica risposte online">Scarica flusso</button>
+                        </div>
                     </div>
                 </div>
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
@@ -10970,7 +10995,7 @@ function dismissAppSplash() {
                                 onchange="gestioneGeneraUgualiTuttiSetFromCheckbox(this)"
                                 aria-label="Genera: stesso pacchetto per tutti i destinatari"
                             />
-                            <span class="quiz-gestione-destinatari-pref-inline">tutti sempre</span>
+                            <span class="quiz-gestione-destinatari-pref-inline">Tutti</span>
                         </label>
                     </div>
                     <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
@@ -10992,9 +11017,12 @@ function dismissAppSplash() {
 
     <div id="quiz-gestione-sperimentale-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneSperimentaleModalBackdrop(event)">
         <div class="quiz-lock-box quiz-app-box quiz-gestione-sperimentale-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-sperimentale-title" onclick="event.stopPropagation()">
-            <h4 id="quiz-gestione-sperimentale-title" class="quiz-lock-title">Sperimentale · Risposte online</h4>
+            <h4 id="quiz-gestione-sperimentale-title" class="quiz-lock-title">Genera domande IA (sperimentale)</h4>
             <p class="quiz-gestione-sperimentale-lead">
-                Il pulsante <strong>Genera</strong> (in alto) costruisce l’elenco solo in base a <strong>Impostazioni domande</strong> (flussi offline impostati lì). Qui scarichi e applichi i testi articolati da rete (Gemini): prima <strong>Scarica</strong>, poi <strong>Applica</strong> all’elenco attuale, senza dover usare di nuovo Genera.
+                Prova a generare domande / risposte grazie all’implementazione API IA integrata con link diretto.
+            </p>
+            <p class="quiz-gestione-sperimentale-note">
+                <strong>NOTA:</strong> si fa presente che questa implementazione comporta rischi qualora domande e risposte non siano correttamente verificate e analizzate. L’implementazione sta maturando progressivamente, fino a produrre quesiti sempre più intelligenti e conformi e a diventare notevolmente affidabile anche senza necessità di controllo umano.
             </p>
             <div class="quiz-gestione-sperimentale-actions">
                 <button
@@ -11327,7 +11355,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605256';
+const APP_BUILD = '202605259';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
