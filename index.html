@@ -6777,14 +6777,22 @@
             margin-top: 8px;
             flex-shrink: 0;
         }
-        .gestione-answer-row input[type="text"] {
+        .gestione-answer-row textarea.gestione-a-text {
             flex: 1;
             min-width: 0;
+            min-height: 2.6em;
+            max-height: none;
             padding: 7px 9px;
             border: 1px solid #b0bec5;
             border-radius: 8px;
             font-size: 0.78rem;
+            line-height: 1.45;
             font-family: inherit;
+            resize: none;
+            overflow: hidden;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
         .gestione-answer-label {
             font-size: 0.72rem;
@@ -9907,7 +9915,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605191</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605193</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10203,7 +10211,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605191';
+const APP_BUILD = '202605193';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -10444,6 +10452,9 @@ const QUIZ_FS_APP_FLAGS_DOC = 'ui';
 /** Schede create in Modifica contenuti: doc condiviso (ordine, nomi, domande). Regole Firestore su `quiz_custom_schedario`. */
 const QUIZ_FS_CUSTOM_SCHEDARIO = 'quiz_custom_schedario';
 const QUIZ_FS_CUSTOM_SCHEDARIO_DOC = 'global';
+/** Domande gestione test e verifiche (10 MCQ): doc condiviso tra dispositivi. Regole su `quiz_gestione_domande`. */
+const QUIZ_FS_GESTIONE_DOMANDE = 'quiz_gestione_domande';
+const QUIZ_FS_GESTIONE_DOMANDE_DOC = 'global';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
@@ -10481,6 +10492,12 @@ let quizModifyFeaturesPollId = null;
 let quizCustomSchedarioRemoteApply = false;
 let quizCustomSchedarioUnsub = null;
 let quizCustomSchedarioPushTimer = null;
+/** Cloud sync domande «Gestione test e verifiche» (debounce push). */
+let gestioneDomandePushTimer = null;
+/** Durante applicazione snapshot Firestore: non riscrivere il doc dal client. */
+let gestioneDomandeRemoteApply = false;
+/** unsubscribe quiz_gestione_domande/global */
+let gestioneDomandeFsUnsub = null;
 /** Cache memoria dello schedario personalizzato (allineata a LS + cloud). */
 let quizCustomSchedarioCache = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
@@ -12008,6 +12025,98 @@ function quizSubscribeCustomSchedario() {
         })
         .catch(function (e) {
             console.warn('[quiz_custom_schedario subscribe]', e);
+        });
+}
+
+/*
+ * quiz_gestione_domande/global — { v, items[10], updatedAt } domande gestione test e verifiche.
+ * Regole Firestore suggerite:
+ *   match /quiz_gestione_domande/{docId} {
+ *     allow read: if request.auth != null;
+ *     allow create, update: if request.auth != null;
+ *   }
+ */
+function gestioneDomandeSchedulePushToFirestore() {
+    if (gestioneDomandeRemoteApply || !quizFirestoreConfigured()) return;
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eCl) { /* ignore */ }
+    gestioneDomandePushTimer = window.setTimeout(function () {
+        gestioneDomandePushTimer = null;
+        gestioneDomandePushToFirestoreNow();
+    }, 450);
+}
+
+function gestioneDomandePushToFirestoreNow() {
+    if (!quizFirestoreConfigured() || gestioneDomandeRemoteApply) return;
+    quizEnsureFirebase()
+        .then(function () {
+            var items = gestioneDomandeLoad();
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_GESTIONE_DOMANDE)
+                .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC)
+                .set(
+                    {
+                        v: 1,
+                        items: items,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    },
+                    { merge: true }
+                );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_gestione_domande push]', e);
+        });
+}
+
+function quizSubscribeGestioneDomande() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            if (gestioneDomandeFsUnsub) {
+                try {
+                    gestioneDomandeFsUnsub();
+                } catch (eU) { /* ignore */ }
+                gestioneDomandeFsUnsub = null;
+            }
+            var ref = firebase.firestore().collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
+            ref.get()
+                .then(function (gs) {
+                    if (gs.exists) return;
+                    var loc = gestioneDomandeLoad();
+                    if (gestioneDomandePackHasAnyContent(loc)) gestioneDomandePushToFirestoreNow();
+                })
+                .catch(function () {});
+            gestioneDomandeFsUnsub = ref.onSnapshot(
+                function (snap) {
+                    if (!snap.exists) return;
+                    var dat = snap.data() || {};
+                    var rawItems = dat.items;
+                    if (!Array.isArray(rawItems)) return;
+                    var norm = gestioneDomandeNormalizeItems(rawItems);
+                    gestioneDomandeRemoteApply = true;
+                    try {
+                        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify({ v: 1, items: norm }));
+                        var ov = document.getElementById('quiz-gestione-test-overlay');
+                        if (ov && ov.classList.contains('visible')) gestioneDomandeRender();
+                    } catch (eApp) {
+                        console.warn('[quiz_gestione_domande apply]', eApp);
+                    }
+                    gestioneDomandeRemoteApply = false;
+                },
+                function (err) {
+                    console.warn('[quiz_gestione_domande snapshot]', err);
+                    window.setTimeout(function () {
+                        try {
+                            quizSubscribeGestioneDomande();
+                        } catch (eR) { /* ignore */ }
+                    }, 4000);
+                }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_gestione_domande subscribe]', e);
         });
 }
 
@@ -18275,7 +18384,7 @@ function quizAppModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-app-overlay') hideQuizAppModal();
 }
 
-/** Gestione test e verifiche — 10 domande MCQ (localeStorage), generazione da db.cf Controlli e azioni */
+/** Gestione test e verifiche — 10 domande MCQ (localStorage + Firestore), generazione da db.cf Controlli e azioni */
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 
 function gestioneDomandeEmptySlot() {
@@ -18309,6 +18418,18 @@ function gestioneDomandeDefaultPack() {
     return out;
 }
 
+function gestioneDomandeNormalizeItems(items) {
+    if (!Array.isArray(items)) items = [];
+    while (items.length < 10) items.push(gestioneDomandeEmptySlot());
+    return items.slice(0, 10).map(function (it) {
+        var ans = (it && it.answers ? it.answers : []).slice(0, 5);
+        while (ans.length < 5) ans.push('');
+        var ci = parseInt(it && it.correctIndex, 10);
+        if (!isFinite(ci) || ci < 0 || ci > 4) ci = 0;
+        return { q: String((it && it.q) || ''), answers: ans, correctIndex: ci };
+    });
+}
+
 function gestioneDomandeLoad() {
     try {
         var raw = localStorage.getItem(GESTIONE_DOMANDE_LS);
@@ -18316,23 +18437,32 @@ function gestioneDomandeLoad() {
         var parsed = JSON.parse(raw);
         var items = parsed.items || parsed.questions || parsed;
         if (!Array.isArray(items)) throw new Error('bad');
-        while (items.length < 10) items.push(gestioneDomandeEmptySlot());
-        return items.slice(0, 10).map(function (it) {
-            var ans = (it.answers || []).slice(0, 5);
-            while (ans.length < 5) ans.push('');
-            var ci = parseInt(it.correctIndex, 10);
-            if (!isFinite(ci) || ci < 0 || ci > 4) ci = 0;
-            return { q: String(it.q || ''), answers: ans, correctIndex: ci };
-        });
+        return gestioneDomandeNormalizeItems(items);
     } catch (e) {
         return gestioneDomandeDefaultPack();
     }
 }
 
+function gestioneDomandePackHasAnyContent(items) {
+    if (!Array.isArray(items)) return false;
+    for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        if (!it) continue;
+        if (String(it.q || '').trim()) return true;
+        var ans = it.answers || [];
+        for (var j = 0; j < ans.length; j++) {
+            if (String(ans[j] || '').trim()) return true;
+        }
+    }
+    return false;
+}
+
 function gestioneDomandePersist(items) {
+    var norm = gestioneDomandeNormalizeItems(items);
     try {
-        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify({ v: 1, items: items }));
+        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify({ v: 1, items: norm }));
     } catch (e) { /* ignore */ }
+    gestioneDomandeSchedulePushToFirestore();
 }
 
 function gestioneReadSlotsFromDom() {
@@ -18374,6 +18504,10 @@ function gestioneCardModifica(idx) {
             ta.select();
         } catch (e) { /* ignore */ }
     }
+    for (var ka = 0; ka < 5; ka++) {
+        var at = document.getElementById('gestione-a-' + idx + '-' + ka);
+        if (at) gestioneDomandeFitAnswerTextarea(at);
+    }
 }
 
 /** Altezza del campo domanda = tutto il testo visibile (nessuna barra di scorrimento nel riquadro). */
@@ -18391,6 +18525,28 @@ function gestioneDomandeFitAllQuestionTextareas() {
     }
 }
 
+/** Risposte lunghe: a capo automatico e altezza che mostra tutto il testo (come la domanda). */
+function gestioneDomandeFitAnswerTextarea(el) {
+    if (!el || el.tagName !== 'TEXTAREA') return;
+    el.style.height = 'auto';
+    var h = el.scrollHeight;
+    el.style.height = Math.max(h, 40) + 'px';
+}
+
+function gestioneDomandeFitAllAnswerTextareas() {
+    for (var i = 0; i < 10; i++) {
+        for (var k = 0; k < 5; k++) {
+            var el = document.getElementById('gestione-a-' + i + '-' + k);
+            if (el) gestioneDomandeFitAnswerTextarea(el);
+        }
+    }
+}
+
+function gestioneDomandeFitAllGestioneFields() {
+    gestioneDomandeFitAllQuestionTextareas();
+    gestioneDomandeFitAllAnswerTextareas();
+}
+
 function gestioneDomandeEnsureResizeListener() {
     if (window._gestioneDomandeResizeFitBound) return;
     window._gestioneDomandeResizeFitBound = true;
@@ -18401,7 +18557,7 @@ function gestioneDomandeEnsureResizeListener() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function () {
                 var o = document.getElementById('quiz-gestione-test-overlay');
-                if (o && o.classList.contains('visible')) gestioneDomandeFitAllQuestionTextareas();
+                if (o && o.classList.contains('visible')) gestioneDomandeFitAllGestioneFields();
             }, 120);
         },
         { passive: true }
@@ -18472,11 +18628,19 @@ function gestioneDomandeBuildCard(i, slot) {
         rad.value = String(k);
         rad.id = 'gestione-corr-' + i + '-' + k;
         if (ci === k) rad.checked = true;
-        var inp = document.createElement('input');
-        inp.type = 'text';
+        var inp = document.createElement('textarea');
+        inp.className = 'gestione-a-text';
         inp.id = 'gestione-a-' + i + '-' + k;
         inp.setAttribute('aria-label', 'Risposta ' + (k + 1) + ' domanda ' + (i + 1));
         inp.value = (slot.answers && slot.answers[k]) ? slot.answers[k] : '';
+        inp.addEventListener('input', function () {
+            gestioneDomandeFitAnswerTextarea(inp);
+        });
+        inp.addEventListener('paste', function () {
+            setTimeout(function () {
+                gestioneDomandeFitAnswerTextarea(inp);
+            }, 0);
+        });
         row.appendChild(rad);
         row.appendChild(inp);
         card.appendChild(row);
@@ -18493,9 +18657,9 @@ function gestioneDomandeRender() {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
     requestAnimationFrame(function () {
-        gestioneDomandeFitAllQuestionTextareas();
+        gestioneDomandeFitAllGestioneFields();
         requestAnimationFrame(function () {
-            gestioneDomandeFitAllQuestionTextareas();
+            gestioneDomandeFitAllGestioneFields();
         });
     });
 }
@@ -23961,6 +24125,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizSubscribeCustomSchedario();
             } catch (eCs) { /* ignore */ }
+            try {
+                quizSubscribeGestioneDomande();
+            } catch (eGd) { /* ignore */ }
             try {
                 quizStartModifyFeaturesPolling();
             } catch (ePol) { /* ignore */ }
