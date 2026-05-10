@@ -10530,11 +10530,11 @@ function dismissAppSplash() {
                     <div class="quiz-gestione-crea-domande-title-wrap">
                         <h5 id="quiz-gestione-crea-domande-title" class="quiz-gestione-crea-domande-title">Domande</h5>
                         <button type="button" id="quiz-gestione-btn-settings" class="quiz-gestione-settings-icon-btn" onclick="gestioneConfigPopupOpen()" title="Impostazioni numero domande e risposte" aria-label="Impostazioni domande e generazione">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                         </button>
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni; le risposte errate usano Gemini se la chiave API è configurata (come la telecronaca)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni: sempre prima il fallback offline; con rete e chiave Gemini le risposte errate migliori si salvano in locale per uso offline" aria-label="Genera domande da Controlli e azioni">Genera</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
@@ -10817,7 +10817,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605217';
+const APP_BUILD = '202605219';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18996,6 +18996,9 @@ var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 /** Numero domande / opzioni per domanda (persistente). */
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
+/** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-wrong-cache-v1';
+var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 450;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
 var GESTIONE_CONFIG_NA_MIN = 1;
@@ -19831,6 +19834,88 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     return { answers: answers, correctIndex: ci };
 }
 
+function gestioneCanReachGemini() {
+    try {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+    } catch (eOn) { /* ignore */ }
+    return true;
+}
+
+function gestioneMcqGeminiCacheHash(str) {
+    var s = String(str || '');
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) {
+        h = ((h << 5) + h) ^ s.charCodeAt(i);
+    }
+    return (h >>> 0).toString(36);
+}
+
+function gestioneMcqGeminiCacheMakeKey(stemDisp, correct, numWrong, tagLine) {
+    return (
+        String(numWrong) +
+        '|' +
+        gestioneMcqGeminiCacheHash(
+            String(stemDisp || '') +
+                '\n' +
+                String(correct || '') +
+                '\n' +
+                String(tagLine || '').substring(0, 160)
+        )
+    );
+}
+
+function gestioneMcqGeminiCacheLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_MCQ_GEMINI_CACHE_LS);
+        if (!raw) return { v: 1, map: {} };
+        var p = JSON.parse(raw);
+        if (!p || typeof p.map !== 'object' || p.map === null) throw new Error('bad');
+        return p;
+    } catch (eL) {
+        return { v: 1, map: {} };
+    }
+}
+
+function gestioneMcqGeminiCacheSave(st) {
+    try {
+        localStorage.setItem(GESTIONE_MCQ_GEMINI_CACHE_LS, JSON.stringify(st));
+    } catch (eQ) {
+        try {
+            var m = st.map;
+            var keys = Object.keys(m);
+            keys.sort(function (a, b) {
+                return (m[a].ts || 0) - (m[b].ts || 0);
+            });
+            for (var c = 0; c < keys.length && c < 80; c++) {
+                delete m[keys[c]];
+            }
+            localStorage.setItem(GESTIONE_MCQ_GEMINI_CACHE_LS, JSON.stringify(st));
+        } catch (e2) { /* ignore */ }
+    }
+}
+
+function gestioneMcqGeminiCacheGet(key) {
+    var st = gestioneMcqGeminiCacheLoad();
+    var e = st.map[key];
+    if (!e || !Array.isArray(e.wrong)) return null;
+    return e.wrong;
+}
+
+function gestioneMcqGeminiCacheSet(key, wrongArr) {
+    if (!key || !Array.isArray(wrongArr)) return;
+    var st = gestioneMcqGeminiCacheLoad();
+    st.map[key] = { wrong: wrongArr.slice(), ts: Date.now() };
+    var keys = Object.keys(st.map);
+    if (keys.length > GESTIONE_MCQ_CACHE_MAX_ENTRIES) {
+        keys.sort(function (a, b) {
+            return (st.map[a].ts || 0) - (st.map[b].ts || 0);
+        });
+        var remove = keys.length - GESTIONE_MCQ_CACHE_MAX_ENTRIES;
+        for (var i = 0; i < remove; i++) delete st.map[keys[i]];
+    }
+    gestioneMcqGeminiCacheSave(st);
+}
+
 function gestioneGeminiParseWrongJson(text, numWrong) {
     var s = String(text || '').trim();
     var fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -19851,6 +19936,7 @@ function gestioneGeminiParseWrongJson(text, numWrong) {
 async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagLine, actsPreview, numWrong) {
     var cfg = quizResolveAiConfig();
     if (!cfg.textKey || numWrong < 1) throw new Error('gestione_gemini_skip');
+    if (!gestioneCanReachGemini()) throw new Error('gestione_gemini_offline');
     var ctrl = new AbortController();
     var tid = window.setTimeout(function () {
         try {
@@ -19929,7 +20015,7 @@ async function gestioneGeneraBuildFromDb() {
     var out = [];
     var pool = gestioneCollectGlobalActionPool();
     var rows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
-    var useGemini = numWrong > 0 && !!quizResolveAiConfig().textKey;
+    var hasGeminiKey = numWrong > 0 && !!quizResolveAiConfig().textKey;
 
     if (!rows.length) {
         for (var z = 0; z < nTotal; z++) {
@@ -19974,16 +20060,39 @@ async function gestioneGeneraBuildFromDb() {
         var tagLine = gestioneStripHtml(row.tag || '').substring(0, 280);
         var actsPreview = acts.join(' | ').substring(0, 1600);
 
-        var built;
-        if (useGemini) {
-            try {
-                var gemWrongs = await gestioneGeminiFetchWrongAnswers(fullQ, correct, tagLine, actsPreview, numWrong);
-                built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, gemWrongs);
-            } catch (eG) {
-                built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
+        /* 1) Sempre costruzione offline (pool locale): risultato garantito senza rete. */
+        var builtOffline = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
+        var built = builtOffline;
+
+        if (numWrong > 0) {
+            var cacheKey = gestioneMcqGeminiCacheMakeKey(stemDisp, correct, numWrong, tagLine);
+            var cachedWrong = gestioneMcqGeminiCacheGet(cacheKey);
+            if (cachedWrong && cachedWrong.length >= numWrong) {
+                /* 2a) Cache offline (download precedente da Gemini): priorità su solo pool locale. */
+                built = gestioneGeneraBuildAnswersLocal(
+                    correct,
+                    numWrong,
+                    distractors,
+                    acts,
+                    cachedWrong.slice(0, numWrong)
+                );
+            } else if (hasGeminiKey && gestioneCanReachGemini()) {
+                /* 2b) Online: completa la cache con Gemini e sostituisce i distrattori con versioni più coerenti. */
+                try {
+                    var gemWrongs = await gestioneGeminiFetchWrongAnswers(
+                        fullQ,
+                        correct,
+                        tagLine,
+                        actsPreview,
+                        numWrong
+                    );
+                    gestioneMcqGeminiCacheSet(cacheKey, gemWrongs);
+                    built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, gemWrongs);
+                } catch (eG) {
+                    /* Offline / errore API: resta il pacchetto già calcolato (cache o builtOffline). */
+                    built = builtOffline;
+                }
             }
-        } else {
-            built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
         }
 
         out.push({
