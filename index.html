@@ -6670,6 +6670,12 @@
             box-sizing: border-box;
             min-height: 0;
             overflow: hidden;
+            background: linear-gradient(165deg, #f3e5f5 0%, #fafafa 28%, #ffffff 55%);
+            border: 1px solid rgba(94, 53, 177, 0.14);
+            box-shadow:
+                0 14px 40px rgba(49, 27, 96, 0.12),
+                0 2px 0 rgba(255, 255, 255, 0.85) inset;
+            border-radius: 16px;
         }
         @media (min-width: 900px) {
             #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
@@ -6682,110 +6688,263 @@
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
-            margin: 0 0 8px;
+            margin: 0 0 12px;
             flex-shrink: 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(94, 53, 177, 0.12);
         }
         .quiz-gestione-test-head .quiz-gestione-test-title {
             margin: 0;
-            font-size: 1.05rem;
-            color: #263238;
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #311b92;
         }
         .btn-gestione-genera {
-            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 100%) !important;
+            background: linear-gradient(180deg, #9575cd 0%, #5e35b1 100%) !important;
             color: #fff !important;
-            border: 1px solid #3e2723 !important;
+            border: 1px solid #4527a0 !important;
             font-weight: 700;
             font-size: 0.82rem;
-            padding: 8px 14px;
-            border-radius: 10px;
+            padding: 9px 16px;
+            border-radius: 12px;
             white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(69, 39, 160, 0.28);
         }
         .btn-gestione-genera:active {
             transform: translateY(1px);
         }
-        .quiz-gestione-test-lead {
-            margin: 0 0 10px;
-            font-size: 0.8rem;
-            color: #546e7a;
-            line-height: 1.45;
-            text-align: left;
+        .quiz-gestione-test-intro {
             flex-shrink: 0;
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(94, 53, 177, 0.15);
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(49, 27, 96, 0.06);
+        }
+        .quiz-gestione-test-lead {
+            margin: 0;
+            font-size: 0.82rem;
+            color: #455a64;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .quiz-gestione-test-lead strong {
+            color: #5e35b1;
+            font-weight: 700;
         }
         #quiz-gestione-test-list {
             flex: 1;
             min-height: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding-right: 4px;
+            padding: 4px 6px 12px 2px;
             text-align: left;
+            scrollbar-color: rgba(94, 53, 177, 0.35) transparent;
+            scrollbar-width: thin;
+        }
+        #quiz-gestione-test-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #quiz-gestione-test-list::-webkit-scrollbar-thumb {
+            background: rgba(94, 53, 177, 0.28);
+            border-radius: 8px;
         }
         .gestione-q-card {
-            border: 1px solid #cfd8dc;
-            border-radius: 12px;
-            padding: 10px 10px 12px;
-            margin-bottom: 12px;
-            background: #fafafa;
+            border-radius: 14px;
+            padding: 0;
+            margin-bottom: 16px;
+            background: #fff;
+            border: 1px solid rgba(94, 53, 177, 0.14);
+            box-shadow:
+                0 8px 24px rgba(49, 27, 96, 0.07),
+                0 1px 0 rgba(255, 255, 255, 0.9) inset;
+            overflow: hidden;
         }
         .gestione-q-card.is-editing {
-            border-color: #8d6e63;
-            box-shadow: 0 0 0 1px rgba(141, 110, 99, 0.35);
+            border-color: rgba(94, 53, 177, 0.45);
+            box-shadow:
+                0 0 0 2px rgba(149, 117, 205, 0.35),
+                0 10px 28px rgba(49, 27, 96, 0.12);
         }
         .gestione-q-card-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+            padding: 12px 14px;
+            background: linear-gradient(180deg, rgba(243, 229, 245, 0.65) 0%, rgba(255, 255, 255, 0.92) 100%);
+            border-bottom: 1px solid rgba(94, 53, 177, 0.1);
+        }
+        .gestione-q-card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .gestione-q-card-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 8px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #4527a0;
+            background: linear-gradient(180deg, #ede7f6 0%, #e1bee7 100%);
+            border: 1px solid rgba(94, 53, 177, 0.22);
+            flex-shrink: 0;
         }
         .gestione-q-card-head strong {
-            font-size: 0.85rem;
+            font-size: 0.92rem;
+            font-weight: 700;
             color: #37474f;
         }
         .gestione-q-card-actions {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+        .gestione-q-card-actions .btn-side.btn-reset {
+            background: #fff;
+            border: 1px solid #cfd8dc;
+            color: #455a64;
+            font-weight: 600;
+        }
+        .gestione-q-card-actions .btn-side.btn-report {
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 7px 12px;
+            min-height: 36px;
+            font-size: 0.76rem;
         }
         .gestione-q-card-actions .btn-side {
             font-size: 0.74rem;
-            padding: 6px 10px;
-            min-height: 34px;
+            padding: 7px 12px;
+            min-height: 36px;
+            border-radius: 10px;
+        }
+        .gestione-q-card-body {
+            padding: 14px 14px 16px;
+        }
+        .gestione-q-section {
+            margin-bottom: 14px;
+        }
+        .gestione-q-section:last-child {
+            margin-bottom: 0;
+        }
+        .gestione-q-section-label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #7e57c2;
+            margin-bottom: 8px;
+        }
+        .gestione-q-section--answers .gestione-q-section-label span {
+            font-weight: 600;
+            letter-spacing: 0;
+            text-transform: none;
+            font-size: 0.72rem;
+            color: #78909c;
         }
         .gestione-q-text {
             width: 100%;
             min-height: 3.6em;
             max-height: none;
             box-sizing: border-box;
-            padding: 8px 10px;
-            border: 1px solid #b0bec5;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            line-height: 1.45;
-            margin-bottom: 10px;
+            padding: 11px 12px;
+            border: 1px solid rgba(94, 53, 177, 0.2);
+            border-radius: 12px;
+            font-size: 0.84rem;
+            line-height: 1.5;
+            margin-bottom: 0;
             font-family: inherit;
             resize: none;
             overflow: hidden;
+            background: rgba(250, 247, 255, 0.85);
+            color: #263238;
+            transition:
+                border-color 0.15s ease,
+                box-shadow 0.15s ease;
         }
-        .gestione-answer-row {
+        .gestione-q-text:focus {
+            outline: none;
+            border-color: #7e57c2;
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.22);
+            background: #fff;
+        }
+        .gestione-answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .gestione-answer-slot {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            padding: 10px 10px 10px 8px;
+            border-radius: 12px;
+            border: 1px solid #e8eaf6;
+            background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+            transition:
+                border-color 0.15s ease,
+                box-shadow 0.15s ease,
+                background 0.15s ease;
         }
-        .gestione-answer-row input[type="radio"] {
-            margin-top: 8px;
+        .gestione-answer-slot:hover {
+            border-color: rgba(126, 87, 194, 0.35);
+            background: #fff;
+        }
+        .gestione-answer-slot--selected {
+            border-color: rgba(94, 53, 177, 0.45);
+            background: linear-gradient(180deg, #f3e5f5 0%, #faf5ff 55%, #ffffff 100%);
+            box-shadow: 0 4px 14px rgba(94, 53, 177, 0.1);
+        }
+        .gestione-answer-letter {
             flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            margin-top: 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #5e35b1;
+            background: #ede7f6;
+            border: 1px solid rgba(94, 53, 177, 0.2);
+            user-select: none;
         }
-        .gestione-answer-row textarea.gestione-a-text {
+        .gestione-answer-slot--selected .gestione-answer-letter {
+            background: linear-gradient(180deg, #9575cd 0%, #7e57c2 100%);
+            color: #fff;
+            border-color: #4527a0;
+        }
+        .gestione-answer-slot input[type='radio'] {
+            margin-top: 10px;
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            accent-color: #5e35b1;
+            cursor: pointer;
+        }
+        .gestione-answer-slot textarea.gestione-a-text {
             flex: 1;
             min-width: 0;
             min-height: 2.6em;
             max-height: none;
-            padding: 7px 9px;
-            border: 1px solid #b0bec5;
-            border-radius: 8px;
-            font-size: 0.78rem;
+            padding: 9px 11px;
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            font-size: 0.8rem;
             line-height: 1.45;
             font-family: inherit;
             resize: none;
@@ -6793,19 +6952,41 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             overflow-wrap: anywhere;
+            background: #fff;
+            color: #37474f;
+            transition:
+                border-color 0.15s ease,
+                box-shadow 0.15s ease;
         }
-        .gestione-answer-label {
-            font-size: 0.72rem;
-            color: #78909c;
-            width: 100%;
-            margin: -4px 0 6px 24px;
+        .gestione-answer-slot textarea.gestione-a-text:focus {
+            outline: none;
+            border-color: #9575cd;
+            box-shadow: 0 0 0 2px rgba(149, 117, 205, 0.2);
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-lock-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             justify-content: flex-end;
-            margin-top: 8px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(94, 53, 177, 0.12);
+            background: linear-gradient(180deg, transparent 0%, rgba(243, 229, 245, 0.25) 100%);
+            flex-shrink: 0;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-lock-actions .btn-side.btn-reset {
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid #cfd8dc;
+            background: #fff;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-lock-actions .btn-side.btn-report {
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.18);
         }
         .quiz-info-version-line {
             margin: 10px 0 0;
@@ -9915,7 +10096,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605194</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605195</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -9963,7 +10144,9 @@ function dismissAppSplash() {
                 <h4 id="quiz-gestione-domande-title" class="quiz-lock-title quiz-gestione-test-title">Domande</h4>
                 <button type="button" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera 10 domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
             </div>
-            <p class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
+            <div class="quiz-gestione-test-intro">
+                <p class="quiz-gestione-test-lead">Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.</p>
+            </div>
             <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-reset" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
@@ -10211,7 +10394,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605194';
+const APP_BUILD = '202605195';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18564,16 +18747,42 @@ function gestioneDomandeEnsureResizeListener() {
     );
 }
 
+function gestioneDomandeSyncAnswerRows(card) {
+    if (!card) return;
+    var slots = card.querySelectorAll('.gestione-answer-slot');
+    var radios = card.querySelectorAll('input[type="radio"][name^="gestione-corr-"]');
+    for (var s = 0; s < slots.length; s++) {
+        slots[s].classList.remove('gestione-answer-slot--selected');
+    }
+    for (var r = 0; r < radios.length; r++) {
+        if (radios[r].checked) {
+            var row = radios[r].closest('.gestione-answer-slot');
+            if (row) row.classList.add('gestione-answer-slot--selected');
+            break;
+        }
+    }
+}
+
 function gestioneDomandeBuildCard(i, slot) {
     slot = slot || gestioneDomandeEmptySlot();
+    var letters = ['A', 'B', 'C', 'D', 'E'];
     var card = document.createElement('div');
     card.className = 'gestione-q-card';
     card.id = 'gestione-card-' + i;
 
     var head = document.createElement('div');
     head.className = 'gestione-q-card-head';
+    var titleRow = document.createElement('div');
+    titleRow.className = 'gestione-q-card-title-row';
+    var numBadge = document.createElement('span');
+    numBadge.className = 'gestione-q-card-num';
+    var num = i + 1;
+    numBadge.textContent = (num < 10 ? '0' : '') + num;
     var title = document.createElement('strong');
     title.textContent = 'Domanda ' + (i + 1);
+    titleRow.appendChild(numBadge);
+    titleRow.appendChild(title);
+
     var actions = document.createElement('div');
     actions.className = 'gestione-q-card-actions';
     var bMod = document.createElement('button');
@@ -18594,9 +18803,19 @@ function gestioneDomandeBuildCard(i, slot) {
     };
     actions.appendChild(bMod);
     actions.appendChild(bSav);
-    head.appendChild(title);
+    head.appendChild(titleRow);
     head.appendChild(actions);
     card.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'gestione-q-card-body';
+
+    var secQ = document.createElement('div');
+    secQ.className = 'gestione-q-section gestione-q-section--question';
+    var labQ = document.createElement('span');
+    labQ.className = 'gestione-q-section-label';
+    labQ.textContent = 'Testo della domanda';
+    secQ.appendChild(labQ);
 
     var ta = document.createElement('textarea');
     ta.className = 'gestione-q-text';
@@ -18611,28 +18830,48 @@ function gestioneDomandeBuildCard(i, slot) {
             gestioneDomandeFitQuestionTextarea(ta);
         }, 0);
     });
-    card.appendChild(ta);
+    secQ.appendChild(ta);
+    body.appendChild(secQ);
 
-    var labIntro = document.createElement('div');
-    labIntro.className = 'gestione-answer-label';
-    labIntro.textContent = 'Cinque risposte · seleziona quella esatta';
-    card.appendChild(labIntro);
+    var secA = document.createElement('div');
+    secA.className = 'gestione-q-section gestione-q-section--answers';
+    var labA = document.createElement('span');
+    labA.className = 'gestione-q-section-label';
+    labA.appendChild(document.createTextNode('Risposte '));
+    var labASub = document.createElement('span');
+    labASub.textContent = '· seleziona il pallino accanto alla risposta corretta';
+    labA.appendChild(labASub);
+    secA.appendChild(labA);
+
+    var list = document.createElement('div');
+    list.className = 'gestione-answers-list';
 
     var ci = Math.min(4, Math.max(0, parseInt(slot.correctIndex, 10) || 0));
     for (var k = 0; k < 5; k++) {
-        var row = document.createElement('div');
-        row.className = 'gestione-answer-row';
+        var slotWrap = document.createElement('div');
+        slotWrap.className = 'gestione-answer-slot';
+        if (ci === k) slotWrap.classList.add('gestione-answer-slot--selected');
+
+        var letterEl = document.createElement('span');
+        letterEl.className = 'gestione-answer-letter';
+        letterEl.textContent = letters[k];
+        letterEl.setAttribute('aria-hidden', 'true');
+
         var rad = document.createElement('input');
         rad.type = 'radio';
         rad.name = 'gestione-corr-' + i;
         rad.value = String(k);
         rad.id = 'gestione-corr-' + i + '-' + k;
         if (ci === k) rad.checked = true;
+
         var inp = document.createElement('textarea');
         inp.className = 'gestione-a-text';
         inp.id = 'gestione-a-' + i + '-' + k;
-        inp.setAttribute('aria-label', 'Risposta ' + (k + 1) + ' domanda ' + (i + 1));
-        inp.value = (slot.answers && slot.answers[k]) ? slot.answers[k] : '';
+        inp.setAttribute(
+            'aria-label',
+            'Risposta ' + letters[k] + ' — domanda ' + (i + 1)
+        );
+        inp.value = slot.answers && slot.answers[k] ? slot.answers[k] : '';
         inp.addEventListener('input', function () {
             gestioneDomandeFitAnswerTextarea(inp);
         });
@@ -18641,10 +18880,21 @@ function gestioneDomandeBuildCard(i, slot) {
                 gestioneDomandeFitAnswerTextarea(inp);
             }, 0);
         });
-        row.appendChild(rad);
-        row.appendChild(inp);
-        card.appendChild(row);
+
+        rad.addEventListener('change', function () {
+            gestioneDomandeSyncAnswerRows(card);
+        });
+
+        slotWrap.appendChild(letterEl);
+        slotWrap.appendChild(rad);
+        slotWrap.appendChild(inp);
+        list.appendChild(slotWrap);
     }
+
+    secA.appendChild(list);
+    body.appendChild(secA);
+    card.appendChild(body);
+
     return card;
 }
 
