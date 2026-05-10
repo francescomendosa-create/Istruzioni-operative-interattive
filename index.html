@@ -10956,7 +10956,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605236';
+const APP_BUILD = '202605237';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19280,7 +19280,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v11';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v13';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -20296,26 +20296,114 @@ function gestioneMergeSavedSlotsIntoGenerated(prev, out) {
 }
 
 /**
- * Pool offline: espande nominali corti in frasi operative sul campo (mandata, pescaggio, vasca…),
- * senza boilerplate «confrontare letture con scheda / confermare conformità».
+ * Pool offline: espande nominali corti con aperture alternate (mai tutte «Verificare» nella stessa domanda).
  */
 function gestioneExpandTerseMcqOption(text, stemDisp, role) {
     var t = String(text || '').trim();
     if (!gestioneGeminiOptionArticulationTooWeak(t)) {
         return gestioneNormalizeAnswerPhrase(t);
     }
-    void stemDisp;
     var core = t.replace(/\s+/g, ' ');
     if (!core) core = 'intervento previsto dalla richiesta';
     if (core.length > 72) core = core.substring(0, 69) + '…';
-    var out =
-        role === 'correct'
-            ? 'Verificare «' +
-              core +
-              '»: stato della mandata e del pescaggio, tenuta delle linee e arrivo effettivo del reagente in vasca (controllo visivo e regime operativo).'
-            : 'Considerare sufficiente «' +
-              core +
-              '» senza controllare mandata, pescaggio o arrivo reale in vasca — intervento tipicamente incongruente con la domanda.';
+    var seed = String(stemDisp || '') + '|' + core + '|' + role;
+    var ix = gestioneMcqVarietyIndex(seed, role === 'correct' ? 7 : 8);
+    var out = '';
+    if (role === 'correct') {
+        switch (ix) {
+            case 0:
+                out =
+                    'Controllare «' +
+                    core +
+                    '»: mandata, pescaggio e tenuta delle linee fino alla vasca; osservare dosaggio e arrivo del reagente.';
+                break;
+            case 1:
+                out =
+                    'Accertarsi che «' +
+                    core +
+                    '» sia effettivamente rispettato: portata in linea, assenza di perdite e miscelazione in vasca.';
+                break;
+            case 2:
+                out =
+                    'Intervenire su «' +
+                    core +
+                    '» verificando pompa dosatrice, valvole di mandata e regime idraulico verso la vasca.';
+                break;
+            case 3:
+                out =
+                    'Monitorare «' +
+                    core +
+                    '»: livelli, pressioni/transiti visibili e segni di anomalia lungo il percorso fino al punto di dosaggio.';
+                break;
+            case 4:
+                out =
+                    'Prestare attenzione a «' +
+                    core +
+                    '» sul campo: continuità della mandata, stato del pescaggio e qualità dell’arrivo in vasca.';
+                break;
+            case 5:
+                out =
+                    'Assicurarsi che per «' +
+                    core +
+                    '» linee e dosaggio siano coerenti con la richiesta operativa (nessuna interruzione o derivazione indebita).';
+                break;
+            default:
+                out =
+                    'Registrare osservazioni su «' +
+                    core +
+                    '»: punti di perdita, regime della pompa e verifica visiva dell’ingresso reagente in vasca.';
+        }
+    } else {
+        switch (ix) {
+            case 0:
+                out =
+                    'Considerare sufficiente «' +
+                    core +
+                    '» senza passare da mandata e pescaggio — saltare passaggi tipici dell’intervento corretto.';
+                break;
+            case 1:
+                out =
+                    'Limitarsi a «' +
+                    core +
+                    '» sulla carta, senza osservare portate reali o livelli in vasca — approccio fuori tema.';
+                break;
+            case 2:
+                out =
+                    'Affidarsi solo a «' +
+                    core +
+                    '» ignorando perdite o oscillazioni di dosaggio — errore operativo frequente.';
+                break;
+            case 3:
+                out =
+                    'Trascurare «' +
+                    core +
+                    '» e concentrarsi altrove mentre il reagente potrebbe non arrivare correttamente in vasca.';
+                break;
+            case 4:
+                out =
+                    'Operare esclusivamente su «' +
+                    core +
+                    '» senza controllare la linea a monte — conclusione affrettata rispetto alla domanda.';
+                break;
+            case 5:
+                out =
+                    'Chiudere il punto senza correlare «' +
+                    core +
+                    '» a mandata e arrivo effettivo in vasca — risposta incompleta.';
+                break;
+            case 6:
+                out =
+                    'Applicare «' +
+                    core +
+                    '» in modo generico, senza verifica sul campo del regime di mandata o del pescaggio.';
+                break;
+            default:
+                out =
+                    'Valutare «' +
+                    core +
+                    '» solo su documentazione, senza ispezione delle linee di mandata né controllo visivo in vasca.';
+        }
+    }
     return gestioneNormalizeAnswerPhrase(out);
 }
 
@@ -20350,10 +20438,19 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
         used[cand] = 1;
         wrong.push(cand);
     }
+    var fillPool = [
+        'Controllare portate e tenuta delle linee di dosaggio prima di agire sul set-point',
+        'Accertarsi del transito reagente sulle linee a monte della vasca di miscelazione',
+        'Intervenire sulle valvole e sul regime della pompa dosatrice prima di ogni modifica al dosaggio',
+        'Monitorare livelli e segnalazioni strumentali sul circuito attivo (complemento '
+    ];
     while (wrong.length < numWrong) {
-        wrong.push(
-            'Verificare portate e tenuta linee dosaggio prima di modificare set-point (' + (wrong.length + 1) + ').'
-        );
+        var fi = wrong.length % fillPool.length;
+        if (fi === 3) {
+            wrong.push(fillPool[3] + (wrong.length + 1) + ').');
+        } else {
+            wrong.push(fillPool[fi] + ' (' + (wrong.length + 1) + ').');
+        }
     }
 
     var stem = stemDisp != null ? String(stemDisp).trim() : '';
@@ -20368,10 +20465,17 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
         usedFin[wExp] = 1;
         wrongFin.push(wExp);
     }
+    var padPool = [
+        'Controllare livelli e allarmi di reparto prima di intervenire sul dosaggio',
+        'Prestare attenzione all’andamento strumentale e ai limiti di sicurezza del circuito',
+        'Accertarsi dello stato del serbatoio e della linea di mandata attiva (complemento '
+    ];
     while (wrongFin.length < numWrong) {
-        var padIx = wrongFin.length + 1;
-        var pad = 'Verificare livelli e allarmi di reparto prima di intervenire sul dosaggio (complemento ' + padIx + ').';
-        var padUse = usedFin[pad] ? pad + ' — variante ' + padIx + '.' : pad;
+        var pxi = wrongFin.length + 1;
+        var pi = wrongFin.length % padPool.length;
+        var pad =
+            pi === 2 ? padPool[2] + pxi + ').' : padPool[pi] + ' (complemento ' + pxi + ').';
+        var padUse = usedFin[pad] ? pad + ' — variante ' + pxi + '.' : pad;
         usedFin[padUse] = 1;
         wrongFin.push(padUse);
     }
@@ -20386,10 +20490,13 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
             uniq.push(kx);
         }
     });
+    var uniqPool = [
+        'Controllare campionamento e letture strumentali sul punto (opzione ',
+        'Intervenire sulle letture anomale prima di procedere (opzione ',
+        'Accertarsi dello stato reale del processo rispetto al set-point (opzione '
+    ];
     while (uniq.length < na) {
-        uniq.push(
-            'Controllare campionamento e letture strumentali sul punto prima di validare l’intervento (opzione ' + uniq.length + ').'
-        );
+        uniq.push(uniqPool[uniq.length % uniqPool.length] + uniq.length + ').');
     }
     answers = uniq.slice(0, na);
     var ci = answers.indexOf(corrFin);
@@ -20540,6 +20647,32 @@ function gestioneGeminiOptionArticulationTooLong(text) {
 /**
  * Meta-risposte vuote: solo «leggi scheda / conferma conformità» senza azione tecnica sul campo.
  */
+/** Indice deterministico da stringa (espansioni offline diverse per slot/domanda). */
+function gestioneMcqVarietyIndex(seedStr, modulo) {
+    var h = 5381;
+    var s = String(seedStr || '');
+    for (var i = 0; i < s.length; i++) {
+        h = ((h << 5) + h) ^ s.charCodeAt(i);
+    }
+    return Math.abs(h >>> 0) % modulo;
+}
+
+/** Quante opzioni iniziano con «Verificare» (struttura troppo ovvia per il quiz). */
+function gestioneMcqOpeningVerificareCount(parts) {
+    var n = 0;
+    for (var i = 0; i < parts.length; i++) {
+        if (/^\s*verificare\b/i.test(String(parts[i] || '').trim())) n += 1;
+    }
+    return n;
+}
+
+/** Più di una opzione che inizia con «Verificare» nella stessa domanda → rigenerare. */
+function gestioneMcqOptionsOpeningVarietyInvalid(correctArt, wrongArr, numWrong) {
+    var all = [correctArt];
+    for (var i = 0; i < numWrong; i++) all.push(wrongArr[i]);
+    return gestioneMcqOpeningVerificareCount(all) > 1;
+}
+
 function gestioneGeminiOptionSoundsBoilerplate(text) {
     var t = String(text || '').trim();
     var tl = t.toLowerCase();
@@ -20559,6 +20692,7 @@ function gestioneMcqCacheEntryIsArticulated(entry, numWrong) {
     if (gestioneGeminiOptionArticulationTooWeak(entry.correctArt)) return false;
     if (gestioneGeminiOptionArticulationTooLong(entry.correctArt)) return false;
     if (gestioneGeminiOptionSoundsBoilerplate(entry.correctArt)) return false;
+    if (gestioneMcqOptionsOpeningVarietyInvalid(entry.correctArt, entry.wrong, numWrong)) return false;
     for (var i = 0; i < numWrong; i++) {
         if (gestioneGeminiOptionArticulationTooWeak(entry.wrong[i])) return false;
         if (gestioneGeminiOptionArticulationTooLong(entry.wrong[i])) return false;
@@ -20617,6 +20751,9 @@ function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
         if (gestioneGeminiOptionArticulationTooLong(outW[wi])) throw new Error('gestione_gemini_wrong_too_long');
         if (gestioneGeminiOptionSoundsBoilerplate(outW[wi])) throw new Error('gestione_gemini_wrong_boilerplate');
     }
+    if (gestioneMcqOptionsOpeningVarietyInvalid(corrS, outW, numWrong)) {
+        throw new Error('gestione_gemini_opening_uniform');
+    }
     var corrNorm = gestioneNormalizeAnswerPhrase(corrS);
     var wrongNorm = outW.slice(0, numWrong).map(function (w) {
         return gestioneNormalizeAnswerPhrase(w);
@@ -20649,8 +20786,9 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         '- Frasi solo burocratiche: «confrontare le letture con la scheda», «confermare la conformità», «prima di confermare la conformità», «solo consultando la scheda», meta-discorsi sulla documentazione senza azione tecnica.\n' +
         '- Etichette sole («fanghi», «Pescaggio») senza verbo e senza oggetto tecnico.\n' +
         '- Ripetere il testo della domanda tra parentesi come riempitivo.\n' +
+        '\nVARIETÀ DELLE APERTURE (obbligatorio): tra TUTTE le opzioni ("correct" + ogni elemento di "wrong"), al massimo UNA può iniziare con la parola «Verificare» (primo token dopo eventuali spazi). Tutte le altre devono usare incipit diversi, ad es.: «Controllare», «Accertarsi che», «Monitorare», «Intervenire su», «Prestare attenzione a», «Registrare», «Valutare», «Esaminare», «Misurare», ecc. Non allineare tutte le risposte sullo stesso schema.\n' +
         '\nESEMPIO DI BUONO STILE (adatta al caso; non copiare):\n' +
-        '- «Verificare mandata e pescaggio del polielettrolita: linee in pressione, dosaggio attivo e arrivo visibile in vasca senza anomalie.»\n' +
+        '- «Controllare mandata e pescaggio del polielettrolita: linee in pressione, dosaggio attivo e arrivo visibile in vasca senza anomalie.»\n' +
         '\nREGOLE "correct": fedele al senso della RISPOSTA CORRETTA UFFICIALE. Dosaggio chimico: se pertinente **dosaggio acido / soda** (slash con spazi).\n' +
         '\nREGOLE "wrong": ESATTAMENTE ' +
         numWrong +
@@ -20675,7 +20813,8 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         '\n\n⚠ RIPROVA: vietato rispondere con inviti generici a leggere documentazione o «confermare conformità». Ogni stringa deve:\n' +
         '- descrivere un controllo o intervento sul campo (mandata, pescaggio, dosaggio, tenuta, livello, perdite, regime);\n' +
         '- restare tra ~72 e ~280 caratteri;\n' +
-        '- non contenere «confrontare letture», «confermare la conformità», «solo consultando la scheda».\n' +
+        '- non contenere «confrontare letture», «confermare la conformità», «solo consultando la scheda»;\n' +
+        '- rispettare la VARIETÀ DELLE APERTURE: al massimo UNA tra tutte le opzioni può iniziare con «Verificare»; riscrivi le altre con verbi/pronomi incipit diversi.\n' +
         'Solo JSON {"correct":"...","wrong":[...]}.';
 
     var gemUrl =
@@ -20730,7 +20869,7 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
                 var em = String(pe && pe.message ? pe.message : pe);
                 if (
                     genTry === 0 &&
-                    /gestione_gemini_(correct_too_terse|wrong_terse|correct_too_long|wrong_too_long|correct_boilerplate|wrong_boilerplate)/.test(
+                    /gestione_gemini_(correct_too_terse|wrong_terse|correct_too_long|wrong_too_long|correct_boilerplate|wrong_boilerplate|opening_uniform|short)/.test(
                         em
                     )
                 ) {
