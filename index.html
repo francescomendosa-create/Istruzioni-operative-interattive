@@ -6881,7 +6881,7 @@
         }
         .gestione-q-text {
             width: 100%;
-            min-height: 3.6em;
+            min-height: 0;
             max-height: none;
             box-sizing: border-box;
             padding: 11px 12px;
@@ -6964,7 +6964,7 @@
         .gestione-answer-slot textarea.gestione-a-text {
             flex: 1;
             min-width: 0;
-            min-height: 2.6em;
+            min-height: 0;
             max-height: none;
             padding: 9px 11px;
             border: 1px solid #cfd8dc;
@@ -10126,7 +10126,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605196</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605197</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10426,7 +10426,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605196';
+const APP_BUILD = '202605197';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18725,12 +18725,21 @@ function gestioneCardModifica(idx) {
     }
 }
 
-/** Altezza del campo domanda = tutto il testo visibile (nessuna barra di scorrimento nel riquadro). */
-function gestioneDomandeFitQuestionTextarea(el) {
+/**
+ * Altezza textarea = contenuto (1 riga resta compatto; più righe espandono).
+ * height 0 → scrollHeight permette di rimpicciolire quando si cancella testo.
+ */
+function gestioneDomandeFitTextareaToContent(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
-    el.style.height = 'auto';
+    el.style.height = '0px';
+    el.style.minHeight = '0';
     var h = el.scrollHeight;
-    el.style.height = Math.max(h, 48) + 'px';
+    el.style.height = h + 'px';
+    el.style.minHeight = '';
+}
+
+function gestioneDomandeFitQuestionTextarea(el) {
+    gestioneDomandeFitTextareaToContent(el);
 }
 
 function gestioneDomandeFitAllQuestionTextareas() {
@@ -18740,12 +18749,8 @@ function gestioneDomandeFitAllQuestionTextareas() {
     }
 }
 
-/** Risposte lunghe: a capo automatico e altezza che mostra tutto il testo (come la domanda). */
 function gestioneDomandeFitAnswerTextarea(el) {
-    if (!el || el.tagName !== 'TEXTAREA') return;
-    el.style.height = 'auto';
-    var h = el.scrollHeight;
-    el.style.height = Math.max(h, 40) + 'px';
+    gestioneDomandeFitTextareaToContent(el);
 }
 
 function gestioneDomandeFitAllAnswerTextareas() {
@@ -18852,6 +18857,7 @@ function gestioneDomandeBuildCard(i, slot) {
     var ta = document.createElement('textarea');
     ta.className = 'gestione-q-text';
     ta.id = 'gestione-q-text-' + i;
+    ta.rows = 1;
     ta.setAttribute('aria-label', 'Testo domanda ' + (i + 1));
     ta.value = slot.q || '';
     ta.addEventListener('input', function () {
@@ -18898,6 +18904,7 @@ function gestioneDomandeBuildCard(i, slot) {
 
         var inp = document.createElement('textarea');
         inp.className = 'gestione-a-text';
+        inp.rows = 1;
         inp.id = 'gestione-a-' + i + '-' + k;
         inp.setAttribute(
             'aria-label',
