@@ -7386,18 +7386,20 @@
                 align-items: center;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                padding-top: max(8px, env(safe-area-inset-top, 0px));
+                /* Un filo più in basso rispetto al bordo: intermezzo tra “tutto in alto” e layout precedente. */
+                padding-top: max(18px, calc(env(safe-area-inset-top, 0px) + 18px));
             }
             .app-splash-inner {
                 flex: 1 1 auto;
                 min-height: min-content;
                 justify-content: flex-start;
                 margin-top: 0;
+                padding-top: clamp(8px, 1.6vh, 22px);
                 padding-bottom: 12px;
             }
             .app-splash-title-cluster {
                 flex-shrink: 0;
-                margin-bottom: clamp(36px, 7vh, 72px);
+                margin-bottom: clamp(32px, 6.2vh, 64px);
                 padding-top: 2px;
             }
             .app-splash-title-cluster .app-splash-brand {
@@ -9739,7 +9741,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605176';
+const APP_BUILD = '202605177';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
