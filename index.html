@@ -7347,6 +7347,10 @@
             text-align: center;
             gap: 0;
         }
+        /* Blocco titolo in cima alla home splash (vermi): usato per distanziarlo dal resto su tablet/PC. */
+        .app-splash-title-cluster {
+            width: 100%;
+        }
         .app-splash-brand {
             margin: 0;
             font-size: clamp(0.72rem, 2.8vw, 0.82rem);
@@ -7373,6 +7377,37 @@
                 color: #4ade80;
                 background: none;
                 text-shadow: 0 0 20px rgba(74, 222, 128, 0.65), 0 2px 4px rgba(0, 0, 0, 0.35);
+            }
+        }
+        /* Tablet e PC: titoli in alto nello schermo e più distanziati da vermi/tab/testi. Smartphone invariato (blocco centrato). */
+        @media (min-width: 768px) {
+            #app-splash.app-splash--visible {
+                justify-content: flex-start;
+                align-items: center;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-top: max(8px, env(safe-area-inset-top, 0px));
+            }
+            .app-splash-inner {
+                flex: 1 1 auto;
+                min-height: min-content;
+                justify-content: flex-start;
+                margin-top: 0;
+                padding-bottom: 12px;
+            }
+            .app-splash-title-cluster {
+                flex-shrink: 0;
+                margin-bottom: clamp(36px, 7vh, 72px);
+                padding-top: 2px;
+            }
+            .app-splash-title-cluster .app-splash-brand {
+                margin: 0;
+            }
+            .app-splash-title-cluster .app-splash-subbrand {
+                margin: 8px 0 0;
+            }
+            .app-splash-intro-bio {
+                margin-top: 0;
             }
         }
         /*
@@ -8060,8 +8095,10 @@
 
 <div id="app-splash" class="app-splash app-splash--visible" role="dialog" aria-modal="true" aria-labelledby="app-splash-enter-btn" aria-describedby="app-splash-tagline">
     <div class="app-splash-inner">
-        <p class="app-splash-brand">Istruzioni operative interattive</p>
-        <p class="app-splash-subbrand">Sistema biologico</p>
+        <header class="app-splash-title-cluster">
+            <p class="app-splash-brand">Istruzioni operative interattive</p>
+            <p class="app-splash-subbrand">Sistema biologico</p>
+        </header>
         <div class="app-splash-intro-bio" role="region" aria-label="Microorganismi MBBR">
             <div class="app-splash-intro-viz-col">
         <div class="app-splash-mascot-wrap">
@@ -9702,7 +9739,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605175';
+const APP_BUILD = '202605176';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
