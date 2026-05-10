@@ -6768,13 +6768,21 @@
             padding-bottom: 12px;
             border-bottom: 1px solid rgba(94, 53, 177, 0.12);
         }
+        .quiz-gestione-test-head-start {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
         .quiz-gestione-test-head .quiz-gestione-test-title {
             margin: 0;
             font-size: 1.18rem;
             font-weight: 800;
             letter-spacing: -0.02em;
             color: #311b92;
-            flex: 1 1 auto;
+            flex: 0 1 auto;
             min-width: 0;
         }
         .quiz-gestione-test-toolbar {
@@ -6787,16 +6795,17 @@
         }
         /* Tab non selezionati: pill rialzata; selezionato = stesso viola del pulsante Genera (.btn-gestione-genera) */
         .quiz-gestione-test-segments {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 8px;
             align-items: stretch;
             flex-shrink: 0;
-            margin: 0 0 12px;
+            margin: 0;
             padding: 0;
         }
         .quiz-gestione-test-tab {
-            padding: 9px 12px;
+            padding: 9px 14px;
             border: 2px solid rgba(255, 255, 255, 0.98);
             border-radius: 30px;
             cursor: pointer;
@@ -6806,8 +6815,9 @@
             background: linear-gradient(180deg, #ffffff 0%, #e8ecf3 55%, #dce3ee 100%);
             color: var(--primary);
             transition: box-shadow 0.2s ease, filter 0.18s ease, background 0.22s ease;
-            min-width: 0;
-            width: 100%;
+            min-width: 88px;
+            width: auto;
+            flex: 0 0 auto;
             min-height: 44px;
             box-sizing: border-box;
             text-align: center;
@@ -10504,14 +10514,16 @@ function dismissAppSplash() {
     <div id="quiz-gestione-test-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="quizGestioneTestVerificheBackdrop(event)">
         <div class="quiz-lock-box quiz-app-box quiz-gestione-test-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-modal-title" onclick="event.stopPropagation()">
             <div class="quiz-gestione-test-head">
-                <h4 id="quiz-gestione-modal-title" class="quiz-lock-title quiz-gestione-test-title">Gestione test e verifiche</h4>
+                <div class="quiz-gestione-test-head-start">
+                    <h4 id="quiz-gestione-modal-title" class="quiz-lock-title quiz-gestione-test-title">Gestione test e verifiche</h4>
+                    <div class="quiz-gestione-test-segments" role="tablist" aria-label="Sezioni gestione test">
+                        <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
+                        <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
+                    </div>
+                </div>
                 <div class="quiz-gestione-test-toolbar">
                     <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
                 </div>
-            </div>
-            <div class="quiz-gestione-test-segments" role="tablist" aria-label="Sezioni gestione test">
-                <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
-                <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
             </div>
             <div id="quiz-gestione-panel-crea" class="quiz-gestione-test-panel quiz-gestione-test-panel--crea" role="tabpanel" aria-labelledby="quiz-gestione-tab-crea">
                 <div class="quiz-gestione-crea-domande-row">
@@ -10522,7 +10534,7 @@ function dismissAppSplash() {
                         </button>
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni (database istruzioni)" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni; le risposte errate usano Gemini se la chiave API è configurata (come la telecronaca)" aria-label="Genera domande da Controlli e azioni">Genera</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
@@ -10805,7 +10817,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605215';
+const APP_BUILD = '202605217';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19768,7 +19780,146 @@ function gestioneMergeSavedSlotsIntoGenerated(prev, out) {
     return out;
 }
 
-function gestioneGeneraBuildFromDb() {
+/** Costruisce N opzioni: 1 corretta + (N−1) sbagliate, mescolate (stessa logica precedente). Opzionale: testi sbagliati preferiti (es. da Gemini). */
+function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, preferredWrong) {
+    var na = numWrong + 1;
+    var wrong = [];
+    var used = {};
+    used[correct] = 1;
+
+    function tryAdd(s) {
+        s = String(s || '').trim();
+        if (s.length < 2) return false;
+        if (used[s]) return false;
+        if (s === correct) return false;
+        if (acts.indexOf(s) >= 0) return false;
+        used[s] = 1;
+        wrong.push(s);
+        return true;
+    }
+
+    if (preferredWrong && preferredWrong.length) {
+        for (var pi = 0; pi < preferredWrong.length && wrong.length < numWrong; pi++) {
+            tryAdd(preferredWrong[pi]);
+        }
+    }
+
+    for (var d = 0; d < distractors.length && wrong.length < numWrong; d++) {
+        var cand = distractors[d];
+        if (!cand || used[cand] || acts.indexOf(cand) >= 0) continue;
+        used[cand] = 1;
+        wrong.push(cand);
+    }
+    while (wrong.length < numWrong) {
+        wrong.push('Controllo incrociato su parametri di linea e registrazioni (' + (wrong.length + 1) + ')');
+    }
+
+    var answers = gestioneShuffle([correct].concat(wrong.slice(0, numWrong)));
+    var uniq = [];
+    var seenA = {};
+    answers.forEach(function (x) {
+        var kx = x || '';
+        if (!seenA[kx]) {
+            seenA[kx] = 1;
+            uniq.push(kx);
+        }
+    });
+    while (uniq.length < na) uniq.push('Alternativa operativa plausibile (' + uniq.length + ')');
+    answers = uniq.slice(0, na);
+    var ci = answers.indexOf(correct);
+    if (ci < 0) ci = 0;
+    return { answers: answers, correctIndex: ci };
+}
+
+function gestioneGeminiParseWrongJson(text, numWrong) {
+    var s = String(text || '').trim();
+    var fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fence) s = fence[1].trim();
+    var j = JSON.parse(s);
+    var arr = Array.isArray(j) ? j : j && j.wrong ? j.wrong : j && j.errate ? j.errate : null;
+    if (!Array.isArray(arr)) throw new Error('gestione_gemini_bad_shape');
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+        var t = String(arr[i] == null ? '' : arr[i]).trim();
+        if (t.length > 1) out.push(t);
+    }
+    if (out.length < numWrong) throw new Error('gestione_gemini_short');
+    return out.slice(0, numWrong);
+}
+
+/** Gemini: genera esattamente numWrong risposte errate plausibili per la domanda e la corretta date. */
+async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagLine, actsPreview, numWrong) {
+    var cfg = quizResolveAiConfig();
+    if (!cfg.textKey || numWrong < 1) throw new Error('gestione_gemini_skip');
+    var ctrl = new AbortController();
+    var tid = window.setTimeout(function () {
+        try {
+            ctrl.abort();
+        } catch (eAb) { /* ignore */ }
+    }, 28000);
+    var prompt =
+        'Sei un esperto di procedure operative, controlli di processo e sicurezza in ambito industriale (lingua italiana).\n' +
+        'Ti viene fornita una domanda a scelta multipla e la RISPOSTA CORRETTA ufficiale ricavata dalla documentazione.\n' +
+        'Devi generare ESATTAMENTE ' +
+        numWrong +
+        ' alternative SBAGLIATE per il quiz.\n' +
+        'Requisiti:\n' +
+        '- Una sola frase breve per alternativa (massimo 220 caratteri), tono operativo, credibile nel contesto, ma non adeguata come risposta corretta rispetto alla domanda.\n' +
+        '- Tutte distinte tra loro e distinte dalla risposta corretta (inclusi sinonimi o parafrasi della corretta).\n' +
+        '- Non numerare le opzioni (niente "A)", "B)"…).\n' +
+        '- Nessun markdown.\n' +
+        'Contesto tag scheda: ' +
+        String(tagLine || '—').substring(0, 240) +
+        '\nAzioni / estratti rilevanti dalla scheda (solo contesto): ' +
+        String(actsPreview || '—').substring(0, 1400) +
+        '\n\nDOMANDA:\n' +
+        String(questionText || '').substring(0, 3500) +
+        '\n\nRISPOSTA CORRETTA (non ripeterla né equivalenti nelle alternative sbagliate):\n' +
+        String(correctAnswer || '').substring(0, 1200) +
+        '\n\nRispondi SOLO con JSON valido nel formato:\n{"wrong":["testo1","testo2",...]}\n' +
+        "con esattamente " +
+        numWrong +
+        ' stringhe nell\'array "wrong".';
+
+    var gemUrl =
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
+        encodeURIComponent(cfg.textKey);
+    var reqBody = JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.55, maxOutputTokens: 4096 }
+    });
+    var res = null;
+    try {
+        for (var attempt = 0; attempt < 3; attempt += 1) {
+            res = await fetch(gemUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: reqBody,
+                signal: ctrl.signal
+            });
+            if (res.ok || res.status !== 503 || attempt === 2) break;
+            await new Promise(function (r) {
+                window.setTimeout(r, 450 * (attempt + 1));
+            });
+        }
+        window.clearTimeout(tid);
+        if (!res.ok) throw new Error('gestione_gemini_http_' + String(res.status || 0));
+        var json = await res.json();
+        var rawOut = String(
+            ((((json || {}).candidates || [])[0] || {}).content &&
+                ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text) || ''
+        ).trim();
+        if (!rawOut) throw new Error('gestione_gemini_empty');
+        return gestioneGeminiParseWrongJson(rawOut, numWrong);
+    } catch (e) {
+        try {
+            window.clearTimeout(tid);
+        } catch (eCt) { /* ignore */ }
+        throw e;
+    }
+}
+
+async function gestioneGeneraBuildFromDb() {
     var prevSaved = gestioneDomandeLoad();
     var cfg = gestioneConfigLoad();
     var nTotal = cfg.numQuestions;
@@ -19778,6 +19929,8 @@ function gestioneGeneraBuildFromDb() {
     var out = [];
     var pool = gestioneCollectGlobalActionPool();
     var rows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
+    var useGemini = numWrong > 0 && !!quizResolveAiConfig().textKey;
+
     if (!rows.length) {
         for (var z = 0; z < nTotal; z++) {
             var sl = gestioneDomandeEmptySlot();
@@ -19810,49 +19963,39 @@ function gestioneGeneraBuildFromDb() {
                 ? acts[Math.floor(Math.random() * acts.length)]
                 : 'Verificare priorità operative legate a «' + gestioneStripHtml(row.tag || 'controllo').substring(0, 60) + '»';
 
-        var wrong = [];
-        var used = {};
-        used[correct] = 1;
-        for (var d = 0; d < distractors.length && wrong.length < numWrong; d++) {
-            var cand = distractors[d];
-            if (!cand || used[cand] || acts.indexOf(cand) >= 0) continue;
-            used[cand] = 1;
-            wrong.push(cand);
-        }
-        while (wrong.length < numWrong) {
-            wrong.push('Controllo incrociato su parametri di linea e registrazioni (' + (wrong.length + 1) + ')');
-        }
-        var answers = gestioneShuffle([correct].concat(wrong.slice(0, numWrong)));
-        var uniq = [];
-        var seenA = {};
-        answers.forEach(function (x) {
-            var kx = x || '';
-            if (!seenA[kx]) {
-                seenA[kx] = 1;
-                uniq.push(kx);
-            }
-        });
-        while (uniq.length < na) uniq.push('Alternativa operativa plausibile (' + uniq.length + ')');
-        answers = uniq.slice(0, na);
-        var ci = answers.indexOf(correct);
-        if (ci < 0) ci = 0;
-
         var stemDisp = String(qStem || '').trim();
         if (!stemDisp) stemDisp = gestioneStripHtml(row.tag || '') || '—';
 
+        var fullQ =
+            '«' +
+            stemDisp +
+            '»\n\nQuale intervento è più coerente con la scheda operativa e con le azioni previste?';
+
+        var tagLine = gestioneStripHtml(row.tag || '').substring(0, 280);
+        var actsPreview = acts.join(' | ').substring(0, 1600);
+
+        var built;
+        if (useGemini) {
+            try {
+                var gemWrongs = await gestioneGeminiFetchWrongAnswers(fullQ, correct, tagLine, actsPreview, numWrong);
+                built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, gemWrongs);
+            } catch (eG) {
+                built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
+            }
+        } else {
+            built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
+        }
+
         out.push({
-            q:
-                '«' +
-                stemDisp +
-                '»\n\nQuale intervento è più coerente con la scheda operativa e con le azioni previste?',
-            answers: answers,
-            correctIndex: ci
+            q: fullQ,
+            answers: built.answers,
+            correctIndex: built.correctIndex
         });
     }
     return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
 }
 
-function gestioneGeneraDomandeClick() {
+async function gestioneGeneraDomandeClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
     var nq = gestioneConfigLoad().numQuestions;
     var hasContent = false;
@@ -19882,13 +20025,34 @@ function gestioneGeneraDomandeClick() {
     ) {
         return;
     }
-    gestioneDomandePersist(gestioneGeneraBuildFromDb());
+    var btn = document.getElementById('quiz-gestione-btn-genera');
+    var prevLab = btn ? btn.textContent : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Generazione…';
+        btn.setAttribute('aria-busy', 'true');
+    }
     try {
-        clearTimeout(gestioneDomandePushTimer);
-    } catch (eGen) { /* ignore */ }
-    gestioneDomandePushTimer = null;
-    gestioneDomandePushToFirestoreNow();
-    gestioneDomandeRender();
+        var pack = await gestioneGeneraBuildFromDb();
+        gestioneDomandePersist(pack);
+        try {
+            clearTimeout(gestioneDomandePushTimer);
+        } catch (eGen) { /* ignore */ }
+        gestioneDomandePushTimer = null;
+        gestioneDomandePushToFirestoreNow();
+        gestioneDomandeRender();
+    } catch (eRun) {
+        console.warn('[gestione Genera]', eRun);
+        window.alert(
+            'Generazione non completata. Verifica la connessione o la chiave API Gemini in Impostazioni (telecronaca), poi riprova.'
+        );
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = prevLab || 'Genera';
+            btn.removeAttribute('aria-busy');
+        }
+    }
 }
 
 /** false = aperto da barra principale (Test): niente Genera; alla chiusura non si riapre Impostazioni. true = da Impostazioni. */
