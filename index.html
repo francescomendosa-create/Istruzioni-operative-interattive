@@ -6934,24 +6934,6 @@
             flex: 1 1 auto;
             overflow: hidden;
         }
-        .quiz-gestione-invia-a-wrap {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-            margin: 0 0 6px;
-            padding: 0 4px;
-        }
-        #quiz-gestione-test-overlay.quiz-gestione--solo-utente .quiz-gestione-invia-a-wrap {
-            display: none !important;
-        }
-        #quiz-gestione-test-overlay .btn-gestione-invia-a {
-            font-size: 0.74rem;
-            padding: 5px 14px;
-            min-height: 30px;
-            border-radius: 10px;
-            font-weight: 700;
-        }
         #quiz-gestione-invia-a-overlay .quiz-gestione-invia-a-modal {
             width: min(94vw, 420px);
             max-width: min(94vw, 420px);
@@ -7309,11 +7291,46 @@
             color: #4527a0;
             letter-spacing: 0.02em;
         }
-        .quiz-gestione-destinatari-hint {
+        .quiz-gestione-destinatari-pref {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             margin: 0;
-            font-size: 0.62rem;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 183, 77, 0.55);
+            background: linear-gradient(180deg, rgba(255, 253, 231, 0.95) 0%, rgba(255, 248, 225, 0.88) 100%);
+            cursor: pointer;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        .quiz-gestione-destinatari-pref:focus-within {
+            outline: 3px solid rgba(255, 193, 7, 0.45);
+            outline-offset: 2px;
+        }
+        .quiz-gestione-destinatari-pref input[type='checkbox'] {
+            margin-top: 3px;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            accent-color: #f9a825;
+        }
+        .quiz-gestione-destinatari-pref-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .quiz-gestione-destinatari-pref-title {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #5d4037;
+            line-height: 1.35;
+        }
+        .quiz-gestione-destinatari-pref-sub {
+            font-size: 0.6rem;
             font-weight: 500;
-            color: #607d8b;
+            color: #795548;
             line-height: 1.42;
             max-width: 62ch;
         }
@@ -7626,6 +7643,56 @@
             position: relative;
             z-index: 2;
         }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            gap: 8px;
+            align-items: stretch;
+            justify-items: stretch;
+        }
+        @media (max-width: 520px) {
+            #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple {
+                grid-template-columns: 1fr;
+            }
+            #quiz-gestione-test-overlay
+                .quiz-gestione-test-modal
+                .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+                .btn-gestione-save-all,
+            #quiz-gestione-test-overlay
+                .quiz-gestione-test-modal
+                .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+                .btn-gestione-invia-a-footer,
+            #quiz-gestione-test-overlay
+                .quiz-gestione-test-modal
+                .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+                .btn-gestione-invia-tutti {
+                justify-self: stretch;
+                width: 100%;
+                max-width: none;
+            }
+        }
+        #quiz-gestione-test-overlay
+            .quiz-gestione-test-modal
+            .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+            .btn-gestione-save-all {
+            justify-self: start;
+            min-width: 0;
+            max-width: 100%;
+        }
+        #quiz-gestione-test-overlay
+            .quiz-gestione-test-modal
+            .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+            .btn-gestione-invia-a-footer {
+            justify-self: center;
+        }
+        #quiz-gestione-test-overlay
+            .quiz-gestione-test-modal
+            .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple
+            .btn-gestione-invia-tutti {
+            justify-self: end;
+            min-width: 0;
+            max-width: 100%;
+        }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-save-all {
             flex: 0 1 auto;
             min-width: min(42%, 160px);
@@ -7634,6 +7701,27 @@
             padding: 7px 12px;
             font-weight: 800;
             font-size: 0.76rem;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-a-footer {
+            flex: 0 1 auto;
+            min-height: 36px;
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-weight: 800;
+            font-size: 0.76rem;
+            color: #4e342e;
+            border: 1px solid rgba(245, 181, 42, 0.85);
+            background: linear-gradient(180deg, #fffef5 0%, #ffe082 42%, #ffca28 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.75),
+                0 3px 12px rgba(245, 167, 37, 0.38);
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-a-footer:hover {
+            filter: brightness(1.05);
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-a-footer:active {
+            filter: brightness(0.97);
+            transform: translateY(1px);
         }
         #quiz-gestione-test-overlay.quiz-gestione--solo-utente .quiz-gestione-test-footer.quiz-lock-actions {
             display: none !important;
@@ -10836,18 +10924,20 @@ function dismissAppSplash() {
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
                     <div class="quiz-gestione-destinatari-head">
                         <span class="quiz-gestione-destinatari-title">Destinatari del test</span>
-                        <p class="quiz-gestione-destinatari-hint">
-                            Sotto trovi tutti i destinatari. Con Genera (e quando salvi o invii) valgono le stesse domande e le stesse risposte per tutti; poi puoi aprire un nome e modificare solo il suo pacchetto.
-                        </p>
+                        <label class="quiz-gestione-destinatari-pref" for="gestione-genera-uguali-tutti">
+                            <input type="checkbox" id="gestione-genera-uguali-tutti" autocomplete="off" onchange="gestioneGeneraUgualiTuttiSetFromCheckbox(this)" />
+                            <span class="quiz-gestione-destinatari-pref-text">
+                                <span class="quiz-gestione-destinatari-pref-title">Alla Genera, copia le stesse domande su tutti i destinatari</span>
+                                <span class="quiz-gestione-destinatari-pref-sub">Se attivo, il pacchetto generato viene scritto per ciascun nome qui sotto (es. tablet, cabinato): passando da un utente all’altro vedi lo stesso test; poi puoi modificare solo chi vuoi.</span>
+                            </span>
+                        </label>
                     </div>
                     <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
                 </div>
-                <div id="quiz-gestione-invia-a-wrap" class="quiz-gestione-invia-a-wrap">
-                    <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-reset btn-gestione-invia-a" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
-                </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
-                <div class="quiz-lock-actions quiz-gestione-test-footer">
+                <div class="quiz-lock-actions quiz-gestione-test-footer quiz-gestione-test-footer--triple">
                     <button type="button" class="btn-side btn-reset btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
+                    <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
                     <button type="button" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
                 </div>
             </div>
@@ -11163,7 +11253,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605246';
+const APP_BUILD = '202605247';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19483,6 +19573,8 @@ function quizAppModalBackdrop(ev) {
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 /** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
+/** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
+var GESTIONE_GENERA_UGUALE_TUTTI_LS = 'io-gestione-genera-uguali-tutti-v1';
 /** Numero domande / opzioni per domanda (persistente). */
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
@@ -20097,6 +20189,55 @@ function gestioneDomandeFanOutCurrentToKeys(keys) {
         raw.perUser[k] = { items: gestioneDomandeItemsDeepCopy(norm) };
     }
     gestioneDomandeSaveRaw(raw);
+}
+
+/** Come FanOutCurrent ma usa il pacchetto appena generato (senza leggere il DOM ancora aggiornato). */
+function gestioneDomandeFanOutNormalizedPackToKeys(keys, packItems) {
+    var norm = gestioneDomandeNormalizeItems(packItems);
+    var raw = gestioneDomandeLoadRaw();
+    raw.v = 2;
+    raw.items = gestioneDomandeItemsDeepCopy(norm);
+    if (!raw.perUser) raw.perUser = {};
+    for (var i = 0; i < keys.length; i++) {
+        var k = String(keys[i] || '').trim();
+        if (!k) continue;
+        raw.perUser[k] = { items: gestioneDomandeItemsDeepCopy(norm) };
+    }
+    gestioneDomandeSaveRaw(raw);
+}
+
+function gestioneGeneraUgualiTuttiDefault() {
+    return true;
+}
+
+function gestioneGeneraUgualiTuttiLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_GENERA_UGUALE_TUTTI_LS);
+        if (!raw) return gestioneGeneraUgualiTuttiDefault();
+        var p = JSON.parse(raw);
+        if (p && typeof p.enabled === 'boolean') return p.enabled;
+        return gestioneGeneraUgualiTuttiDefault();
+    } catch (eGt) {
+        return gestioneGeneraUgualiTuttiDefault();
+    }
+}
+
+function gestioneGeneraUgualiTuttiSave(enabled) {
+    try {
+        localStorage.setItem(
+            GESTIONE_GENERA_UGUALE_TUTTI_LS,
+            JSON.stringify({ v: 1, enabled: !!enabled })
+        );
+    } catch (eGs) { /* ignore */ }
+}
+
+function gestioneGeneraUgualiTuttiSetFromCheckbox(el) {
+    gestioneGeneraUgualiTuttiSave(!!(el && el.checked));
+}
+
+function gestioneGeneraUgualiTuttiRefreshCheckbox() {
+    var cb = document.getElementById('gestione-genera-uguali-tutti');
+    if (cb) cb.checked = gestioneGeneraUgualiTuttiLoad();
 }
 
 /** Invio verso tutti i destinatari noti (stesso elenco dei badge): stesso test per ciascun profilo, poi push Firestore. */
@@ -21763,6 +21904,17 @@ async function gestioneGeneraDomandeClick() {
     try {
         var pack = await gestioneGeneraBuildFromDb();
         gestioneDomandePersist(pack);
+        if (gestioneGeneraUgualiTuttiLoad()) {
+            var rowsFan = gestioneCollectRecipientLabels();
+            if (rowsFan.length) {
+                gestioneDomandeFanOutNormalizedPackToKeys(
+                    rowsFan.map(function (r) {
+                        return r.key;
+                    }),
+                    pack
+                );
+            }
+        }
         try {
             clearTimeout(gestioneDomandePushTimer);
         } catch (eGen) { /* ignore */ }
@@ -21857,7 +22009,10 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     gestioneDomandeEnsureResizeListener();
     try {
         gestioneDomandeRender();
-        if (editorCompleto) gestioneRenderDestinatariBadges();
+        if (editorCompleto) {
+            gestioneRenderDestinatariBadges();
+            gestioneGeneraUgualiTuttiRefreshCheckbox();
+        }
     } catch (eR) { /* ignore */ }
 }
 
