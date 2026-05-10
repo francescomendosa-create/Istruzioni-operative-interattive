@@ -17,6 +17,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Istruzioni">
     <link rel="apple-touch-icon" sizes="180x180" href="pwa-180.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400..700;1,400;1,600&display=swap" rel="stylesheet">
     <script>
     /* Solo iPhone / iPod touch: classe per CSS dedicato. iPad e Android non vengono toccati. */
     (function () {
@@ -6658,6 +6661,57 @@
             padding-top: 8px;
             background: #fff;
         }
+        /* Popup Domande — tipografia dedicata (Gestione test e verifiche) */
+        #quiz-gestione-test-overlay {
+            font-family: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-optical-sizing: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-feature-settings:
+                'kern' 1,
+                'liga' 1,
+                'calt' 1;
+        }
+        #quiz-gestione-test-overlay .quiz-lock-title,
+        #quiz-gestione-test-overlay .quiz-gestione-test-title {
+            font-family: inherit;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-lead,
+        #quiz-gestione-test-overlay .quiz-gestione-test-intro {
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+        #quiz-gestione-test-overlay .gestione-q-card-head strong,
+        #quiz-gestione-test-overlay .gestione-q-section-label {
+            font-family: inherit;
+            letter-spacing: 0.04em;
+        }
+        #quiz-gestione-test-overlay .gestione-q-text,
+        #quiz-gestione-test-overlay .gestione-a-text,
+        #quiz-gestione-test-overlay .gestione-answer-slot textarea.gestione-a-text {
+            font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+            font-size: 0.93rem;
+            font-weight: 500;
+            letter-spacing: 0.015em;
+            line-height: 1.55;
+        }
+        #quiz-gestione-test-overlay #quiz-gestione-test-list {
+            font-family: inherit;
+            font-size: 0.94rem;
+            color: #455a64;
+        }
+        #quiz-gestione-test-overlay .gestione-q-card-num,
+        #quiz-gestione-test-overlay .gestione-answer-letter {
+            font-family: inherit;
+        }
+        #quiz-gestione-test-overlay .btn-side,
+        #quiz-gestione-test-overlay .btn-gestione-torna,
+        #quiz-gestione-test-overlay .btn-gestione-genera {
+            font-family: inherit;
+            letter-spacing: 0.02em;
+        }
         /* Popup Domande (Gestione test e verifiche): stesse dimensioni di Modifica contenuti */
         #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
             width: min(96vw, 900px);
@@ -10126,7 +10180,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605197</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605198</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10426,7 +10480,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605197';
+const APP_BUILD = '202605198';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
