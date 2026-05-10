@@ -9614,6 +9614,10 @@ function dismissAppSplash() {
                 <span><strong>Modifica</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
+            <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-gestione-test-btn" onclick="showQuizGestioneTestVerificheModal()" aria-label="Gestione, test e verifiche" title="Gestione, test e verifiche">
+                <span><strong>Gestione, test e verifiche</strong></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" id="quiz-settings-quiz-speech-btn" onclick="showQuizSpeechSettingsModal()" aria-label="Impostazioni Quiz" title="Impostazioni telecronaca e velocità">
                 <span><strong>Quiz</strong> <span id="quiz-settings-speech-sub">Velocità 1.0x</span></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -9790,6 +9794,18 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-lock-actions">
                 <button type="button" class="btn-side btn-report" onclick="hideQuizAppModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-gestione-test-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="quizGestioneTestVerificheBackdrop(event)">
+        <div class="quiz-lock-box quiz-app-box" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-test-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-gestione-test-title" class="quiz-lock-title">Gestione, test e verifiche</h4>
+            <div class="quiz-app-body">
+                <p style="margin:0;font-size:0.9rem;color:#546e7a;line-height:1.55;">Contenuti in definizione: qui saranno disponibili strumenti per gestione, test e verifiche.</p>
+            </div>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-report" onclick="hideQuizGestioneTestVerificheModal()">Chiudi</button>
             </div>
         </div>
     </div>
@@ -10033,7 +10049,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605186';
+const APP_BUILD = '202605187';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18105,6 +18121,31 @@ function quizAppModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-app-overlay') hideQuizAppModal();
 }
 
+function showQuizGestioneTestVerificheModal() {
+    var overlay = document.getElementById('quiz-gestione-test-overlay');
+    var settingsOverlay = document.getElementById('quiz-settings-overlay');
+    if (!overlay) return;
+    if (settingsOverlay) settingsOverlay.classList.remove('visible');
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function hideQuizGestioneTestVerificheModal() {
+    var overlay = document.getElementById('quiz-gestione-test-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
+    try {
+        if (typeof showQuizSettingsModal === 'function') void showQuizSettingsModal();
+    } catch (eGs) { /* ignore */ }
+}
+
+function quizGestioneTestVerificheBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-gestione-test-overlay') hideQuizGestioneTestVerificheModal();
+}
+
 let quizProducerRemovePendingIndex = null;
 let quizProducerRemoveKeydownBound = false;
 
@@ -18417,6 +18458,14 @@ function setupQuizTitleToggle() {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
                 quizModifyDevBackClick();
+            }
+            return;
+        }
+        const gestioneTest = document.getElementById('quiz-gestione-test-overlay');
+        if (gestioneTest && gestioneTest.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideQuizGestioneTestVerificheModal();
             }
             return;
         }
