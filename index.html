@@ -319,7 +319,7 @@
             }
         }
 
-        /* Riga 3: Quiz + Diagnostica — stessa dimensione (padding, testo, larghezza minima) */
+        /* Riga 3: Quiz · Test · Diagnostica — stessa dimensione (padding, testo, larghezza minima) */
         .header-quiz-row {
             display: flex;
             justify-content: center;
@@ -440,6 +440,32 @@
         }
         .btn-diagnostica:hover { filter: brightness(1.06); }
         .btn-diagnostica:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(10, 70, 45, 0.35), 0 3px 8px rgba(0,0,0,0.14); }
+
+        /* Tra Quiz e Diagnostica — gestione domande test e verifiche (stesse dimensioni base) */
+        .btn-test-gestione {
+            box-sizing: border-box;
+            min-width: 132px;
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.66rem;
+            letter-spacing: 0.06em;
+            background: linear-gradient(180deg, #b39ddb 0%, #7e57c2 52%, #5e35b1 100%);
+            color: #fff;
+            white-space: nowrap;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+            box-shadow: 0 4px 0 rgba(49, 27, 96, 0.42), 0 8px 14px rgba(49, 27, 96, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+        .btn-test-gestione:hover {
+            filter: brightness(1.06);
+        }
+        .btn-test-gestione:active {
+            transform: translateY(3px) scale(0.99);
+            box-shadow: 0 2px 0 rgba(49, 27, 96, 0.45), 0 4px 8px rgba(0, 0, 0, 0.14);
+        }
 
         .quiz-panel {
             display: none;
@@ -6938,7 +6964,8 @@
             min-height: 0;
             max-height: none;
             box-sizing: border-box;
-            padding: 11px 12px;
+            display: block;
+            padding: 8px 11px;
             border: 1px solid rgba(94, 53, 177, 0.2);
             border-radius: 12px;
             font-size: 0.84rem;
@@ -6968,10 +6995,12 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            padding: 10px 10px 10px 8px;
+            padding: 8px 10px 8px 8px;
             border-radius: 12px;
             border: 1px solid #e8eaf6;
             background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+            min-height: 0;
+            align-self: stretch;
             transition:
                 border-color 0.15s ease,
                 box-shadow 0.15s ease,
@@ -7008,7 +7037,8 @@
             border-color: #4527a0;
         }
         .gestione-answer-slot input[type='radio'] {
-            margin-top: 10px;
+            margin-top: 6px;
+            align-self: flex-start;
             flex-shrink: 0;
             width: 18px;
             height: 18px;
@@ -7016,11 +7046,12 @@
             cursor: pointer;
         }
         .gestione-answer-slot textarea.gestione-a-text {
-            flex: 1;
+            flex: 1 1 auto;
+            align-self: flex-start;
             min-width: 0;
             min-height: 0;
             max-height: none;
-            padding: 9px 11px;
+            padding: 7px 10px;
             border: 1px solid #cfd8dc;
             border-radius: 10px;
             font-size: 0.8rem;
@@ -7046,8 +7077,8 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            justify-content: stretch;
-            align-items: stretch;
+            justify-content: space-between;
+            align-items: center;
             align-self: stretch;
             width: 100%;
             box-sizing: border-box;
@@ -7063,14 +7094,23 @@
             z-index: 2;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-save-all {
-            flex: 1 1 auto;
-            min-width: min(100%, 200px);
+            flex: 0 1 auto;
+            min-width: min(46%, 220px);
             min-height: 48px;
             border-radius: 12px;
             padding: 12px 18px;
             font-weight: 800;
             font-size: 0.9rem;
-            box-shadow: 0 4px 14px rgba(21, 101, 192, 0.22);
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia {
+            flex: 0 1 auto;
+            min-width: min(46%, 220px);
+            min-height: 48px;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 14px rgba(31, 174, 100, 0.28);
         }
         .quiz-info-version-line {
             margin: 10px 0 0;
@@ -7395,7 +7435,8 @@
                 gap: 6px 8px;
             }
             .btn-quiz,
-            .btn-diagnostica {
+            .btn-diagnostica,
+            .btn-test-gestione {
                 font-size: 0.74rem;
                 padding: 10px 18px;
                 min-width: 138px;
@@ -7532,7 +7573,8 @@
                 padding: 8px 6px;
             }
             .btn-quiz,
-            .btn-diagnostica {
+            .btn-diagnostica,
+            .btn-test-gestione {
                 font-size: 0.7rem;
                 padding: 9px 14px;
                 min-width: 124px;
@@ -9532,6 +9574,7 @@ function dismissAppSplash() {
     <div class="header-quiz-row">
         <div class="header-quiz-actions">
             <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
+            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal()" title="Domande test e verifiche" aria-label="Apri domande test e verifiche">Test</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -10180,7 +10223,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605198</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605200</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10236,7 +10279,8 @@ function dismissAppSplash() {
             </div>
             <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
             <div class="quiz-lock-actions quiz-gestione-test-footer">
-                <button type="button" class="btn-side btn-report btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
+                <button type="button" class="btn-side btn-reset btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
+                <button type="button" class="btn-side btn-report btn-gestione-invia" onclick="gestioneDomandeInviaClick()" aria-label="Salva e invia le domande al cloud">Invia</button>
             </div>
         </div>
     </div>
@@ -10480,7 +10524,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605198';
+const APP_BUILD = '202605200';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18755,6 +18799,16 @@ function gestioneDomandeSaveAllClick() {
     gestioneDomandePersist(gestioneReadSlotsFromDom());
 }
 
+/** Salva tutto e invio immediato su Firestore (oltre al salvataggio locale). */
+function gestioneDomandeInviaClick() {
+    gestioneDomandePersist(gestioneReadSlotsFromDom());
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eClr) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
+}
+
 function gestioneDomandeSaveSlotClick(idx) {
     gestioneDomandePersist(gestioneReadSlotsFromDom());
     var card = document.getElementById('gestione-card-' + idx);
@@ -18780,16 +18834,22 @@ function gestioneCardModifica(idx) {
 }
 
 /**
- * Altezza textarea = contenuto (1 riga resta compatto; più righe espandono).
- * height 0 → scrollHeight permette di rimpicciolire quando si cancella testo.
+ * Altezza textarea = solo il testo (1 riga → compatto; più righe → si espande).
+ * align-self:flex-start sulla risposta evita che il flex «tiri» l’altezza al massimo della riga.
  */
 function gestioneDomandeFitTextareaToContent(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
+    el.style.overflow = 'hidden';
     el.style.height = '0px';
     el.style.minHeight = '0';
+    el.style.maxHeight = 'none';
+    try {
+        void el.offsetHeight;
+    } catch (eOf) { /* ignore */ }
     var h = el.scrollHeight;
-    el.style.height = h + 'px';
+    el.style.height = (isFinite(h) && h > 0 ? h : 0) + 'px';
     el.style.minHeight = '';
+    el.style.maxHeight = '';
 }
 
 function gestioneDomandeFitQuestionTextarea(el) {
