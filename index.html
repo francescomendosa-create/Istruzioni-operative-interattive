@@ -9200,6 +9200,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="gestione-car-mcq-bank.js"></script>
+    <script src="gestione-generic-mcq-bank.js"></script>
     <script>
     window.__FIREBASE_QUIZ_CONFIG__ = null;
     </script>
@@ -10982,7 +10983,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605238';
+const APP_BUILD = '202605242';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19513,6 +19514,26 @@ function gestioneStripHtml(s) {
     }
 }
 
+/** Per editor domande/risposte: <br> e markup leggeri → a capo e testo leggibile (niente residui tipo &lt;br&gt; nel textarea). */
+function gestioneHtmlToPlainForEditor(s) {
+    var t = String(s || '');
+    if (!t) return '';
+    t = t.replace(/<\s*br\s*\/?>/gi, '\n');
+    t = t.replace(/<\/\s*p\s*>/gi, '\n');
+    t = t.replace(/<\/\s*div\s*>/gi, '\n');
+    try {
+        var d = document.createElement('div');
+        d.innerHTML = t;
+        t = String(d.textContent || d.innerText || '');
+    } catch (e) {
+        t = t.replace(/<[^>]+>/g, ' ');
+    }
+    t = t.replace(/\u00a0/g, ' ');
+    t = t.replace(/[ \t]+\n/g, '\n');
+    t = t.replace(/\n{3,}/g, '\n\n');
+    return t.trim();
+}
+
 function gestioneShuffle(arr) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -19557,12 +19578,13 @@ function gestioneDomandeNormalizeItems(items) {
         var ans = (it.answers ? it.answers.slice(0, na) : []).slice();
         while (ans.length < na) ans.push('');
         ans = ans.slice(0, na).map(function (a) {
-            return gestioneNormalizeAnswerPhrase(String(a || ''));
+            return gestioneNormalizeAnswerPhrase(gestioneHtmlToPlainForEditor(String(a || '')));
         });
         var ci = parseInt(it.correctIndex, 10);
         if (!isFinite(ci) || ci < 0 || ci >= na) ci = 0;
-        var row = { q: String(it.q || ''), answers: ans, correctIndex: ci };
+        var row = { q: gestioneHtmlToPlainForEditor(String(it.q || '')), answers: ans, correctIndex: ci };
         if (it.genSource === 'car') row.genSource = 'car';
+        else if (it.genSource === 'genericMcq') row.genSource = 'genericMcq';
         return row;
     });
 }
@@ -19830,6 +19852,7 @@ function gestioneReadSlotsFromDom() {
         var row = { q: q, answers: answers, correctIndex: correctIndex };
         var ps = prevArr[i];
         if (ps && ps.genSource === 'car') row.genSource = 'car';
+        else if (ps && ps.genSource === 'genericMcq') row.genSource = 'genericMcq';
         items.push(row);
     }
     return items;
@@ -20969,6 +20992,53 @@ function gestioneCarMcqComposeStem(item) {
     return q;
 }
 
+function gestioneMcqExtraStateCreate() {
+    return { i: 0, pool: gestioneCarMcqExtraDistractorsPool() };
+}
+
+/**
+ * Costruisce uno slot MCQ da voce banco articolato { q, answers[4], correctIndex, risk? }.
+ * genSource: 'car' | 'genericMcq'
+ */
+function gestioneMcqBuildSlotFromArticulatedItem(item, na, extraState, genSource) {
+    na = parseInt(na, 10);
+    if (!isFinite(na)) na = 4;
+    na = Math.min(GESTIONE_CONFIG_NA_MAX, Math.max(4, na));
+    var base = item.answers.map(function (a) {
+        return gestioneNormalizeAnswerPhrase(String(a || ''));
+    });
+    var ci = item.correctIndex;
+    if (!isFinite(ci) || ci < 0 || ci >= base.length) ci = 0;
+    var used = {};
+    base.forEach(function (t) {
+        if (t) used[t] = 1;
+    });
+    var ans = base.slice();
+    while (ans.length < na) {
+        var ex = extraState.pool[extraState.i % extraState.pool.length];
+        extraState.i++;
+        var exu = ex;
+        var dup = 0;
+        while (used[exu] && dup < 80) {
+            dup++;
+            exu = ex + ' — variante ' + dup + '.';
+        }
+        used[exu] = 1;
+        ans.push(gestioneNormalizeAnswerPhrase(exu));
+    }
+    if (ans.length > na) ans = ans.slice(0, na);
+    if (ci >= ans.length) ci = 0;
+    var sh = gestioneCarMcqShuffleAnswers(ans, ci);
+    var slot = {
+        q: gestioneCarMcqComposeStem(item),
+        answers: sh.answers,
+        correctIndex: sh.correctIndex
+    };
+    if (genSource === 'car') slot.genSource = 'car';
+    else if (genSource === 'genericMcq') slot.genSource = 'genericMcq';
+    return slot;
+}
+
 function gestioneGeneraBuildFromCarBank() {
     var prevSaved = gestioneDomandeLoad();
     var cfg = gestioneConfigLoad();
@@ -21000,41 +21070,10 @@ function gestioneGeneraBuildFromCarBank() {
     var order = gestioneShuffle(bank.map(function (_, idx) {
         return idx;
     }));
-    var extras = gestioneCarMcqExtraDistractorsPool();
-    var exi = 0;
+    var extraState = gestioneMcqExtraStateCreate();
     for (var n = 0; n < nTotal; n++) {
         var item = bank[order[n % order.length]];
-        var base = item.answers.map(function (a) {
-            return gestioneNormalizeAnswerPhrase(String(a || ''));
-        });
-        var ci = item.correctIndex;
-        if (!isFinite(ci) || ci < 0 || ci >= base.length) ci = 0;
-        var used = {};
-        base.forEach(function (t) {
-            if (t) used[t] = 1;
-        });
-        var ans = base.slice();
-        while (ans.length < na) {
-            var ex = extras[exi % extras.length];
-            exi++;
-            var exu = ex;
-            var dup = 0;
-            while (used[exu] && dup < 80) {
-                dup++;
-                exu = ex + ' — variante ' + dup + '.';
-            }
-            used[exu] = 1;
-            ans.push(gestioneNormalizeAnswerPhrase(exu));
-        }
-        if (ans.length > na) ans = ans.slice(0, na);
-        if (ci >= ans.length) ci = 0;
-        var sh = gestioneCarMcqShuffleAnswers(ans, ci);
-        out.push({
-            q: gestioneCarMcqComposeStem(item),
-            answers: sh.answers,
-            correctIndex: sh.correctIndex,
-            genSource: 'car'
-        });
+        out.push(gestioneMcqBuildSlotFromArticulatedItem(item, na, extraState, 'car'));
     }
     return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
 }
@@ -21052,13 +21091,27 @@ async function gestioneGeneraBuildFromDb() {
     var letters = ['A', 'B', 'C', 'D', 'E'];
     var out = [];
     var pool = gestioneCollectGlobalActionPool();
-    var rows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
+    var cfRows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
+    var staticGenericMcq =
+        typeof GESTIONE_GENERIC_MCQ_BANK !== 'undefined' && Array.isArray(GESTIONE_GENERIC_MCQ_BANK)
+            ? GESTIONE_GENERIC_MCQ_BANK
+            : [];
+    var unified = [];
+    cfRows.forEach(function (row) {
+        unified.push({ kind: 'cf', row: row });
+    });
+    staticGenericMcq.forEach(function (item) {
+        unified.push({ kind: 'mcq', item: item });
+    });
     var hasGeminiKey = numWrong > 0 && !!quizResolveAiConfig().textKey;
 
-    if (!rows.length) {
+    if (!unified.length) {
         for (var z = 0; z < nTotal; z++) {
             var sl = gestioneDomandeEmptySlot();
-            sl.q = 'Definire la domanda ' + (z + 1) + ' (database Controlli non disponibile in questo contesto)';
+            sl.q =
+                'Definire la domanda ' +
+                (z + 1) +
+                ' (nessuna fonte disponibile: Controlli in scheda e banco domande generiche offline).';
             var ansPl = [];
             for (var ze = 0; ze < na; ze++) {
                 ansPl.push('Opzione ' + letters[ze] + ' — da completare');
@@ -21069,13 +21122,21 @@ async function gestioneGeneraBuildFromDb() {
         }
         return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
     }
-    var order = gestioneShuffle(rows.map(function (_, idx) {
+    var order = gestioneShuffle(unified.map(function (_, idx) {
         return idx;
     }));
     var distractors = gestioneShuffle(pool.slice());
+    var extraStateMcq = gestioneMcqExtraStateCreate();
 
     for (var n = 0; n < nTotal; n++) {
-        var row = rows[order[n % order.length]];
+        var pick = unified[order[n % unified.length]];
+        if (pick.kind === 'mcq') {
+            out.push(
+                gestioneMcqBuildSlotFromArticulatedItem(pick.item, na, extraStateMcq, 'genericMcq')
+            );
+            continue;
+        }
+        var row = pick.row;
         var qStem = gestioneStripHtml(row.q || '').substring(0, 420);
         var acts = (row.actions || []).map(function (a) {
             return gestioneStripHtml(a.c || '');

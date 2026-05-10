@@ -350,3 +350,51 @@ Rischio associato: Scarsa chiarificazione.
 Q: Se il chiarificato contiene grassi: A: Verificare efficienza separazione DAF. B: Eliminare raschiatori. C: Fermare compressori. D: Ridurre controlli. Corretta: A
 
 Rischio associato: Stress biomassa biologica.
+
+
+Q: Se il chiarificato in uscita dal DAF presenta un trascinamento di piccoli fiocchi leggeri, quale azione correttiva è più indicata? A: Verificare il dosaggio del PAM (Polielettrolita) e regolarne la concentrazione per appesantire il fiocco. B: Aumentare esclusivamente la velocità dei raschiatori superficiali. C: Ridurre la pressione nel saturatore per diminuire la turbolenza. D: Aumentare l'insufflaggio aria nella vasca MBBR per ossidare i residui. Corretta: A
+
+
+Q: In caso di diminuzione improvvisa dell'Ossigeno Disciolto (OD), quale controllo tecnico sulla linea aria è prioritario? A: Verificare l'integrità delle membrane dei diffusori e la pressione di mandata dei soffiatori. B: Controllare la temperatura del refluo nel flottatore DAF. C: Aumentare il dosaggio del PAC (Coagulante) per ridurre il carico organico istantaneo. D: Verificare la velocità di rotazione del miscelatore del PAM (Polielettrolita). Corretta: A
+
+
+Q: Se si osserva una schiuma bruna e densa sulla superficie del biologico, quale parametro operativo va verificato immediatamente? A: Il rapporto tra carico organico in ingresso e concentrazione di ossigeno (OD) fornito. B: La pressione di esercizio delle pompe di ricircolo fanghi. C: Il tempo di maturazione della soluzione di PAC (Coagulante). D: L'efficienza di rimozione dei solidi grossolani nella griglia iniziale. Corretta: A
+
+
+Q: Quale controllo operativo è necessario se la pressione nel saturatore del DAF oscilla vistosamente? A: Verificare la tenuta delle valvole di non ritorno e il corretto spurgo della condensa dal compressore. B: Aumentare la portata del PAM (Polielettrolita) per stabilizzare il refluo. C: Controllare il pH nella vasca di coagulazione del PAC (Coagulante). D: Verificare il movimento dei carrier nella vasca MBBR. Corretta: A
+
+
+Q: Se i carrier nell'MBBR tendono ad accumularsi in superficie formando uno strato compatto, come intervieni? A: Controllare la distribuzione dell'aria dai diffusori e la portata del soffiatore. B: Ridurre il dosaggio di PAC (Coagulante) per diminuire la densità dell'acqua. C: Aumentare la velocità dei raschiatori del DAF per prelevare più olio. D: Aggiungere PAM (Polielettrolita) direttamente in vasca biologica. Corretta: A
+
+
+Q: Quando il fiocco in uscita dalla camera di miscelazione appare puntiforme e non aggrega, quale azione di controllo verifichi? A: Verificare la portata della pompa dosatrice del PAM (Polielettrolita) e l'effettivo pescaggio dal serbatoio. B: Aumentare la velocità del mixer del PAC (Coagulante). C: Diminuire l'apporto di aria nel saturatore DAF. D: Controllare il livello dell'acqua nella vasca di uscita finale. Corretta: A
+
+
+Q: Se si rileva un pH eccessivamente acido in ingresso, quale controllo deve essere fatto sulla sezione chimico-fisica? A: Verificare la compatibilità del PAC (Coagulante) con il nuovo valore di pH e l'eventuale necessità di correzione con soda. B: Aumentare la pressione del saturatore per contrastare l'acidità. C: Sospendere il dosaggio del PAM (Polielettrolita) fino alla neutralizzazione. D: Aumentare il numero di giri dei raschiatori del flottatore. Corretta: A
+
+
+Q: Quale verifica tecnica è necessaria se il fango rimosso dai raschiatori del DAF risulta troppo fluido e povero di solido? A: Verificare i tempi di sosta del fango in superficie e regolare la frequenza dei raschiatori. B: Aumentare il dosaggio di aria nel comparto biologico. C: Sostituire il PAC (Coagulante) con un sale di ferro. D: Verificare l'intasamento della griglia di uscita dei carrier. Corretta: A
+
+
+Q: Se noti un trascinamento di oli dopo il DAF, quale controllo operativo sul sistema di saturazione è utile? A: Verificare che la portata di ricircolo verso il saturatore sia sufficiente a generare microbolle adeguate. B: Controllare il colore del biofilm sui carrier. C: Ridurre la velocità del miscelatore del PAM (Polielettrolita). D: Aumentare la frequenza di spurgo della vasca MBBR. Corretta: A
+
+
+Q: In caso di malfunzionamento della pompa di dosaggio del PAC (Coagulante), quale controllo immediato effettui? A: Verificare l'integrità della membrana della pompa e l'eventuale presenza di aria nei tubi di mandata. B: Controllare la tensione elettrica dei soffiatori del biologico. C: Verificare la pressione del compressore dei raschiatori. D: Misurare la torbidità del refluo grezzo in ingresso. Corretta: A
+
+
+Q: [Chimico-Fisico e DAF — Pompe e Dosaggi] Se il refluo in uscita dal DAF risulta torbido (> 20 NTU), quale controllo prioritario va effettuato sulla pompa dosatrice del PAC (Polialluminio Cloruro - Coagulante)? A: Verificare che la pompa sia in marcia, che non ci siano bolle d'aria nella linea di aspirazione e che il pescaggio dal serbatoio sia regolare. B: Aumentare la velocità dei mixer senza controllare il funzionamento meccanico della pompa dosatrice del PAC (Polialluminio Cloruro - Coagulante). C: Spegnere la pompa di ricircolo del saturatore per forzare la sedimentazione. D: Verificare solo il livello del serbatoio del PAM (Poliacrilammide - Flocculante). Corretta: A
+
+
+Q: [Chimico-Fisico e DAF — Pompe e Dosaggi] Quale verifica operativa è necessaria sulla pompa di preparazione del PAM (Poliacrilammide - Flocculante) se i fiocchi (floc) nel flottatore appaiono troppo piccoli e fragili? A: Controllare che la pompa stia dosando correttamente e che la soluzione di PAM (Poliacrilammide - Flocculante) non sia troppo vecchia o degradata. B: Ridurre drasticamente il dosaggio di PAC (Polialluminio Cloruro - Coagulante) per vedere se il fiocco si ingrossa da solo. C: Aumentare la pressione del saturatore d'aria oltre i 6 bar. D: Verificare esclusivamente lo stato delle soffianti del biologico. Corretta: A
+
+
+Q: [Chimico-Fisico e DAF — Pompe e Dosaggi] In caso di pH < 6,5, quale azione immediata è richiesta per garantire l'efficacia del PAC (Polialluminio Cloruro - Coagulante)? A: Agire sul dosaggio della base (NaOH) per riportare il pH nel range 6,5–7,5, altrimenti il PAC (Polialluminio Cloruro - Coagulante) non reagisce correttamente. B: Aumentare il dosaggio di PAC (Polialluminio Cloruro - Coagulante) per compensare l'acidità. C: Sostituire il PAC (Polialluminio Cloruro - Coagulante) con il PAM (Poliacrilammide - Flocculante) direttamente nel mixer. D: Spegnere i mixer di coagulazione per evitare la rottura del fiocco. Corretta: A
+
+
+Q: [Biologico MBBR — Soffianti e Aerazione] Se le soffianti indicano una pressione di mandata troppo alta ma l'Ossigeno Disciolto (OD) in vasca MBBR è basso, quale controllo sui diffusori è necessario? A: Verificare se i diffusori sul fondo sono intasati o se le valvole di distribuzione aria sono parzialmente chiuse. B: Aumentare il dosaggio di PAM (Poliacrilammide - Flocculante) per pulire le membrane dei diffusori. C: Ridurre il numero di soffianti in marcia per abbassare la pressione nei collettori. D: Controllare se il PAC (Polialluminio Cloruro - Coagulante) ha intasato le griglie dei carrier. Corretta: A
+
+
+Q: [Biologico MBBR — Soffianti e Aerazione] Se si verifica un allarme di "Anossia Critica" (OD < 0,5 mg/L), quale azione di ripristino sui soffiatori è prioritaria per evitare la produzione di H₂S? A: Controllare i blocchi termici al quadro elettrico e assicurarsi che i soffiatori ripartano immediatamente per ossigenare la biomassa. B: Attendere che il fango decanti prima di riavviare i soffiatori. C: Dosare PAC (Polialluminio Cloruro - Coagulante) per ossidare chimicamente il carico organico. D: Verificare il dosaggio di PAM (Poliacrilammide - Flocculante) per appesantire i carrier. Corretta: A
+
+
+Q: [Biologico MBBR — Soffianti e Aerazione] Quale controllo meccanico deve essere eseguito se i carrier si accumulano sulle griglie nonostante i soffiatori siano alla massima potenza? A: Verificare che l'aria sia distribuita uniformemente dai diffusori e che non ci siano "punti morti" che spingono i carrier verso l'uscita. B: Aggiungere una dose massiccia di PAC (Polialluminio Cloruro - Coagulante) per pulire le griglie. C: Aumentare la viscosità del refluo aggiungendo PAM (Poliacrilammide - Flocculante). D: Invertire il senso di rotazione dei soffiatori per aspirare i carrier. Corretta: A

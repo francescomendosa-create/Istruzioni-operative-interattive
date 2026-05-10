@@ -1,0 +1,238 @@
+Q: Qual è il compito principale del coagulante PAC? A: Neutralizzare le cariche dei colloidi. B: Sterilizzare il refluo. C: Raffreddare il biologico. D: Aumentare il pH. Corretta: A
+
+
+Q: Cosa succede se il pH è fuori range durante la coagulazione? A: Migliora sempre la flottazione. B: La coagulazione perde efficacia. C: Il polielettrolita PAM sostituisce il coagulante PAC. D: L'olio evapora. Corretta: B
+
+
+Q: Il polielettrolita PAM serve principalmente a: A: Creare ponti tra i microfiocchi. B: Abbassare la temperatura. C: Disinfettare il refluo. D: Eliminare l'ossigeno. Corretta: A
+
+
+Q: coagulante PAC e polielettrolita PAM lavorano meglio: A: In ordine casuale. B: Prima polielettrolita PAM poi coagulante PAC. C: Prima coagulante PAC poi polielettrolita PAM. D: Solo separatamente. Corretta: C
+
+
+Q: Un dosaggio insufficiente di coagulante PAC può causare: A: Fiocchi deboli e torbidità. B: Acqua troppo fredda. C: Eccesso di ossigeno. D: Carrier più puliti. Corretta: A
+
+
+Q: Se il mixer è spento durante il dosaggio coagulante PAC: A: Migliora la separazione. B: Si formano zone concentrate e fiocchi irregolari. C: Il biologico accelera. D: Il COD sparisce. Corretta: B
+
+
+Q: Un polielettrolita PAM preparato male genera: A: Ponte fiocculante debole. B: Più ossigeno disciolto. C: Meno schiuma biologica. D: Nitrificazione migliore. Corretta: A
+
+
+Q: Qual è il rischio di coagulante PAC assente ma polielettrolita PAM presente? A: Flocculazione perfetta. B: Microfiocchi instabili. C: COD azzerato. D: Biomassa più attiva. Corretta: B
+
+
+Q: I sali di ferro possono: A: Svolgere funzione coagulante. B: Sostituire l'ossigenazione. C: Eliminare i carrier. D: Raffreddare il DAF. Corretta: A
+
+
+Q: Il chiarificato torbido indica spesso: A: Solidi non separati. B: Troppo ossigeno. C: Temperatura ideale. D: Carrier perfetti. Corretta: A
+
+
+Q: Il coagulante PAC agisce principalmente: A: Neutralizzando cariche superficiali. B: Creando ossigeno. C: Sciogliendo i carrier. D: Abbassando il COD biologicamente. Corretta: A
+
+
+Q: Il polielettrolita PAM lavora meglio: A: Dopo la destabilizzazione colloidale. B: Prima del coagulante PAC. C: Senza miscelazione. D: Solo con acqua pulita. Corretta: A
+
+
+Q: Se i fiocchi si rompono facilmente: A: Può servire più coagulante PAC. B: Serve meno aria. C: Serve eliminare il biologico. D: Va spento il mixer. Corretta: A
+
+
+Q: Il pH ideale di coagulazione nel sistema descritto è circa: A: 1-2 B: 6,5-7,5 C: 11-12 D: 14 Corretta: B
+
+
+Q: Una cattiva flocculazione può causare: A: Trascinamento di solidi. B: Ossigeno infinito. C: Carrier sterilizzati. D: Temperatura stabile. Corretta: A
+
+
+Q: Il coagulante PAC è: A: Un coagulante. B: Un batterio. C: Un diffusore aria. D: Un carrier. Corretta: A
+
+
+Q: Il polielettrolita PAM è: A: Un flocculante. B: Un compressore. C: Un olio. D: Un sensore. Corretta: A
+
+
+Q: Se il pH è troppo lontano dal range operativo: A: La separazione peggiora. B: Il COD sparisce. C: Il DAF non serve più. D: Il biologico si ferma sempre. Corretta: A
+
+
+Q: Un dosaggio eccessivo di coagulante può: A: Generare instabilità del fiocco. B: Eliminare il bisogno di aria. C: Creare ossigeno. D: Ridurre sempre il COD a zero. Corretta: A
+
+
+Q: Il controllo della miscelazione è importante perché: A: Favorisce il contatto reagente-particelle. B: Elimina il bisogno di coagulante PAC. C: Riduce la temperatura. D: Fa galleggiare i carrier. Corretta: A
+
+
+Q: Nel DAF le microbolle servono a: A: Far galleggiare solidi e oli. B: Raffreddare il refluo. C: Sciogliere il fango. D: Disinfettare. Corretta: A
+
+
+Q: Il saturatore lavora: A: In pressione. B: In vuoto assoluto. C: Senza aria. D: Solo con fanghi. Corretta: A
+
+
+Q: Pressione saturatore troppo bassa significa: A: Meno microbolle. B: Più flottazione. C: COD azzerato. D: Più nitrificazione. Corretta: A
+
+
+Q: I raschiatori servono a: A: Rimuovere fanghi e oli superficiali. B: Ossigenare il biologico. C: Dosare il polielettrolita PAM. D: Raffreddare il refluo. Corretta: A
+
+
+Q: Raschiatori fermi possono causare: A: Accumulo superficiale. B: Migliore chiarificazione. C: Più ossigeno. D: Carrier più puliti. Corretta: A
+
+
+Q: Le microbolle nel DAF: A: Aumentano la galleggiabilità. B: Distruggono i fiocchi. C: Eliminano il pH. D: Raffreddano il refluo. Corretta: A
+
+
+Q: Una turbolenza eccessiva nel DAF: A: Può rompere i fiocchi. B: Migliora sempre la separazione. C: Elimina gli oli. D: Produce ossigeno. Corretta: A
+
+
+Q: Il ricircolo nel saturatore serve a: A: Dissolvere aria in acqua. B: Eliminare il polielettrolita PAM. C: Raffreddare il biologico. D: Sciogliere i carrier. Corretta: A
+
+
+Q: Una DAF inefficiente può inviare al biologico: A: Oli e solidi. B: Ossigeno puro. C: Acqua distillata. D: Solo nutrienti. Corretta: A
+
+
+Q: Il chiarificato deve essere: A: Poco torbido e senza oli. B: Nero e schiumoso. C: Ricco di grassi. D: Sempre caldo. Corretta: A
+
+
+Q: Il DAF è particolarmente utile per: A: Oli e solidi sospesi. B: Raffreddamento termico. C: Produzione ossigeno. D: Sterilizzazione totale. Corretta: A
+
+
+Q: Le bolle troppo grandi: A: Possono separare peggio dei microfiocchi. B: Sono sempre migliori. C: Eliminano il coagulante PAC. D: Abbassano il COD da sole. Corretta: A
+
+
+Q: Un flottatore in crisi mostra spesso: A: Chiarificato sporco. B: Carrier perfetti. C: pH stabile. D: Zero torbidità. Corretta: A
+
+
+Q: Il flottato contiene spesso: A: Oli e fanghi. B: Ossigeno puro. C: Carrier biologici. D: Acqua distillata. Corretta: A
+
+
+Q: Un tempo di separazione troppo basso: A: Peggiora la chiarificazione. B: Migliora sempre il processo. C: Elimina i solidi. D: Riduce la temperatura. Corretta: A
+
+
+Q: Gli oli nel chiarificato possono: A: Soffocare il biofilm. B: Migliorare sempre il biologico. C: Ridurre il COD automaticamente. D: Creare ossigeno. Corretta: A
+
+
+Q: Una corretta flottazione richiede: A: Chimica + microbolle. B: Solo aria. C: Solo polielettrolita PAM. D: Solo temperatura alta. Corretta: A
+
+
+Q: Il flottatore separa principalmente: A: Fasi leggere e fiocchi. B: Azoto atmosferico. C: Carrier mobili. D: Diffusori. Corretta: A
+
+
+Q: Il trascinamento oli verso MBBR è: A: Un rischio importante. B: Un vantaggio biologico. C: Irrilevante. D: Necessario. Corretta: A
+
+
+Q: Una buona separazione nel DAF protegge: A: Il biologico a valle. B: Solo i raschiatori. C: Solo il cono Imhoff. D: Solo il pH. Corretta: A
+
+
+Q: I carrier MBBR sono: A: Supporti mobili per biofilm. B: Pompe sommerse. C: Oli flottati. D: Sensori pH. Corretta: A
+
+
+Q: L'ossigeno disciolto serve a: A: Permettere la respirazione aerobica. B: Raffreddare l'acqua. C: Eliminare il coagulante PAC. D: Bloccare i batteri. Corretta: A
+
+
+Q: OD troppo basso può causare: A: Sofferenza biologica. B: Migliore nitrificazione. C: Più chiarificazione. D: Più flottazione. Corretta: A
+
+
+Q: Una schiuma leggera con acqua limpida può essere: A: Normale turnover del biofilm. B: Sempre gravissima. C: Assenza totale di batteri. D: Segno di sterilità. Corretta: A
+
+
+Q: Schiuma nera indica spesso: A: Problemi biologici o oli. B: Processo perfetto. C: Troppo coagulante PAC efficace. D: Acqua distillata. Corretta: A
+
+
+Q: L'insufflaggio serve a: A: Ossigenare e mescolare. B: Raffreddare i carrier. C: Rimuovere il polielettrolita PAM. D: Separare oli. Corretta: A
+
+
+Q: Un biofilm troppo spesso: A: Può limitare il trasporto di ossigeno. B: È sempre positivo. C: Elimina il COD istantaneamente. D: Riduce il bisogno d'aria. Corretta: A
+
+
+Q: Zone morte nel biologico significano: A: Aerazione non uniforme. B: Processo perfetto. C: Eccesso di coagulante PAC. D: Troppa flottazione. Corretta: A
+
+
+Q: L'olio sui carrier crea: A: Una barriera idrofoba. B: Più ossigeno. C: Maggiore nitrificazione. D: Nessun effetto. Corretta: A
+
+
+Q: Il biologico MBBR lavora grazie a: A: Biomassa aderente ai carrier. B: Solo raschiatori. C: Solo temperatura. D: Solo pH. Corretta: A
+
+
+Q: Un crollo dell'OD può provocare: A: Stress della biomassa. B: Migliore efficienza. C: Eliminazione schiume. D: Zero consumo ossigeno. Corretta: A
+
+
+Q: I diffusori servono a: A: Distribuire aria in vasca. B: Dosare coagulante PAC. C: Separare oli. D: Misurare COD. Corretta: A
+
+
+Q: Una cattiva aerazione può causare: A: Distacco biofilm. B: Migliore chiarificazione. C: Azzeramento COD. D: Nessuna variazione. Corretta: A
+
+
+Q: Schiuma persistente può indicare: A: Instabilità biologica. B: Acqua distillata. C: Perfetta ossigenazione. D: Assenza biomassa. Corretta: A
+
+
+Q: L'MBBR è un sistema: A: A biomassa adesa. B: A membrane sterili. C: Solo anaerobico. D: Senza batteri. Corretta: A
+
+
+Q: L'ossigeno troppo basso favorisce: A: Zone anaerobiche nel biofilm. B: Più nitrificazione. C: Più coagulante PAC. D: Meno schiuma. Corretta: A
+
+
+Q: Il turnover del biofilm è: A: Distacco naturale biomassa vecchia. B: Rottura impianto. C: Perdita olio. D: Guasto elettrico. Corretta: A
+
+
+Q: Un biologico stressato può: A: Ridurre abbattimento COD. B: Eliminare tutto il carico. C: Funzionare meglio. D: Non cambiare mai. Corretta: A
+
+
+Q: L'aria nel biologico serve anche a: A: Mantenere mobili i carrier. B: Raffreddare il coagulante PAC. C: Rimuovere oli. D: Sciogliere i fanghi. Corretta: A
+
+
+Q: I carrier persi a valle possono causare: A: Problemi idraulici. B: Migliore sedimentazione. C: Più ossigeno. D: Minor COD. Corretta: A
+
+
+Q: Il COD indica: A: Carico ossidabile presente. B: Temperatura. C: Pressione aria. D: Quantità carrier. Corretta: A
+
+
+Q: Un picco di COD può: A: Far aumentare il consumo di ossigeno. B: Ridurre sempre la schiuma. C: Migliorare il biofilm. D: Eliminare i solidi. Corretta: A
+
+
+Q: Il BOD rappresenta: A: Consumo biologico di ossigeno. B: Pressione del saturatore. C: Dosaggio polielettrolita PAM. D: Velocità raschiatore. Corretta: A
+
+
+Q: Shock load significa: A: Picco improvviso di carico. B: Arresto elettrico. C: Temperatura bassa. D: Assenza oli. Corretta: A
+
+
+Q: Un COD troppo alto nel biologico: A: Può stressare la biomassa. B: Migliora sempre il processo. C: Elimina l'OD. D: Riduce il biofilm. Corretta: A
+
+
+Q: Il carico organico elevato: A: Consuma più ossigeno. B: Riduce sempre la schiuma. C: Elimina i fiocchi. D: Aumenta il pH. Corretta: A
+
+
+Q: Il COD in uscita elevato indica: A: Ridotta efficienza depurativa. B: Processo perfetto. C: Troppa aria. D: Carrier nuovi. Corretta: A
+
+
+Q: Il BOD è legato: A: Alla biodegradabilità. B: Alla pressione DAF. C: Alla torbidità ottica. D: Alla viscosità oli. Corretta: A
+
+
+Q: Un impianto biologico efficiente: A: Riduce il COD. B: Produce più oli. C: Elimina il polielettrolita PAM. D: Spegne i diffusori. Corretta: A
+
+
+Q: Il carico organico può provenire da: A: Scarichi industriali. B: Solo aria. C: Solo acqua pulita. D: Solo nutrienti. Corretta: A
+
+
+Q: Schiuma nera persistente è: A: Un campanello di allarme. B: Un vantaggio. C: Irrilevante. D: Necessaria. Corretta: A
+
+
+Q: Olio nel biologico può: A: Soffocare il biofilm. B: Migliorare l'OD. C: Eliminare il COD. D: Raffreddare i carrier. Corretta: A
+
+
+Q: Un saturatore fuori pressione può: A: Ridurre l'efficacia DAF. B: Migliorare la separazione. C: Elimina il coagulante PAC. D: Aumentare il BOD. Corretta: A
+
+
+Q: Schiuma diffusa su tutta la vasca indica: A: Possibile instabilità biologica. B: Processo ideale. C: Acqua distillata. D: Nessuna biomassa. Corretta: A
+
+
+Q: Un chiarificato con oli può causare: A: Shock biologico. B: Migliore nitrificazione. C: Meno schiuma. D: Miglior pH. Corretta: A
+
+
+Q: Un fango nero può indicare: A: Sofferenza anossica. B: Processo perfetto. C: Troppo ossigeno. D: Eccesso nutrienti. Corretta: A
+
+
+Q: La perdita di efficienza biologica può aumentare: A: COD in uscita. B: Qualità acqua. C: Ossigeno atmosferico. D: pH neutro. Corretta: A
+
+
+Q: Temperatura troppo alta può: A: Stressare la biomassa. B: Migliorare sempre il processo. C: Eliminare il biofilm. D: Ridurre i solidi. Corretta: A
+
+
+Q: Una griglia MBBR intasata può: A: Creare problemi idraulici. B: Migliorare il flusso. C: Aumentare l'OD. D: Eliminare i carrier. Corretta: A
+
+
+Q: La torbidità alta verso il biologico: A: Aumenta il rischio di stress. B: Migliora il biofilm. C: Riduce il COD. D: Migliora il DAF. Corretta: A
