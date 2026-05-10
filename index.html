@@ -7129,6 +7129,84 @@
             font-weight: 700;
             white-space: nowrap;
         }
+        .quiz-gestione-destinatari-wrap {
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(94, 53, 177, 0.06);
+            border: 1px solid rgba(94, 53, 177, 0.14);
+            flex-shrink: 0;
+        }
+        .quiz-gestione-destinatari-head {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .quiz-gestione-destinatari-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #4527a0;
+            letter-spacing: 0.02em;
+        }
+        .quiz-gestione-destinatari-hint {
+            font-size: 0.62rem;
+            line-height: 1.35;
+            color: #546e7a;
+            font-weight: 500;
+        }
+        .quiz-gestione-destinatari-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 8px;
+            align-items: center;
+        }
+        .quiz-gestione-destinatari-empty {
+            font-size: 0.62rem;
+            color: #78909c;
+            line-height: 1.35;
+        }
+        .quiz-gestione-destinatari-badge {
+            font-family: inherit;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(84, 110, 122, 0.35);
+            background: #fff;
+            color: #37474f;
+            cursor: pointer;
+            line-height: 1.2;
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+        .quiz-gestione-destinatari-badge--online {
+            border-color: rgba(46, 125, 50, 0.45);
+            background: rgba(232, 245, 233, 0.95);
+            color: #1b5e20;
+        }
+        .quiz-gestione-destinatari-badge--offline {
+            border-color: rgba(120, 144, 156, 0.4);
+            background: rgba(236, 239, 241, 0.9);
+            color: #455a64;
+        }
+        .quiz-gestione-destinatari-badge--selected {
+            border-color: #4527a0;
+            background: linear-gradient(180deg, #9575cd 0%, #5e35b1 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(69, 39, 160, 0.35);
+        }
+        .quiz-gestione-destinatari-badge--selected.quiz-gestione-destinatari-badge--online,
+        .quiz-gestione-destinatari-badge--selected.quiz-gestione-destinatari-badge--offline {
+            color: #fff;
+            border-color: #4527a0;
+        }
+        .quiz-gestione-destinatari-badge:focus-visible {
+            outline: 2px solid rgba(149, 117, 205, 0.95);
+            outline-offset: 2px;
+        }
         #quiz-gestione-test-list {
             flex: 1 1 auto;
             min-height: 0;
@@ -9875,7 +9953,7 @@ function dismissAppSplash() {
     <div class="header-quiz-row">
         <div class="header-quiz-actions">
             <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
-            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal(false)" title="Domande test e verifiche" aria-label="Apri domande test e verifiche">Test</button>
+            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal(false)" title="Test di verifica (domande assegnate al tuo nome)" aria-label="Apri test di verifica">Test</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -10588,8 +10666,15 @@ function dismissAppSplash() {
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
                         <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni: sempre prima il fallback offline; con rete e chiave Gemini le risposte errate migliori si salvano in locale per uso offline" aria-label="Genera domande da Controlli e azioni">Genera</button>
-                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Con connessione e chiave Gemini: scarica risposte articulate da Gemini per le domande già salvate (cache locale e Firestore)" aria-label="Scarica risposte online da Gemini">Scarica risposte online</button>
+                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Con connessione e chiave configurata: scarica risposte articulate per le domande già salvate (cache locale e Firestore)" aria-label="Scarica risposte online">Scarica risposte online</button>
                     </div>
+                </div>
+                <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
+                    <div class="quiz-gestione-destinatari-head">
+                        <span class="quiz-gestione-destinatari-title">Destinatari del test</span>
+                        <span class="quiz-gestione-destinatari-hint">Utenti collegati o visti di recente · badge piccolo: verde = online, grigio = offline · seleziona chi sta modificando le domande; con Invia ogni nome riceve il proprio set sul «Test di verifica».</span>
+                    </div>
+                    <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
                 <div class="quiz-lock-actions quiz-gestione-test-footer">
@@ -10878,7 +10963,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605229';
+const APP_BUILD = '202605233';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -11641,6 +11726,10 @@ function quizPresenceWhoamiSave() {
         void quizPresencePing();
     } catch (eP) { /* ignore */ }
     quizPresenceHideWhoamiModal();
+    try {
+        var gOv = document.getElementById('quiz-gestione-test-overlay');
+        if (gOv && gOv.classList.contains('visible') && quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
+    } catch (eG) { /* ignore */ }
 }
 
 /** Se Chiudi Impostazioni con il modale Chi sei? aperto: salva e invia al server. */
@@ -12703,7 +12792,8 @@ function quizSubscribeCustomSchedario() {
 }
 
 /*
- * quiz_gestione_domande/global — { v, items[10], updatedAt } domande gestione test e verifiche.
+ * quiz_gestione_domande/global — { v, items[], perUser?: { [key]: { items[] } }, updatedAt }
+ *   perUser: pacchetti per nome «Chi sei?» normalizzato (chiave); items legacy se perUser assente.
  * quiz_gestione_domande/mcq_cache — { v, map: { [cacheKey]: { wrong[], correctArt, ts } }, updatedAt }
  * Regole Firestore suggerite:
  *   match /quiz_gestione_domande/{docId} {
@@ -12726,19 +12816,19 @@ function gestioneDomandePushToFirestoreNow() {
     if (!quizFirestoreConfigured() || gestioneDomandeRemoteApply) return;
     quizEnsureFirebase()
         .then(function () {
-            var items = gestioneDomandeLoad();
+            var raw = gestioneDomandeLoadRaw();
+            var payload = {
+                v: 2,
+                items: gestioneDomandeNormalizeItems(raw.items || []),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            var pu = gestioneNormalizePerUserMap(raw.perUser || {});
+            if (pu && Object.keys(pu).length > 0) payload.perUser = pu;
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_GESTIONE_DOMANDE)
                 .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC)
-                .set(
-                    {
-                        v: 1,
-                        items: items,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    },
-                    { merge: true }
-                );
+                .set(payload, { merge: true });
         })
         .catch(function (e) {
             console.warn('[quiz_gestione_domande push]', e);
@@ -12767,14 +12857,14 @@ function quizSubscribeGestioneDomande() {
                 function (snap) {
                     if (!snap.exists) return;
                     var dat = snap.data() || {};
-                    var rawItems = dat.items;
-                    if (!Array.isArray(rawItems)) return;
-                    var norm = gestioneDomandeNormalizeItems(rawItems);
                     gestioneDomandeRemoteApply = true;
                     try {
-                        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify({ v: 1, items: norm }));
+                        gestioneDomandeApplyFirestoreSnapshot(dat);
                         var ov = document.getElementById('quiz-gestione-test-overlay');
-                        if (ov && ov.classList.contains('visible')) gestioneDomandeRender();
+                        if (ov && ov.classList.contains('visible')) {
+                            gestioneDomandeRender();
+                            if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
+                        }
                     } catch (eApp) {
                         console.warn('[quiz_gestione_domande apply]', eApp);
                     }
@@ -12860,6 +12950,8 @@ function gestioneMcqCacheMergeApplyFromRemote(rm) {
             merged.map[k] = tb >= ta ? b : a;
         }
     });
+    var droppedWeak = gestioneMcqGeminiCacheMapDropWeak(merged.map);
+    merged.map = droppedWeak.map;
     var ks = Object.keys(merged.map);
     if (ks.length > GESTIONE_MCQ_CACHE_MAX_ENTRIES) {
         ks.sort(function (x, y) {
@@ -19195,7 +19287,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v6';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v8';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -19436,17 +19528,119 @@ function gestioneDomandeNormalizeItems(items) {
     });
 }
 
-function gestioneDomandeLoad() {
+/** Chiave stabile da «Chi sei?» per abbinare pacchetti test per utente. */
+function gestioneRecipientKeyFromLabel(name) {
+    var s = quizPresenceSanitizeLabel(name || '')
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9àèéìòù\-]/gi, '');
+    if (!s) return '_anon';
+    return s.substring(0, 48);
+}
+
+function gestioneMergePerUserMaps(a, b) {
+    var out = {};
+    if (a && typeof a === 'object') {
+        Object.keys(a).forEach(function (k) {
+            out[k] = a[k];
+        });
+    }
+    if (b && typeof b === 'object') {
+        Object.keys(b).forEach(function (k) {
+            out[k] = b[k];
+        });
+    }
+    return out;
+}
+
+function gestioneNormalizePerUserMap(pu) {
+    var out = {};
+    if (!pu || typeof pu !== 'object') return out;
+    Object.keys(pu).forEach(function (k) {
+        var slot = pu[k];
+        if (!slot || !Array.isArray(slot.items)) return;
+        out[k] = { items: gestioneDomandeNormalizeItems(slot.items) };
+    });
+    return out;
+}
+
+function gestioneDomandeMigrateV1ToV2(parsed) {
+    var items = parsed.items || parsed.questions;
+    if (!Array.isArray(items)) items = gestioneDomandeDefaultPack();
+    items = gestioneDomandeNormalizeItems(items);
+    return {
+        v: 2,
+        items: items,
+        perUser: {},
+        recipientKey: ''
+    };
+}
+
+function gestioneDomandeLoadRaw() {
     try {
         var raw = localStorage.getItem(GESTIONE_DOMANDE_LS);
         if (!raw) throw new Error('empty');
         var parsed = JSON.parse(raw);
-        var items = parsed.items || parsed.questions || parsed;
-        if (!Array.isArray(items)) throw new Error('bad');
-        return gestioneDomandeNormalizeItems(items);
+        if (parsed && typeof parsed === 'object' && parsed.v === 2) {
+            if (!parsed.perUser || typeof parsed.perUser !== 'object') parsed.perUser = {};
+            if (parsed.recipientKey == null) parsed.recipientKey = '';
+            if (!Array.isArray(parsed.items)) parsed.items = gestioneDomandeDefaultPack();
+            return parsed;
+        }
+        if (parsed && typeof parsed === 'object') {
+            return gestioneDomandeMigrateV1ToV2(parsed);
+        }
+        return gestioneDomandeMigrateV1ToV2({});
     } catch (e) {
-        return gestioneDomandeDefaultPack();
+        return {
+            v: 2,
+            items: gestioneDomandeDefaultPack(),
+            perUser: {},
+            recipientKey: ''
+        };
     }
+}
+
+function gestioneDomandeSaveRaw(raw) {
+    try {
+        raw.v = 2;
+        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify(raw));
+    } catch (e) { /* ignore */ }
+}
+
+function gestioneDomandeApplyFirestoreSnapshot(dat) {
+    var raw = gestioneDomandeLoadRaw();
+    raw.v = 2;
+    if (!raw.perUser) raw.perUser = {};
+    var normItems = Array.isArray(dat.items) ? gestioneDomandeNormalizeItems(dat.items) : null;
+    var hasPU =
+        dat.perUser &&
+        typeof dat.perUser === 'object' &&
+        Object.keys(gestioneNormalizePerUserMap(dat.perUser)).length > 0;
+    if (hasPU) {
+        raw.perUser = gestioneMergePerUserMaps(raw.perUser || {}, gestioneNormalizePerUserMap(dat.perUser));
+    }
+    if (normItems) {
+        raw.items = normItems;
+    }
+    var rk = String(raw.recipientKey || '').trim();
+    if (rk && raw.perUser[rk] && raw.perUser[rk].items) {
+        raw.items = gestioneDomandeNormalizeItems(raw.perUser[rk].items);
+    }
+    gestioneDomandeSaveRaw(raw);
+}
+
+function gestioneDomandeLoad() {
+    var raw = gestioneDomandeLoadRaw();
+    if (!quizGestioneDomandeEditorCompleto) {
+        var mk = gestioneRecipientKeyFromLabel(quizPresenceGetWhoami());
+        if (raw.perUser && raw.perUser[mk] && Array.isArray(raw.perUser[mk].items)) {
+            return gestioneDomandeNormalizeItems(raw.perUser[mk].items);
+        }
+        return gestioneDomandeNormalizeItems(raw.items || []);
+    }
+    return gestioneDomandeNormalizeItems(raw.items || []);
 }
 
 function gestioneDomandePackHasAnyContent(items) {
@@ -19465,10 +19659,116 @@ function gestioneDomandePackHasAnyContent(items) {
 
 function gestioneDomandePersist(items) {
     var norm = gestioneDomandeNormalizeItems(items);
-    try {
-        localStorage.setItem(GESTIONE_DOMANDE_LS, JSON.stringify({ v: 1, items: norm }));
-    } catch (e) { /* ignore */ }
+    var raw = gestioneDomandeLoadRaw();
+    raw.v = 2;
+    raw.items = norm;
+    if (!raw.perUser) raw.perUser = {};
+    var rk = String(raw.recipientKey || '').trim();
+    if (rk) {
+        raw.perUser[rk] = { items: norm };
+    }
+    gestioneDomandeSaveRaw(raw);
     gestioneDomandeSchedulePushToFirestore();
+}
+
+function gestioneRecipientSelect(key) {
+    key = String(key || '').trim();
+    if (!key) return;
+    var raw = gestioneDomandeLoadRaw();
+    if (!raw.perUser) raw.perUser = {};
+    var old = String(raw.recipientKey || '').trim();
+    if (old && old !== key) {
+        try {
+            var cur = gestioneReadSlotsFromDom();
+            raw.perUser[old] = { items: gestioneDomandeNormalizeItems(cur) };
+        } catch (e) { /* ignore */ }
+    }
+    raw.recipientKey = key;
+    if (!raw.perUser[key]) {
+        var seed = raw.items && raw.items.length ? raw.items : gestioneDomandeDefaultPack();
+        raw.perUser[key] = { items: gestioneDomandeNormalizeItems(seed) };
+    }
+    raw.items = gestioneDomandeNormalizeItems(raw.perUser[key].items);
+    gestioneDomandeSaveRaw(raw);
+    gestioneDomandeRender();
+    gestioneRenderDestinatariBadges();
+}
+
+function gestioneCollectRecipientLabels() {
+    var seen = {};
+    var list = [];
+    function add(key, label, online) {
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        list.push({ key: key, label: label || key, online: !!online });
+    }
+    try {
+        var onlineRows = quizPresenceCollectRowsMerged();
+        var onlineKeys = {};
+        var ir;
+        for (ir = 0; ir < onlineRows.length; ir++) {
+            var lb = quizPresenceDisplayLabelForRow(onlineRows[ir]);
+            var ky = gestioneRecipientKeyFromLabel(lb);
+            onlineKeys[ky] = 1;
+            add(ky, lb, true);
+        }
+        var rows24 = quizPresenceCollectRowsMerged24h();
+        for (var j = 0; j < rows24.length; j++) {
+            var lb2 = quizPresenceDisplayLabelForRow(rows24[j]);
+            var ky2 = gestioneRecipientKeyFromLabel(lb2);
+            add(ky2, lb2, !!onlineKeys[ky2]);
+        }
+    } catch (e) { /* ignore */ }
+    try {
+        var rawP = gestioneDomandeLoadRaw();
+        if (rawP.perUser) {
+            Object.keys(rawP.perUser).forEach(function (k) {
+                if (!seen[k]) add(k, k, false);
+            });
+        }
+    } catch (e2) { /* ignore */ }
+    list.sort(function (a, b) {
+        return a.label.localeCompare(b.label, 'it', { sensitivity: 'base' });
+    });
+    return list;
+}
+
+function gestioneRenderDestinatariBadges() {
+    var host = document.getElementById('quiz-gestione-destinatari-badges');
+    if (!host) return;
+    host.innerHTML = '';
+    if (!quizGestioneDomandeEditorCompleto) return;
+    var raw = gestioneDomandeLoadRaw();
+    var sel = String(raw.recipientKey || '').trim();
+    var rows = gestioneCollectRecipientLabels();
+    if (!rows.length) {
+        var hint = document.createElement('span');
+        hint.className = 'quiz-gestione-destinatari-empty';
+        hint.textContent =
+            'Nessun utente in elenco: usa «Chi sei?» sui dispositivi; compaiono anche nomi con pacchetto già salvato.';
+        host.appendChild(hint);
+        return;
+    }
+    for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quiz-gestione-destinatari-badge';
+        if (r.online) btn.classList.add('quiz-gestione-destinatari-badge--online');
+        else btn.classList.add('quiz-gestione-destinatari-badge--offline');
+        if (sel === r.key) btn.classList.add('quiz-gestione-destinatari-badge--selected');
+        btn.setAttribute('aria-pressed', sel === r.key ? 'true' : 'false');
+        btn.textContent = r.label;
+        btn.title = r.online
+            ? 'Collegato · modifica il test da inviare a questo nome'
+            : 'Non collegato ora · pacchetto dedicato (ultimi accessi o salvato)';
+        (function (recKey) {
+            btn.onclick = function () {
+                gestioneRecipientSelect(recKey);
+            };
+        })(r.key);
+        host.appendChild(btn);
+    }
 }
 
 function gestioneReadSlotsFromDom() {
@@ -19935,6 +20235,7 @@ function gestioneDomandeRender() {
     for (var i = 0; i < nq; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
+    if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
     requestAnimationFrame(function () {
         gestioneDomandeFitAllGestioneFields();
         requestAnimationFrame(function () {
@@ -20001,18 +20302,49 @@ function gestioneMergeSavedSlotsIntoGenerated(prev, out) {
     return out;
 }
 
-/** Costruisce N opzioni: 1 corretta + (N−1) sbagliate, mescolate (stessa logica precedente). Opzionale: testi sbagliati preferiti (es. da Gemini). */
-function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, preferredWrong) {
+/**
+ * Pool offline / salvataggi: espande nominali corti (es. «fanghi», «refluo») in frasi operative collegate allo stem,
+ * così le MCQ restano leggibili anche senza Gemini.
+ */
+function gestioneExpandTerseMcqOption(text, stemDisp, role) {
+    var t = String(text || '').trim();
+    if (!gestioneGeminiOptionArticulationTooWeak(t)) {
+        return gestioneNormalizeAnswerPhrase(t);
+    }
+    var stem = String(stemDisp || '').trim();
+    if (!stem || stem === '—') stem = 'il punto di controllo indicato nella domanda';
+    var stemCut = stem.length > 160 ? stem.substring(0, 157) + '…' : stem;
+    var core = t.replace(/\s+/g, ' ');
+    if (!core) core = 'elemento indicato in scheda';
+    if (core.length > 90) core = core.substring(0, 87) + '…';
+    var out =
+        role === 'correct'
+            ? 'Applicare in modo ordinato e verificabile quanto previsto per «' +
+              core +
+              '», nel contesto della domanda («' +
+              stemCut +
+              '»), confrontando letture e parametri di processo con la scheda operativa e le procedure di sicurezza prima di confermare la conformità richiesta.'
+            : 'Valutare criticamente l’ipotesi legata a «' +
+              core +
+              '» rispetto all’obiettivo della domanda («' +
+              stemCut +
+              '»): verificare coerenza con strumentazione, qualità del fluido o dell’effluente indicati e con le azioni approvate, evitando risposte solo nominali o prive di contesto operativo.';
+    return gestioneNormalizeAnswerPhrase(out);
+}
+
+/** Costruisce N opzioni: 1 corretta + (N−1) sbagliate, mescolate (stessa logica precedente). Opzionale: testi sbagliati preferiti (es. da Gemini). stemDisp = stem domanda per espansione nominali. */
+function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, preferredWrong, stemDisp) {
     var na = numWrong + 1;
     var wrong = [];
+    var corrRaw = String(correct || '').trim();
     var used = {};
-    used[correct] = 1;
+    used[corrRaw] = 1;
 
     function tryAdd(s) {
         s = String(s || '').trim();
         if (s.length < 2) return false;
         if (used[s]) return false;
-        if (s === correct) return false;
+        if (s === corrRaw) return false;
         if (acts.indexOf(s) >= 0) return false;
         used[s] = 1;
         wrong.push(s);
@@ -20039,7 +20371,30 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
         );
     }
 
-    var answers = gestioneShuffle([correct].concat(wrong.slice(0, numWrong)));
+    var stem = stemDisp != null ? String(stemDisp).trim() : '';
+    var corrFin = gestioneExpandTerseMcqOption(corrRaw, stem, 'correct');
+    var wrongFin = [];
+    var usedFin = {};
+    usedFin[corrFin] = 1;
+    for (var wi = 0; wi < wrong.length && wrongFin.length < numWrong; wi++) {
+        var wExp = gestioneExpandTerseMcqOption(wrong[wi], stem, 'wrong');
+        if (usedFin[wExp]) continue;
+        if (wExp === corrFin) continue;
+        usedFin[wExp] = 1;
+        wrongFin.push(wExp);
+    }
+    while (wrongFin.length < numWrong) {
+        var padIx = wrongFin.length + 1;
+        var pad =
+            'Coordinare con la cabina o il responsabile di reparto la verifica incrociata su log, campionamenti e allarmi, allineando l’intervento alle procedure approvate (complemento operativo ' +
+            padIx +
+            ').';
+        var padUse = usedFin[pad] ? pad + ' — variante ' + padIx + '.' : pad;
+        usedFin[padUse] = 1;
+        wrongFin.push(padUse);
+    }
+
+    var answers = gestioneShuffle([corrFin].concat(wrongFin.slice(0, numWrong)));
     var uniq = [];
     var seenA = {};
     answers.forEach(function (x) {
@@ -20057,7 +20412,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
         );
     }
     answers = uniq.slice(0, na);
-    var ci = answers.indexOf(correct);
+    var ci = answers.indexOf(corrFin);
     if (ci < 0) ci = 0;
     return { answers: answers, correctIndex: ci };
 }
@@ -20093,6 +20448,20 @@ function gestioneMcqGeminiCacheLoad() {
         if (!raw) return { v: 1, map: {} };
         var p = JSON.parse(raw);
         if (!p || typeof p.map !== 'object' || p.map === null) throw new Error('bad');
+        var pr = gestioneMcqGeminiCacheMapDropWeak(p.map);
+        if (pr.dropped > 0) {
+            p.map = pr.map;
+            try {
+                localStorage.setItem(GESTIONE_MCQ_GEMINI_CACHE_LS, JSON.stringify(p));
+            } catch (eW) { /* ignore */ }
+            if (
+                !gestioneMcqCacheRemoteApply &&
+                typeof quizFirestoreConfigured === 'function' &&
+                quizFirestoreConfigured()
+            ) {
+                gestioneMcqCacheSchedulePushToFirestore();
+            }
+        }
         return p;
     } catch (eL) {
         return { v: 1, map: {} };
@@ -20168,16 +20537,17 @@ function gestioneMcqGeminiCacheNeedsRefresh(key, numWrong) {
  */
 function gestioneGeminiOptionArticulationTooWeak(text) {
     var t = String(text || '').trim();
-    if (t.length < 100) return true;
+    if (t.length < 118) return true;
     var words = t.split(/\s+/).filter(function (w) {
         return w.length > 0;
     });
-    if (words.length < 14) return true;
+    if (words.length < 15) return true;
+    if (words.length <= 4 && t.length < 130) return true;
     var verbCue =
-        /\b(verific|controll|accert|monitor|interven|registr|conferm|assicur|regolar|misur|osserv|ispezion|avviar|effettu|esegu|garant|mantener|coordinar|comunicar|segnalar|azzerar|interromper|riavviar|taratur|campione|documentar|ispettar|controllare|verificare)\w*\b/i.test(
+        /\b(verific|controll|accert|monitor|interven|registr|conferm|assicur|regolar|misur|osserv|ispezion|avviar|effettu|esegu|garant|mantener|coordinar|comunicar|segnalar|azzerar|interromper|riavviar|taratur|campione|documentar|ispettar|applicar|valutar|analizzar)\w*\b|\b(controllare|verificare|coordinare|valutare|applicare)\b/i.test(
             t
         );
-    if (!verbCue && t.length < 240) return true;
+    if (!verbCue && t.length < 260) return true;
     return false;
 }
 
@@ -20188,6 +20558,32 @@ function gestioneMcqCacheEntryIsArticulated(entry, numWrong) {
         if (gestioneGeminiOptionArticulationTooWeak(entry.wrong[i])) return false;
     }
     return true;
+}
+
+/** Voce grezza in storage ({ wrong[], correctArt?, ts }): conforme agli standard articolati attuali. */
+function gestioneMcqRawCacheEntryIsArticulated(ent) {
+    if (!ent || !Array.isArray(ent.wrong) || ent.wrong.length < 1) return false;
+    var ca = '';
+    if (ent.correctArt != null && String(ent.correctArt).trim()) ca = String(ent.correctArt).trim();
+    else if (ent.correctArticulated != null && String(ent.correctArticulated).trim()) {
+        ca = String(ent.correctArticulated).trim();
+    }
+    var nw = ent.wrong.length;
+    return gestioneMcqCacheEntryIsArticulated({ correctArt: ca || null, wrong: ent.wrong.slice() }, nw);
+}
+
+/**
+ * Elimina dalla mappa cache le voci create con criteri vecchi (risposte corte): così al prossimo
+ * «Scarica risposte online» / «Genera» vengono rigenerate dal servizio articolato.
+ */
+function gestioneMcqGeminiCacheMapDropWeak(map) {
+    var out = {};
+    var dropped = 0;
+    Object.keys(map || {}).forEach(function (k) {
+        if (gestioneMcqRawCacheEntryIsArticulated(map[k])) out[k] = map[k];
+        else dropped += 1;
+    });
+    return { map: out, dropped: dropped };
 }
 
 function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
@@ -20239,9 +20635,11 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         '2) Collega il componente citato dalla scheda con ARTICOLI e AGGETTIVI (es. «la linea di mandata del coagulante», non solo «linea mandata»).\n' +
         '3) Aggiungi COSA verificare e IN QUALE LOGICA rispetto alla domanda (tenuta, regime, corrispondenza alla scheda, assenza di anomalie prima di…).\n' +
         '\nESEMPIO DI COSA È VIETATO:\n' +
-        '- «Linea mandata» / «Dosaggio acido» / «Vasca 3» (solo etichette: INACCETTABILE).\n' +
+        '- «Linea mandata» / «Dosaggio acido» / «Vasca 3» / «Fanghi» / «Refluo» / «Chiarificatore» come UNICA parola o etichetta (anche se plausibile in stabilimento: INACCETTABILE se non è una frase d’intervento).\n' +
+        '- Domanda su qualità dell’acqua in uscita (limpida, chiarificata) e risposta che cita solo «fanghi» o «solidi» senza dire COSA controllare e in quale logica: INACCETTABILE.\n' +
         '\nESEMPIO DI FORMATO ATTESO (senza copiarlo paro paro):\n' +
         '- «Verificare che la linea di mandata del coagulante sia integralmente in servizio, priva di perdite e conforme alla scheda prima di ritenere soddisfatto l’arrivo in vasca.»\n' +
+        '- «Controllare turbidità, campioni e coerenza con i limiti di scarico per confermare che l’effluente in uscita sia effettivamente limpido/chiarificato secondo la scheda.»\n' +
         '\nREGOLE PER IL CAMPO "correct" (RISPOSTA GIUSTA — priorità massima):\n' +
         '- NON elencare mai solo il nome dell’elemento di impianto (vietato: solo «linea mandata», «mandata», «coagulante», «vasca»).\n' +
         '- Lunghezza minima indicativa: ~200–560 caratteri; due frasi collegate se serve.\n' +
@@ -20270,7 +20668,7 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
 
     var retrySuffix =
         '\n\n⚠ RIPROVA OBBLIGATORIA: l’output precedente era troppo sintetico o privo di verbi operativi espliciti. Ogni stringa in "correct" e in "wrong" deve:\n' +
-        '- avere almeno ~100 caratteri e ~14 parole;\n' +
+        '- avere almeno ~118 caratteri e ~15 parole;\n' +
         '- contenere un verbo operativo chiaro (Verificare, Controllare, Accertarsi che…);\n' +
         '- qualificare l’elemento di impianto (es. «la linea di mandata del coagulante»), mai solo l’etichetta dell’elemento.\n' +
         'Rispondi di nuovo con JSON valido {"correct":"...","wrong":[...]} rispettando tutte le regole del prompt principale.';
@@ -20397,7 +20795,7 @@ async function gestioneGeneraBuildFromDb() {
         var actsPreview = acts.join(' | ').substring(0, 1600);
 
         /* 1) Sempre costruzione offline (pool locale): risultato garantito senza rete. */
-        var builtOffline = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts);
+        var builtOffline = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, null, stemDisp);
         var built = builtOffline;
 
         if (numWrong > 0) {
@@ -20411,7 +20809,8 @@ async function gestioneGeneraBuildFromDb() {
                     numWrong,
                     distractors,
                     acts,
-                    cachedEnt.wrong.slice(0, numWrong)
+                    cachedEnt.wrong.slice(0, numWrong),
+                    stemDisp
                 );
             } else if (hasGeminiKey && gestioneCanReachGemini()) {
                 try {
@@ -20432,7 +20831,8 @@ async function gestioneGeneraBuildFromDb() {
                         numWrong,
                         distractors,
                         acts,
-                        gemPack.wrong
+                        gemPack.wrong,
+                        stemDisp
                     );
                 } catch (eG) {
                     built = builtOffline;
@@ -20484,7 +20884,7 @@ function gestioneGeneraBusyHide() {
 async function gestioneMcqPrefetchArticulatedClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
     if (!quizResolveAiConfig().textKey) {
-        console.warn('[Scarica risposte online] configurare la chiave API Gemini (telecronaca).');
+        console.warn('[Scarica risposte online] configurare la chiave API nella telecronaca.');
         return;
     }
     var cfg = gestioneConfigLoad();
@@ -20495,7 +20895,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
     var nq = cfg.numQuestions;
     var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
-    gestioneGeneraBusyShow('Scaricamento risposte da Gemini…', 'Attendere…');
+    gestioneGeneraBusyShow('Scaricamento risposte…', 'Attendere…');
     if (prefBtn) {
         prefBtn.disabled = true;
         prefBtn.setAttribute('aria-busy', 'true');
@@ -20504,7 +20904,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
     try {
         for (var i = 0; i < nq; i++) {
             gestioneGeneraBusySetLines(
-                'Scaricamento risposte da Gemini…',
+                'Scaricamento risposte…',
                 'Domanda ' + (i + 1) + ' di ' + nq
             );
             var it = items[i];
@@ -20619,6 +21019,12 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
+    var titleEl = document.getElementById('quiz-gestione-modal-title');
+    if (titleEl) {
+        titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : 'Test di verifica';
+    }
+    var destWrap = document.getElementById('quiz-gestione-destinatari-wrap');
+    if (destWrap) destWrap.hidden = !editorCompleto;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
@@ -20647,6 +21053,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     gestioneDomandeEnsureResizeListener();
     try {
         gestioneDomandeRender();
+        if (editorCompleto) gestioneRenderDestinatariBadges();
     } catch (eR) { /* ignore */ }
 }
 
