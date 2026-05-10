@@ -112,17 +112,8 @@
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
             color: #fff;
         }
-        .header-title-stack {
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            text-align: center;
-        }
-        /* Solo smartphone: niente seconda riga (tipicamente viewport < 768px in portrait). */
-        .header-subtitle {
+        /* Seconda riga del titolo: solo tablet/PC (vedi media ≥768px). */
+        .header-main-title .header-subtitle {
             display: none;
             margin: 0;
             padding: 0;
@@ -130,7 +121,7 @@
             font-weight: 700;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            line-height: 1.15;
+            line-height: 1.1;
             color: rgba(255, 255, 255, 0.9);
             text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
         }
@@ -7112,23 +7103,34 @@
                 min-width: 78px;
             }
         }
-        /* Tablet e PC (≥768px): titolo + «Sistema biologico» il più possibile in alto. */
+        /* Tablet e PC (≥768px): titolo completo ravvicinato al bordo superiore del monitor. */
         @media (min-width: 768px) {
             .fixed-header {
-                padding: max(3px, env(safe-area-inset-top, 0px)) 14px 12px;
+                padding: env(safe-area-inset-top, 0px) 14px 10px;
             }
             body {
-                padding-top: 210px;
+                padding-top: 208px;
             }
-            .header-subtitle {
-                display: block;
+            .header-title-bar {
+                align-items: flex-start;
+                gap: 6px 10px;
             }
-            .header-title-stack {
-                gap: 0;
+            .header-title-bar .btn-header-icon--sm {
+                margin-top: 2px;
             }
             .header-title-bar .header-main-title {
-                transform: translateY(-5px);
-                line-height: 1.16;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 0;
+                line-height: 1.1;
+                margin-top: -6px;
+                transform: translateY(-6px);
+            }
+            .header-main-title .header-subtitle {
+                display: block;
+                margin-top: 1px;
             }
         }
         @media (max-width: 430px) {
@@ -8803,10 +8805,10 @@ function dismissAppSplash() {
         <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
-        <div class="header-title-stack">
-            <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
-            <p class="header-subtitle">Sistema biologico</p>
-        </div>
+        <h1 id="main-title" class="header-main-title">
+            Istruzioni operative interattive
+            <span class="header-subtitle">Sistema biologico</span>
+        </h1>
         <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
@@ -9746,7 +9748,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605173';
+const APP_BUILD = '202605174';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
