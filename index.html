@@ -7386,8 +7386,11 @@
                 text-shadow: 0 0 20px rgba(74, 222, 128, 0.65), 0 2px 4px rgba(0, 0, 0, 0.35);
             }
         }
-        /* Tablet e PC: titoli in alto nello schermo e più distanziati da vermi/tab/testi. Smartphone invariato (blocco centrato). */
-        @media (min-width: 768px) {
+        /*
+         * Home “larga” (come finestra desktop allargata): solo da 900px di larghezza viewport.
+         * Sotto 900px il contesto si impila in colonna (max-width 899px), anche tablet in verticale — coerente col desktop ristretto.
+         */
+        @media (min-width: 900px) {
             #app-splash.app-splash--visible {
                 justify-content: flex-start;
                 align-items: center;
@@ -7866,7 +7869,7 @@
         .splash-worm-variant.splash-worm-variant--active {
             display: block;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 899px) {
             .app-splash-intro-bio {
                 flex-direction: column;
                 align-items: center;
@@ -7990,112 +7993,6 @@
             html.ios-iphone .app-splash-worm-desc {
                 padding: 8px 10px;
                 border-radius: 12px;
-            }
-        }
-        /*
-          Tablet in verticale: sulla sola home (#app-splash) come smartphone — annulla il blocco 768px (titoli in alto),
-          colonna unica, pill tab come telefono, tagline nascosta come ≤599px. Non tocca il resto dell’app dopo «Entra».
-        */
-        @media (min-width: 768px) and (orientation: portrait) and (max-width: 1919px) {
-            #app-splash.app-splash--visible {
-                justify-content: center;
-                align-items: center;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                padding: max(16px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
-            }
-            #app-splash .app-splash-inner {
-                flex: 0 1 auto;
-                min-height: 0;
-                justify-content: center;
-                margin-top: 0;
-                padding-top: 0;
-                padding-bottom: 12px;
-            }
-            #app-splash .app-splash-title-cluster {
-                flex-shrink: 0;
-                margin-bottom: 0;
-                padding-top: 0;
-            }
-            #app-splash .app-splash-title-cluster .app-splash-subbrand {
-                margin: 10px 0 6px;
-            }
-            #app-splash .app-splash-intro-bio {
-                flex-direction: column;
-                align-items: center;
-                margin: 2px auto 10px;
-                gap: 8px;
-            }
-            #app-splash .app-splash-intro-viz-col {
-                width: 100%;
-                max-width: 100%;
-                align-self: stretch;
-                gap: 4px;
-            }
-            #app-splash .app-splash-intro-desc-col {
-                width: 100%;
-                max-width: 100%;
-                margin-top: 2px;
-            }
-            #app-splash .app-splash-worm-tabs {
-                flex-wrap: nowrap;
-                justify-content: stretch;
-                align-items: stretch;
-                gap: 3px;
-                padding: 0 4px;
-                row-gap: 0;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            #app-splash .app-splash-worm-tab {
-                flex: 1 1 0;
-                min-width: 0;
-                max-width: 100%;
-                padding: 6px 3px;
-                min-height: 38px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                white-space: normal;
-                overflow-wrap: anywhere;
-                word-break: normal;
-                hyphens: auto;
-                -webkit-hyphens: auto;
-                letter-spacing: 0;
-                line-height: 1.12;
-                border-width: 1px;
-                font-size: clamp(7px, 2.05vw, 10px);
-                box-sizing: border-box;
-            }
-            #app-splash .app-splash-worm-desc {
-                margin-left: 0 !important;
-                padding: 10px 11px;
-                font-size: clamp(0.7rem, 3.15vw, 0.8rem);
-                line-height: 1.5;
-            }
-            #app-splash .app-splash-worm-desc-panel h3 {
-                font-size: clamp(0.78rem, 3.5vw, 0.92rem);
-                margin: 0 0 6px;
-            }
-            #app-splash .app-splash-worm-desc-panel p {
-                margin: 0 0 7px;
-            }
-            #app-splash .app-splash-mascot-wrap {
-                margin: 10px 0 12px;
-                min-height: min(200px, 52vw);
-            }
-            #app-splash .app-splash-icon-live {
-                width: min(220px, 58vw);
-                height: min(220px, 58vw);
-            }
-            #app-splash .app-splash-enter {
-                width: auto;
-                max-width: 100%;
-            }
-            #app-splash .app-splash-tagline {
-                display: none !important;
             }
         }
         .app-splash-icon-live {
@@ -10136,7 +10033,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605185';
+const APP_BUILD = '202605186';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
