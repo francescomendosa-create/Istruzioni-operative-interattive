@@ -7272,22 +7272,6 @@
             font-weight: 700;
             white-space: nowrap;
         }
-        .quiz-gestione-sperimentale-launch {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 3px;
-            flex-shrink: 0;
-        }
-        .quiz-gestione-sperimentale-caption {
-            font-size: 0.64rem;
-            line-height: 1.15;
-            color: #78909c;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            max-width: 11em;
-            text-align: right;
-        }
         #quiz-gestione-sperimentale-overlay .quiz-gestione-sperimentale-modal {
             width: min(94vw, 480px);
             max-width: min(94vw, 480px);
@@ -7305,6 +7289,12 @@
             font-size: 0.78rem;
             line-height: 1.45;
             color: #546e7a;
+        }
+        .quiz-gestione-sperimentale-feedback {
+            margin: 0 0 12px;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: #c62828;
         }
         .quiz-gestione-sperimentale-actions {
             display: flex;
@@ -10974,10 +10964,7 @@ function dismissAppSplash() {
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
                         <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Costruisce l’elenco domande solo in base a Impostazioni domande (flussi offline: generiche da scheda e/o banco Controlli/Azioni/Rischi). Per i testi articolati da rete usa Scarica flusso → Scarica / Applica." aria-label="Genera domande">Genera</button>
-                        <div class="quiz-gestione-sperimentale-launch">
-                            <span id="quiz-gestione-sperimentale-caption" class="quiz-gestione-sperimentale-caption">Sperimentale</span>
-                            <button type="button" id="quiz-gestione-btn-sperimentale" class="btn-side btn-reset btn-gestione-sperimentale" onclick="gestioneSperimentaleModalOpen()" title="Apre Genera domande IA (sperimentale): scarica in cache e applica risposte articulate tramite API (Gemini)." aria-describedby="quiz-gestione-sperimentale-caption" aria-label="Apri Genera domande IA (sperimentale): scarica e applica risposte online">Scarica flusso</button>
-                        </div>
+                        <button type="button" id="quiz-gestione-btn-sperimentale" class="btn-side btn-reset btn-gestione-sperimentale" onclick="gestioneSperimentaleModalOpen()" title="Apre Genera domande IA (sperimentale): scarica in cache e applica risposte articulate tramite API (Gemini)." aria-label="Apri Genera domande IA (sperimentale): scarica e applica risposte online">Scarica flusso</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
@@ -11019,11 +11006,12 @@ function dismissAppSplash() {
         <div class="quiz-lock-box quiz-app-box quiz-gestione-sperimentale-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-sperimentale-title" onclick="event.stopPropagation()">
             <h4 id="quiz-gestione-sperimentale-title" class="quiz-lock-title">Genera domande IA (sperimentale)</h4>
             <p class="quiz-gestione-sperimentale-lead">
-                Prova a generare domande / risposte grazie all’implementazione API IA integrata con link diretto.
+                Prova a generare domande / risposte grazie all’implementazione di un’API IA integrata con link diretto.
             </p>
             <p class="quiz-gestione-sperimentale-note">
                 <strong>NOTA:</strong> si fa presente che questa implementazione comporta rischi qualora domande e risposte non siano correttamente verificate e analizzate. L’implementazione sta maturando progressivamente, fino a produrre quesiti sempre più intelligenti e conformi e a diventare notevolmente affidabile anche senza necessità di controllo umano.
             </p>
+            <p id="quiz-gestione-sperimentale-feedback" class="quiz-gestione-sperimentale-feedback" role="status" aria-live="polite" hidden></p>
             <div class="quiz-gestione-sperimentale-actions">
                 <button
                     type="button"
@@ -11355,7 +11343,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605259';
+const APP_BUILD = '202605263';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14191,9 +14179,17 @@ function quizLoadStoredPreference() {
         else if (f === '0') quizFeatureEnabled = false;
         quizSpeechEnabled = true;
         try { localStorage.setItem(QUIZ_LS_SPEECH_ENABLED, '1'); } catch (eSpeech) {}
-        const sr = Number(localStorage.getItem(QUIZ_LS_SPEECH_RATE));
-        if (isFinite(sr)) {
-            quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
+        /* Chiave assente: getItem è null e Number(null)===0, che prima veniva clampato a 0.7x; default richiesto 1.0x. */
+        const rawSr = localStorage.getItem(QUIZ_LS_SPEECH_RATE);
+        if (rawSr != null && String(rawSr).trim() !== '') {
+            const sr = Number(rawSr);
+            if (isFinite(sr) && sr > 0) {
+                quizSpeechRate = Math.max(0.7, Math.min(1.4, sr));
+            } else {
+                quizSpeechRate = 1;
+            }
+        } else {
+            quizSpeechRate = 1;
         }
         /* Ogni apertura app: audio musica/effetti e telecronaca sempre attivi (non silenziati); l’utente può silenziare dopo. */
         quizSpeechMutedTopbar = false;
@@ -20547,6 +20543,11 @@ function gestioneInviaAModalBackdrop(ev) {
 
 function gestioneSperimentaleModalOpen() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    var fb = document.getElementById('quiz-gestione-sperimentale-feedback');
+    if (fb) {
+        fb.textContent = '';
+        fb.setAttribute('hidden', '');
+    }
     var ov = document.getElementById('quiz-gestione-sperimentale-overlay');
     if (!ov) return;
     ov.classList.add('visible');
@@ -20578,11 +20579,23 @@ function gestioneSperimentaleModalBackdrop(ev) {
 /** Applica alla lista corrente (DOM) i testi articolati già in cache Gemini per stem+risposta corretta (non CAR). */
 function gestioneMcqApplicaRisposteOnlineClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    var fbEl = document.getElementById('quiz-gestione-sperimentale-feedback');
+    function gestioneSperimentaleFeedbackShow(msg) {
+        if (!fbEl) return;
+        fbEl.textContent = msg;
+        fbEl.removeAttribute('hidden');
+    }
+    function gestioneSperimentaleFeedbackClear() {
+        if (!fbEl) return;
+        fbEl.textContent = '';
+        fbEl.setAttribute('hidden', '');
+    }
+    gestioneSperimentaleFeedbackClear();
     var cfg = gestioneConfigLoad();
     var na = cfg.numAnswers;
     var numWrong = Math.max(0, na - 1);
     if (numWrong < 1) {
-        window.alert('Servono almeno 2 opzioni per domanda per applicare risposte articulate.');
+        gestioneSperimentaleFeedbackShow('Servono almeno 2 opzioni per domanda per applicare risposte articulate.');
         return;
     }
     var pack = gestioneReadSlotsFromDom();
@@ -20625,8 +20638,8 @@ function gestioneMcqApplicaRisposteOnlineClick() {
     }
 
     if (!changed) {
-        window.alert(
-            'Nessuna risposta articolata applicabile: cache vuota o non valida per le domande attuali. Usa prima «Scarica risposte domande online» (con chiave Gemini e connessione).'
+        gestioneSperimentaleFeedbackShow(
+            'Nessuna risposta articolata applicabile: cache vuota o non valida per le domande attuali. Usa prima «Scarica risposte domande online» (chiave Gemini e connessione).'
         );
         return;
     }
@@ -20639,6 +20652,9 @@ function gestioneMcqApplicaRisposteOnlineClick() {
     gestioneDomandePushToFirestoreNow();
     gestioneMcqCacheFlushPush();
     gestioneDomandeRender();
+    gestioneSperimentaleModalClose();
+    gestioneSperimentaleFeedbackClear();
+    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-sperimentale'));
 }
 
 function gestioneInviaASelezionatiClick() {
