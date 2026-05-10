@@ -5391,6 +5391,44 @@
             padding: 18px;
         }
         .quiz-lock-overlay.visible { display: flex; }
+        /* Overlay senza dialog nativi durante Genera domande */
+        .quiz-gestione-genera-busy-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            background: rgba(15, 25, 45, 0.42);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: max(16px, env(safe-area-inset-top));
+            box-sizing: border-box;
+        }
+        .quiz-gestione-genera-busy-overlay.visible {
+            display: flex;
+        }
+        .quiz-gestione-genera-busy-card {
+            background: linear-gradient(165deg, #faf6ff 0%, #ffffff 55%);
+            padding: 18px 26px;
+            border-radius: 14px;
+            box-shadow: 0 16px 44px rgba(49, 27, 96, 0.22);
+            border: 1px solid rgba(94, 53, 177, 0.18);
+            max-width: min(92vw, 340px);
+            text-align: center;
+        }
+        .quiz-gestione-genera-busy-text {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: #311b92;
+        }
+        .quiz-gestione-genera-busy-detail {
+            margin: 10px 0 0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #5e35b1;
+            line-height: 1.35;
+        }
         /* Modifica contenuti (Impostazioni): pannello grande come colonna principale */
         #quiz-modify-dev-overlay.quiz-lock-overlay--modify-full {
             align-items: stretch;
@@ -6760,75 +6798,72 @@
         .quiz-gestione-test-head {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 0;
+            flex-wrap: nowrap;
             margin: 0 0 12px;
             flex-shrink: 0;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(94, 53, 177, 0.12);
+            min-width: 0;
         }
         .quiz-gestione-test-head-start {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             align-items: center;
-            gap: 10px 14px;
+            gap: 6px 8px;
             flex: 1 1 auto;
             min-width: 0;
         }
         .quiz-gestione-test-head .quiz-gestione-test-title {
             margin: 0;
-            font-size: 1.18rem;
+            font-size: clamp(0.82rem, 2.4vw, 1.05rem);
             font-weight: 800;
             letter-spacing: -0.02em;
             color: #311b92;
-            flex: 0 1 auto;
+            flex: 1 1 0;
             min-width: 0;
-        }
-        .quiz-gestione-test-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 4px;
         }
         /* Tab non selezionati: pill rialzata; selezionato = stesso viola del pulsante Genera (.btn-gestione-genera) */
         .quiz-gestione-test-segments {
             display: flex;
             flex-direction: row;
             flex-wrap: nowrap;
-            gap: 8px;
+            gap: 6px;
             align-items: stretch;
             flex-shrink: 0;
             margin: 0;
             padding: 0;
         }
         .quiz-gestione-test-tab {
-            padding: 9px 14px;
+            padding: 6px 11px;
             border: 2px solid rgba(255, 255, 255, 0.98);
-            border-radius: 30px;
+            border-radius: 22px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.8rem;
-            line-height: 1.2;
+            font-size: 0.72rem;
+            line-height: 1.15;
             background: linear-gradient(180deg, #ffffff 0%, #e8ecf3 55%, #dce3ee 100%);
             color: var(--primary);
             transition: box-shadow 0.2s ease, filter 0.18s ease, background 0.22s ease;
-            min-width: 88px;
+            min-width: 58px;
             width: auto;
             flex: 0 0 auto;
-            min-height: 44px;
+            min-height: 34px;
             box-sizing: border-box;
             text-align: center;
             font-family: inherit;
             letter-spacing: 0.02em;
             box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.92),
-                inset 0 -5px 10px rgba(20, 35, 55, 0.08),
-                0 8px 0 rgba(14, 18, 28, 0.52),
-                0 16px 28px rgba(0, 0, 0, 0.26),
-                0 3px 10px rgba(0, 0, 0, 0.12);
+                inset 0 1px 3px rgba(255, 255, 255, 0.92),
+                inset 0 -4px 8px rgba(20, 35, 55, 0.07),
+                0 5px 0 rgba(14, 18, 28, 0.48),
+                0 10px 18px rgba(0, 0, 0, 0.18),
+                0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .quiz-gestione-test-tab:hover:not(.quiz-gestione-test-tab--active) {
             filter: brightness(1.06);
@@ -6873,6 +6908,18 @@
             outline: 3px solid rgba(149, 117, 205, 0.9);
             outline-offset: 3px;
         }
+        /* Torna compatto in linea con titolo + tab (unica riga) */
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-gestione-torna {
+            padding: 4px 9px !important;
+            font-size: 0.68rem !important;
+            font-weight: 700;
+            min-height: 30px;
+            line-height: 1.15;
+            border-radius: 10px !important;
+            box-shadow: 0 1px 5px rgba(49, 27, 96, 0.07);
+            flex: 0 0 auto;
+            align-self: center;
+        }
         @media (prefers-reduced-motion: reduce) {
             .quiz-gestione-test-tab,
             .quiz-gestione-test-tab--active,
@@ -6910,6 +6957,8 @@
             flex-shrink: 0;
             display: flex;
             align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
             gap: 8px;
         }
         .quiz-gestione-crea-domande-title-wrap {
@@ -7073,6 +7122,12 @@
         }
         .btn-gestione-genera:active {
             transform: translateY(1px);
+        }
+        #quiz-gestione-test-overlay .btn-gestione-prefetch {
+            font-size: 0.74rem !important;
+            padding: 7px 10px !important;
+            font-weight: 700;
+            white-space: nowrap;
         }
         #quiz-gestione-test-list {
             flex: 1 1 auto;
@@ -10520,9 +10575,7 @@ function dismissAppSplash() {
                         <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
                         <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
                     </div>
-                </div>
-                <div class="quiz-gestione-test-toolbar">
-                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
+                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
                 </div>
             </div>
             <div id="quiz-gestione-panel-crea" class="quiz-gestione-test-panel quiz-gestione-test-panel--crea" role="tabpanel" aria-labelledby="quiz-gestione-tab-crea">
@@ -10535,6 +10588,7 @@ function dismissAppSplash() {
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
                         <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni: sempre prima il fallback offline; con rete e chiave Gemini le risposte errate migliori si salvano in locale per uso offline" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Scarica in locale risposte articolate da Gemini per tutte le domande già presenti (serve chiave API e connessione)" aria-label="Prepara cache risposte intelligenti per uso offline">Prepara offline IA</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
@@ -10573,8 +10627,15 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-lock-actions quiz-gestione-config-actions">
                 <button type="button" class="btn-side btn-reset" onclick="gestioneConfigPopupClose()">Chiudi</button>
-                <button type="button" class="btn-side btn-report btn-gestione-genera" onclick="gestioneConfigPopupGeneraClick()">Genera</button>
+                <button type="button" id="quiz-gestione-btn-genera-config" class="btn-side btn-report btn-gestione-genera" onclick="gestioneConfigPopupGeneraClick()">Genera</button>
             </div>
+        </div>
+    </div>
+
+    <div id="quiz-gestione-genera-busy-overlay" class="quiz-gestione-genera-busy-overlay" aria-hidden="true" role="status" aria-live="polite">
+        <div class="quiz-gestione-genera-busy-card">
+            <p class="quiz-gestione-genera-busy-text">Generazione in corso…</p>
+            <p id="quiz-gestione-genera-busy-detail" class="quiz-gestione-genera-busy-detail" hidden></p>
         </div>
     </div>
 
@@ -10817,7 +10878,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605219';
+const APP_BUILD = '202605223';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -11061,6 +11122,8 @@ const QUIZ_FS_CUSTOM_SCHEDARIO_DOC = 'global';
 /** Domande gestione test e verifiche (10 MCQ): doc condiviso tra dispositivi. Regole su `quiz_gestione_domande`. */
 const QUIZ_FS_GESTIONE_DOMANDE = 'quiz_gestione_domande';
 const QUIZ_FS_GESTIONE_DOMANDE_DOC = 'global';
+/** Cache risposte articulate (Gemini) — doc separato da `global` per limite dimensione. */
+const QUIZ_FS_GESTIONE_MCQ_CACHE_DOC = 'mcq_cache';
 /** Heartbeat più frequente = gli altri client vedono prima il tuo stato (costo Firestore leggermente più alto). */
 const QUIZ_PRESENCE_HEARTBEAT_MS = 10000;
 /** Consideriamo «online» chi ha aggiornato lastSeen entro questa finestra (~3 min). */
@@ -11104,6 +11167,11 @@ let gestioneDomandePushTimer = null;
 let gestioneDomandeRemoteApply = false;
 /** unsubscribe quiz_gestione_domande/global */
 let gestioneDomandeFsUnsub = null;
+/** Cloud sync cache MCQ IA (debounce push). */
+let gestioneMcqCachePushTimer = null;
+let gestioneMcqCacheRemoteApply = false;
+/** unsubscribe quiz_gestione_domande/mcq_cache */
+let gestioneMcqCacheFsUnsub = null;
 /** Cache memoria dello schedario personalizzato (allineata a LS + cloud). */
 let quizCustomSchedarioCache = null;
 /** Ricalcolo conteggio quando passa il tempo senza nuovi write Firestore */
@@ -12636,6 +12704,7 @@ function quizSubscribeCustomSchedario() {
 
 /*
  * quiz_gestione_domande/global — { v, items[10], updatedAt } domande gestione test e verifiche.
+ * quiz_gestione_domande/mcq_cache — { v, map: { [cacheKey]: { wrong[], correctArt, ts } }, updatedAt }
  * Regole Firestore suggerite:
  *   match /quiz_gestione_domande/{docId} {
  *     allow read: if request.auth != null;
@@ -12723,6 +12792,134 @@ function quizSubscribeGestioneDomande() {
         })
         .catch(function (e) {
             console.warn('[quiz_gestione_domande subscribe]', e);
+        });
+}
+
+function gestioneMcqCacheSchedulePushToFirestore() {
+    if (gestioneMcqCacheRemoteApply || !quizFirestoreConfigured()) return;
+    try {
+        clearTimeout(gestioneMcqCachePushTimer);
+    } catch (eCl) { /* ignore */ }
+    gestioneMcqCachePushTimer = window.setTimeout(function () {
+        gestioneMcqCachePushTimer = null;
+        gestioneMcqCachePushToFirestoreNow();
+    }, 450);
+}
+
+function gestioneMcqCachePushToFirestoreNow() {
+    if (!quizFirestoreConfigured() || gestioneMcqCacheRemoteApply) return;
+    quizEnsureFirebase()
+        .then(function () {
+            var st = gestioneMcqGeminiCacheLoad();
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_GESTIONE_DOMANDE)
+                .doc(QUIZ_FS_GESTIONE_MCQ_CACHE_DOC)
+                .set(
+                    {
+                        v: 1,
+                        map: st.map || {},
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    },
+                    { merge: true }
+                );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_gestione_mcq_cache push]', e);
+        });
+}
+
+function gestioneMcqCacheFlushPush() {
+    if (!quizFirestoreConfigured()) return;
+    try {
+        clearTimeout(gestioneMcqCachePushTimer);
+    } catch (eF) { /* ignore */ }
+    gestioneMcqCachePushTimer = null;
+    gestioneMcqCachePushToFirestoreNow();
+}
+
+function gestioneMcqCacheMergeApplyFromRemote(rm) {
+    if (!rm || typeof rm !== 'object') return;
+    var loc = gestioneMcqGeminiCacheLoad();
+    var merged = { v: 1, map: {} };
+    var allK = {};
+    Object.keys(loc.map || {}).forEach(function (k) {
+        allK[k] = 1;
+    });
+    Object.keys(rm).forEach(function (k) {
+        allK[k] = 1;
+    });
+    Object.keys(allK).forEach(function (k) {
+        var a = loc.map[k];
+        var b = rm[k];
+        if (!a) merged.map[k] = b;
+        else if (!b) merged.map[k] = a;
+        else {
+            var ta = a.ts || 0;
+            var tb = b.ts || 0;
+            merged.map[k] = tb >= ta ? b : a;
+        }
+    });
+    var ks = Object.keys(merged.map);
+    if (ks.length > GESTIONE_MCQ_CACHE_MAX_ENTRIES) {
+        ks.sort(function (x, y) {
+            return (merged.map[x].ts || 0) - (merged.map[y].ts || 0);
+        });
+        while (ks.length > GESTIONE_MCQ_CACHE_MAX_ENTRIES) {
+            delete merged.map[ks.shift()];
+        }
+    }
+    gestioneMcqCacheRemoteApply = true;
+    try {
+        localStorage.setItem(GESTIONE_MCQ_GEMINI_CACHE_LS, JSON.stringify(merged));
+    } catch (eApp) {
+        console.warn('[quiz_gestione_mcq_cache apply]', eApp);
+    } finally {
+        gestioneMcqCacheRemoteApply = false;
+    }
+}
+
+function quizSubscribeGestioneMcqCache() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            if (gestioneMcqCacheFsUnsub) {
+                try {
+                    gestioneMcqCacheFsUnsub();
+                } catch (eU) { /* ignore */ }
+                gestioneMcqCacheFsUnsub = null;
+            }
+            var ref = firebase
+                .firestore()
+                .collection(QUIZ_FS_GESTIONE_DOMANDE)
+                .doc(QUIZ_FS_GESTIONE_MCQ_CACHE_DOC);
+            ref.get()
+                .then(function (gs) {
+                    if (gs.exists) return;
+                    var loc = gestioneMcqGeminiCacheLoad();
+                    if (loc.map && Object.keys(loc.map).length) gestioneMcqCachePushToFirestoreNow();
+                })
+                .catch(function () {});
+            gestioneMcqCacheFsUnsub = ref.onSnapshot(
+                function (snap) {
+                    if (!snap.exists) return;
+                    var dat = snap.data() || {};
+                    var rm = dat.map;
+                    if (!rm || typeof rm !== 'object') return;
+                    gestioneMcqCacheMergeApplyFromRemote(rm);
+                },
+                function (err) {
+                    console.warn('[quiz_gestione_mcq_cache snapshot]', err);
+                    window.setTimeout(function () {
+                        try {
+                            quizSubscribeGestioneMcqCache();
+                        } catch (eR) { /* ignore */ }
+                    }, 4000);
+                }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_gestione_mcq_cache subscribe]', e);
         });
 }
 
@@ -18997,8 +19194,9 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 /** Numero domande / opzioni per domanda (persistente). */
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-wrong-cache-v1';
-var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 450;
+/** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v3';
+var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
 var GESTIONE_CONFIG_NA_MIN = 1;
@@ -19287,6 +19485,7 @@ function gestioneDomandeSaveAllClick() {
     } catch (eClr) { /* ignore */ }
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
+    gestioneMcqCacheFlushPush();
 }
 
 /** Salva tutto e invio immediato su Firestore (oltre al salvataggio locale). */
@@ -19298,6 +19497,7 @@ function gestioneDomandeInviaClick() {
     } catch (eClr) { /* ignore */ }
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
+    gestioneMcqCacheFlushPush();
 }
 
 function gestioneDomandeSaveSlotClick(idx) {
@@ -19313,6 +19513,7 @@ function gestioneDomandeSaveSlotClick(idx) {
     } catch (eClr2) { /* ignore */ }
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
+    gestioneMcqCacheFlushPush();
     var card = document.getElementById('gestione-card-' + idx);
     if (card) card.classList.remove('is-editing');
 }
@@ -19814,7 +20015,11 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
         wrong.push(cand);
     }
     while (wrong.length < numWrong) {
-        wrong.push('Controllo incrociato su parametri di linea e registrazioni (' + (wrong.length + 1) + ')');
+        wrong.push(
+            'Analizzare in sede i trend strumentali, la coerenza con le specifiche di processo e la documentazione di turno prima di ogni modifica al set-point o al dosaggio (complemento ' +
+                (wrong.length + 1) +
+                ').'
+        );
     }
 
     var answers = gestioneShuffle([correct].concat(wrong.slice(0, numWrong)));
@@ -19827,7 +20032,13 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
             uniq.push(kx);
         }
     });
-    while (uniq.length < na) uniq.push('Alternativa operativa plausibile (' + uniq.length + ')');
+    while (uniq.length < na) {
+        uniq.push(
+            'Coordinare con la cabina o il responsabile di reparto la verifica incrociata su log, campionamenti e allarmi, allineando l’intervento alle procedure approvate (opzione ' +
+                uniq.length +
+                ').'
+        );
+    }
     answers = uniq.slice(0, na);
     var ci = answers.indexOf(correct);
     if (ci < 0) ci = 0;
@@ -19851,16 +20062,11 @@ function gestioneMcqGeminiCacheHash(str) {
 }
 
 function gestioneMcqGeminiCacheMakeKey(stemDisp, correct, numWrong, tagLine) {
+    void tagLine;
     return (
         String(numWrong) +
         '|' +
-        gestioneMcqGeminiCacheHash(
-            String(stemDisp || '') +
-                '\n' +
-                String(correct || '') +
-                '\n' +
-                String(tagLine || '').substring(0, 160)
-        )
+        gestioneMcqGeminiCacheHash(String(stemDisp || '') + '\n' + String(correct || ''))
     );
 }
 
@@ -19892,19 +20098,32 @@ function gestioneMcqGeminiCacheSave(st) {
             localStorage.setItem(GESTIONE_MCQ_GEMINI_CACHE_LS, JSON.stringify(st));
         } catch (e2) { /* ignore */ }
     }
+    if (!gestioneMcqCacheRemoteApply && quizFirestoreConfigured()) {
+        gestioneMcqCacheSchedulePushToFirestore();
+    }
 }
 
-function gestioneMcqGeminiCacheGet(key) {
+/** Voce cache: wrong + corretta articolata (testo mostrato come opzione giusta). */
+function gestioneMcqGeminiCacheGetEntry(key) {
     var st = gestioneMcqGeminiCacheLoad();
     var e = st.map[key];
     if (!e || !Array.isArray(e.wrong)) return null;
-    return e.wrong;
+    var ca = '';
+    if (e.correctArt != null && String(e.correctArt).trim()) ca = String(e.correctArt).trim();
+    else if (e.correctArticulated != null && String(e.correctArticulated).trim()) {
+        ca = String(e.correctArticulated).trim();
+    }
+    return { wrong: e.wrong.slice(), correctArt: ca || null };
 }
 
-function gestioneMcqGeminiCacheSet(key, wrongArr) {
+function gestioneMcqGeminiCacheSetFull(key, wrongArr, correctArt) {
     if (!key || !Array.isArray(wrongArr)) return;
     var st = gestioneMcqGeminiCacheLoad();
-    st.map[key] = { wrong: wrongArr.slice(), ts: Date.now() };
+    var ca =
+        correctArt != null && String(correctArt).trim().length > 0
+            ? String(correctArt).trim()
+            : '';
+    st.map[key] = { wrong: wrongArr.slice(), correctArt: ca, ts: Date.now() };
     var keys = Object.keys(st.map);
     if (keys.length > GESTIONE_MCQ_CACHE_MAX_ENTRIES) {
         keys.sort(function (a, b) {
@@ -19916,24 +20135,39 @@ function gestioneMcqGeminiCacheSet(key, wrongArr) {
     gestioneMcqGeminiCacheSave(st);
 }
 
-function gestioneGeminiParseWrongJson(text, numWrong) {
+/** True se mancano testi articolati o numero di errate. */
+function gestioneMcqGeminiCacheNeedsRefresh(key, numWrong) {
+    if (numWrong < 1) return false;
+    var e = gestioneMcqGeminiCacheGetEntry(key);
+    if (!e || !e.wrong || e.wrong.length < numWrong) return true;
+    if (!e.correctArt || String(e.correctArt).trim().length < 12) return true;
+    return false;
+}
+
+function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
     var s = String(text || '').trim();
     var fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (fence) s = fence[1].trim();
     var j = JSON.parse(s);
-    var arr = Array.isArray(j) ? j : j && j.wrong ? j.wrong : j && j.errate ? j.errate : null;
-    if (!Array.isArray(arr)) throw new Error('gestione_gemini_bad_shape');
-    var out = [];
-    for (var i = 0; i < arr.length; i++) {
-        var t = String(arr[i] == null ? '' : arr[i]).trim();
-        if (t.length > 1) out.push(t);
+    var wrong = j.wrong || j.errate || j.distrattori || j.sbagliate;
+    var corr = j.correct || j.corretta || j.risposta_corretta || j.risposta_corretta_articolata;
+    if (!Array.isArray(wrong)) throw new Error('gestione_gemini_bad_shape');
+    var outW = [];
+    for (var i = 0; i < wrong.length; i++) {
+        var t = String(wrong[i] == null ? '' : wrong[i]).trim();
+        if (t.length > 2) outW.push(t);
     }
-    if (out.length < numWrong) throw new Error('gestione_gemini_short');
-    return out.slice(0, numWrong);
+    var corrS = String(corr == null ? '' : corr).trim();
+    if (corrS.length < 8) throw new Error('gestione_gemini_no_correct');
+    if (outW.length < numWrong) throw new Error('gestione_gemini_short');
+    return { correct: corrS, wrong: outW.slice(0, numWrong) };
 }
 
-/** Gemini: genera esattamente numWrong risposte errate plausibili per la domanda e la corretta date. */
-async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagLine, actsPreview, numWrong) {
+/**
+ * Gemini: risposta corretta articolata (fedele alla fonte) + esattamente numWrong alternative sbagliate altrettanto articolate.
+ * Contesto: istruzioni operative interattive / procedure industriali in italiano.
+ */
+async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOfficial, tagLine, actsPreview, numWrong) {
     var cfg = quizResolveAiConfig();
     if (!cfg.textKey || numWrong < 1) throw new Error('gestione_gemini_skip');
     if (!gestioneCanReachGemini()) throw new Error('gestione_gemini_offline');
@@ -19942,37 +20176,37 @@ async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagL
         try {
             ctrl.abort();
         } catch (eAb) { /* ignore */ }
-    }, 28000);
+    }, 52000);
     var prompt =
-        'Sei un esperto di procedure operative, controlli di processo e sicurezza in ambito industriale (lingua italiana).\n' +
-        'Ti viene fornita una domanda a scelta multipla e la RISPOSTA CORRETTA ufficiale ricavata dalla documentazione.\n' +
-        'Devi generare ESATTAMENTE ' +
+        'Sei un senior negli ambiti di procedure operative, controlli di processo, HSEQ e continuità produttiva (lingua: italiano).\n' +
+        'Contesto applicativo: «istruzioni operative interattive» con schede controllo, azioni previste e priorità di sicurezza.\n' +
+        'Compito: per la domanda a scelta multipla sotto, devi produrre testi RICCHI e ARTICOLATI (non slogan), come linee guida operative brevi.\n' +
+        '- Campo "correct": riformula in modo chiaro e professionale la RISPOSTA CORRETTA UFFICIALE fornita, SENZA contraddirla né attenuare i vincoli normativi o di sicurezza. Una o due frasi unite (circa 120–420 caratteri). Usa verbi operativi, riferimenti a verifica, registrazione, allarmi o escalation quando pertinente.\n' +
+        '- Campo "wrong": ESATTAMENTE ' +
         numWrong +
-        ' alternative SBAGLIATE per il quiz.\n' +
-        'Requisiti:\n' +
-        '- Una sola frase breve per alternativa (massimo 220 caratteri), tono operativo, credibile nel contesto, ma non adeguata come risposta corretta rispetto alla domanda.\n' +
-        '- Tutte distinte tra loro e distinte dalla risposta corretta (inclusi sinonimi o parafrasi della corretta).\n' +
-        '- Non numerare le opzioni (niente "A)", "B)"…).\n' +
-        '- Nessun markdown.\n' +
-        'Contesto tag scheda: ' +
-        String(tagLine || '—').substring(0, 240) +
-        '\nAzioni / estratti rilevanti dalla scheda (solo contesto): ' +
-        String(actsPreview || '—').substring(0, 1400) +
+        ' alternative SBAGLIATE rispetto alla domanda, altrettanto articolate (120–420 caratteri ciascuna), plausibili in stabilimento ma incoerenti o insufficienti rispetto alla domanda o alla scheda.\n' +
+        '- Ogni stringa è autoconclusa; niente prefissi "A)" / "Opzione". Nessun markdown.\n' +
+        '- Tutte le wrong devono essere distinte tra loro e sostanzialmente distinte da "correct" (niente copia o sinonimo stretto).\n' +
+        'Tag scheda: ' +
+        String(tagLine || '—').substring(0, 260) +
+        '\nEstratti contestuali (documentazione / azioni): ' +
+        String(actsPreview || '—').substring(0, 1800) +
         '\n\nDOMANDA:\n' +
-        String(questionText || '').substring(0, 3500) +
-        '\n\nRISPOSTA CORRETTA (non ripeterla né equivalenti nelle alternative sbagliate):\n' +
-        String(correctAnswer || '').substring(0, 1200) +
-        '\n\nRispondi SOLO con JSON valido nel formato:\n{"wrong":["testo1","testo2",...]}\n' +
-        "con esattamente " +
+        String(questionText || '').substring(0, 3800) +
+        '\n\nRISPOSTA CORRETTA UFFICIALE (parafrasi fedele in "correct", non eludere il senso):\n' +
+        String(sourceCorrectOfficial || '').substring(0, 1600) +
+        '\n\nRispondi SOLO con JSON valido:\n' +
+        '{"correct":"...","wrong":["...","..."]}\n' +
+        'con esattamente ' +
         numWrong +
-        ' stringhe nell\'array "wrong".';
+        ' elementi in "wrong".';
 
     var gemUrl =
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
         encodeURIComponent(cfg.textKey);
     var reqBody = JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.55, maxOutputTokens: 4096 }
+        generationConfig: { temperature: 0.48, maxOutputTokens: 8192 }
     });
     var res = null;
     try {
@@ -19985,7 +20219,7 @@ async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagL
             });
             if (res.ok || res.status !== 503 || attempt === 2) break;
             await new Promise(function (r) {
-                window.setTimeout(r, 450 * (attempt + 1));
+                window.setTimeout(r, 500 * (attempt + 1));
             });
         }
         window.clearTimeout(tid);
@@ -19996,7 +20230,7 @@ async function gestioneGeminiFetchWrongAnswers(questionText, correctAnswer, tagL
                 ((((json || {}).candidates || [])[0].content.parts || [])[0] || {}).text) || ''
         ).trim();
         if (!rawOut) throw new Error('gestione_gemini_empty');
-        return gestioneGeminiParseWrongJson(rawOut, numWrong);
+        return gestioneGeminiParseArticulatedMcqJson(rawOut, numWrong);
     } catch (e) {
         try {
             window.clearTimeout(tid);
@@ -20066,30 +20300,59 @@ async function gestioneGeneraBuildFromDb() {
 
         if (numWrong > 0) {
             var cacheKey = gestioneMcqGeminiCacheMakeKey(stemDisp, correct, numWrong, tagLine);
-            var cachedWrong = gestioneMcqGeminiCacheGet(cacheKey);
-            if (cachedWrong && cachedWrong.length >= numWrong) {
-                /* 2a) Cache offline (download precedente da Gemini): priorità su solo pool locale. */
+            var cachedEnt = gestioneMcqGeminiCacheGetEntry(cacheKey);
+            var correctDisplay = correct;
+            if (
+                cachedEnt &&
+                cachedEnt.wrong &&
+                cachedEnt.wrong.length >= numWrong &&
+                cachedEnt.correctArt &&
+                String(cachedEnt.correctArt).trim().length >= 12
+            ) {
+                correctDisplay = String(cachedEnt.correctArt).trim();
+                built = gestioneGeneraBuildAnswersLocal(
+                    correctDisplay,
+                    numWrong,
+                    distractors,
+                    acts,
+                    cachedEnt.wrong.slice(0, numWrong)
+                );
+            } else if (
+                cachedEnt &&
+                cachedEnt.wrong &&
+                cachedEnt.wrong.length >= numWrong &&
+                (!cachedEnt.correctArt || String(cachedEnt.correctArt).trim().length < 12)
+            ) {
+                /* Cache solo distrattori (legacy): usa corretta grezza */
                 built = gestioneGeneraBuildAnswersLocal(
                     correct,
                     numWrong,
                     distractors,
                     acts,
-                    cachedWrong.slice(0, numWrong)
+                    cachedEnt.wrong.slice(0, numWrong)
                 );
             } else if (hasGeminiKey && gestioneCanReachGemini()) {
-                /* 2b) Online: completa la cache con Gemini e sostituisce i distrattori con versioni più coerenti. */
                 try {
-                    var gemWrongs = await gestioneGeminiFetchWrongAnswers(
+                    var gemPack = await gestioneGeminiFetchArticulatedMcq(
                         fullQ,
                         correct,
                         tagLine,
                         actsPreview,
                         numWrong
                     );
-                    gestioneMcqGeminiCacheSet(cacheKey, gemWrongs);
-                    built = gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, gemWrongs);
+                    gestioneMcqGeminiCacheSetFull(cacheKey, gemPack.wrong, gemPack.correct);
+                    correctDisplay =
+                        gemPack.correct && String(gemPack.correct).trim().length >= 8
+                            ? String(gemPack.correct).trim()
+                            : correct;
+                    built = gestioneGeneraBuildAnswersLocal(
+                        correctDisplay,
+                        numWrong,
+                        distractors,
+                        acts,
+                        gemPack.wrong
+                    );
                 } catch (eG) {
-                    /* Offline / errore API: resta il pacchetto già calcolato (cache o builtOffline). */
                     built = builtOffline;
                 }
             }
@@ -20104,42 +20367,115 @@ async function gestioneGeneraBuildFromDb() {
     return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
 }
 
-async function gestioneGeneraDomandeClick() {
-    if (!quizGestioneDomandeEditorCompleto) return;
-    var nq = gestioneConfigLoad().numQuestions;
-    var hasContent = false;
-    try {
-        var cur = gestioneReadSlotsFromDom();
-        for (var i = 0; i < cur.length; i++) {
-            if ((cur[i].q || '').trim()) {
-                hasContent = true;
-                break;
-            }
-            var al = cur[i].answers || [];
-            for (var j = 0; j < al.length; j++) {
-                if ((al[j] || '').trim()) {
-                    hasContent = true;
-                    break;
-                }
-            }
+function gestioneGeneraBusySetLines(mainLine, detailLine) {
+    var m = document.querySelector('#quiz-gestione-genera-busy-overlay .quiz-gestione-genera-busy-text');
+    var d = document.getElementById('quiz-gestione-genera-busy-detail');
+    if (m && mainLine != null) m.textContent = mainLine;
+    if (d) {
+        if (detailLine != null && String(detailLine).trim()) {
+            d.textContent = detailLine;
+            d.hidden = false;
+        } else {
+            d.textContent = '';
+            d.hidden = true;
         }
-    } catch (e) { /* ignore */ }
-    if (
-        hasContent &&
-        !window.confirm(
-            'Sostituire le ' +
-                nq +
-                ' domande attuali con nuove domande generate dai contenuti «Controlli e azioni»?'
-        )
-    ) {
+    }
+}
+
+function gestioneGeneraBusyShow(mainLine, detailLine) {
+    var el = document.getElementById('quiz-gestione-genera-busy-overlay');
+    if (!el) return;
+    gestioneGeneraBusySetLines(mainLine || 'Generazione in corso…', detailLine || '');
+    el.classList.add('visible');
+    el.setAttribute('aria-hidden', 'false');
+}
+
+function gestioneGeneraBusyHide() {
+    var el = document.getElementById('quiz-gestione-genera-busy-overlay');
+    if (!el) return;
+    el.classList.remove('visible');
+    el.setAttribute('aria-hidden', 'true');
+    gestioneGeneraBusySetLines('Generazione in corso…', '');
+}
+
+/** Scarica da Gemini risposte articolate (corretta + errate) per ogni slot già salvato — riempie la cache offline. */
+async function gestioneMcqPrefetchArticulatedClick() {
+    if (!quizGestioneDomandeEditorCompleto) return;
+    if (!quizResolveAiConfig().textKey) {
+        console.warn('[Prepara offline IA] configurare la chiave API Gemini (telecronaca).');
         return;
     }
+    var cfg = gestioneConfigLoad();
+    var na = cfg.numAnswers;
+    var numWrong = Math.max(0, na - 1);
+    if (numWrong < 1) return;
+    var items = gestioneDomandeLoad();
+    var nq = cfg.numQuestions;
+    var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
+    var genBtn = document.getElementById('quiz-gestione-btn-genera');
+    gestioneGeneraBusyShow('Preparazione risposte IA per offline…', 'Attendere…');
+    if (prefBtn) {
+        prefBtn.disabled = true;
+        prefBtn.setAttribute('aria-busy', 'true');
+    }
+    if (genBtn) genBtn.disabled = true;
+    try {
+        for (var i = 0; i < nq; i++) {
+            gestioneGeneraBusySetLines(
+                'Preparazione risposte IA per offline…',
+                'Domanda ' + (i + 1) + ' di ' + nq
+            );
+            var it = items[i];
+            if (!it) continue;
+            var qtext = String(it.q || '').trim();
+            var ci = Math.min(Math.max(0, na - 1), Math.max(0, parseInt(it.correctIndex, 10) || 0));
+            var ans = it.answers || [];
+            var corr = ans[ci] != null ? String(ans[ci]).trim() : '';
+            if (!qtext.length || !corr.length) continue;
+            var stemForKey = gestioneStripHtml(qtext).substring(0, 420).trim();
+            var cacheKey = gestioneMcqGeminiCacheMakeKey(stemForKey, corr, numWrong, '');
+            if (!gestioneMcqGeminiCacheNeedsRefresh(cacheKey, numWrong)) continue;
+            if (!gestioneCanReachGemini()) {
+                console.warn('[Prepara offline IA] connessione assente: interrompo.');
+                break;
+            }
+            try {
+                var pack = await gestioneGeminiFetchArticulatedMcq(qtext, corr, '', '', numWrong);
+                gestioneMcqGeminiCacheSetFull(cacheKey, pack.wrong, pack.correct);
+            } catch (ePf) {
+                console.warn('[Prepara offline IA] slot ' + (i + 1), ePf);
+            }
+            await new Promise(function (r) {
+                window.setTimeout(r, 450);
+            });
+        }
+    } finally {
+        gestioneGeneraBusyHide();
+        if (prefBtn) {
+            prefBtn.disabled = false;
+            prefBtn.removeAttribute('aria-busy');
+        }
+        if (genBtn) genBtn.disabled = false;
+        gestioneMcqCacheFlushPush();
+    }
+}
+
+async function gestioneGeneraDomandeClick() {
+    if (!quizGestioneDomandeEditorCompleto) return;
     var btn = document.getElementById('quiz-gestione-btn-genera');
-    var prevLab = btn ? btn.textContent : '';
+    var btnCfg = document.getElementById('quiz-gestione-btn-genera-config');
+    var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
+    gestioneGeneraBusyShow();
     if (btn) {
         btn.disabled = true;
-        btn.textContent = 'Generazione…';
         btn.setAttribute('aria-busy', 'true');
+    }
+    if (prefBtn) {
+        prefBtn.disabled = true;
+    }
+    if (btnCfg) {
+        btnCfg.disabled = true;
+        btnCfg.setAttribute('aria-busy', 'true');
     }
     try {
         var pack = await gestioneGeneraBuildFromDb();
@@ -20152,14 +20488,19 @@ async function gestioneGeneraDomandeClick() {
         gestioneDomandeRender();
     } catch (eRun) {
         console.warn('[gestione Genera]', eRun);
-        window.alert(
-            'Generazione non completata. Verifica la connessione o la chiave API Gemini in Impostazioni (telecronaca), poi riprova.'
-        );
     } finally {
+        gestioneGeneraBusyHide();
+        gestioneMcqCacheFlushPush();
         if (btn) {
             btn.disabled = false;
-            btn.textContent = prevLab || 'Genera';
             btn.removeAttribute('aria-busy');
+        }
+        if (btnCfg) {
+            btnCfg.disabled = false;
+            btnCfg.removeAttribute('aria-busy');
+        }
+        if (prefBtn) {
+            prefBtn.disabled = false;
         }
     }
 }
@@ -20200,9 +20541,11 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
+    var prefetchBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
     var setBtn = document.getElementById('quiz-gestione-btn-settings');
     var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
     if (genBtn) genBtn.hidden = !editorCompleto;
+    if (prefetchBtn) prefetchBtn.hidden = !editorCompleto;
     if (setBtn) setBtn.hidden = !editorCompleto;
     if (tornaBtn) {
         if (editorCompleto) {
@@ -25563,6 +25906,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizSubscribeGestioneDomande();
             } catch (eGd) { /* ignore */ }
+            try {
+                quizSubscribeGestioneMcqCache();
+            } catch (eMcq) { /* ignore */ }
             try {
                 quizStartModifyFeaturesPolling();
             } catch (ePol) { /* ignore */ }
