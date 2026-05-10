@@ -7265,11 +7265,38 @@
         .btn-gestione-genera:active {
             transform: translateY(1px);
         }
-        #quiz-gestione-test-overlay .btn-gestione-prefetch {
+        #quiz-gestione-test-overlay .btn-gestione-prefetch,
+        #quiz-gestione-test-overlay .btn-gestione-sperimentale {
             font-size: 0.74rem !important;
             padding: 7px 10px !important;
             font-weight: 700;
             white-space: nowrap;
+        }
+        #quiz-gestione-sperimentale-overlay .quiz-gestione-sperimentale-modal {
+            width: min(94vw, 440px);
+            max-width: min(94vw, 440px);
+            padding: 14px 16px 12px;
+            box-sizing: border-box;
+        }
+        .quiz-gestione-sperimentale-lead {
+            margin: 0 0 14px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: #546e7a;
+        }
+        .quiz-gestione-sperimentale-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .quiz-gestione-sperimentale-actions .btn-side {
+            width: 100%;
+            justify-content: center;
+            box-sizing: border-box;
+            font-size: 0.82rem;
+            padding: 10px 14px;
+            min-height: 40px;
         }
         .quiz-gestione-destinatari-wrap {
             margin: 0 0 8px;
@@ -7281,51 +7308,54 @@
         }
         .quiz-gestione-destinatari-head {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             margin-bottom: 6px;
+            min-width: 0;
         }
         .quiz-gestione-destinatari-title {
             font-size: 0.72rem;
             font-weight: 800;
             color: #4527a0;
             letter-spacing: 0.02em;
-        }
-        .quiz-gestione-destinatari-pref {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin: 0;
-            padding: 8px 10px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 183, 77, 0.55);
-            background: linear-gradient(180deg, rgba(255, 253, 231, 0.95) 0%, rgba(255, 248, 225, 0.88) 100%);
-            cursor: pointer;
-            box-sizing: border-box;
-            max-width: 100%;
-        }
-        .quiz-gestione-destinatari-pref:focus-within {
-            outline: 3px solid rgba(255, 193, 7, 0.45);
-            outline-offset: 2px;
-        }
-        .quiz-gestione-destinatari-pref input[type='checkbox'] {
-            margin-top: 3px;
-            flex-shrink: 0;
-            width: 16px;
-            height: 16px;
-            accent-color: #f9a825;
-        }
-        .quiz-gestione-destinatari-pref-text {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            flex: 1 1 auto;
             min-width: 0;
         }
-        .quiz-gestione-destinatari-pref-title {
-            font-size: 0.68rem;
-            font-weight: 800;
-            color: #5d4037;
-            line-height: 1.35;
+        .quiz-gestione-destinatari-pref {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            max-width: 48%;
+        }
+        .quiz-gestione-destinatari-pref:focus-within {
+            outline: 2px solid rgba(149, 117, 205, 0.45);
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+        .quiz-gestione-destinatari-pref input[type='checkbox'] {
+            flex-shrink: 0;
+            width: 15px;
+            height: 15px;
+            margin: 0;
+            accent-color: #f9a825;
+        }
+        .quiz-gestione-destinatari-pref-inline {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #795548;
+            line-height: 1;
+            white-space: nowrap;
         }
         .quiz-gestione-destinatari-badges {
             display: flex;
@@ -7715,6 +7745,17 @@
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-a-footer:active {
             filter: brightness(0.97);
             transform: translateY(1px);
+        }
+        #quiz-gestione-test-overlay button.gestione-ui-btn-saved {
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 55%, #a5d6a7 100%) !important;
+            color: #1b5e20 !important;
+            border-color: rgba(46, 125, 50, 0.5) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.65),
+                0 2px 10px rgba(46, 125, 50, 0.22) !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+            letter-spacing: 0.02em;
         }
         #quiz-gestione-test-overlay.quiz-gestione--solo-utente .quiz-gestione-test-footer.quiz-lock-actions {
             display: none !important;
@@ -10910,33 +10951,67 @@ function dismissAppSplash() {
                         </button>
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande in base al «Riferimento domande» scelto in Impostazioni (generiche da scheda oppure banco Controlli/Azioni/Rischi offline). Con generiche e Gemini attivo, la cache salva risposte articolate." aria-label="Genera domande">Genera</button>
-                        <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Con connessione e chiave configurata: scarica risposte articulate per le domande già salvate (cache locale e Firestore)" aria-label="Scarica risposte online">Scarica risposte online</button>
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Costruisce l’elenco domande solo in base a Impostazioni domande (flussi offline: generiche da scheda e/o banco Controlli/Azioni/Rischi). Per i testi articolati da rete usa Sperimentale → Scarica / Applica." aria-label="Genera domande">Genera</button>
+                        <button type="button" id="quiz-gestione-btn-sperimentale" class="btn-side btn-reset btn-gestione-sperimentale" onclick="gestioneSperimentaleModalOpen()" title="Strumenti sperimentali: scarica e applica risposte articulate (Gemini / cache)" aria-label="Sperimentale">Sperimentale</button>
                     </div>
                 </div>
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
                     <div class="quiz-gestione-destinatari-head">
                         <span class="quiz-gestione-destinatari-title">Destinatari del test</span>
-                        <label class="quiz-gestione-destinatari-pref" for="gestione-genera-uguali-tutti">
-                            <input type="checkbox" id="gestione-genera-uguali-tutti" autocomplete="off" onchange="gestioneGeneraUgualiTuttiSetFromCheckbox(this)" />
-                            <span class="quiz-gestione-destinatari-pref-text">
-                                <span class="quiz-gestione-destinatari-pref-title">Alla Genera, copia le stesse domande su tutti i destinatari</span>
-                            </span>
+                        <label
+                            class="quiz-gestione-destinatari-pref"
+                            for="gestione-genera-uguali-tutti"
+                            title="Se attivo: alla Genera, le stesse domande vanno su ogni destinatario elencato; poi puoi modificarle per uno alla volta."
+                        >
+                            <input
+                                type="checkbox"
+                                id="gestione-genera-uguali-tutti"
+                                autocomplete="off"
+                                onchange="gestioneGeneraUgualiTuttiSetFromCheckbox(this)"
+                                aria-label="Genera: stesso pacchetto per tutti i destinatari"
+                            />
+                            <span class="quiz-gestione-destinatari-pref-inline">tutti sempre</span>
                         </label>
                     </div>
                     <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
                 <div class="quiz-lock-actions quiz-gestione-test-footer quiz-gestione-test-footer--triple">
-                    <button type="button" class="btn-side btn-reset btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
+                    <button type="button" id="quiz-gestione-btn-save-all" class="btn-side btn-reset btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
                     <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
-                    <button type="button" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
+                    <button type="button" id="quiz-gestione-btn-invia-tutti" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
                 </div>
             </div>
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
                 <div class="quiz-gestione-verifica-body">
                     <p class="quiz-gestione-verifica-lead">Sezione <strong>Verifica</strong>: qui potrai usare gli strumenti di verifica del test. Contenuto e funzioni saranno definiti nel prossimo passaggio.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-gestione-sperimentale-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneSperimentaleModalBackdrop(event)">
+        <div class="quiz-lock-box quiz-app-box quiz-gestione-sperimentale-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-sperimentale-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-gestione-sperimentale-title" class="quiz-lock-title">Sperimentale · Risposte online</h4>
+            <p class="quiz-gestione-sperimentale-lead">
+                Il pulsante <strong>Genera</strong> (in alto) costruisce l’elenco solo in base a <strong>Impostazioni domande</strong> (flussi offline impostati lì). Qui scarichi e applichi i testi articolati da rete (Gemini): prima <strong>Scarica</strong>, poi <strong>Applica</strong> all’elenco attuale, senza dover usare di nuovo Genera.
+            </p>
+            <div class="quiz-gestione-sperimentale-actions">
+                <button
+                    type="button"
+                    id="quiz-gestione-sperimentale-prefetch"
+                    class="btn-side btn-reset"
+                    onclick="gestioneMcqPrefetchArticulatedClick()"
+                    title="Come prima «Scarica risposte online»: riempie la cache locale (e Firestore) con risposte articulate per le domande salvate"
+                >
+                    Scarica risposte domande online
+                </button>
+                <button type="button" id="quiz-gestione-sperimentale-applica" class="btn-side btn-report" onclick="gestioneMcqApplicaRisposteOnlineClick()" title="Applica alla lista corrente i testi articolati presenti in cache per ogni domanda (escluso banco CAR)">
+                    Applica
+                </button>
+            </div>
+            <div class="quiz-lock-actions" style="margin-top: 0; padding-top: 10px; border-top: 1px solid #eceff1;">
+                <button type="button" class="btn-side btn-reset" onclick="gestioneSperimentaleModalClose()">Chiudi</button>
             </div>
         </div>
     </div>
@@ -10956,7 +11031,7 @@ function dismissAppSplash() {
     <div id="quiz-gestione-config-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneConfigPopupBackdrop(event)">
         <div class="quiz-lock-box quiz-app-box quiz-gestione-config-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-config-title" onclick="event.stopPropagation()">
             <h4 id="quiz-gestione-config-title" class="quiz-lock-title">Impostazioni domande</h4>
-            <p class="quiz-gestione-config-hint">Scegli flusso, organizza domande e risposte.</p>
+            <p class="quiz-gestione-config-hint">Scegli come comporre i flussi offline e le domande; il pulsante <strong>Genera</strong> nella schermata Domande usa queste impostazioni.</p>
             <div class="quiz-gestione-config-field quiz-gestione-config-field--flow">
                 <span class="quiz-gestione-config-label" id="gestione-config-flow-heading">Flusso domande</span>
                 <div class="quiz-gestione-config-flow-body" role="group" aria-labelledby="gestione-config-flow-heading">
@@ -10972,6 +11047,13 @@ function dismissAppSplash() {
                         <span class="quiz-gestione-config-flow-row-text">
                             Controlli / Azioni / Rischi associati
                             <span class="quiz-gestione-config-flow-sub">Banco dedicato offline</span>
+                        </span>
+                    </label>
+                    <label class="quiz-gestione-config-flow-row">
+                        <input type="checkbox" id="gestione-flow-empty" autocomplete="off" onchange="gestioneConfigSetFlowVuoto(this.checked)" />
+                        <span class="quiz-gestione-config-flow-row-text">
+                            Flusso vuoto
+                            <span class="quiz-gestione-config-flow-sub">Solo schelette da compilare (domande e opzioni vuote)</span>
                         </span>
                     </label>
                 </div>
@@ -10994,7 +11076,7 @@ function dismissAppSplash() {
             </div>
             <div class="quiz-lock-actions quiz-gestione-config-actions">
                 <button type="button" class="btn-side btn-reset" onclick="gestioneConfigPopupClose()">Chiudi</button>
-                <button type="button" id="quiz-gestione-btn-genera-config" class="btn-side btn-report btn-gestione-genera" onclick="gestioneConfigPopupGeneraClick()">Genera</button>
+                <button type="button" id="quiz-gestione-btn-genera-config" class="btn-side btn-report btn-gestione-genera" onclick="gestioneConfigPopupGeneraClick()" title="Stesso comando del pulsante Genera nella barra Domande: applica queste impostazioni e rigenera l’elenco." aria-label="Genera domande e chiudi">Genera</button>
             </div>
         </div>
     </div>
@@ -11245,7 +11327,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605248';
+const APP_BUILD = '202605256';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19579,7 +19661,7 @@ var GESTIONE_CONFIG_NA_MIN = 1;
 var GESTIONE_CONFIG_NA_MAX = 5;
 
 function gestioneConfigDefaults() {
-    return { numQuestions: 10, numAnswers: 5, flowGeneriche: true, flowCar: false };
+    return { numQuestions: 10, numAnswers: 5, flowGeneriche: true, flowCar: false, flowVuoto: false };
 }
 
 function gestioneConfigNormalize(cfg) {
@@ -19592,6 +19674,7 @@ function gestioneConfigNormalize(cfg) {
     na = Math.min(GESTIONE_CONFIG_NA_MAX, Math.max(GESTIONE_CONFIG_NA_MIN, na));
     var fg = cfg && cfg.flowGeneriche;
     var fc = cfg && cfg.flowCar;
+    var fv = cfg && cfg.flowVuoto;
     if (typeof fg !== 'boolean' || typeof fc !== 'boolean') {
         var qs = cfg && cfg.questionSource;
         if (qs === 'car') {
@@ -19602,9 +19685,10 @@ function gestioneConfigNormalize(cfg) {
             fc = false;
         }
     }
-    if (!fg && !fc) fg = true;
-    if (!fg && fc && na < 4) na = 4;
-    return { numQuestions: nq, numAnswers: na, flowGeneriche: fg, flowCar: fc };
+    if (typeof fv !== 'boolean') fv = d.flowVuoto;
+    if (!fg && !fc && !fv) fg = true;
+    if (!fg && fc && !fv && na < 4) na = 4;
+    return { numQuestions: nq, numAnswers: na, flowGeneriche: fg, flowCar: fc, flowVuoto: fv };
 }
 
 function gestioneConfigLoad() {
@@ -19624,11 +19708,12 @@ function gestioneConfigSave(cfg) {
         localStorage.setItem(
             GESTIONE_CONFIG_LS,
             JSON.stringify({
-                v: 3,
+                v: 4,
                 numQuestions: cfg.numQuestions,
                 numAnswers: cfg.numAnswers,
                 flowGeneriche: cfg.flowGeneriche,
-                flowCar: cfg.flowCar
+                flowCar: cfg.flowCar,
+                flowVuoto: cfg.flowVuoto
             })
         );
     } catch (eS) { /* ignore */ }
@@ -19648,8 +19733,10 @@ function gestioneConfigRefreshPopupDisplay() {
     var cfg = gestioneConfigLoad();
     var fgEl = document.getElementById('gestione-flow-generic');
     var fcEl = document.getElementById('gestione-flow-car');
+    var fvEl = document.getElementById('gestione-flow-empty');
     if (fgEl) fgEl.checked = !!cfg.flowGeneriche;
     if (fcEl) fcEl.checked = !!cfg.flowCar;
+    if (fvEl) fvEl.checked = !!cfg.flowVuoto;
     var nqEl = document.getElementById('gestione-config-nq-val');
     var naEl = document.getElementById('gestione-config-na-val');
     if (nqEl) nqEl.textContent = String(cfg.numQuestions);
@@ -19689,7 +19776,7 @@ function gestioneConfigDeltaNa(delta) {
 function gestioneConfigSetFlowGeneriche(checked) {
     var cfg = gestioneConfigLoad();
     cfg.flowGeneriche = !!checked;
-    if (!cfg.flowGeneriche && !cfg.flowCar) cfg.flowCar = true;
+    if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowCar = true;
     gestioneConfigSave(cfg);
     gestioneConfigRefreshPopupDisplay();
     gestioneAfterConfigChangeResync();
@@ -19698,7 +19785,16 @@ function gestioneConfigSetFlowGeneriche(checked) {
 function gestioneConfigSetFlowCar(checked) {
     var cfg = gestioneConfigLoad();
     cfg.flowCar = !!checked;
-    if (!cfg.flowGeneriche && !cfg.flowCar) cfg.flowGeneriche = true;
+    if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowGeneriche = true;
+    gestioneConfigSave(cfg);
+    gestioneConfigRefreshPopupDisplay();
+    gestioneAfterConfigChangeResync();
+}
+
+function gestioneConfigSetFlowVuoto(checked) {
+    var cfg = gestioneConfigLoad();
+    cfg.flowVuoto = !!checked;
+    if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowGeneriche = true;
     gestioneConfigSave(cfg);
     gestioneConfigRefreshPopupDisplay();
     gestioneAfterConfigChangeResync();
@@ -20146,6 +20242,119 @@ function gestioneReadSlotsFromDom() {
     return items;
 }
 
+var gestioneUiSavedFlashTimers = {};
+
+/** Per ogni slot: ultimo stato di riferimento per «Reset» (all’ultimo render o dopo Salva / Salva tutto). */
+var gestioneSlotRevertBaseline = [];
+
+function gestioneSlotRevertBaselineEnsureLength(n) {
+    while (gestioneSlotRevertBaseline.length < n) gestioneSlotRevertBaseline.push(null);
+    gestioneSlotRevertBaseline.length = n;
+}
+
+function gestioneSlotRevertBaselineInitFromLoadedData(dataPreloaded) {
+    var data = dataPreloaded || gestioneDomandeLoad();
+    var nq = gestioneConfigLoad().numQuestions;
+    gestioneSlotRevertBaselineEnsureLength(nq);
+    for (var i = 0; i < nq; i++) {
+        var slot = data[i] || gestioneDomandeEmptySlot();
+        gestioneSlotRevertBaseline[i] = gestioneDomandeItemsDeepCopy([slot])[0];
+    }
+}
+
+function gestioneSlotRevertBaselineUpdateSlot(idx) {
+    var pack = gestioneReadSlotsFromDom();
+    var it = pack[idx];
+    if (!it) return;
+    gestioneSlotRevertBaseline[idx] = gestioneDomandeItemsDeepCopy([it])[0];
+}
+
+function gestioneSlotRevertBaselineUpdateAllFromDom() {
+    var pack = gestioneReadSlotsFromDom();
+    var nq = gestioneConfigLoad().numQuestions;
+    gestioneSlotRevertBaselineEnsureLength(nq);
+    for (var i = 0; i < nq; i++) {
+        var slot = pack[i] || gestioneDomandeEmptySlot();
+        gestioneSlotRevertBaseline[i] = gestioneDomandeItemsDeepCopy([slot])[0];
+    }
+}
+
+/** Ripristina la domanda allo stato di riferimento (come dopo ultimo render o salvataggio su quella scheda / tutto). */
+function gestioneDomandeResetSlotClick(idx) {
+    if (!quizGestioneDomandeEditorCompleto) return;
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    if (idx < 0 || idx >= nq) return;
+    var base = gestioneSlotRevertBaseline[idx];
+    if (!base) {
+        var data = gestioneDomandeLoad();
+        base = data[idx] || gestioneDomandeEmptySlot();
+    }
+    var norm = gestioneDomandeItemsDeepCopy([base])[0];
+    norm = gestioneDomandeNormalizeItems([norm])[0];
+    var ans = (norm.answers || []).slice();
+    while (ans.length < na) ans.push('');
+    ans = ans.slice(0, na);
+    norm.answers = ans;
+    var ci = Math.min(Math.max(0, na - 1), Math.max(0, parseInt(norm.correctIndex, 10) || 0));
+    norm.correctIndex = ci;
+
+    var ta = document.getElementById('gestione-q-text-' + idx);
+    if (ta) ta.value = norm.q || '';
+    for (var k = 0; k < na; k++) {
+        var inp = document.getElementById('gestione-a-' + idx + '-' + k);
+        if (inp) inp.value = norm.answers[k] ? norm.answers[k] : '';
+    }
+    var radPick = document.querySelector('input[name="gestione-corr-' + idx + '"][value="' + ci + '"]');
+    if (radPick) radPick.checked = true;
+
+    var card = document.getElementById('gestione-card-' + idx);
+    if (card) {
+        gestioneDomandeSyncAnswerRows(card);
+        card.classList.remove('is-editing');
+    }
+    requestAnimationFrame(function () {
+        gestioneDomandeFitAllGestioneFields();
+    });
+
+    gestioneDomandePersist(gestioneReadSlotsFromDom());
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eRs) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
+    gestioneMcqCacheFlushPush();
+}
+
+/** Mostra ✓ sul pulsante per ~1s dopo salvataggio riuscito (testo ripristinato dal default memorizzato). */
+function gestioneUiFlashSaved(btn, durationMs) {
+    if (!btn || btn.nodeType !== 1) return;
+    durationMs = durationMs != null ? durationMs : 1000;
+    var btnId = btn.id;
+    if (!btnId) {
+        btnId = 'gestione-flash-' + Math.random().toString(36).slice(2, 11);
+        btn.id = btnId;
+    }
+    var def = btn.getAttribute('data-gestione-default-label');
+    if (def == null || String(def).trim() === '') {
+        def = String(btn.textContent || '').trim();
+        btn.setAttribute('data-gestione-default-label', def);
+    }
+    try {
+        if (gestioneUiSavedFlashTimers[btnId]) clearTimeout(gestioneUiSavedFlashTimers[btnId]);
+    } catch (eFt) { /* ignore */ }
+    btn.textContent = '✓';
+    btn.classList.add('gestione-ui-btn-saved');
+    btn.disabled = true;
+    gestioneUiSavedFlashTimers[btnId] = window.setTimeout(function () {
+        gestioneUiSavedFlashTimers[btnId] = null;
+        btn.textContent = btn.getAttribute('data-gestione-default-label') || def;
+        btn.classList.remove('gestione-ui-btn-saved');
+        btn.disabled = false;
+    }, durationMs);
+}
+
 function gestioneDomandeSaveAllClick() {
     if (!quizGestioneDomandeEditorCompleto) {
         gestioneUtentePersistFromDom();
@@ -20158,6 +20367,8 @@ function gestioneDomandeSaveAllClick() {
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
     gestioneMcqCacheFlushPush();
+    gestioneSlotRevertBaselineUpdateAllFromDom();
+    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-save-all'));
 }
 
 function gestioneDomandeItemsDeepCopy(items) {
@@ -20252,6 +20463,7 @@ function gestioneDomandeInviaATuttiClick() {
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
     gestioneMcqCacheFlushPush();
+    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-invia-tutti'));
 }
 
 function gestioneInviaAModalOpen() {
@@ -20305,6 +20517,102 @@ function gestioneInviaAModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-gestione-invia-a-overlay') gestioneInviaAModalClose();
 }
 
+function gestioneSperimentaleModalOpen() {
+    if (!quizGestioneDomandeEditorCompleto) return;
+    var ov = document.getElementById('quiz-gestione-sperimentale-overlay');
+    if (!ov) return;
+    ov.classList.add('visible');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function gestioneSperimentaleModalClose() {
+    var ov = document.getElementById('quiz-gestione-sperimentale-overlay');
+    if (!ov) return;
+    ov.classList.remove('visible');
+    ov.setAttribute('aria-hidden', 'true');
+    var go = document.getElementById('quiz-gestione-test-overlay');
+    var cfg = document.getElementById('quiz-gestione-config-overlay');
+    var inv = document.getElementById('quiz-gestione-invia-a-overlay');
+    if (
+        (!go || !go.classList.contains('visible')) &&
+        (!cfg || !cfg.classList.contains('visible')) &&
+        (!inv || !inv.classList.contains('visible'))
+    ) {
+        document.body.classList.remove('quiz-info-open');
+    }
+}
+
+function gestioneSperimentaleModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-gestione-sperimentale-overlay') gestioneSperimentaleModalClose();
+}
+
+/** Applica alla lista corrente (DOM) i testi articolati già in cache Gemini per stem+risposta corretta (non CAR). */
+function gestioneMcqApplicaRisposteOnlineClick() {
+    if (!quizGestioneDomandeEditorCompleto) return;
+    var cfg = gestioneConfigLoad();
+    var na = cfg.numAnswers;
+    var numWrong = Math.max(0, na - 1);
+    if (numWrong < 1) {
+        window.alert('Servono almeno 2 opzioni per domanda per applicare risposte articulate.');
+        return;
+    }
+    var pack = gestioneReadSlotsFromDom();
+    var nq = cfg.numQuestions;
+    var pool = gestioneCollectGlobalActionPool();
+    var distractors = gestioneShuffle(pool.slice());
+    var acts = [];
+    var changed = 0;
+
+    for (var i = 0; i < nq; i++) {
+        var it = pack[i];
+        if (!it) continue;
+        var prevArr = gestioneDomandeLoadRaw().items;
+        var ps = prevArr && prevArr[i];
+        if (ps && ps.genSource === 'car') continue;
+
+        var qtext = String(it.q || '').trim();
+        var ci = Math.min(Math.max(0, na - 1), Math.max(0, parseInt(it.correctIndex, 10) || 0));
+        var ans = it.answers || [];
+        var corr = ans[ci] != null ? String(ans[ci]).trim() : '';
+        if (!qtext.length || !corr.length) continue;
+
+        var stemForKey = gestioneStripHtml(qtext).substring(0, 420).trim();
+        var cacheKey = gestioneMcqGeminiCacheMakeKey(stemForKey, corr, numWrong, '');
+        var cachedEnt = gestioneMcqGeminiCacheGetEntry(cacheKey);
+        if (!cachedEnt || !gestioneMcqCacheEntryIsArticulated(cachedEnt, numWrong)) continue;
+
+        var correctDisplay = String(cachedEnt.correctArt).trim();
+        var built = gestioneGeneraBuildAnswersLocal(
+            correctDisplay,
+            numWrong,
+            distractors,
+            acts,
+            cachedEnt.wrong.slice(0, numWrong),
+            stemForKey
+        );
+        it.answers = built.answers;
+        it.correctIndex = built.correctIndex;
+        changed++;
+    }
+
+    if (!changed) {
+        window.alert(
+            'Nessuna risposta articolata applicabile: cache vuota o non valida per le domande attuali. Usa prima «Scarica risposte domande online» (con chiave Gemini e connessione).'
+        );
+        return;
+    }
+
+    gestioneDomandePersist(pack);
+    try {
+        clearTimeout(gestioneDomandePushTimer);
+    } catch (eAp) { /* ignore */ }
+    gestioneDomandePushTimer = null;
+    gestioneDomandePushToFirestoreNow();
+    gestioneMcqCacheFlushPush();
+    gestioneDomandeRender();
+}
+
 function gestioneInviaASelezionatiClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
     var list = document.getElementById('quiz-gestione-invia-a-list');
@@ -20326,10 +20634,12 @@ function gestioneInviaASelezionatiClick() {
 }
 
 function gestioneDomandeSaveSlotClick(idx) {
+    var slotBtn = document.getElementById('gestione-save-slot-' + idx);
     if (!quizGestioneDomandeEditorCompleto) {
         gestioneUtentePickSaveOne(idx);
         var cardU = document.getElementById('gestione-card-' + idx);
         if (cardU) cardU.classList.remove('is-editing');
+        gestioneUiFlashSaved(slotBtn);
         return;
     }
     gestioneDomandePersist(gestioneReadSlotsFromDom());
@@ -20341,6 +20651,8 @@ function gestioneDomandeSaveSlotClick(idx) {
     gestioneMcqCacheFlushPush();
     var card = document.getElementById('gestione-card-' + idx);
     if (card) card.classList.remove('is-editing');
+    gestioneSlotRevertBaselineUpdateSlot(idx);
+    gestioneUiFlashSaved(slotBtn);
 }
 
 /** Mirror fuori schermo: altezza allineata al testo reale (scrollHeight sulle textarea aggiunge spesso una riga «vuota»). */
@@ -20557,9 +20869,31 @@ function gestioneDomandeBuildCard(i, slot) {
 
     var actions = document.createElement('div');
     actions.className = 'gestione-q-card-actions';
+    if (editor) {
+        var bReset = document.createElement('button');
+        bReset.type = 'button';
+        bReset.className = 'btn-side btn-reset';
+        bReset.id = 'gestione-reset-slot-' + i;
+        bReset.setAttribute('data-gestione-default-label', 'Reset');
+        bReset.textContent = 'Reset';
+        bReset.setAttribute(
+            'title',
+            'Ripristina testo e risposte come all’ultimo stato di riferimento (dopo ultimo caricamento o salvataggio su questa scheda / Salva tutto)'
+        );
+        bReset.setAttribute(
+            'aria-label',
+            'Ripristina domanda ' + (i + 1) + ' allo stato di riferimento'
+        );
+        bReset.onclick = function () {
+            gestioneDomandeResetSlotClick(i);
+        };
+        actions.appendChild(bReset);
+    }
     var bSav = document.createElement('button');
     bSav.type = 'button';
     bSav.className = 'btn-side btn-report';
+    bSav.id = 'gestione-save-slot-' + i;
+    bSav.setAttribute('data-gestione-default-label', 'Salva');
     bSav.textContent = 'Salva';
     bSav.setAttribute(
         'aria-label',
@@ -20738,6 +21072,7 @@ function gestioneDomandeRender() {
     var root = document.getElementById('quiz-gestione-test-list');
     if (!root) return;
     var data = gestioneDomandeLoad();
+    gestioneSlotRevertBaselineInitFromLoadedData(data);
     var nq = gestioneConfigLoad().numQuestions;
     root.innerHTML = '';
     for (var i = 0; i < nq; i++) {
@@ -21230,7 +21565,7 @@ function gestioneMcqRawCacheEntryIsArticulated(ent) {
 
 /**
  * Elimina dalla mappa cache le voci non conformi (troppo corte/lunghe/boilerplate): così al prossimo
- * «Scarica risposte online» / «Genera» vengono rigenerate.
+ * «Scarica risposte domande online» / «Genera» vengono rigenerate.
  */
 function gestioneMcqGeminiCacheMapDropWeak(map) {
     var out = {};
@@ -21598,6 +21933,35 @@ async function gestioneGeneraAsyncBuildOneGenericUnified(pick, na, numWrong, dis
     };
 }
 
+/** Una scheda vuota da compilare (testo domanda + opzioni segnaposto). letterIdx = 0-based indice domanda. */
+function gestioneGeneraMakeEmptyPlaceholderSlot(letterIdx, na) {
+    var letters = ['A', 'B', 'C', 'D', 'E'];
+    var sl = gestioneDomandeEmptySlot();
+    sl.q =
+        'Domanda ' +
+        (letterIdx + 1) +
+        ' — compila il testo e tutte le opzioni (flusso vuoto).';
+    var ansPl = [];
+    for (var ze = 0; ze < na; ze++) {
+        ansPl.push('Opzione ' + letters[ze] + ' — da compilare');
+    }
+    sl.answers = ansPl;
+    sl.correctIndex = 0;
+    return sl;
+}
+
+async function gestioneGeneraBuildEmptyFlowOnly() {
+    var prevSaved = gestioneDomandeLoad();
+    var cfg = gestioneConfigLoad();
+    var nTotal = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    var out = [];
+    for (var z = 0; z < nTotal; z++) {
+        out.push(gestioneGeneraMakeEmptyPlaceholderSlot(z, na));
+    }
+    return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
+}
+
 async function gestioneGeneraBuildFromDbGenericOnly() {
     var prevSaved = gestioneDomandeLoad();
     var cfg = gestioneConfigLoad();
@@ -21767,19 +22131,141 @@ async function gestioneGeneraBuildMixedCarAndGeneric() {
     return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
 }
 
+/** Flusso vuoto insieme a generici e/o CAR: per ogni slot sorteggio tra le fonti attive e disponibili. */
+async function gestioneGeneraBuildMixedMultiFlow() {
+    var prevSaved = gestioneDomandeLoad();
+    var cfg = gestioneConfigLoad();
+    var wantG = !!cfg.flowGeneriche;
+    var wantC = !!cfg.flowCar;
+    var wantV = !!cfg.flowVuoto;
+    var nTotal = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    var numWrong = Math.max(0, na - 1);
+    var letters = ['A', 'B', 'C', 'D', 'E'];
+    var out = [];
+
+    var pool = gestioneCollectGlobalActionPool();
+    var cfRows = typeof db !== 'undefined' && db.cf && db.cf.length ? db.cf.slice() : [];
+    var staticGenericMcq =
+        typeof GESTIONE_GENERIC_MCQ_BANK !== 'undefined' && Array.isArray(GESTIONE_GENERIC_MCQ_BANK)
+            ? GESTIONE_GENERIC_MCQ_BANK
+            : [];
+    var unified = [];
+    cfRows.forEach(function (row) {
+        unified.push({ kind: 'cf', row: row });
+    });
+    staticGenericMcq.forEach(function (item) {
+        unified.push({ kind: 'mcq', item: item });
+    });
+
+    var carBank =
+        typeof GESTIONE_CAR_MCQ_BANK !== 'undefined' && Array.isArray(GESTIONE_CAR_MCQ_BANK)
+            ? GESTIONE_CAR_MCQ_BANK
+            : [];
+
+    var canG = wantG && unified.length > 0;
+    var canC = wantC && carBank.length > 0;
+    var canV = wantV;
+
+    if (!canG && !canC && !canV) {
+        for (var ez = 0; ez < nTotal; ez++) {
+            out.push(gestioneGeneraMakeEmptyPlaceholderSlot(ez, na));
+        }
+        return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
+    }
+
+    var order = gestioneShuffle(unified.map(function (_, idx) {
+        return idx;
+    }));
+    var carOrder = gestioneShuffle(carBank.map(function (_, idx) {
+        return idx;
+    }));
+    var distractors = gestioneShuffle(pool.slice());
+    var extraStateMcq = gestioneMcqExtraStateCreate();
+    var extraCar = gestioneMcqExtraStateCreate();
+    var hasGeminiKey = numWrong > 0 && !!quizResolveAiConfig().textKey;
+
+    var gPos = 0;
+    var cPos = 0;
+
+    for (var slot = 0; slot < nTotal; slot++) {
+        var opts = [];
+        if (canV) opts.push('v');
+        if (canG) opts.push('g');
+        if (canC) opts.push('c');
+        var pick = opts[Math.floor(Math.random() * opts.length)];
+
+        if (pick === 'v') {
+            out.push(gestioneGeneraMakeEmptyPlaceholderSlot(slot, na));
+            continue;
+        }
+        if (pick === 'c' && canC) {
+            var cit = carBank[carOrder[cPos % carOrder.length]];
+            cPos++;
+            out.push(gestioneMcqBuildSlotFromArticulatedItem(cit, na, extraCar, 'car'));
+            continue;
+        }
+        if (pick === 'g' && canG) {
+            var pickU = unified[order[gPos % unified.length]];
+            gPos++;
+            out.push(
+                await gestioneGeneraAsyncBuildOneGenericUnified(
+                    pickU,
+                    na,
+                    numWrong,
+                    distractors,
+                    extraStateMcq,
+                    hasGeminiKey
+                )
+            );
+            continue;
+        }
+        if (canG) {
+            var pickU2 = unified[order[gPos % unified.length]];
+            gPos++;
+            out.push(
+                await gestioneGeneraAsyncBuildOneGenericUnified(
+                    pickU2,
+                    na,
+                    numWrong,
+                    distractors,
+                    extraStateMcq,
+                    hasGeminiKey
+                )
+            );
+            continue;
+        }
+        if (canC) {
+            var cit2 = carBank[carOrder[cPos % carOrder.length]];
+            cPos++;
+            out.push(gestioneMcqBuildSlotFromArticulatedItem(cit2, na, extraCar, 'car'));
+            continue;
+        }
+        out.push(gestioneGeneraMakeEmptyPlaceholderSlot(slot, na));
+    }
+    return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
+}
+
 async function gestioneGeneraBuildFromDb() {
     var fl = gestioneConfigLoad();
     var wantG = !!fl.flowGeneriche;
     var wantC = !!fl.flowCar;
-    if (!wantG && !wantC) wantG = true;
+    var wantV = !!fl.flowVuoto;
+    if (!wantG && !wantC && !wantV) wantG = true;
 
-    if (wantC && !wantG) {
+    if (wantV && !wantG && !wantC) {
+        return gestioneGeneraBuildEmptyFlowOnly();
+    }
+    if (wantC && !wantG && !wantV) {
         return gestioneGeneraBuildFromCarBank();
     }
-    if (wantG && !wantC) {
+    if (wantG && !wantC && !wantV) {
         return gestioneGeneraBuildFromDbGenericOnly();
     }
-    return gestioneGeneraBuildMixedCarAndGeneric();
+    if (wantG && wantC && !wantV) {
+        return gestioneGeneraBuildMixedCarAndGeneric();
+    }
+    return gestioneGeneraBuildMixedMultiFlow();
 }
 
 function gestioneGeneraBusySetLines(mainLine, detailLine) {
@@ -21826,7 +22312,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
     if (numWrong < 1) return;
     var items = gestioneDomandeLoad();
     var nq = cfg.numQuestions;
-    var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
+    var prefBtn = document.getElementById('quiz-gestione-sperimentale-prefetch');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
     gestioneGeneraBusyShow('Scaricamento risposte…', 'Attendere…');
     if (prefBtn) {
@@ -21880,7 +22366,7 @@ async function gestioneGeneraDomandeClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
     var btn = document.getElementById('quiz-gestione-btn-genera');
     var btnCfg = document.getElementById('quiz-gestione-btn-genera-config');
-    var prefBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
+    var prefBtn = document.getElementById('quiz-gestione-sperimentale-prefetch');
     gestioneGeneraBusyShow();
     if (btn) {
         btn.disabled = true;
@@ -21962,6 +22448,9 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     try {
         gestioneInviaAModalClose();
     } catch (eInvPre) { /* ignore */ }
+    try {
+        gestioneSperimentaleModalClose();
+    } catch (eSpPre) { /* ignore */ }
     var editorCompleto = fromImpostazioni !== false;
     quizGestioneDomandeEditorCompleto = editorCompleto;
     var overlay = document.getElementById('quiz-gestione-test-overlay');
@@ -21977,11 +22466,11 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
-    var prefetchBtn = document.getElementById('quiz-gestione-btn-prefetch-ia');
+    var sperimentaleBtn = document.getElementById('quiz-gestione-btn-sperimentale');
     var setBtn = document.getElementById('quiz-gestione-btn-settings');
     var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
     if (genBtn) genBtn.hidden = !editorCompleto;
-    if (prefetchBtn) prefetchBtn.hidden = !editorCompleto;
+    if (sperimentaleBtn) sperimentaleBtn.hidden = !editorCompleto;
     if (setBtn) setBtn.hidden = !editorCompleto;
     if (tornaBtn) {
         if (editorCompleto) {
@@ -22012,6 +22501,9 @@ function hideQuizGestioneTestVerificheModal() {
     try {
         gestioneInviaAModalClose();
     } catch (eInvH) { /* ignore */ }
+    try {
+        gestioneSperimentaleModalClose();
+    } catch (eSpH) { /* ignore */ }
     var cfgOv = document.getElementById('quiz-gestione-config-overlay');
     if (cfgOv) {
         cfgOv.classList.remove('visible');
