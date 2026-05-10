@@ -7420,9 +7420,9 @@
             }
         }
         /*
-         * Home splash — monitor larghi (≥1920px CSS px): include TV/monitor 40" Full HD (prima esclusi da 1921px).
-         * Tutta altezza finestra, «Entra» + didascalia incollati in basso; centro che scala (vermi | testo).
-         * Sotto 1920px: solo regole 768px / mobile (tablet e laptop standard non cambiano).
+         * Home splash — solo viewport molto larghi (≥1920px CSS px).
+         * Griglia 3 righe: titolo | zona centrale (1fr, contenuto centrato in altezza) | footer in basso.
+         * Scala con vmin/vh e varianti per aspect-ratio (4:3, 16:9, ultrawide). Sotto 1920px invariato.
          */
         @media (min-width: 1920px) {
             #app-splash.app-splash--visible {
@@ -7435,7 +7435,7 @@
                 min-height: 100vh;
                 min-height: 100dvh;
                 overflow: hidden;
-                padding: env(safe-area-inset-top, 0px) max(24px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(24px, env(safe-area-inset-left, 0px));
+                padding: max(env(safe-area-inset-top, 0px), 1.2vmin) max(24px, env(safe-area-inset-right, 0px)) max(env(safe-area-inset-bottom, 0px), 1.5vmin) max(24px, env(safe-area-inset-left, 0px));
                 box-sizing: border-box;
             }
             #app-splash .app-splash-inner {
@@ -7445,101 +7445,141 @@
                 width: min(100%, min(96vw, 1680px));
                 max-width: min(96vw, 1680px);
                 margin: 0 auto;
-                padding-top: 0;
-                padding-bottom: 0;
-                justify-content: flex-start;
-                display: flex;
-                flex-direction: column;
+                padding: 0;
+                display: grid;
+                grid-template-rows: auto minmax(0, 1fr) auto;
+                grid-template-columns: minmax(0, 1fr);
+                height: 100%;
+                max-height: 100%;
+                box-sizing: border-box;
             }
             #app-splash .app-splash-title-cluster {
-                flex-shrink: 0;
-                margin-bottom: clamp(28px, 3.5vh, 48px);
-                padding-top: max(8px, env(safe-area-inset-top, 0px));
+                grid-row: 1;
+                align-self: start;
+                margin: 0;
+                padding-top: max(0px, env(safe-area-inset-top, 0px));
+                padding-bottom: clamp(12px, 2.2vmin, 36px);
             }
             #app-splash .app-splash-brand {
-                font-size: clamp(0.92rem, 1.35vw, 1.18rem);
+                font-size: clamp(0.95rem, calc(0.9rem + 1.1vmin), 1.35rem);
                 letter-spacing: 0.16em;
             }
             #app-splash .app-splash-subbrand {
-                font-size: clamp(1.18rem, 2.2vw, 1.65rem);
-                margin: 14px 0 0;
+                font-size: clamp(1.15rem, calc(1rem + 1.6vmin), 1.85rem);
+                margin: clamp(10px, 1.4vmin, 20px) 0 0;
                 letter-spacing: 0.2em;
             }
             #app-splash .app-splash-intro-bio {
-                flex: 1 1 auto;
+                grid-row: 2;
+                align-self: stretch;
                 min-height: 0;
+                margin: 0;
+                padding-block: clamp(12px, 2.5vmin, 40px);
+                padding-inline: clamp(8px, 1.2vmin, 20px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                margin: 0;
-                gap: clamp(36px, 4.5vw, 72px);
+                gap: clamp(28px, calc(3.5vmin + 2vw), 80px);
                 align-items: center;
                 justify-content: center;
+                align-content: center;
                 flex-direction: row;
                 flex-wrap: nowrap;
             }
             #app-splash .app-splash-intro-viz-col {
-                width: min(420px, 28vw);
-                gap: clamp(14px, 2vh, 22px);
+                width: min(42vmin, 28vw, 480px);
+                gap: clamp(12px, 1.8vmin, 24px);
                 flex-shrink: 0;
             }
             #app-splash .app-splash-intro-desc-col {
                 flex: 1 1 auto;
                 min-width: 0;
-                max-width: min(780px, 58%);
+                max-width: min(780px, 58%, calc(52vmin + 12rem));
             }
             #app-splash .app-splash-mascot-wrap {
-                margin: clamp(14px, 2vh, 24px) 0 clamp(18px, 2.5vh, 28px);
-                min-height: min(280px, 34vh);
+                margin: clamp(8px, 1.5vmin, 20px) 0;
+                min-height: unset;
             }
             #app-splash .app-splash-icon-live {
-                width: min(380px, 28vw);
-                height: min(380px, 28vw);
-                max-width: min(380px, 44vh);
-                max-height: min(380px, 44vh);
+                width: clamp(260px, 34vmin, 520px);
+                height: clamp(260px, 34vmin, 520px);
+                max-width: min(92vw, 48vh, 520px);
+                max-height: min(92vw, 48vh, 520px);
             }
             #app-splash .app-splash-worm-tabs {
-                gap: clamp(8px, 1vw, 14px);
-                padding: 8px 0;
+                gap: clamp(6px, 0.9vmin, 14px);
+                padding: clamp(6px, 1vmin, 12px) 0;
             }
             #app-splash .app-splash-worm-tab {
-                padding: 10px 14px;
-                min-height: 48px;
-                font-size: clamp(0.62rem, 0.95vw, 0.82rem);
+                padding: clamp(8px, 1vmin, 14px) clamp(12px, 1.4vmin, 18px);
+                min-height: clamp(44px, 5vmin, 56px);
+                font-size: clamp(0.58rem, calc(0.45rem + 0.55vmin), 0.88rem);
                 border-radius: 999px;
             }
             #app-splash .app-splash-worm-desc {
-                padding: clamp(18px, 2vw, 26px) clamp(20px, 2.2vw, 28px);
-                border-radius: 18px;
-                font-size: clamp(0.92rem, 1.25vw, 1.12rem);
+                padding: clamp(14px, 1.8vmin, 28px) clamp(16px, 2vmin, 32px);
+                border-radius: clamp(14px, 1.6vmin, 22px);
+                font-size: clamp(0.88rem, calc(0.75rem + 0.65vmin), 1.2rem);
                 line-height: 1.58;
             }
             #app-splash .app-splash-worm-desc-panel h3 {
-                font-size: clamp(1.12rem, 1.45vw, 1.38rem);
-                margin-bottom: 12px;
+                font-size: clamp(1.05rem, calc(0.9rem + 0.75vmin), 1.45rem);
+                margin-bottom: clamp(8px, 1vmin, 14px);
             }
             #app-splash .app-splash-footer {
-                flex-shrink: 0;
-                gap: clamp(14px, 2vh, 26px);
-                padding-top: clamp(20px, 3vh, 40px);
-                padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
-                margin-top: auto;
+                grid-row: 3;
+                align-self: end;
+                gap: clamp(10px, 1.6vmin, 22px);
+                padding-top: clamp(14px, 2.2vmin, 36px);
+                padding-bottom: max(clamp(10px, 1.8vmin, 28px), env(safe-area-inset-bottom, 0px));
+                margin-top: 0;
                 width: 100%;
             }
             #app-splash .app-splash-enter {
                 margin: 0;
-                padding: clamp(18px, 2.2vh, 26px) min(96px, 9vw);
-                font-size: clamp(1.55rem, 2.4vw, 2.35rem);
-                border-radius: 20px;
+                padding: clamp(16px, 2vmin, 30px) clamp(72px, 8vmin, 140px);
+                font-size: clamp(1.45rem, calc(1.1rem + 1.8vmin), 2.65rem);
+                border-radius: clamp(16px, 1.8vmin, 26px);
                 box-shadow:
-                    0 12px 0 #0a5c30,
-                    0 22px 44px rgba(10, 92, 48, 0.45),
+                    0 clamp(10px, 1.2vmin, 16px) 0 #0a5c30,
+                    0 clamp(18px, 2.2vmin, 28px) clamp(36px, 4vmin, 52px) rgba(10, 92, 48, 0.45),
                     inset 0 2px 0 rgba(255, 255, 255, 0.35);
             }
             #app-splash .app-splash-tagline {
-                font-size: clamp(0.88rem, 1.15vw, 1.12rem);
-                line-height: 1.6;
-                max-width: min(52em, 96%);
+                font-size: clamp(0.72rem, calc(0.62rem + 0.35vmin), 0.98rem);
+                line-height: 1.55;
+                max-width: min(48em, 94%);
                 margin: 0;
+                opacity: 0.92;
+            }
+        }
+        /* Ultrawide / basso: limita altezza mascot e stringi gap così resta scrollabile al centro. */
+        @media (min-width: 1920px) and (min-aspect-ratio: 2/1) {
+            #app-splash .app-splash-intro-bio {
+                gap: clamp(20px, 2.5vmin, 56px);
+                padding-block: clamp(8px, 1.5vmin, 24px);
+            }
+            #app-splash .app-splash-icon-live {
+                width: clamp(220px, 28vmin, 440px);
+                height: clamp(220px, 28vmin, 440px);
+                max-height: min(42vh, 440px);
+            }
+            #app-splash .app-splash-intro-viz-col {
+                width: min(36vmin, 26vw, 420px);
+            }
+        }
+        /* 4:3, 5:4, … (lato corto in altezza relativa): più respiro verticale e icona più grande. */
+        @media (min-width: 1920px) and (max-aspect-ratio: 4/3) {
+            #app-splash .app-splash-title-cluster {
+                padding-bottom: clamp(16px, 3vmin, 48px);
+            }
+            #app-splash .app-splash-intro-bio {
+                gap: clamp(36px, calc(4vmin + 2vw), 96px);
+                padding-block: clamp(20px, 3.5vmin, 56px);
+            }
+            #app-splash .app-splash-icon-live {
+                width: clamp(300px, 36vmin, 580px);
+                height: clamp(300px, 36vmin, 580px);
+                max-height: min(52vh, 580px);
             }
         }
         @media (min-width: 2200px) {
@@ -7548,41 +7588,41 @@
                 max-width: min(95vw, 1840px);
             }
             #app-splash .app-splash-title-cluster {
-                margin-bottom: clamp(32px, 3.8vh, 56px);
+                padding-bottom: clamp(14px, 2.8vmin, 48px);
             }
             #app-splash .app-splash-brand {
-                font-size: clamp(1rem, 1.25vw, 1.28rem);
+                font-size: clamp(1rem, calc(0.92rem + 1.25vmin), 1.48rem);
             }
             #app-splash .app-splash-subbrand {
-                font-size: clamp(1.28rem, 2vw, 1.85rem);
+                font-size: clamp(1.22rem, calc(1.05rem + 1.85vmin), 2rem);
             }
             #app-splash .app-splash-intro-bio {
-                gap: clamp(44px, 5vw, 88px);
+                gap: clamp(36px, calc(4vmin + 2.5vw), 96px);
             }
             #app-splash .app-splash-intro-viz-col {
-                width: min(460px, 30vw);
+                width: min(46vmin, 30vw, 520px);
             }
             #app-splash .app-splash-intro-desc-col {
-                max-width: min(860px, 58%);
+                max-width: min(880px, 58%, calc(54vmin + 10rem));
             }
             #app-splash .app-splash-icon-live {
-                width: min(440px, 30vw);
-                height: min(440px, 30vw);
-                max-width: min(440px, 46vh);
-                max-height: min(440px, 46vh);
+                width: clamp(280px, 38vmin, 580px);
+                height: clamp(280px, 38vmin, 580px);
+                max-width: min(94vw, 52vh, 580px);
+                max-height: min(94vw, 52vh, 580px);
             }
             #app-splash .app-splash-worm-desc {
-                font-size: clamp(1rem, 1.15vw, 1.2rem);
+                font-size: clamp(0.95rem, calc(0.82rem + 0.72vmin), 1.28rem);
             }
             #app-splash .app-splash-worm-desc-panel h3 {
-                font-size: clamp(1.22rem, 1.35vw, 1.52rem);
+                font-size: clamp(1.12rem, calc(0.95rem + 0.85vmin), 1.58rem);
             }
             #app-splash .app-splash-enter {
-                padding: clamp(22px, 2.5vh, 30px) min(104px, 8vw);
-                font-size: clamp(1.75rem, 2.2vw, 2.65rem);
+                padding: clamp(18px, 2.4vmin, 36px) clamp(88px, 9vmin, 168px);
+                font-size: clamp(1.55rem, calc(1.15rem + 2vmin), 2.9rem);
             }
             #app-splash .app-splash-tagline {
-                font-size: clamp(0.95rem, 1.05vw, 1.22rem);
+                font-size: clamp(0.72rem, calc(0.62rem + 0.38vmin), 1.02rem);
             }
         }
         @media (min-width: 2560px) {
@@ -7590,56 +7630,56 @@
                 width: min(100%, min(94vw, 2100px));
                 max-width: min(94vw, 2100px);
             }
+            #app-splash .app-splash-title-cluster {
+                padding-bottom: clamp(16px, 3vmin, 56px);
+            }
             #app-splash .app-splash-brand {
-                font-size: clamp(1.08rem, 1.15vw, 1.42rem);
+                font-size: clamp(1.05rem, calc(0.95rem + 1.35vmin), 1.58rem);
             }
             #app-splash .app-splash-subbrand {
-                font-size: clamp(1.42rem, 1.85vw, 2.05rem);
+                font-size: clamp(1.32rem, calc(1.1rem + 2.05vmin), 2.2rem);
             }
             #app-splash .app-splash-intro-bio {
-                gap: clamp(52px, 5.5vw, 100px);
+                gap: clamp(40px, calc(4.5vmin + 3vw), 112px);
+                padding-block: clamp(14px, 2.8vmin, 48px);
             }
             #app-splash .app-splash-intro-viz-col {
-                width: min(520px, 28vw);
-                gap: clamp(16px, 2vh, 26px);
+                width: min(50vmin, 28vw, 600px);
+                gap: clamp(14px, 2vmin, 28px);
             }
             #app-splash .app-splash-intro-desc-col {
-                max-width: min(960px, 59%);
-            }
-            #app-splash .app-splash-mascot-wrap {
-                margin: clamp(18px, 2.5vh, 32px) 0;
-                min-height: min(340px, 38vh);
+                max-width: min(960px, 59%, calc(56vmin + 11rem));
             }
             #app-splash .app-splash-icon-live {
-                width: min(500px, 26vw);
-                height: min(500px, 26vw);
-                max-width: min(500px, 48vh);
-                max-height: min(500px, 48vh);
+                width: clamp(300px, 40vmin, 640px);
+                height: clamp(300px, 40vmin, 640px);
+                max-width: min(94vw, 54vh, 640px);
+                max-height: min(94vw, 54vh, 640px);
             }
             #app-splash .app-splash-worm-tab {
-                padding: 12px 18px;
-                min-height: 54px;
-                font-size: clamp(0.72rem, 0.85vw, 0.95rem);
+                padding: clamp(10px, 1.2vmin, 16px) clamp(14px, 1.6vmin, 22px);
+                min-height: clamp(50px, 5.5vmin, 62px);
+                font-size: clamp(0.62rem, calc(0.5rem + 0.62vmin), 0.95rem);
             }
             #app-splash .app-splash-worm-desc {
-                padding: clamp(22px, 2.2vw, 32px) clamp(24px, 2.5vw, 36px);
-                font-size: clamp(1.05rem, 1.05vw, 1.28rem);
+                padding: clamp(18px, 2vmin, 34px) clamp(20px, 2.4vmin, 38px);
+                font-size: clamp(0.95rem, calc(0.85rem + 0.78vmin), 1.38rem);
             }
             #app-splash .app-splash-worm-desc-panel h3 {
-                font-size: clamp(1.32rem, 1.25vw, 1.68rem);
+                font-size: clamp(1.18rem, calc(1rem + 0.95vmin), 1.78rem);
             }
             #app-splash .app-splash-footer {
-                gap: clamp(18px, 2.5vh, 32px);
-                padding-top: clamp(28px, 3.5vh, 48px);
+                gap: clamp(14px, 2.4vmin, 36px);
+                padding-top: clamp(20px, 3vmin, 52px);
             }
             #app-splash .app-splash-enter {
-                padding: clamp(24px, 2.8vh, 34px) min(112px, 7vw);
-                font-size: clamp(1.95rem, 2vw, 2.85rem);
-                border-radius: 22px;
+                padding: clamp(20px, 2.6vmin, 40px) clamp(96px, 10vmin, 180px);
+                font-size: clamp(1.65rem, calc(1.2rem + 2.2vmin), 3.15rem);
+                border-radius: clamp(18px, 2vmin, 28px);
             }
             #app-splash .app-splash-tagline {
-                font-size: clamp(1.02rem, 1.05vw, 1.32rem);
-                max-width: min(58em, 98%);
+                font-size: clamp(0.74rem, calc(0.63rem + 0.4vmin), 1.06rem);
+                max-width: min(56em, 96%);
             }
         }
         @media (min-width: 3440px) {
@@ -7647,55 +7687,56 @@
                 width: min(100%, min(92vw, 2400px));
                 max-width: min(92vw, 2400px);
             }
+            #app-splash .app-splash-title-cluster {
+                padding-bottom: clamp(18px, 3.4vmin, 64px);
+            }
             #app-splash .app-splash-brand {
-                font-size: clamp(1.15rem, 1.05vw, 1.55rem);
+                font-size: clamp(1.1rem, calc(1rem + 1.45vmin), 1.72rem);
             }
             #app-splash .app-splash-subbrand {
-                font-size: clamp(1.55rem, 1.65vw, 2.25rem);
+                font-size: clamp(1.42rem, calc(1.15rem + 2.25vmin), 2.45rem);
             }
             #app-splash .app-splash-intro-bio {
-                gap: clamp(60px, 6vw, 120px);
+                gap: clamp(48px, calc(5vmin + 3.5vw), 128px);
+                padding-block: clamp(16px, 3.2vmin, 56px);
             }
             #app-splash .app-splash-intro-viz-col {
-                width: min(580px, 26vw);
-                gap: clamp(18px, 2.2vh, 30px);
+                width: min(54vmin, 27vw, 680px);
+                gap: clamp(16px, 2.2vmin, 32px);
             }
             #app-splash .app-splash-intro-desc-col {
-                max-width: min(1100px, 60%);
-            }
-            #app-splash .app-splash-mascot-wrap {
-                min-height: min(380px, 40vh);
+                max-width: min(1100px, 60%, calc(58vmin + 12rem));
             }
             #app-splash .app-splash-icon-live {
-                width: min(560px, 24vw);
-                height: min(560px, 24vw);
-                max-width: min(560px, 50vh);
-                max-height: min(560px, 50vh);
+                width: clamp(320px, 42vmin, 720px);
+                height: clamp(320px, 42vmin, 720px);
+                max-width: min(94vw, 56vh, 720px);
+                max-height: min(94vw, 56vh, 720px);
             }
             #app-splash .app-splash-worm-tab {
-                padding: 14px 22px;
-                min-height: 58px;
-                font-size: clamp(0.78rem, 0.75vw, 1.05rem);
+                padding: clamp(12px, 1.4vmin, 18px) clamp(16px, 1.8vmin, 26px);
+                min-height: clamp(54px, 6vmin, 68px);
+                font-size: clamp(0.68rem, calc(0.55rem + 0.68vmin), 1.08rem);
             }
             #app-splash .app-splash-worm-desc {
-                padding: clamp(26px, 2.5vw, 38px) clamp(28px, 2.8vw, 42px);
-                font-size: clamp(1.12rem, 0.95vw, 1.42rem);
+                padding: clamp(22px, 2.4vmin, 42px) clamp(24px, 2.8vmin, 46px);
+                font-size: clamp(1.02rem, calc(0.88rem + 0.85vmin), 1.48rem);
             }
             #app-splash .app-splash-worm-desc-panel h3 {
-                font-size: clamp(1.45rem, 1.15vw, 1.85rem);
+                font-size: clamp(1.28rem, calc(1.08rem + 1.05vmin), 1.95rem);
             }
             #app-splash .app-splash-footer {
-                gap: clamp(22px, 3vh, 40px);
-                padding-top: clamp(36px, 4vh, 56px);
+                gap: clamp(16px, 2.8vmin, 44px);
+                padding-top: clamp(24px, 3.5vmin, 60px);
             }
             #app-splash .app-splash-enter {
-                padding: clamp(28px, 3vh, 40px) min(128px, 6.5vw);
-                font-size: clamp(2.1rem, 1.85vw, 3.1rem);
-                border-radius: 26px;
+                padding: clamp(22px, 3vmin, 44px) clamp(104px, 11vmin, 200px);
+                font-size: clamp(1.85rem, calc(1.28rem + 2.5vmin), 3.45rem);
+                border-radius: clamp(20px, 2.2vmin, 30px);
             }
             #app-splash .app-splash-tagline {
-                font-size: clamp(1.08rem, 0.95vw, 1.42rem);
-                max-width: min(62em, 98%);
+                font-size: clamp(0.76rem, calc(0.64rem + 0.42vmin), 1.1rem);
+                max-width: min(58em, 96%);
             }
         }
         /*
@@ -10029,7 +10070,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605180';
+const APP_BUILD = '202605181';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
