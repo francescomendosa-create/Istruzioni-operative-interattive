@@ -6974,6 +6974,8 @@
             font-family: inherit;
             resize: none;
             overflow: hidden;
+            overflow-y: hidden;
+            overflow-x: hidden;
             background: rgba(250, 247, 255, 0.85);
             color: #263238;
             transition:
@@ -7046,7 +7048,7 @@
             cursor: pointer;
         }
         .gestione-answer-slot textarea.gestione-a-text {
-            flex: 1 1 auto;
+            flex: 1 1 0;
             align-self: flex-start;
             min-width: 0;
             min-height: 0;
@@ -7059,6 +7061,8 @@
             font-family: inherit;
             resize: none;
             overflow: hidden;
+            overflow-y: hidden;
+            overflow-x: hidden;
             white-space: pre-wrap;
             word-wrap: break-word;
             overflow-wrap: anywhere;
@@ -7101,6 +7105,14 @@
             padding: 12px 18px;
             font-weight: 800;
             font-size: 0.9rem;
+        }
+        #quiz-gestione-test-overlay.quiz-gestione--solo-utente .quiz-gestione-test-footer.quiz-lock-actions {
+            display: none !important;
+        }
+        #quiz-gestione-test-overlay.quiz-gestione--solo-utente textarea.gestione-q-text[readonly],
+        #quiz-gestione-test-overlay.quiz-gestione--solo-utente textarea.gestione-a-text[readonly] {
+            cursor: default;
+            background: rgba(245, 247, 250, 0.92);
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia {
             flex: 0 1 auto;
@@ -10223,7 +10235,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605206</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605208</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -10524,7 +10536,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605206';
+const APP_BUILD = '202605208';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18699,6 +18711,55 @@ function quizAppModalBackdrop(ev) {
 
 /** Gestione test e verifiche — 10 domande MCQ (localStorage + Firestore), generazione da db.cf Controlli e azioni */
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
+/** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
+var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
+
+function gestioneUtentePicksNormalize(picks) {
+    if (!Array.isArray(picks)) picks = [];
+    while (picks.length < 10) picks.push(null);
+    return picks.slice(0, 10).map(function (x) {
+        if (x === null || x === undefined || x === '') return null;
+        var n = parseInt(x, 10);
+        if (!isFinite(n) || n < 0 || n > 4) return null;
+        return n;
+    });
+}
+
+function gestioneUtenteLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_UTENTE_LS);
+        if (!raw) throw new Error('empty');
+        var parsed = JSON.parse(raw);
+        return gestioneUtentePicksNormalize(parsed.picks);
+    } catch (e) {
+        return gestioneUtentePicksNormalize([]);
+    }
+}
+
+function gestioneUtentePersist(picks) {
+    try {
+        localStorage.setItem(
+            GESTIONE_UTENTE_LS,
+            JSON.stringify({ v: 1, picks: gestioneUtentePicksNormalize(picks) })
+        );
+    } catch (e) { /* ignore */ }
+}
+
+function gestioneUtentePersistFromDom() {
+    var picks = [];
+    for (var ui = 0; ui < 10; ui++) {
+        var ur = document.querySelector('input[name="gestione-corr-' + ui + '"]:checked');
+        picks.push(ur ? parseInt(ur.value, 10) : null);
+    }
+    gestioneUtentePersist(picks);
+}
+
+function gestioneUtentePickSaveOne(slotIdx) {
+    var ur = document.querySelector('input[name="gestione-corr-' + slotIdx + '"]:checked');
+    var picks = gestioneUtenteLoad();
+    picks[slotIdx] = ur ? parseInt(ur.value, 10) : null;
+    gestioneUtentePersist(picks);
+}
 
 function gestioneDomandeEmptySlot() {
     return { q: '', answers: ['', '', '', '', ''], correctIndex: 0 };
@@ -18796,11 +18857,16 @@ function gestioneReadSlotsFromDom() {
 }
 
 function gestioneDomandeSaveAllClick() {
+    if (!quizGestioneDomandeEditorCompleto) {
+        gestioneUtentePersistFromDom();
+        return;
+    }
     gestioneDomandePersist(gestioneReadSlotsFromDom());
 }
 
 /** Salva tutto e invio immediato su Firestore (oltre al salvataggio locale). */
 function gestioneDomandeInviaClick() {
+    if (!quizGestioneDomandeEditorCompleto) return;
     gestioneDomandePersist(gestioneReadSlotsFromDom());
     try {
         clearTimeout(gestioneDomandePushTimer);
@@ -18810,6 +18876,12 @@ function gestioneDomandeInviaClick() {
 }
 
 function gestioneDomandeSaveSlotClick(idx) {
+    if (!quizGestioneDomandeEditorCompleto) {
+        gestioneUtentePickSaveOne(idx);
+        var cardU = document.getElementById('gestione-card-' + idx);
+        if (cardU) cardU.classList.remove('is-editing');
+        return;
+    }
     gestioneDomandePersist(gestioneReadSlotsFromDom());
     var card = document.getElementById('gestione-card-' + idx);
     if (card) card.classList.remove('is-editing');
@@ -18901,19 +18973,52 @@ function gestioneDomandeFitTextareaToContent(el) {
         }
     }
 
-    /* Con testo: solo l’altezza del mirror (mai Math.max con oneRowPx — generava sempre qualche px in eccesso). */
     var target;
     if (!val.length) {
         target = oneRowPx;
     } else {
-        target = mirror.offsetHeight;
+        try {
+            var mbrH = mirror.getBoundingClientRect().height;
+            target = mbrH > 0 ? mbrH : mirror.offsetHeight;
+        } catch (eMr) {
+            target = mirror.offsetHeight;
+        }
         if (!isFinite(target) || target < 1) target = oneRowPx;
     }
 
     el.style.overflow = 'hidden';
+    el.style.overflowY = 'hidden';
+    el.style.overflowX = 'hidden';
     el.style.minHeight = '0';
     el.style.maxHeight = 'none';
     el.style.height = target + 'px';
+
+    /* Il div-mirror spesso resta 1 riga / pochi px più alto del textarea: allinea a scrollHeight/clientHeight. */
+    var pass;
+    for (pass = 0; pass < 5; pass++) {
+        try {
+            var grow = el.scrollHeight - el.clientHeight;
+            if (grow > 1) {
+                el.style.height = el.offsetHeight + grow + 'px';
+                continue;
+            }
+            var slack = el.clientHeight - el.scrollHeight;
+            if (slack > 2) {
+                el.style.height = el.offsetHeight - slack + 'px';
+                continue;
+            }
+        } catch (ePass) {
+            break;
+        }
+        break;
+    }
+    if (!val.length) {
+        try {
+            if (el.offsetHeight + 0.5 < oneRowPx) {
+                el.style.height = oneRowPx + 'px';
+            }
+        } catch (e0) { /* ignore */ }
+    }
 }
 
 function gestioneDomandeFitQuestionTextarea(el) {
@@ -18980,6 +19085,15 @@ function gestioneDomandeSyncAnswerRows(card) {
 
 function gestioneDomandeBuildCard(i, slot) {
     slot = slot || gestioneDomandeEmptySlot();
+    var editor = quizGestioneDomandeEditorCompleto;
+    var picksUtente = editor ? null : gestioneUtenteLoad();
+    var userPick =
+        !editor &&
+        picksUtente &&
+        picksUtente[i] !== null &&
+        picksUtente[i] !== undefined
+            ? picksUtente[i]
+            : null;
     var letters = ['A', 'B', 'C', 'D', 'E'];
     var card = document.createElement('div');
     card.className = 'gestione-q-card';
@@ -19012,11 +19126,14 @@ function gestioneDomandeBuildCard(i, slot) {
     bSav.type = 'button';
     bSav.className = 'btn-side btn-report';
     bSav.textContent = 'Salva';
-    bSav.setAttribute('aria-label', 'Salva domanda ' + (i + 1));
+    bSav.setAttribute(
+        'aria-label',
+        editor ? 'Salva domanda ' + (i + 1) : 'Salva la risposta scelta per la domanda ' + (i + 1)
+    );
     bSav.onclick = function () {
         gestioneDomandeSaveSlotClick(i);
     };
-    actions.appendChild(bMod);
+    if (editor) actions.appendChild(bMod);
     actions.appendChild(bSav);
     head.appendChild(titleRow);
     head.appendChild(actions);
@@ -19029,15 +19146,16 @@ function gestioneDomandeBuildCard(i, slot) {
     secQ.className = 'gestione-q-section gestione-q-section--question';
     var labQ = document.createElement('span');
     labQ.className = 'gestione-q-section-label';
-    labQ.textContent = 'Testo della domanda';
+    labQ.textContent = editor ? 'Testo della domanda' : 'Domanda';
     secQ.appendChild(labQ);
 
     var ta = document.createElement('textarea');
     ta.className = 'gestione-q-text';
     ta.id = 'gestione-q-text-' + i;
     ta.rows = 1;
-    ta.setAttribute('aria-label', 'Testo domanda ' + (i + 1));
+    ta.setAttribute('aria-label', editor ? 'Testo domanda ' + (i + 1) : 'Domanda ' + (i + 1) + ' (sola lettura)');
     ta.value = slot.q || '';
+    if (!editor) ta.readOnly = true;
     ta.addEventListener('input', function () {
         gestioneDomandeFitTextareaToContent(ta);
         requestAnimationFrame(function () {
@@ -19076,7 +19194,9 @@ function gestioneDomandeBuildCard(i, slot) {
     labA.className = 'gestione-q-section-label';
     labA.appendChild(document.createTextNode('Risposte '));
     var labASub = document.createElement('span');
-    labASub.textContent = '· seleziona il pallino accanto alla risposta corretta';
+    labASub.textContent = editor
+        ? '· seleziona il pallino accanto alla risposta corretta'
+        : '· scegli la tua risposta e premi Salva su questa scheda';
     labA.appendChild(labASub);
     secA.appendChild(labA);
 
@@ -19087,7 +19207,11 @@ function gestioneDomandeBuildCard(i, slot) {
     for (let k = 0; k < 5; k++) {
         var slotWrap = document.createElement('div');
         slotWrap.className = 'gestione-answer-slot';
-        if (ci === k) slotWrap.classList.add('gestione-answer-slot--selected');
+        if (editor) {
+            if (ci === k) slotWrap.classList.add('gestione-answer-slot--selected');
+        } else if (userPick === k) {
+            slotWrap.classList.add('gestione-answer-slot--selected');
+        }
 
         var letterEl = document.createElement('span');
         letterEl.className = 'gestione-answer-letter';
@@ -19099,7 +19223,17 @@ function gestioneDomandeBuildCard(i, slot) {
         rad.name = 'gestione-corr-' + i;
         rad.value = String(k);
         rad.id = 'gestione-corr-' + i + '-' + k;
-        if (ci === k) rad.checked = true;
+        if (editor) {
+            if (ci === k) rad.checked = true;
+        } else if (userPick === k) {
+            rad.checked = true;
+        }
+        rad.setAttribute(
+            'aria-label',
+            editor
+                ? 'Segna come corretta la risposta ' + letters[k]
+                : 'La tua risposta: opzione ' + letters[k]
+        );
 
         let inp = document.createElement('textarea');
         inp.className = 'gestione-a-text';
@@ -19107,9 +19241,12 @@ function gestioneDomandeBuildCard(i, slot) {
         inp.id = 'gestione-a-' + i + '-' + k;
         inp.setAttribute(
             'aria-label',
-            'Risposta ' + letters[k] + ' — domanda ' + (i + 1)
+            editor
+                ? 'Risposta ' + letters[k] + ' — domanda ' + (i + 1)
+                : 'Opzione ' + letters[k] + ' — domanda ' + (i + 1) + ' (sola lettura)'
         );
         inp.value = slot.answers && slot.answers[k] ? slot.answers[k] : '';
+        if (!editor) inp.readOnly = true;
         inp.addEventListener('input', function () {
             gestioneDomandeFitTextareaToContent(inp);
             requestAnimationFrame(function () {
@@ -19154,6 +19291,7 @@ function gestioneDomandeBuildCard(i, slot) {
     body.appendChild(secA);
     card.appendChild(body);
 
+    gestioneDomandeSyncAnswerRows(card);
     return card;
 }
 
@@ -19282,6 +19420,7 @@ function gestioneGeneraBuildFromDb() {
 }
 
 function gestioneGeneraDomandeClick() {
+    if (!quizGestioneDomandeEditorCompleto) return;
     var hasContent = false;
     try {
         var cur = gestioneReadSlotsFromDom();
@@ -19312,6 +19451,8 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
+    if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
+    else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
     var leadEl = document.getElementById('quiz-gestione-test-lead');
@@ -19320,7 +19461,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     if (leadEl) {
         leadEl.innerHTML = editorCompleto
             ? 'Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi modificarle manualmente o usare <strong>Genera</strong> per crearle a partire dai contenuti «Controlli e azioni» dell’app. Salva ogni scheda o tutto insieme.'
-            : 'Dieci domande a risposta multipla (5 opzioni, una esatta). Puoi consultare o modificare domande e risposte. Salva ogni scheda o tutto insieme.';
+            : 'Dieci domande a risposta multipla. Domande e opzioni sono solo lettura: scegli la tua risposta con il pallino e usa <strong>Salva</strong> sulla scheda per registrare la risposta sul dispositivo. Non viene indicata la risposta corretta.';
     }
     if (tornaBtn) {
         if (editorCompleto) {
