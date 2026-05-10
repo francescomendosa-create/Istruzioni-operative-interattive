@@ -7141,19 +7141,13 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .quiz-gestione-destinatari-title {
             font-size: 0.72rem;
             font-weight: 800;
             color: #4527a0;
             letter-spacing: 0.02em;
-        }
-        .quiz-gestione-destinatari-hint {
-            font-size: 0.62rem;
-            line-height: 1.35;
-            color: #546e7a;
-            font-weight: 500;
         }
         .quiz-gestione-destinatari-badges {
             display: flex;
@@ -10672,7 +10666,6 @@ function dismissAppSplash() {
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
                     <div class="quiz-gestione-destinatari-head">
                         <span class="quiz-gestione-destinatari-title">Destinatari del test</span>
-                        <span class="quiz-gestione-destinatari-hint">Utenti collegati o visti di recente · badge piccolo: verde = online, grigio = offline · seleziona chi sta modificando le domande; con Invia ogni nome riceve il proprio set sul «Test di verifica».</span>
                     </div>
                     <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
                 </div>
@@ -10963,7 +10956,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605233';
+const APP_BUILD = '202605235';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19287,7 +19280,7 @@ var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
 /** v3: risposte articolate (corretta + errate); cambio chiave invalida cache sintetiche precedenti */
-var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v8';
+var GESTIONE_MCQ_GEMINI_CACHE_LS = 'io-gestione-mcq-gemini-articulated-cache-v9';
 var GESTIONE_MCQ_CACHE_MAX_ENTRIES = 720;
 var GESTIONE_CONFIG_NQ_MIN = 1;
 var GESTIONE_CONFIG_NQ_MAX = 50;
@@ -20313,22 +20306,22 @@ function gestioneExpandTerseMcqOption(text, stemDisp, role) {
     }
     var stem = String(stemDisp || '').trim();
     if (!stem || stem === '—') stem = 'il punto di controllo indicato nella domanda';
-    var stemCut = stem.length > 160 ? stem.substring(0, 157) + '…' : stem;
+    var stemCut = stem.length > 100 ? stem.substring(0, 97) + '…' : stem;
     var core = t.replace(/\s+/g, ' ');
     if (!core) core = 'elemento indicato in scheda';
-    if (core.length > 90) core = core.substring(0, 87) + '…';
+    if (core.length > 56) core = core.substring(0, 53) + '…';
     var out =
         role === 'correct'
-            ? 'Applicare in modo ordinato e verificabile quanto previsto per «' +
+            ? 'Verificare quanto previsto per «' +
               core +
-              '», nel contesto della domanda («' +
+              '» nel contesto («' +
               stemCut +
-              '»), confrontando letture e parametri di processo con la scheda operativa e le procedure di sicurezza prima di confermare la conformità richiesta.'
-            : 'Valutare criticamente l’ipotesi legata a «' +
+              '»), confrontando letture con la scheda prima di confermare la conformità.'
+            : 'Valutare «' +
               core +
-              '» rispetto all’obiettivo della domanda («' +
+              '» rispetto alla domanda («' +
               stemCut +
-              '»): verificare coerenza con strumentazione, qualità del fluido o dell’effluente indicati e con le azioni approvate, evitando risposte solo nominali o prive di contesto operativo.';
+              '»): controllare coerenza con strumentazione e procedure, senza fermarsi a etichette.';
     return gestioneNormalizeAnswerPhrase(out);
 }
 
@@ -20365,7 +20358,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     }
     while (wrong.length < numWrong) {
         wrong.push(
-            'Analizzare in sede i trend strumentali, la coerenza con le specifiche di processo e la documentazione di turno prima di ogni modifica al set-point o al dosaggio (complemento ' +
+            'Analizzare trend strumentali e documentazione di turno prima di modificare set-point o dosaggio (' +
                 (wrong.length + 1) +
                 ').'
         );
@@ -20386,9 +20379,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     while (wrongFin.length < numWrong) {
         var padIx = wrongFin.length + 1;
         var pad =
-            'Coordinare con la cabina o il responsabile di reparto la verifica incrociata su log, campionamenti e allarmi, allineando l’intervento alle procedure approvate (complemento operativo ' +
-            padIx +
-            ').';
+            'Coordinare con cabina/responsabile verifica su log e allarmi (complemento ' + padIx + ').';
         var padUse = usedFin[pad] ? pad + ' — variante ' + padIx + '.' : pad;
         usedFin[padUse] = 1;
         wrongFin.push(padUse);
@@ -20406,9 +20397,7 @@ function gestioneGeneraBuildAnswersLocal(correct, numWrong, distractors, acts, p
     });
     while (uniq.length < na) {
         uniq.push(
-            'Coordinare con la cabina o il responsabile di reparto la verifica incrociata su log, campionamenti e allarmi, allineando l’intervento alle procedure approvate (opzione ' +
-                uniq.length +
-                ').'
+            'Coordinare verifica su log e campionamenti secondo procedure approvate (opzione ' + uniq.length + ').'
         );
     }
     answers = uniq.slice(0, na);
@@ -20533,29 +20522,38 @@ function gestioneMcqGeminiCacheNeedsRefresh(key, numWrong) {
 }
 
 /**
- * Opzione troppo sintetica / nominale (es. solo «linea mandata»): niente verbo operativo o troppo corta.
+ * Troppo sintetica / nominale (es. solo «fanghi»): serve verbo + contesto minimo.
+ * Target moderato: ~72–280 caratteri, ~9–22 parole (non paragrafi).
  */
 function gestioneGeminiOptionArticulationTooWeak(text) {
     var t = String(text || '').trim();
-    if (t.length < 118) return true;
+    if (t.length < 72) return true;
     var words = t.split(/\s+/).filter(function (w) {
         return w.length > 0;
     });
-    if (words.length < 15) return true;
-    if (words.length <= 4 && t.length < 130) return true;
+    if (words.length < 9) return true;
+    if (words.length <= 4 && t.length < 95) return true;
     var verbCue =
         /\b(verific|controll|accert|monitor|interven|registr|conferm|assicur|regolar|misur|osserv|ispezion|avviar|effettu|esegu|garant|mantener|coordinar|comunicar|segnalar|azzerar|interromper|riavviar|taratur|campione|documentar|ispettar|applicar|valutar|analizzar)\w*\b|\b(controllare|verificare|coordinare|valutare|applicare)\b/i.test(
             t
         );
-    if (!verbCue && t.length < 260) return true;
+    if (!verbCue && t.length < 195) return true;
     return false;
+}
+
+/** Oltre questo limite l’opzione è considerata verbosa (rigenerare testi più compatti). */
+function gestioneGeminiOptionArticulationTooLong(text) {
+    return String(text || '').trim().length > 280;
 }
 
 function gestioneMcqCacheEntryIsArticulated(entry, numWrong) {
     if (!entry || !entry.wrong || entry.wrong.length < numWrong) return false;
-    if (!entry.correctArt || gestioneGeminiOptionArticulationTooWeak(entry.correctArt)) return false;
+    if (!entry.correctArt) return false;
+    if (gestioneGeminiOptionArticulationTooWeak(entry.correctArt)) return false;
+    if (gestioneGeminiOptionArticulationTooLong(entry.correctArt)) return false;
     for (var i = 0; i < numWrong; i++) {
         if (gestioneGeminiOptionArticulationTooWeak(entry.wrong[i])) return false;
+        if (gestioneGeminiOptionArticulationTooLong(entry.wrong[i])) return false;
     }
     return true;
 }
@@ -20573,8 +20571,8 @@ function gestioneMcqRawCacheEntryIsArticulated(ent) {
 }
 
 /**
- * Elimina dalla mappa cache le voci create con criteri vecchi (risposte corte): così al prossimo
- * «Scarica risposte online» / «Genera» vengono rigenerate dal servizio articolato.
+ * Elimina dalla mappa cache le voci non conformi (troppo corte/lunghe): così al prossimo
+ * «Scarica risposte online» / «Genera» vengono rigenerate.
  */
 function gestioneMcqGeminiCacheMapDropWeak(map) {
     var out = {};
@@ -20602,9 +20600,11 @@ function gestioneGeminiParseArticulatedMcqJson(text, numWrong) {
     var corrS = String(corr == null ? '' : corr).trim();
     if (corrS.length < 8) throw new Error('gestione_gemini_no_correct');
     if (gestioneGeminiOptionArticulationTooWeak(corrS)) throw new Error('gestione_gemini_correct_too_terse');
+    if (gestioneGeminiOptionArticulationTooLong(corrS)) throw new Error('gestione_gemini_correct_too_long');
     if (outW.length < numWrong) throw new Error('gestione_gemini_short');
     for (var wi = 0; wi < numWrong; wi++) {
         if (gestioneGeminiOptionArticulationTooWeak(outW[wi])) throw new Error('gestione_gemini_wrong_terse');
+        if (gestioneGeminiOptionArticulationTooLong(outW[wi])) throw new Error('gestione_gemini_wrong_too_long');
     }
     var corrNorm = gestioneNormalizeAnswerPhrase(corrS);
     var wrongNorm = outW.slice(0, numWrong).map(function (w) {
@@ -20629,27 +20629,25 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
     }, 52000);
     var prompt =
         'Sei un senior negli ambiti di procedure operative, controlli di processo, impianti chimico-industriali, HSEQ e continuità produttiva (lingua: italiano).\n' +
-        'Contesto: «istruzioni operative interattive» — ogni opzione deve essere un MICRO-DISCORSO operativo, non un’etichetta.\n' +
-        '\nSTRUTTURA OBBLIGATORIA (ogni stringa in "correct" e in ogni elemento di "wrong"):\n' +
-        '1) Includi almeno un VERBO operativo ESPLICITO all’inizio o nel primo periodo (infinito o forma chiara: Verificare, Controllare, Accertarsi che, Monitorare, Intervenire su, Registrare…).\n' +
-        '2) Collega il componente citato dalla scheda con ARTICOLI e AGGETTIVI (es. «la linea di mandata del coagulante», non solo «linea mandata»).\n' +
-        '3) Aggiungi COSA verificare e IN QUALE LOGICA rispetto alla domanda (tenuta, regime, corrispondenza alla scheda, assenza di anomalie prima di…).\n' +
-        '\nESEMPIO DI COSA È VIETATO:\n' +
-        '- «Linea mandata» / «Dosaggio acido» / «Vasca 3» / «Fanghi» / «Refluo» / «Chiarificatore» come UNICA parola o etichetta (anche se plausibile in stabilimento: INACCETTABILE se non è una frase d’intervento).\n' +
-        '- Domanda su qualità dell’acqua in uscita (limpida, chiarificata) e risposta che cita solo «fanghi» o «solidi» senza dire COSA controllare e in quale logica: INACCETTABILE.\n' +
-        '\nESEMPIO DI FORMATO ATTESO (senza copiarlo paro paro):\n' +
-        '- «Verificare che la linea di mandata del coagulante sia integralmente in servizio, priva di perdite e conforme alla scheda prima di ritenere soddisfatto l’arrivo in vasca.»\n' +
-        '- «Controllare turbidità, campioni e coerenza con i limiti di scarico per confermare che l’effluente in uscita sia effettivamente limpido/chiarificato secondo la scheda.»\n' +
-        '\nREGOLE PER IL CAMPO "correct" (RISPOSTA GIUSTA — priorità massima):\n' +
-        '- NON elencare mai solo il nome dell’elemento di impianto (vietato: solo «linea mandata», «mandata», «coagulante», «vasca»).\n' +
-        '- Lunghezza minima indicativa: ~200–560 caratteri; due frasi collegate se serve.\n' +
-        '- Mantieni il significato della RISPOSTA CORRETTA UFFICIALE: non contraddirla, non indebolire sicurezza o conformità.\n' +
-        '- Regolazione pH / dosaggio chimico: se pertinente, usa **dosaggio acido / soda** (spazi attorno allo slash), mai solo «acido/base».\n' +
-        '\nREGOLE PER IL CAMPO "wrong" (alternative SBAGLIATE):\n' +
+        'Contesto: «istruzioni operative interattive» — ogni opzione è una o due FRASI OPERATIVE COMPATTE (non paragrafi), mai una sola etichetta.\n' +
+        '\nLUNGHEZZA (obbligatoria per "correct" e ogni "wrong"):\n' +
+        '- Target: circa 90–220 caratteri per stringa; massimo assoluto ~280 caratteri. Vietati testi lunghi o ripetitivi.\n' +
+        '- Una frase può bastare se completa; al massimo due frasi brevi.\n' +
+        '\nSTRUTTURA (ogni stringa):\n' +
+        '1) Verbo operativo chiaro (Verificare, Controllare, Accertarsi che…).\n' +
+        '2) Oggetto qualificato (es. «linea di mandata del coagulante», non solo «linea mandata»).\n' +
+        '3) Collegamento sintetico alla domanda (cosa controllare / perché).\n' +
+        '\nVIETATO:\n' +
+        '- Sole parole tipo «fanghi», «linea mandata», «vasca» senza verbo e contesto.\n' +
+        '\nESEMPIO DI STILE (non copiare):\n' +
+        '- «Verificare che la linea di mandata del coagulante sia in servizio, senza perdite e coerente con la scheda prima dell’arrivo in vasca.»\n' +
+        '\nREGOLE "correct":\n' +
+        '- Fedele alla RISPOSTA CORRETTA UFFICIALE; non indebolire sicurezza o conformità.\n' +
+        '- Dosaggio chimico: se pertinente usa **dosaggio acido / soda** (slash con spazi), non «acido/base» generico.\n' +
+        '\nREGOLE "wrong":\n' +
         '- ESATTAMENTE ' +
         numWrong +
-        ' testi con LA STESSA STRUTTURA articolata delle corrette (verbo + oggetto qualificato + contesto), ma SBAGLIATI o insufficienti rispetto alla domanda.\n' +
-        '- Anche qui vietate le sole etichette corte.\n' +
+        ' alternative, stesso livello di compattezza delle corrette, ma SBAGLIATE o insufficienti.\n' +
         '\nFormato: niente prefissi "A)" / numeri; nessun markdown.\n' +
         '- Tutte le wrong devono essere distinte tra loro e da "correct".\n' +
         'Tag scheda: ' +
@@ -20658,7 +20656,7 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         String(actsPreview || '—').substring(0, 1800) +
         '\n\nDOMANDA:\n' +
         String(questionText || '').substring(0, 3800) +
-        '\n\nRISPOSTA CORRETTA UFFICIALE (espandi in "correct" come discorso operativo completo; fedele al senso):\n' +
+        '\n\nRISPOSTA CORRETTA UFFICIALE (espandi in "correct": frase operativa compatta; fedele al senso):\n' +
         String(sourceCorrectOfficial || '').substring(0, 1600) +
         '\n\nRispondi SOLO con JSON valido:\n' +
         '{"correct":"...","wrong":["...","..."]}\n' +
@@ -20667,11 +20665,11 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
         ' elementi in "wrong".';
 
     var retrySuffix =
-        '\n\n⚠ RIPROVA OBBLIGATORIA: l’output precedente era troppo sintetico o privo di verbi operativi espliciti. Ogni stringa in "correct" e in "wrong" deve:\n' +
-        '- avere almeno ~118 caratteri e ~15 parole;\n' +
-        '- contenere un verbo operativo chiaro (Verificare, Controllare, Accertarsi che…);\n' +
-        '- qualificare l’elemento di impianto (es. «la linea di mandata del coagulante»), mai solo l’etichetta dell’elemento.\n' +
-        'Rispondi di nuovo con JSON valido {"correct":"...","wrong":[...]} rispettando tutte le regole del prompt principale.';
+        '\n\n⚠ RIPROVA: l’output non era nel formato richiesto. Ogni stringa in "correct" e "wrong" deve essere COMPATTA:\n' +
+        '- circa 72–280 caratteri (no paragrafi lunghi), ~9–22 parole;\n' +
+        '- verbo operativo + oggetto qualificato;\n' +
+        '- se prima era troppo lunga: dimezza il testo mantenendo il senso.\n' +
+        'Rispondi solo con JSON {"correct":"...","wrong":[...]}.';
 
     var gemUrl =
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
@@ -20694,8 +20692,8 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
             var reqBody = JSON.stringify({
                 contents: [{ role: 'user', parts: [{ text: promptUse }] }],
                 generationConfig: {
-                    temperature: genTry === 0 ? 0.52 : 0.42,
-                    maxOutputTokens: 8192
+                    temperature: genTry === 0 ? 0.45 : 0.38,
+                    maxOutputTokens: 4096
                 }
             });
             var res = null;
@@ -20723,7 +20721,10 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
                 return gestioneGeminiParseArticulatedMcqJson(rawOut, numWrong);
             } catch (pe) {
                 var em = String(pe && pe.message ? pe.message : pe);
-                if (genTry === 0 && /gestione_gemini_(correct_too_terse|wrong_terse)/.test(em)) {
+                if (
+                    genTry === 0 &&
+                    /gestione_gemini_(correct_too_terse|wrong_terse|correct_too_long|wrong_too_long)/.test(em)
+                ) {
                     lastTerseErr = pe;
                     continue;
                 }
