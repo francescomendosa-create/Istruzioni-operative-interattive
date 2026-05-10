@@ -7327,13 +7327,6 @@
             color: #5d4037;
             line-height: 1.35;
         }
-        .quiz-gestione-destinatari-pref-sub {
-            font-size: 0.6rem;
-            font-weight: 500;
-            color: #795548;
-            line-height: 1.42;
-            max-width: 62ch;
-        }
         .quiz-gestione-destinatari-badges {
             display: flex;
             flex-wrap: wrap;
@@ -10928,7 +10921,6 @@ function dismissAppSplash() {
                             <input type="checkbox" id="gestione-genera-uguali-tutti" autocomplete="off" onchange="gestioneGeneraUgualiTuttiSetFromCheckbox(this)" />
                             <span class="quiz-gestione-destinatari-pref-text">
                                 <span class="quiz-gestione-destinatari-pref-title">Alla Genera, copia le stesse domande su tutti i destinatari</span>
-                                <span class="quiz-gestione-destinatari-pref-sub">Se attivo, il pacchetto generato viene scritto per ciascun nome qui sotto (es. tablet, cabinato): passando da un utente all’altro vedi lo stesso test; poi puoi modificare solo chi vuoi.</span>
                             </span>
                         </label>
                     </div>
@@ -11253,7 +11245,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605247';
+const APP_BUILD = '202605248';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
