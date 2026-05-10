@@ -7072,6 +7072,24 @@
             border-right: 1px solid rgba(94, 53, 177, 0.12);
             box-sizing: border-box;
         }
+        .quiz-gestione-config-select {
+            width: 100%;
+            max-width: 100%;
+            margin-top: 6px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(94, 53, 177, 0.22);
+            background: rgba(255, 255, 255, 0.98);
+            font: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #311b92;
+            box-sizing: border-box;
+        }
+        .quiz-gestione-config-select:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
         .quiz-gestione-config-actions {
             margin-top: 8px;
             padding-top: 14px;
@@ -9181,6 +9199,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="gestione-car-mcq-bank.js"></script>
     <script>
     window.__FIREBASE_QUIZ_CONFIG__ = null;
     </script>
@@ -10659,7 +10678,7 @@ function dismissAppSplash() {
                         </button>
                     </div>
                     <div class="quiz-gestione-crea-domande-toolbar">
-                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande dai Controlli e azioni: sempre prima il fallback offline; con rete e chiave Gemini le risposte errate migliori si salvano in locale per uso offline" aria-label="Genera domande da Controlli e azioni">Genera</button>
+                        <button type="button" id="quiz-gestione-btn-genera" class="btn-side btn-gestione-genera" onclick="gestioneGeneraDomandeClick()" title="Genera domande in base al «Riferimento domande» scelto in Impostazioni (generiche da scheda oppure banco Controlli/Azioni/Rischi offline). Con generiche e Gemini attivo, la cache salva risposte articolate." aria-label="Genera domande">Genera</button>
                         <button type="button" id="quiz-gestione-btn-prefetch-ia" class="btn-side btn-reset btn-gestione-prefetch" onclick="gestioneMcqPrefetchArticulatedClick()" title="Con connessione e chiave configurata: scarica risposte articulate per le domande già salvate (cache locale e Firestore)" aria-label="Scarica risposte online">Scarica risposte online</button>
                     </div>
                 </div>
@@ -10686,7 +10705,14 @@ function dismissAppSplash() {
     <div id="quiz-gestione-config-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneConfigPopupBackdrop(event)">
         <div class="quiz-lock-box quiz-app-box quiz-gestione-config-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-config-title" onclick="event.stopPropagation()">
             <h4 id="quiz-gestione-config-title" class="quiz-lock-title">Impostazioni domande</h4>
-            <p class="quiz-gestione-config-hint">Numero di domande e di opzioni di risposta per l’elenco e per <strong>Genera</strong>. Valori salvati automaticamente su questo dispositivo.</p>
+            <p class="quiz-gestione-config-hint">Scegli il <strong>riferimento</strong> (generiche da scheda o banco Controlli/Azioni/Rischi), poi numero di domande e opzioni per l’elenco e per <strong>Genera</strong>. Con il banco CAR, almeno 4 risposte per domanda. Valori salvati su questo dispositivo.</p>
+            <div class="quiz-gestione-config-field">
+                <label class="quiz-gestione-config-label" id="gestione-config-source-label" for="gestione-config-source">Riferimento domande</label>
+                <select id="gestione-config-source" class="quiz-gestione-config-select" aria-describedby="gestione-config-source-label" onchange="gestioneConfigSetQuestionSource(this.value)">
+                    <option value="generiche">Domande generiche (da Controlli / azioni in scheda)</option>
+                    <option value="car">Controlli / Azioni / Rischi associati</option>
+                </select>
+            </div>
             <div class="quiz-gestione-config-field">
                 <span class="quiz-gestione-config-label" id="gestione-config-nq-label">Numero domande</span>
                 <div class="quiz-gestione-config-stepper">
@@ -10956,7 +10982,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605237';
+const APP_BUILD = '202605238';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19272,7 +19298,7 @@ function quizAppModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'quiz-app-overlay') hideQuizAppModal();
 }
 
-/** Gestione test e verifiche — domande MCQ (localStorage + Firestore), generazione da db.cf Controlli e azioni */
+/** Gestione test e verifiche — domande MCQ (localStorage + Firestore); Genera da db.cf (generiche) o da banco CAR offline */
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 /** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
@@ -19288,7 +19314,7 @@ var GESTIONE_CONFIG_NA_MIN = 1;
 var GESTIONE_CONFIG_NA_MAX = 5;
 
 function gestioneConfigDefaults() {
-    return { numQuestions: 10, numAnswers: 5 };
+    return { numQuestions: 10, numAnswers: 5, questionSource: 'generiche' };
 }
 
 function gestioneConfigNormalize(cfg) {
@@ -19299,7 +19325,10 @@ function gestioneConfigNormalize(cfg) {
     if (!isFinite(na)) na = d.numAnswers;
     nq = Math.min(GESTIONE_CONFIG_NQ_MAX, Math.max(GESTIONE_CONFIG_NQ_MIN, nq));
     na = Math.min(GESTIONE_CONFIG_NA_MAX, Math.max(GESTIONE_CONFIG_NA_MIN, na));
-    return { numQuestions: nq, numAnswers: na };
+    var qs = cfg && cfg.questionSource;
+    if (qs !== 'car' && qs !== 'generiche') qs = d.questionSource;
+    if (qs === 'car' && na < 4) na = 4;
+    return { numQuestions: nq, numAnswers: na, questionSource: qs };
 }
 
 function gestioneConfigLoad() {
@@ -19318,7 +19347,12 @@ function gestioneConfigSave(cfg) {
     try {
         localStorage.setItem(
             GESTIONE_CONFIG_LS,
-            JSON.stringify({ v: 1, numQuestions: cfg.numQuestions, numAnswers: cfg.numAnswers })
+            JSON.stringify({
+                v: 2,
+                numQuestions: cfg.numQuestions,
+                numAnswers: cfg.numAnswers,
+                questionSource: cfg.questionSource
+            })
         );
     } catch (eS) { /* ignore */ }
 }
@@ -19335,6 +19369,8 @@ function gestioneAfterConfigChangeResync() {
 
 function gestioneConfigRefreshPopupDisplay() {
     var cfg = gestioneConfigLoad();
+    var srcEl = document.getElementById('gestione-config-source');
+    if (srcEl) srcEl.value = cfg.questionSource === 'car' ? 'car' : 'generiche';
     var nqEl = document.getElementById('gestione-config-nq-val');
     var naEl = document.getElementById('gestione-config-na-val');
     if (nqEl) nqEl.textContent = String(cfg.numQuestions);
@@ -19366,6 +19402,14 @@ function gestioneConfigDeltaNa(delta) {
         GESTIONE_CONFIG_NA_MAX,
         Math.max(GESTIONE_CONFIG_NA_MIN, cfg.numAnswers + delta)
     );
+    gestioneConfigSave(cfg);
+    gestioneConfigRefreshPopupDisplay();
+    gestioneAfterConfigChangeResync();
+}
+
+function gestioneConfigSetQuestionSource(val) {
+    var cfg = gestioneConfigLoad();
+    cfg.questionSource = val === 'car' ? 'car' : 'generiche';
     gestioneConfigSave(cfg);
     gestioneConfigRefreshPopupDisplay();
     gestioneAfterConfigChangeResync();
@@ -19517,7 +19561,9 @@ function gestioneDomandeNormalizeItems(items) {
         });
         var ci = parseInt(it.correctIndex, 10);
         if (!isFinite(ci) || ci < 0 || ci >= na) ci = 0;
-        return { q: String(it.q || ''), answers: ans, correctIndex: ci };
+        var row = { q: String(it.q || ''), answers: ans, correctIndex: ci };
+        if (it.genSource === 'car') row.genSource = 'car';
+        return row;
     });
 }
 
@@ -19768,6 +19814,8 @@ function gestioneReadSlotsFromDom() {
     var cfg = gestioneConfigLoad();
     var nq = cfg.numQuestions;
     var na = cfg.numAnswers;
+    var rawPrev = gestioneDomandeLoadRaw();
+    var prevArr = Array.isArray(rawPrev.items) ? rawPrev.items : [];
     var items = [];
     for (var i = 0; i < nq; i++) {
         var ta = document.getElementById('gestione-q-text-' + i);
@@ -19779,7 +19827,10 @@ function gestioneReadSlotsFromDom() {
         }
         var rad = document.querySelector('input[name="gestione-corr-' + i + '"]:checked');
         var correctIndex = rad ? parseInt(rad.value, 10) || 0 : 0;
-        items.push({ q: q, answers: answers, correctIndex: correctIndex });
+        var row = { q: q, answers: answers, correctIndex: correctIndex };
+        var ps = prevArr[i];
+        if (ps && ps.genSource === 'car') row.genSource = 'car';
+        items.push(row);
     }
     return items;
 }
@@ -20888,7 +20939,111 @@ async function gestioneGeminiFetchArticulatedMcq(questionText, sourceCorrectOffi
     }
 }
 
+function gestioneCarMcqExtraDistractorsPool() {
+    return [
+        'Intervento non prioritario: limitarsi al controllo illuminazione del locale senza verifiche di processo.',
+        'Azione fuori tema: intervenire solo sul colore del segnalatore esterno, senza controlli sul tratamento.',
+        'Approccio incompleto: modificare set-point senza osservazione sul campo né sulle linee di dosaggio.',
+        'Fuori contesto: fermare la pompa di ricircolo senza aver verificato OD né saturazione del saturatore.',
+        'Priorità errata: concentrarsi sul quadro elettrico generale ignorando dosaggi chimico-fisici e biologici.'
+    ];
+}
+
+function gestioneCarMcqShuffleAnswers(answers, correctIndex) {
+    var n = answers.length;
+    var ord = [];
+    for (var i = 0; i < n; i++) ord.push(i);
+    ord = gestioneShuffle(ord);
+    var shuffled = ord.map(function (oi) {
+        return answers[oi];
+    });
+    var nc = ord.indexOf(correctIndex);
+    return { answers: shuffled, correctIndex: nc };
+}
+
+function gestioneCarMcqComposeStem(item) {
+    var q = String(item.q || '').trim();
+    if (item.risk && String(item.risk).trim()) {
+        q += '\n\nRischio associato: ' + String(item.risk).trim();
+    }
+    return q;
+}
+
+function gestioneGeneraBuildFromCarBank() {
+    var prevSaved = gestioneDomandeLoad();
+    var cfg = gestioneConfigLoad();
+    var nTotal = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    if (na < 4) na = 4;
+    var bank =
+        typeof GESTIONE_CAR_MCQ_BANK !== 'undefined' && Array.isArray(GESTIONE_CAR_MCQ_BANK)
+            ? GESTIONE_CAR_MCQ_BANK
+            : [];
+    var out = [];
+    var letters = ['A', 'B', 'C', 'D', 'E'];
+    if (!bank.length) {
+        for (var ze = 0; ze < nTotal; ze++) {
+            var sl = gestioneDomandeEmptySlot();
+            sl.q =
+                'Banco «Controlli / Azioni / Rischi associati» non disponibile (file gestione-car-mcq-bank.js).';
+            var ansPl = [];
+            for (var zj = 0; zj < na; zj++) {
+                ansPl.push('Opzione ' + letters[zj] + ' — da configurare');
+            }
+            sl.answers = ansPl;
+            sl.correctIndex = 0;
+            sl.genSource = 'car';
+            out.push(sl);
+        }
+        return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
+    }
+    var order = gestioneShuffle(bank.map(function (_, idx) {
+        return idx;
+    }));
+    var extras = gestioneCarMcqExtraDistractorsPool();
+    var exi = 0;
+    for (var n = 0; n < nTotal; n++) {
+        var item = bank[order[n % order.length]];
+        var base = item.answers.map(function (a) {
+            return gestioneNormalizeAnswerPhrase(String(a || ''));
+        });
+        var ci = item.correctIndex;
+        if (!isFinite(ci) || ci < 0 || ci >= base.length) ci = 0;
+        var used = {};
+        base.forEach(function (t) {
+            if (t) used[t] = 1;
+        });
+        var ans = base.slice();
+        while (ans.length < na) {
+            var ex = extras[exi % extras.length];
+            exi++;
+            var exu = ex;
+            var dup = 0;
+            while (used[exu] && dup < 80) {
+                dup++;
+                exu = ex + ' — variante ' + dup + '.';
+            }
+            used[exu] = 1;
+            ans.push(gestioneNormalizeAnswerPhrase(exu));
+        }
+        if (ans.length > na) ans = ans.slice(0, na);
+        if (ci >= ans.length) ci = 0;
+        var sh = gestioneCarMcqShuffleAnswers(ans, ci);
+        out.push({
+            q: gestioneCarMcqComposeStem(item),
+            answers: sh.answers,
+            correctIndex: sh.correctIndex,
+            genSource: 'car'
+        });
+    }
+    return gestioneMergeSavedSlotsIntoGenerated(prevSaved, out);
+}
+
 async function gestioneGeneraBuildFromDb() {
+    var cfgSrc = gestioneConfigLoad();
+    if (cfgSrc.questionSource === 'car') {
+        return gestioneGeneraBuildFromCarBank();
+    }
     var prevSaved = gestioneDomandeLoad();
     var cfg = gestioneConfigLoad();
     var nTotal = cfg.numQuestions;
@@ -21058,6 +21213,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
             );
             var it = items[i];
             if (!it) continue;
+            if (it.genSource === 'car') continue;
             var qtext = String(it.q || '').trim();
             var ci = Math.min(Math.max(0, na - 1), Math.max(0, parseInt(it.correctIndex, 10) || 0));
             var ans = it.answers || [];

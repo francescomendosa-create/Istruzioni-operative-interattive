@@ -1,0 +1,352 @@
+Q: Se il chiarificato in uscita dal DAF appare torbido, quale controllo deve essere eseguito per primo? A: Verifica dosaggio coagulante PAC/polielettrolita PAM. B: Controllo illuminazione quadro. C: Controllo temperatura ambiente. D: Verifica colore carrier. Corretta: A
+
+Rischio associato: Trascinamento solidi verso il biologico.
+
+
+Q: Se la schiuma biologica aumenta improvvisamente, quale azione è più corretta? A: Controllare OD e presenza oli. B: Spegnere subito tutto l'impianto. C: Eliminare i carrier. D: Aumentare il pH senza controlli. Corretta: A
+
+Rischio associato: Stress biomassa e perdita efficienza biologica.
+
+
+Q: Se il saturatore perde pressione, quale controllo è prioritario? A: Verifica compressore e linea aria. B: Controllo illuminazione vasca. C: Verifica colore refluo. D: Controllo temperatura esterna. Corretta: A
+
+Rischio associato: Riduzione microbolle e peggioramento flottazione.
+
+
+Q: In presenza di oli nel chiarificato, quale azione deve essere eseguita? A: Controllare efficienza DAF e raschiatori. B: Ridurre completamente aerazione. C: Fermare ricircolo biologico. D: Svuotare i carrier. Corretta: A
+
+Rischio associato: Soffocamento biofilm e schiume persistenti.
+
+
+Q: Se i carrier risultano poco movimentati, quale controllo deve essere fatto? A: Verifica insufflaggio aria. B: Verifica colore fanghi. C: Controllo dosaggio coagulante PAC. D: Verifica raschiatori. Corretta: A
+
+Rischio associato: Zone morte e ridotto trasferimento ossigeno.
+
+
+Q: Se il coagulante PAC non viene dosato correttamente, quale rischio aumenta? A: Separazione inefficiente solidi. B: Eccesso ossigeno. C: Riduzione portata aria. D: Perdita carrier. Corretta: A
+
+
+Q: Quale controllo è corretto in caso di schiuma nera persistente? A: Verifica presenza oli e carico anomalo. B: Controllo luci quadro. C: Spegnimento raschiatori. D: Eliminazione coagulante PAC. Corretta: A
+
+Rischio associato: Instabilità biologica severa.
+
+
+Q: Se il polielettrolita PAM è preparato male, quale azione è consigliata? A: Controllare concentrazione e maturazione soluzione. B: Aumentare solo l'aria. C: Fermare il biologico. D: Eliminare il ricircolo. Corretta: A
+
+Rischio associato: Fiocchi deboli e chiarificato sporco.
+
+
+Q: In caso di OD basso nel biologico, quale controllo è prioritario? A: Verifica diffusori e insufflaggio. B: Controllo colore quadro. C: Controllo raschiatori DAF. D: Controllo coagulante PAC. Corretta: A
+
+Rischio associato: Sofferenza biomassa aerobica.
+
+
+Q: Se il flottato si accumula eccessivamente in superficie: A: Controllare raschiatori. B: Ridurre coagulante PAC. C: Spegnere aerazione. D: Aumentare temperatura. Corretta: A
+
+Rischio associato: Peggioramento separazione DAF.
+
+
+Q: Se il refluo entra con carico organico anomalo, quale azione è utile? A: Monitorare OD e risposta biologica. B: Spegnere tutti i mixer. C: Eliminare ricircolo. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Shock load biologico.
+
+
+Q: In presenza di torbidità elevata verso il biologico: A: Controllare coagulazione e flottazione. B: Ridurre monitoraggi. C: Spegnere DAF. D: Aumentare schiuma. Corretta: A
+
+Rischio associato: Sovraccarico MBBR.
+
+
+Q: Se i diffusori lavorano male: A: Il trasferimento ossigeno diminuisce. B: Il coagulante PAC migliora. C: Il DAF accelera. D: La torbidità sparisce. Corretta: A
+
+Rischio associato: Calo resa biologica.
+
+
+Q: Quale controllo è importante dopo variazioni improvvise di pH? A: Verifica efficienza coagulazione. B: Controllo luci. C: Verifica colore acqua. D: Controllo raschiatori soltanto. Corretta: A
+
+Rischio associato: Fiocchi instabili e separazione inefficiente.
+
+
+Q: Se i carrier risultano unti o oleosi: A: Controllare trascinamento oli dal DAF. B: Spegnere insufflaggio. C: Aumentare torbidità. D: Fermare mixer. Corretta: A
+
+Rischio associato: Riduzione attività biologica.
+
+
+Q: Qual è l'azione corretta se il chiarificato presenta schiume superficiali? A: Verificare qualità separazione e carico in ingresso. B: Eliminare coagulante PAC. C: Svuotare vasca. D: Spegnere compressore. Corretta: A
+
+
+Q: In caso di schiuma bianca persistente: A: Controllare stabilità biomassa. B: Controllare lampade. C: Eliminare carrier. D: Bloccare ricircolo. Corretta: A
+
+Rischio associato: Biologico non stabilizzato.
+
+
+Q: Se il mixer della coagulazione non funziona: A: I reagenti non si distribuiscono correttamente. B: Il COD si azzera. C: L'ossigeno aumenta. D: I carrier si puliscono. Corretta: A
+
+Rischio associato: Flocculazione inefficiente.
+
+
+Q: Quale rischio è associato a una cattiva separazione DAF? A: Trascinamento oli e solidi al biologico. B: Eccesso ossigeno atmosferico. C: Perdita elettrica quadro. D: Riduzione temperatura ambiente. Corretta: A
+
+
+Q: Se il biofilm si distacca eccessivamente: A: Verificare stress biologico e aerazione. B: Aumentare oli. C: Eliminare controllo OD. D: Spegnere DAF. Corretta: A
+
+
+Q: In presenza di odori anomali nel biologico: A: Controllare possibile carenza ossigeno. B: Ridurre monitoraggio. C: Aumentare torbidità. D: Eliminare coagulante PAC. Corretta: A
+
+Rischio associato: Condizioni anossiche.
+
+
+Q: Se il refluo arriva molto oleoso: A: Rafforzare controlli chimico-fisici. B: Spegnere raschiatori. C: Ridurre flottazione. D: Bloccare aria. Corretta: A
+
+
+Q: Se il flottatore produce poca schiuma superficiale: A: Controllare saturazione aria. B: Eliminare polielettrolita PAM. C: Fermare DAF. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Separazione inefficiente solidi.
+
+
+Q: Se il biologico mostra acqua molto scura: A: Verificare stress o carico eccessivo. B: Aumentare oli. C: Spegnere compressori. D: Eliminare diffusori. Corretta: A
+
+
+Q: Un controllo fondamentale sui carrier è: A: Verificare movimento uniforme. B: Verificare colore luci. C: Controllare pressione coagulante PAC. D: Controllare quadro elettrico esterno. Corretta: A
+
+
+Q: Se il DAF scarica fanghi male: A: Controllare raschiatori e accumuli. B: Eliminare aria. C: Ridurre controlli. D: Fermare biologico. Corretta: A
+
+
+Q: In presenza di eccessiva schiuma nel DAF: A: Controllare dosaggi e saturazione. B: Eliminare ricircolo. C: Fermare compressore biologico. D: Ridurre controlli. Corretta: A
+
+
+Q: Se l'acqua biologica appare poco movimentata: A: Verificare insufflaggio e diffusori. B: Controllare coagulante PAC. C: Controllare raschiatori. D: Ridurre OD. Corretta: A
+
+
+Q: Qual è il rischio di una biomassa stressata? A: Riduzione abbattimento COD. B: Aumento automatico resa. C: Eliminazione schiume. D: Zero consumi aria. Corretta: A
+
+
+Q: Se si osservano zone senza bolle: A: Controllare diffusori ostruiti. B: Controllare coagulante PAC. C: Controllare flottato. D: Controllare chiarificato. Corretta: A
+
+
+Q: Se il chiarificato peggiora improvvisamente: A: Controllare sequenza coagulante PAC/polielettrolita PAM. B: Eliminare controlli. C: Spegnere mixer. D: Aumentare schiuma. Corretta: A
+
+
+Q: Se il biologico riceve troppi solidi: A: Può aumentare la sofferenza della biomassa. B: Migliora sempre la resa. C: Riduce schiuma. D: Elimina COD. Corretta: A
+
+
+Q: Se il ricircolo aria del saturatore cala: A: La flottazione può perdere efficienza. B: Il COD sparisce. C: L'MBBR migliora. D: I carrier si fermano. Corretta: A
+
+
+Q: Se si nota schiuma oleosa: A: Verificare trascinamento grassi. B: Ridurre controlli. C: Eliminare diffusori. D: Fermare raschiatori. Corretta: A
+
+
+Q: Qual è il rischio di OD insufficiente? A: Sofferenza aerobica. B: Troppa nitrificazione. C: Acqua distillata. D: Riduzione automatica COD. Corretta: A
+
+
+Q: Se il biologico cambia improvvisamente colore: A: Controllare carico e condizioni operative. B: Spegnere coagulante PAC. C: Eliminare aria. D: Ridurre controlli. Corretta: A
+
+
+Q: Se i fiocchi risultano piccoli e fragili: A: Verificare coagulazione/flocculazione. B: Spegnere DAF. C: Aumentare temperatura. D: Ridurre aria. Corretta: A
+
+
+Q: In caso di trascinamento carrier: A: Controllare griglie di contenimento. B: Eliminare ossigeno. C: Spegnere compressore. D: Eliminare coagulante PAC. Corretta: A
+
+
+Q: Quale rischio è legato a un DAF inefficiente? A: Sovraccarico biologico. B: Riduzione portata aria. C: Raffreddamento refluo. D: Perdita pH neutro. Corretta: A
+
+
+Q: Se la biomassa appare in sofferenza: A: Verificare OD, oli, carico e stato biofilm. B: Eliminare controlli. C: Fermare DAF. D: Ridurre aria. Corretta: A
+
+Rischio associato: Riduzione efficienza depurativa e aumento COD in uscita.
+
+
+Q: Se il livello schiuma aumenta rapidamente nel biologico: A: Controllare presenza tensioattivi e oli. B: Spegnere il DAF. C: Eliminare i carrier. D: Bloccare i mixer. Corretta: A
+
+Rischio associato: Instabilità biologica e peggioramento ossigenazione.
+
+
+Q: Se il chiarificato presenta particelle sospese: A: Verificare efficienza coagulazione e flottazione. B: Aumentare temperatura ambiente. C: Fermare insufflaggio. D: Spegnere raschiatori. Corretta: A
+
+Rischio associato: Sovraccarico biologico.
+
+
+Q: Se il biologico sviluppa odori forti: A: Controllare ossigenazione e carico organico. B: Eliminare controlli. C: Aumentare torbidità. D: Fermare DAF. Corretta: A
+
+Rischio associato: Condizioni anaerobiche.
+
+
+Q: Se i diffusori producono poche bolle: A: Verificare intasamenti o insufficienza aria. B: Aumentare oli. C: Eliminare il coagulante PAC. D: Ridurre monitoraggi. Corretta: A
+
+Rischio associato: Riduzione trasferimento ossigeno.
+
+
+Q: Se il flottato appare molto liquido: A: Controllare dosaggio coagulante PAC e polielettrolita PAM. B: Spegnere ricircolo. C: Eliminare aria. D: Fermare biologico. Corretta: A
+
+Rischio associato: Separazione inefficiente.
+
+
+Q: Se il biologico appare troppo scuro: A: Verificare carico organico e ossigenazione. B: Eliminare controlli. C: Aumentare schiuma. D: Fermare mixer. Corretta: A
+
+
+Q: Se i carrier si accumulano in un solo punto: A: Controllare distribuzione aria. B: Controllare luci quadro. C: Ridurre coagulante PAC. D: Eliminare flottazione. Corretta: A
+
+Rischio associato: Zone morte biologiche.
+
+
+Q: Se il chiarificato esce oleoso: A: Verificare raschiatori e saturazione DAF. B: Ridurre controlli. C: Eliminare insufflaggio. D: Bloccare mixer. Corretta: A
+
+Rischio associato: Soffocamento biomassa.
+
+
+Q: Se la schiuma biologica è marrone chiaro: A: Controllare stato biomassa. B: Fermare DAF. C: Eliminare aria. D: Ridurre controlli. Corretta: A
+
+
+Q: Se il polielettrolita PAM non floccula correttamente: A: Verificare preparazione e maturazione. B: Spegnere il saturatore. C: Fermare raschiatori. D: Eliminare aria. Corretta: A
+
+Rischio associato: Fiocchi fragili e trascinamento solidi.
+
+
+Q: Se il livello del flottato aumenta troppo: A: Controllare raschiatori e scarico fanghi. B: Eliminare aria. C: Fermare biologico. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Accumulo superficiale e cattiva separazione.
+
+
+Q: Se il biologico mostra schiuma densa e scura: A: Verificare presenza oli e carico anomalo. B: Spegnere il DAF. C: Eliminare carrier. D: Ridurre aria. Corretta: A
+
+Rischio associato: Stress severo biomassa.
+
+
+Q: Se il coagulante PAC viene sovradosato: A: Possono formarsi fiocchi instabili. B: Il DAF si ferma. C: I carrier si sciolgono. D: L'OD aumenta. Corretta: A
+
+Rischio associato: Separazione inefficiente.
+
+
+Q: Se il biologico riceve refluo troppo oleoso: A: Controllare immediatamente il DAF. B: Eliminare ossigenazione. C: Spegnere mixer. D: Ridurre monitoraggi. Corretta: A
+
+Rischio associato: Soffocamento biofilm.
+
+
+Q: Se l'OD cala improvvisamente: A: Controllare compressori e diffusori. B: Spegnere raschiatori. C: Eliminare controlli. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Condizioni anossiche.
+
+
+Q: Se i carrier si muovono male: A: Verificare insufflaggio aria. B: Controllare illuminazione. C: Fermare DAF. D: Eliminare flottazione. Corretta: A
+
+Rischio associato: Zone morte biologiche.
+
+
+Q: Se il chiarificato contiene troppi solidi: A: Controllare coagulazione e flottazione. B: Ridurre aria. C: Fermare mixer. D: Eliminare controlli. Corretta: A
+
+Rischio associato: Sovraccarico biologico.
+
+
+Q: Se il saturatore non genera microbolle: A: Verificare pressione e ricircolo. B: Eliminare polielettrolita PAM. C: Fermare raschiatori. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Perdita efficienza DAF.
+
+
+Q: Se il biologico appare poco ossigenato: A: Controllare diffusori ostruiti. B: Eliminare carrier. C: Spegnere DAF. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Riduzione attività batterica.
+
+
+Q: Se il flottato è insufficiente: A: Verificare saturazione aria e reagenti. B: Eliminare controlli. C: Fermare mixer. D: Ridurre monitoraggi. Corretta: A
+
+Rischio associato: Separazione inefficiente oli e solidi.
+
+
+Q: Se il biologico produce cattivi odori: A: Verificare possibile carenza di ossigeno. B: Eliminare controlli. C: Fermare diffusori. D: Spegnere DAF. Corretta: A
+
+Rischio associato: Condizioni anaerobiche.
+
+
+Q: Se la schiuma aumenta dopo variazioni carico: A: Controllare stabilità biomassa. B: Eliminare aria. C: Fermare monitoraggi. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Shock biologico.
+
+
+Q: Se il polielettrolita PAM forma grumi: A: Controllare preparazione soluzione. B: Spegnere compressore. C: Eliminare coagulante PAC. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Flocculazione inefficiente.
+
+
+Q: Se il chiarificato cambia improvvisamente colore: A: Verificare qualità trattamento chimico-fisico. B: Eliminare controlli. C: Fermare aria. D: Spegnere mixer. Corretta: A
+
+Rischio associato: Instabilità separazione.
+
+
+Q: Se il biologico perde resa depurativa: A: Controllare OD e carico organico. B: Eliminare verifiche. C: Fermare diffusori. D: Ridurre monitoraggi. Corretta: A
+
+Rischio associato: Aumento COD in uscita.
+
+
+Q: Se i diffusori sono sporchi: A: Il trasferimento ossigeno peggiora. B: Il DAF migliora. C: Il coagulante PAC aumenta. D: I carrier si puliscono. Corretta: A
+
+Rischio associato: Stress biomassa.
+
+
+Q: Se il DAF genera troppa schiuma: A: Controllare dosaggi reagenti. B: Eliminare aria. C: Fermare biologico. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Separazione instabile.
+
+
+Q: Se i carrier risultano sporchi: A: Verificare trascinamento grassi. B: Eliminare controlli. C: Spegnere DAF. D: Ridurre aria. Corretta: A
+
+Rischio associato: Riduzione attività biofilm.
+
+
+Q: Se il saturatore perde pressione lentamente: A: Verificare eventuali perdite. B: Eliminare monitoraggi. C: Fermare compressori. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Microbolle insufficienti.
+
+
+Q: Se il biologico riceve troppi oli: A: Rafforzare controlli sul DAF. B: Eliminare ossigenazione. C: Spegnere mixer. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Soffocamento biomassa.
+
+
+Q: Se la schiuma biologica è persistente: A: Verificare stabilità biomassa e carichi. B: Eliminare diffusori. C: Fermare DAF. D: Ridurre aria. Corretta: A
+
+Rischio associato: Riduzione efficienza biologica.
+
+
+Q: Se il coagulante PAC manca: A: I colloidi restano instabili. B: L'OD aumenta. C: I carrier si fermano. D: La schiuma sparisce. Corretta: A
+
+Rischio associato: Torbidità elevata.
+
+
+Q: Se il ricircolo DAF diminuisce: A: Controllare pompa e pressione. B: Eliminare raschiatori. C: Fermare mixer. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Separazione inefficiente.
+
+
+Q: Se il biologico appare spento: A: Verificare ossigenazione e nutrienti. B: Eliminare controlli. C: Fermare diffusori. D: Ridurre aria. Corretta: A
+
+Rischio associato: Calo attività biologica.
+
+
+Q: Se si notano schiume oleose: A: Verificare presenza grassi in ingresso. B: Eliminare monitoraggi. C: Spegnere DAF. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Contaminazione biofilm.
+
+
+Q: Se il flottato è eccessivo: A: Controllare dosaggio reagenti. B: Eliminare aria. C: Spegnere mixer. D: Fermare biologico. Corretta: A
+
+Rischio associato: Instabilità separazione.
+
+
+Q: Se il biologico mostra calo resa: A: Verificare OD e carico organico. B: Eliminare controlli. C: Fermare diffusori. D: Spegnere DAF. Corretta: A
+
+Rischio associato: Incremento COD in uscita.
+
+
+Q: Se la vasca biologica ha poca movimentazione: A: Verificare insufflaggio aria. B: Ridurre monitoraggi. C: Eliminare controlli. D: Fermare mixer. Corretta: A
+
+Rischio associato: Zone morte e scarso mixing.
+
+
+Q: Se i fiocchi sono troppo piccoli: A: Controllare coagulazione e flocculazione. B: Eliminare aria. C: Fermare DAF. D: Ridurre verifiche. Corretta: A
+
+Rischio associato: Scarsa chiarificazione.
+
+
+Q: Se il chiarificato contiene grassi: A: Verificare efficienza separazione DAF. B: Eliminare raschiatori. C: Fermare compressori. D: Ridurre controlli. Corretta: A
+
+Rischio associato: Stress biomassa biologica.
