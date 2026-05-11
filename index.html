@@ -12110,9 +12110,6 @@ function quizPresenceWhoamiSave() {
         var gOv = document.getElementById('quiz-gestione-test-overlay');
         if (gOv && gOv.classList.contains('visible') && quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
     } catch (eG) { /* ignore */ }
-    try {
-        gestioneDomandeStartListening();
-    } catch (eL) { /* ignore */ }
 }
 
 /** Se Chiudi Impostazioni con il modale Chi sei? aperto: salva e invia al server. */
@@ -19687,11 +19684,6 @@ var GESTIONE_CONFIG_NQ_MAX = 50;
 var GESTIONE_CONFIG_NA_MIN = 1;
 var GESTIONE_CONFIG_NA_MAX = 5;
 
-/** Firestore: collezione per assegnazioni test (per-utente) */
-const QUIZ_FS_TEST_ASSIGNMENTS = 'quiz_test_assignments';
-/** Timer debounce per sync test su Firestore */
-var gestioneDomandePushTimer = null;
-
 function gestioneConfigDefaults() {
     return { numQuestions: 10, numAnswers: 5, flowGeneriche: true, flowCar: false, flowVuoto: false };
 }
@@ -20146,77 +20138,6 @@ function gestioneDomandePersist(items) {
     }
     gestioneDomandeSaveRaw(raw);
     gestioneDomandeSchedulePushToFirestore();
-}
-
-/** Schedula la sincronizzazione con Firestore (debounce 400ms). */
-function gestioneDomandeSchedulePushToFirestore() {
-    if (!quizFirestoreConfigured()) return;
-    clearTimeout(gestioneDomandePushTimer);
-    gestioneDomandePushTimer = setTimeout(function () {
-        gestioneDomandePushToFirestoreNow();
-    }, 400);
-}
-
-/** Sincronizza immediatamente i test su Firestore (tutti i pacchetti per-utente). */
-function gestioneDomandePushToFirestoreNow() {
-    if (!quizFirestoreConfigured()) return;
-    quizEnsureFirebase()
-        .then(function () {
-            var raw = gestioneDomandeLoadRaw();
-            if (!raw || !raw.perUser) return Promise.resolve();
-            var uid = firebase.auth().currentUser.uid;
-            var data = {
-                v: 2,
-                perUser: raw.perUser || {},
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            return firebase.firestore().collection(QUIZ_FS_TEST_ASSIGNMENTS).doc(uid).set(data, { merge: true });
-        })
-        .catch(function (e) {
-            console.warn('[gestioneDomande Firestore sync]', e);
-        });
-}
-
-/** Listener Firestore per ricevere i test assegnati all'utente corrente. */
-var gestioneDomandeFirestoreListener = null;
-
-function gestioneDomandeListenForAssignments() {
-    if (!quizFirestoreConfigured()) return;
-    if (gestioneDomandeFirestoreListener) {
-        gestioneDomandeFirestoreListener();
-        gestioneDomandeFirestoreListener = null;
-    }
-    quizEnsureFirebase()
-        .then(function () {
-            var uid = firebase.auth().currentUser.uid;
-            gestioneDomandeFirestoreListener = firebase.firestore()
-                .collection(QUIZ_FS_TEST_ASSIGNMENTS)
-                .doc(uid)
-                .onSnapshot(function (snap) {
-                    if (!snap.exists) return;
-                    var d = snap.data() || {};
-                    if (d.perUser && typeof d.perUser === 'object') {
-                        gestioneDomandeApplyFirestoreSnapshot(d);
-                        try {
-                            gestioneDomandeRender();
-                        } catch (e) { /* ignore */ }
-                        try {
-                            gestioneRenderDestinatariBadges();
-                        } catch (e2) { /* ignore */ }
-                    }
-                }, function (e) {
-                    console.warn('[gestioneDomande Firestore listener]', e);
-                });
-        })
-        .catch(function (e) {
-            console.warn('[gestioneDomande listen init]', e);
-        });
-}
-
-/** Avvia il listener quando l'utente si identifica. */
-function gestioneDomandeStartListening() {
-    if (!quizFirestoreConfigured()) return;
-    gestioneDomandeListenForAssignments();
 }
 
 function gestioneRecipientSelect(key) {
