@@ -10940,7 +10940,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605269</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605270</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11072,7 +11072,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605269</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605270</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11519,7 +11519,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605269';
+const APP_BUILD = '202605270';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19853,7 +19853,7 @@ var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 /** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 /** Stato locale delle notifiche Test: quale pacchetto assegnato è già stato visto da questo dispositivo. */
-var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v1';
+var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v2';
 /** Punto zero Test: ignora test assegnati e risultati inviati prima di questo aggiornamento. */
 var GESTIONE_TEST_RESET_AT_MS = 1778534462558;
 /** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
@@ -20279,8 +20279,20 @@ function gestioneTestNewPackId(ts) {
 function gestioneTestAssignmentSlot(raw, key) {
     raw = raw || gestioneDomandeLoadRaw();
     key = String(key || gestioneTestCurrentUserKey()).trim();
-    if (!key || !raw.perUser || !raw.perUser[key] || !Array.isArray(raw.perUser[key].items)) return null;
-    return raw.perUser[key];
+    if (!key || !raw.perUser || typeof raw.perUser !== 'object') return null;
+    if (raw.perUser[key] && Array.isArray(raw.perUser[key].items)) return raw.perUser[key];
+    var wanted = gestioneRecipientKeyFromLabel(key);
+    var found = null;
+    Object.keys(raw.perUser).some(function (k) {
+        var slot = raw.perUser[k];
+        if (!slot || !Array.isArray(slot.items)) return false;
+        if (gestioneRecipientKeyFromLabel(k) === wanted) {
+            found = slot;
+            return true;
+        }
+        return false;
+    });
+    return found;
 }
 
 function gestioneTestAssignmentPackId(slot) {
@@ -20767,6 +20779,26 @@ function gestioneVerificaEmptyMessage(resultsList) {
     resultsList.appendChild(p);
 }
 
+function gestioneFirestoreCleanValue(value) {
+    if (value === undefined) return null;
+    if (value === null) return null;
+    if (Array.isArray(value)) {
+        return value.map(function (item) {
+            return gestioneFirestoreCleanValue(item);
+        });
+    }
+    if (typeof value === 'object') {
+        var out = {};
+        Object.keys(value).forEach(function (key) {
+            var clean = gestioneFirestoreCleanValue(value[key]);
+            if (clean !== undefined) out[key] = clean;
+        });
+        return out;
+    }
+    if (typeof value === 'number' && !isFinite(value)) return null;
+    return value;
+}
+
 async function gestioneTestInviaClick() {
     if (!gestioneTestCheckAllAnswered()) {
         window.alert('Per favore, rispondi a tutte le domande prima di inviare il test.');
@@ -20789,20 +20821,12 @@ async function gestioneTestInviaClick() {
             .firestore()
             .collection(QUIZ_FS_GESTIONE_DOMANDE)
             .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
-        var resultSnap = await resultRef.get();
-        var resultDoc = resultSnap.exists ? resultSnap.data() || {} : {};
-        var users = resultDoc.testResults && typeof resultDoc.testResults === 'object' ? resultDoc.testResults : {};
-        var userResults = users[currentUserKey] && typeof users[currentUserKey] === 'object'
-            ? users[currentUserKey]
-            : {};
-        if (!userResults.tests || typeof userResults.tests !== 'object') userResults.tests = {};
-        userResults.userLabel = quizPresenceGetWhoami() || currentUserKey;
-        userResults.updatedAtMs = Date.now();
-        userResults.tests[info.packId] = {
+        var submittedAtMs = Date.now();
+        var testResult = gestioneFirestoreCleanValue({
             packId: info.packId,
             assignedAtMs: info.slot ? info.slot.assignedAtMs : null,
             assignedBy: info.slot ? info.slot.assignedBy : null,
-            submittedAtMs: Date.now(),
+            submittedAtMs: submittedAtMs,
             score: results.score,
             correctCount: results.correctCount,
             totalQuestions: results.totalQuestions,
@@ -20810,15 +20834,27 @@ async function gestioneTestInviaClick() {
             userLabel: quizPresenceGetWhoami() || currentUserKey,
             items: testItems,
             answers: gestioneUtenteLoad() // Salvo le risposte per l'anteprima
+        });
+        var updatePayload = {
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-        users[currentUserKey] = userResults;
-        await resultRef.set(
-            {
-                testResults: users,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            },
-            { merge: true }
-        );
+        updatePayload['testResults.' + currentUserKey + '.userLabel'] = quizPresenceGetWhoami() || currentUserKey;
+        updatePayload['testResults.' + currentUserKey + '.updatedAtMs'] = submittedAtMs;
+        updatePayload['testResults.' + currentUserKey + '.tests.' + info.packId] = testResult;
+        try {
+            await resultRef.update(updatePayload);
+        } catch (eUpdate) {
+            if (!eUpdate || eUpdate.code !== 'not-found') throw eUpdate;
+            var seed = { testResults: {}, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            seed.testResults[currentUserKey] = {
+                userLabel: quizPresenceGetWhoami() || currentUserKey,
+                updatedAtMs: submittedAtMs,
+                tests: {}
+            };
+            seed.testResults[currentUserKey].tests[info.packId] = testResult;
+            await resultRef.set(seed, { merge: true });
+        }
+        gestioneTestAcknowledgeCurrentAssignment();
         window.alert('Test inviato con successo! Il tuo punteggio è: ' + results.score + '%');
         // Chiudi il modal del test dopo l'invio
         hideQuizGestioneTestVerificheModal();
@@ -23310,8 +23346,6 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
         if (editorCompleto) {
             gestioneRenderDestinatariBadges();
             gestioneGeneraUgualiTuttiRefreshCheckbox();
-        } else {
-            gestioneTestAcknowledgeCurrentAssignment();
         }
     } catch (eR) { /* ignore */ }
 }
