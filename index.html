@@ -6892,9 +6892,9 @@
     list-style: none;
     cursor: pointer;
     display: grid;
-    grid-template-columns: minmax(78px, 1fr) minmax(0, 1.6fr) minmax(92px, 1fr);
-    gap: 8px;
-    align-items: start;
+    grid-template-columns: minmax(0, 1.2fr) minmax(92px, auto) minmax(104px, 1fr) auto;
+    gap: 10px;
+    align-items: center;
     padding-left: 4px;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -6902,32 +6902,46 @@
 .quiz-gestione-verifica-summary::-webkit-details-marker {
     display: none;
 }
-.quiz-gestione-verifica-summary-date {
+.quiz-gestione-verifica-summary::after {
+    content: '▼';
     justify-self: end;
-    text-align: right;
+    align-self: center;
+    color: #5e35b1;
+    font-size: 0.86rem;
+    font-weight: 900;
+    line-height: 1;
+    padding-left: 2px;
+}
+.quiz-gestione-verifica-card[open] .quiz-gestione-verifica-summary::after {
+    content: '▲';
+}
+.quiz-gestione-verifica-summary-date {
+    justify-self: center;
+    text-align: center;
     color: #607d8b;
-    font-size: 0.72rem;
-    font-weight: 800;
+    font-size: 0.78rem;
+    font-weight: 900;
     line-height: 1.2;
+    white-space: nowrap;
 }
 .quiz-gestione-verifica-summary-date strong {
-    display: block;
+    display: none;
     color: #37474f;
     font-size: 0.64rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-bottom: 2px;
 }
-.quiz-gestione-verifica-summary-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    text-align: center;
+.quiz-gestione-verifica-summary .quiz-gestione-verifica-user-name {
+    justify-self: start;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.quiz-gestione-verifica-summary-spacer {
-    min-width: 0;
+.quiz-gestione-verifica-summary .quiz-gestione-verifica-result-badge {
+    justify-self: end;
+    text-align: center;
 }
 .quiz-gestione-verifica-card-body {
     display: flex;
@@ -7003,13 +7017,6 @@
     background: linear-gradient(135deg, rgba(237, 231, 246, 0.75), rgba(227, 242, 253, 0.72));
     border: 1px solid rgba(126, 87, 194, 0.13);
 }
-.quiz-gestione-verifica-topics-note {
-    margin: 0 0 9px;
-    color: #455a64;
-    font-size: 0.78rem;
-    line-height: 1.35;
-    text-align: left;
-}
 .quiz-gestione-verifica-topics-title {
     display: block;
     margin-bottom: 8px;
@@ -7043,15 +7050,19 @@
 }
 @media (max-width: 520px) {
     .quiz-gestione-verifica-summary {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 7px 8px;
     }
     .quiz-gestione-verifica-summary-date,
-    .quiz-gestione-verifica-summary-center {
-        justify-self: center;
-        text-align: center;
+    .quiz-gestione-verifica-summary .quiz-gestione-verifica-result-badge {
+        justify-self: start;
     }
-    .quiz-gestione-verifica-summary-spacer {
-        display: none;
+    .quiz-gestione-verifica-summary::after {
+        grid-row: 1 / span 2;
+        grid-column: 2;
+    }
+    .quiz-gestione-verifica-summary .quiz-gestione-verifica-user-name {
+        grid-column: 1;
     }
 }
 
@@ -11238,7 +11249,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605280</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605282</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11370,7 +11381,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605280</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605282</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11817,7 +11828,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605280';
+const APP_BUILD = '202605282';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21201,6 +21212,16 @@ function gestioneVerificaFormatDate(ms) {
     }
 }
 
+function gestioneVerificaFormatDateOnly(ms) {
+    var n = Number(ms || 0);
+    if (!isFinite(n) || n <= 0) return 'Non disponibile';
+    try {
+        return new Date(n).toLocaleDateString();
+    } catch (eDt) {
+        return 'Non disponibile';
+    }
+}
+
 function gestioneVerificaExtractTopics(testResult) {
     var items = testResult && Array.isArray(testResult.items) ? testResult.items : [];
     var seen = {};
@@ -21228,22 +21249,24 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     var passed = !!testResult.passed;
     var resultText = (passed ? 'Passato: ' : 'Non passato: ') + testResult.score + '/100';
     var submittedText = gestioneVerificaFormatDate(testResult.submittedAtMs);
+    var submittedDateOnly = gestioneVerificaFormatDateOnly(testResult.submittedAtMs);
     var assignedText = gestioneVerificaFormatDate(testResult.assignedAtMs);
 
     var summary = document.createElement('summary');
     summary.className = 'quiz-gestione-verifica-summary';
 
-    var spacer = document.createElement('span');
-    spacer.className = 'quiz-gestione-verifica-summary-spacer';
-    summary.appendChild(spacer);
-
-    var center = document.createElement('span');
-    center.className = 'quiz-gestione-verifica-summary-center';
-
     var userName = document.createElement('span');
     userName.className = 'quiz-gestione-verifica-user-name';
     userName.textContent = testResult.userLabel || userId;
-    center.appendChild(userName);
+    summary.appendChild(userName);
+
+    var submitted = document.createElement('span');
+    submitted.className = 'quiz-gestione-verifica-summary-date';
+    var submittedLabel = document.createElement('strong');
+    submittedLabel.textContent = 'Data invio';
+    submitted.appendChild(submittedLabel);
+    submitted.appendChild(document.createTextNode(submittedDateOnly));
+    summary.appendChild(submitted);
 
     var resultBadge = document.createElement('span');
     resultBadge.className = 'quiz-gestione-verifica-result-badge';
@@ -21253,16 +21276,7 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
         resultBadge.classList.add('quiz-gestione-verifica-result-badge--fail');
     }
     resultBadge.textContent = resultText;
-    center.appendChild(resultBadge);
-    summary.appendChild(center);
-
-    var submitted = document.createElement('span');
-    submitted.className = 'quiz-gestione-verifica-summary-date';
-    var submittedLabel = document.createElement('strong');
-    submittedLabel.textContent = 'Data invio';
-    submitted.appendChild(submittedLabel);
-    submitted.appendChild(document.createTextNode(submittedText));
-    summary.appendChild(submitted);
+    summary.appendChild(resultBadge);
     card.appendChild(summary);
 
     var body = document.createElement('div');
@@ -21289,17 +21303,13 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     topics.className = 'quiz-gestione-verifica-topics';
     var topicsTitle = document.createElement('span');
     topicsTitle.className = 'quiz-gestione-verifica-topics-title';
-    topicsTitle.textContent = 'Quadro tecnico degli argomenti trattati';
+    topicsTitle.textContent = 'Argomenti trattati';
     topics.appendChild(topicsTitle);
-    var topicsNote = document.createElement('p');
-    topicsNote.className = 'quiz-gestione-verifica-topics-note';
-    topicsNote.textContent = 'Sintesi strutturata delle aree operative oggetto della verifica assegnata.';
-    topics.appendChild(topicsNote);
     var ul = document.createElement('ul');
     ul.className = 'quiz-gestione-verifica-topics-list';
-    gestioneVerificaExtractTopics(testResult).forEach(function (topic, idx) {
+    gestioneVerificaExtractTopics(testResult).forEach(function (topic) {
         var li = document.createElement('li');
-        li.textContent = 'Area tecnico-operativa ' + String(idx + 1).padStart(2, '0') + ' - ' + topic;
+        li.textContent = topic;
         ul.appendChild(li);
     });
     topics.appendChild(ul);
