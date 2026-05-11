@@ -501,8 +501,97 @@
             color: #3e2723;
             animation: quiz-test-badge-pulse 1.05s ease-in-out infinite;
         }
+        .btn-test-verifiche {
+            display: none;
+            min-width: 132px;
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.66rem;
+            letter-spacing: 0.05em;
+            background: linear-gradient(180deg, #90caf9 0%, #42a5f5 52%, #1976d2 100%);
+            color: #fff;
+            white-space: nowrap;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+            box-shadow: 0 4px 0 rgba(13, 71, 161, 0.42), 0 8px 14px rgba(25, 118, 210, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+        .btn-test-verifiche--visible {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-test-verifiche:hover {
+            filter: brightness(1.06);
+        }
+        .btn-test-verifiche:active {
+            transform: translateY(3px) scale(0.99);
+            box-shadow: 0 2px 0 rgba(13, 71, 161, 0.45), 0 4px 8px rgba(0, 0, 0, 0.14);
+        }
         #quiz-gestione-btn-invia-test[hidden] {
             display: none !important;
+        }
+        .quiz-test-empty-beauty,
+        .quiz-test-submit-card {
+            margin: 16px auto;
+            width: min(100%, 620px);
+            box-sizing: border-box;
+            border-radius: 22px;
+            border: 1px solid rgba(126, 87, 194, 0.22);
+            background:
+                radial-gradient(circle at 18% 15%, rgba(255, 255, 255, 0.96) 0, rgba(255, 255, 255, 0.72) 34%, transparent 35%),
+                linear-gradient(135deg, rgba(237, 231, 246, 0.96), rgba(227, 242, 253, 0.95));
+            box-shadow: 0 14px 34px rgba(49, 27, 96, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+            padding: 22px 20px;
+            text-align: center;
+            color: #4527a0;
+        }
+        .quiz-test-empty-beauty__kicker,
+        .quiz-test-submit-card__kicker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            min-height: 42px;
+            margin-bottom: 10px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #fffde7 0%, #ffe082 100%);
+            box-shadow: 0 8px 18px rgba(245, 124, 0, 0.2);
+            font-weight: 900;
+            color: #5d4037;
+        }
+        .quiz-test-empty-beauty__title,
+        .quiz-test-submit-card__title {
+            margin: 0;
+            font-size: clamp(1.05rem, 4vw, 1.38rem);
+            font-weight: 900;
+            line-height: 1.22;
+        }
+        .quiz-test-empty-beauty__text,
+        .quiz-test-submit-card__text {
+            margin: 8px auto 0;
+            max-width: 520px;
+            color: #546e7a;
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+        .quiz-test-submit-card--pass {
+            border-color: rgba(46, 125, 50, 0.24);
+            background: linear-gradient(135deg, rgba(232, 245, 233, 0.96), rgba(225, 245, 254, 0.94));
+            color: #1b5e20;
+        }
+        .quiz-test-submit-card--fail {
+            border-color: rgba(198, 40, 40, 0.22);
+            background: linear-gradient(135deg, rgba(255, 235, 238, 0.96), rgba(255, 243, 224, 0.94));
+            color: #b71c1c;
+        }
+        .quiz-test-submit-card__score {
+            margin-top: 12px;
+            font-size: clamp(1.6rem, 8vw, 2.4rem);
+            font-weight: 1000;
+            line-height: 1;
         }
         @keyframes quiz-test-badge-pulse {
             0%, 100% { transform: scale(1); }
@@ -10424,6 +10513,7 @@ function dismissAppSplash() {
                 Test
                 <span id="btn-test-gestione-badge" class="btn-test-gestione__badge" aria-hidden="true"></span>
             </button>
+            <button type="button" id="btn-test-verifiche-utente" class="btn-test-verifiche" onclick="showQuizGestioneTestVerificheModal(false, 'verifiche')" title="Le tue verifiche" aria-label="Apri le tue verifiche">Le tue verifiche</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -10940,7 +11030,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605271</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605272</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11072,7 +11162,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605271</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605272</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11519,7 +11609,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605271';
+const APP_BUILD = '202605272';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13454,8 +13544,11 @@ function quizSubscribeGestioneDomandeFallback() {
         function (snap) {
             if (!snap.exists) return;
             var dat = snap.data() || {};
-            if (!dat.gestioneTestData || typeof dat.gestioneTestData !== 'object') return;
-            gestioneDomandeApplyCloudData(dat.gestioneTestData);
+            if (dat.gestioneTestData && typeof dat.gestioneTestData === 'object') {
+                gestioneDomandeApplyCloudData(dat.gestioneTestData);
+            }
+            gestioneTestSyncDoneFromRemote(dat.testResults);
+            gestioneTestUserResultsButtonUpdate(false, dat.testResults);
         },
         function (err) {
             console.warn('[quiz_gestione_domande fallback snapshot]', err);
@@ -19914,6 +20007,8 @@ var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 /** Stato locale delle notifiche Test: quale pacchetto assegnato è già stato visto da questo dispositivo. */
 var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v2';
+/** Test gia' consegnati da questo utente: non devono riapparire come test da compilare. */
+var GESTIONE_TEST_DONE_LS = 'io-gestione-test-consegnati-v1';
 /** Punto zero Test: ignora test assegnati e risultati inviati prima di questo aggiornamento. */
 var GESTIONE_TEST_RESET_AT_MS = 1778534462558;
 /** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
@@ -20389,12 +20484,59 @@ function gestioneTestAckSave(byUser) {
     } catch (eAck) { /* ignore */ }
 }
 
+function gestioneTestDoneLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_TEST_DONE_LS);
+        if (!raw) return {};
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.byUser && typeof parsed.byUser === 'object') return parsed.byUser;
+    } catch (eDone) { /* ignore */ }
+    return {};
+}
+
+function gestioneTestDoneSave(byUser) {
+    try {
+        localStorage.setItem(GESTIONE_TEST_DONE_LS, JSON.stringify({ v: 1, byUser: byUser || {} }));
+    } catch (eDone) { /* ignore */ }
+}
+
+function gestioneTestIsDoneForUser(key, packId) {
+    key = String(key || '').trim();
+    packId = String(packId || '').trim();
+    if (!key || !packId) return false;
+    var done = gestioneTestDoneLoad();
+    return !!(done[key] && done[key][packId]);
+}
+
+function gestioneTestMarkDoneForUser(key, packId) {
+    key = String(key || '').trim();
+    packId = String(packId || '').trim();
+    if (!key || !packId) return;
+    var done = gestioneTestDoneLoad();
+    if (!done[key] || typeof done[key] !== 'object') done[key] = {};
+    done[key][packId] = Date.now();
+    gestioneTestDoneSave(done);
+}
+
+function gestioneTestSyncDoneFromRemote(remoteTestResults) {
+    var key = gestioneTestCurrentUserKey();
+    if (!key || !remoteTestResults || typeof remoteTestResults !== 'object') return;
+    var user = remoteTestResults[key];
+    if (!user || !user.tests || typeof user.tests !== 'object') return;
+    Object.keys(user.tests).forEach(function (packId) {
+        var testResult = user.tests[packId] || {};
+        var resultAtMs = Number(testResult.submittedAtMs || testResult.assignedAtMs || 0);
+        if (resultAtMs >= GESTIONE_TEST_RESET_AT_MS) gestioneTestMarkDoneForUser(key, packId);
+    });
+}
+
 function gestioneTestAssignmentInfo(raw) {
     raw = raw || gestioneDomandeLoadRaw();
     var key = gestioneTestCurrentUserKey();
     var slot = gestioneTestAssignmentSlot(raw, key);
-    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items) && gestioneTestAssignmentIsAfterReset(slot));
-    var packId = hasAssigned ? gestioneTestAssignmentPackId(slot) : '';
+    var packId = slot ? gestioneTestAssignmentPackId(slot) : '';
+    var alreadyDone = gestioneTestIsDoneForUser(key, packId);
+    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items) && gestioneTestAssignmentIsAfterReset(slot) && !alreadyDone);
     var ack = gestioneTestAckLoad();
     return {
         key: key,
@@ -20504,6 +20646,9 @@ function gestioneDomandeLoad() {
     if (quizGestioneDomandeEditorCompleto === false) {
         var slot = gestioneTestAssignmentSlot(raw);
         if (slot && Array.isArray(slot.items) && gestioneTestAssignmentIsAfterReset(slot)) {
+            var key = gestioneTestCurrentUserKey();
+            var packId = gestioneTestAssignmentPackId(slot);
+            if (gestioneTestIsDoneForUser(key, packId)) return [];
             return gestioneDomandeNormalizeItems(slot.items);
         }
         return [];
@@ -20831,10 +20976,10 @@ function gestioneTestCalculateScore() {
     return { correctCount: correctCount, totalQuestions: totalQuestions, score: score, passed: passed };
 }
 
-function gestioneVerificaEmptyMessage(resultsList) {
+function gestioneVerificaEmptyMessage(resultsList, message) {
     if (!resultsList) return;
     var p = document.createElement('p');
-    p.textContent = 'nessun test presente';
+    p.textContent = message || 'nessun test presente';
     p.className = 'quiz-gestione-invia-a-empty';
     resultsList.appendChild(p);
 }
@@ -20857,6 +21002,71 @@ function gestioneFirestoreCleanValue(value) {
     }
     if (typeof value === 'number' && !isFinite(value)) return null;
     return value;
+}
+
+function gestioneTestShowCardMessage(options) {
+    options = options || {};
+    return new Promise(function (resolve) {
+        var overlay = document.createElement('div');
+        overlay.className = 'quiz-lock-overlay quiz-app-overlay visible';
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.style.zIndex = '10050';
+
+        var box = document.createElement('div');
+        box.className = 'quiz-lock-box quiz-app-box';
+        box.setAttribute('role', 'dialog');
+        box.setAttribute('aria-modal', 'true');
+        box.onclick = function (ev) { ev.stopPropagation(); };
+
+        var card = document.createElement('div');
+        card.className = 'quiz-test-submit-card';
+        if (options.variant === 'pass') card.classList.add('quiz-test-submit-card--pass');
+        if (options.variant === 'fail') card.classList.add('quiz-test-submit-card--fail');
+
+        var kicker = document.createElement('div');
+        kicker.className = 'quiz-test-submit-card__kicker';
+        kicker.textContent = options.kicker || 'OK';
+        card.appendChild(kicker);
+
+        var title = document.createElement('h3');
+        title.className = 'quiz-test-submit-card__title';
+        title.textContent = options.title || '';
+        card.appendChild(title);
+
+        if (options.text) {
+            var text = document.createElement('p');
+            text.className = 'quiz-test-submit-card__text';
+            text.textContent = options.text;
+            card.appendChild(text);
+        }
+
+        if (options.scoreText) {
+            var score = document.createElement('div');
+            score.className = 'quiz-test-submit-card__score';
+            score.textContent = options.scoreText;
+            card.appendChild(score);
+        }
+
+        var actions = document.createElement('div');
+        actions.className = 'quiz-lock-actions';
+        var ok = document.createElement('button');
+        ok.type = 'button';
+        ok.className = 'btn-side btn-report';
+        ok.textContent = options.buttonText || 'OK';
+        ok.onclick = function () {
+            try {
+                document.body.removeChild(overlay);
+            } catch (eRm) { /* ignore */ }
+            resolve();
+        };
+        actions.appendChild(ok);
+        box.appendChild(card);
+        box.appendChild(actions);
+        overlay.appendChild(box);
+        overlay.onclick = ok.onclick;
+        document.body.appendChild(overlay);
+        try { ok.focus(); } catch (eF) { /* ignore */ }
+    });
 }
 
 async function gestioneTestInviaClick() {
@@ -20914,10 +21124,23 @@ async function gestioneTestInviaClick() {
             seed.testResults[currentUserKey].tests[info.packId] = testResult;
             await resultRef.set(seed, { merge: true });
         }
+        gestioneTestMarkDoneForUser(currentUserKey, info.packId);
         gestioneTestAcknowledgeCurrentAssignment();
-        window.alert('Test inviato con successo! Il tuo punteggio è: ' + results.score + '%');
-        // Chiudi il modal del test dopo l'invio
-        hideQuizGestioneTestVerificheModal();
+        gestioneTestButtonUpdate();
+        gestioneTestUserResultsButtonUpdate(true);
+        await gestioneTestShowCardMessage({
+            kicker: 'OK',
+            title: 'Il test è stato inviato con successo',
+            text: 'La verifica compilata è stata salvata e inviata alla gestione test.'
+        });
+        await gestioneTestShowCardMessage({
+            kicker: results.passed ? 'PASS' : 'NO',
+            title: results.passed ? 'Test passato' : 'Test non passato',
+            text: 'Risposte corrette: ' + results.correctCount + ' su ' + results.totalQuestions + '.',
+            scoreText: results.score + '/100',
+            variant: results.passed ? 'pass' : 'fail'
+        });
+        gestioneDomandeRender();
     } catch (e) {
         console.error('Errore durante l\'invio del test:', e);
         window.alert('Errore durante l\'invio del test. Riprova più tardi.');
@@ -20932,13 +21155,33 @@ function gestioneTestButtonStateUpdate() {
     btnInvia.disabled = !ready;
 }
 
+function gestioneTestUserResultsButtonUpdate(forceVisible, remoteTestResults) {
+    var btn = document.getElementById('btn-test-verifiche-utente');
+    if (!btn) return;
+    if (forceVisible) {
+        btn.classList.add('btn-test-verifiche--visible');
+        return;
+    }
+    var done = gestioneTestDoneLoad();
+    var key = gestioneTestCurrentUserKey();
+    var hasLocalDone = !!(key && done[key] && Object.keys(done[key]).length > 0);
+    var remoteUser = remoteTestResults && key ? remoteTestResults[key] : null;
+    var hasRemoteResults = !!(remoteUser && remoteUser.tests && Object.keys(remoteUser.tests).length > 0);
+    btn.classList.toggle('btn-test-verifiche--visible', hasLocalDone || hasRemoteResults);
+}
+
 // Aggiungi qui gli stili CSS per la pagina Verifica (li aggiungerò alla sezione style più tardi)
 // .quiz-gestione-verifica-list, .quiz-gestione-verifica-card, etc.
 
-async function gestioneVerificaRender() {
+async function gestioneVerificaRender(options) {
+    options = options || {};
     var resultsList = document.getElementById('quiz-gestione-verifica-list');
     if (!resultsList) return;
     resultsList.innerHTML = '';
+    if (options.title) {
+        var titleEl = document.querySelector('#quiz-gestione-panel-verifica .quiz-gestione-verifica-title');
+        if (titleEl) titleEl.textContent = options.title;
+    }
 
     try {
         await quizEnsureFirebase();
@@ -20955,9 +21198,9 @@ async function gestioneVerificaRender() {
 
         var allUsersResults = resultsSnap.data() || {};
         var users = allUsersResults.testResults && typeof allUsersResults.testResults === 'object' ? allUsersResults.testResults : {};
-        var userKeys = Object.keys(users);
+        var userKeys = options.currentUserOnly ? [gestioneTestCurrentUserKey()] : Object.keys(users);
         if (!userKeys.length) {
-            gestioneVerificaEmptyMessage(resultsList);
+            gestioneVerificaEmptyMessage(resultsList, options.emptyMessage);
             return;
         }
         var rendered = 0;
@@ -21017,12 +21260,12 @@ async function gestioneVerificaRender() {
             }
         });
         if (!rendered) {
-            gestioneVerificaEmptyMessage(resultsList);
+            gestioneVerificaEmptyMessage(resultsList, options.emptyMessage);
         }
 
     } catch (e) {
         console.error('Errore durante il caricamento dei risultati dei test:', e);
-        gestioneVerificaEmptyMessage(resultsList);
+        gestioneVerificaEmptyMessage(resultsList, options.emptyMessage);
     }
 }
 
@@ -21946,10 +22189,20 @@ function gestioneDomandeRender() {
     var nq = gestioneConfigLoad().numQuestions;
     root.innerHTML = '';
     if (quizGestioneDomandeEditorCompleto === false && !gestioneDomandePackHasAnyContent(data)) {
-        var empty = document.createElement('p');
-        empty.className = 'quiz-gestione-invia-a-empty';
-        empty.textContent =
-            'non hai ancora ricevuto nessun test di verifica';
+        var empty = document.createElement('div');
+        empty.className = 'quiz-test-empty-beauty';
+        var badge = document.createElement('div');
+        badge.className = 'quiz-test-empty-beauty__kicker';
+        badge.textContent = 'TEST';
+        var title = document.createElement('h3');
+        title.className = 'quiz-test-empty-beauty__title';
+        title.textContent = 'non hai ancora ricevuto nessun test';
+        var text = document.createElement('p');
+        text.className = 'quiz-test-empty-beauty__text';
+        text.textContent = 'Quando la gestione ti assegna una nuova verifica, qui comparira il test da compilare.';
+        empty.appendChild(badge);
+        empty.appendChild(title);
+        empty.appendChild(text);
         root.appendChild(empty);
         gestioneTestButtonUpdate();
         return;
@@ -23327,11 +23580,13 @@ function quizGestioneSetSezione(sezione) {
     if (footerVerifica) footerVerifica.hidden = true;
 
     if (wantVerifica && !isUserTest) {
+        var titleEl = document.querySelector('#quiz-gestione-panel-verifica .quiz-gestione-verifica-title');
+        if (titleEl) titleEl.textContent = 'Risultati test utenti';
         gestioneVerificaRender(); // Carica i risultati quando si passa alla sezione Verifica
     }
 }
 
-function showQuizGestioneTestVerificheModal(fromImpostazioni) {
+function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     try {
         gestioneInviaAModalClose();
     } catch (eInvPre) { /* ignore */ }
@@ -23339,13 +23594,14 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
         gestioneSperimentaleModalClose();
     } catch (eSpPre) { /* ignore */ }
     var editorCompleto = fromImpostazioni !== false;
+    var userResultsMode = !editorCompleto && mode === 'verifiche';
     quizGestioneDomandeEditorCompleto = editorCompleto;
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
     var titleEl = document.getElementById('quiz-gestione-modal-title');
     if (titleEl) {
-        titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : 'Test di verifica';
+        titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : (userResultsMode ? 'Le tue verifiche' : 'Test di verifica');
     }
     var tabsWrap = document.querySelector('#quiz-gestione-test-overlay .quiz-gestione-test-segments');
     if (tabsWrap) tabsWrap.hidden = !editorCompleto;
@@ -23363,7 +23619,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     var setBtn = document.getElementById('quiz-gestione-btn-settings');
     var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
     var btnInviaTest = document.getElementById('quiz-gestione-btn-invia-test');
-    if (!editorCompleto && tornaBtn) {
+    if (!editorCompleto && !userResultsMode && tornaBtn) {
         if (!btnInviaTest) {
             btnInviaTest = document.createElement('button');
             btnInviaTest.type = 'button';
@@ -23399,10 +23655,19 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
-    quizGestioneSetSezione('crea');
+    quizGestioneSetSezione(userResultsMode ? 'verifica' : 'crea');
     gestioneDomandeEnsureResizeListener();
     try {
-        gestioneDomandeRender();
+        gestioneTestUserResultsButtonUpdate();
+        if (userResultsMode) {
+            gestioneVerificaRender({
+                currentUserOnly: true,
+                title: 'Le tue verifiche',
+                emptyMessage: 'nessuna verifica presente'
+            });
+        } else {
+            gestioneDomandeRender();
+        }
         if (editorCompleto) {
             gestioneRenderDestinatariBadges();
             gestioneGeneraUgualiTuttiRefreshCheckbox();
