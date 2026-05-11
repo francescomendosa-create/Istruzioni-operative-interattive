@@ -501,35 +501,6 @@
             color: #3e2723;
             animation: quiz-test-badge-pulse 1.05s ease-in-out infinite;
         }
-        .btn-test-verifiche {
-            display: none;
-            min-width: 132px;
-            padding: 8px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.55);
-            border-radius: 999px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.66rem;
-            letter-spacing: 0.05em;
-            background: linear-gradient(180deg, #90caf9 0%, #42a5f5 52%, #1976d2 100%);
-            color: #fff;
-            white-space: nowrap;
-            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
-            box-shadow: 0 4px 0 rgba(13, 71, 161, 0.42), 0 8px 14px rgba(25, 118, 210, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
-        }
-        .btn-test-verifiche--visible {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-test-verifiche:hover {
-            filter: brightness(1.06);
-        }
-        .btn-test-verifiche:active {
-            transform: translateY(3px) scale(0.99);
-            box-shadow: 0 2px 0 rgba(13, 71, 161, 0.45), 0 4px 8px rgba(0, 0, 0, 0.14);
-        }
         #quiz-gestione-btn-invia-test[hidden] {
             display: none !important;
         }
@@ -7014,18 +6985,42 @@
 
 /* Stili per l'anteprima del test */
 #quiz-gestione-test-preview-container {
-    padding: 10px;
-    max-height: calc(100dvh - 120px);
+    position: fixed;
+    inset: max(8px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    z-index: 10080;
+    padding: 12px 10px 14px;
+    max-height: none;
     overflow-y: auto;
     scrollbar-width: thin;
-    background: #f9f9f9;
-    border-radius: 8px;
-    margin-top: 10px;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+    background:
+        radial-gradient(circle at 12% 8%, rgba(255,255,255,0.92), transparent 28%),
+        linear-gradient(135deg, rgba(237, 231, 246, 0.98), rgba(227, 242, 253, 0.98));
+    border-radius: 20px;
+    margin-top: 0;
+    box-shadow: 0 24px 70px rgba(20, 28, 44, 0.34);
+    box-sizing: border-box;
+}
+.quiz-gestione-preview-esc {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    padding: 2px 0 8px;
+    background: linear-gradient(180deg, rgba(237, 231, 246, 0.98), rgba(237, 231, 246, 0));
+}
+.quiz-gestione-preview-esc .btn-side {
+    min-width: 74px;
+    padding: 7px 13px !important;
+    font-size: 0.78rem !important;
+    font-weight: 900;
 }
 .quiz-gestione-preview-compact {
     display: grid;
     gap: 10px;
+    width: min(100%, 760px);
+    margin: 0 auto;
 }
 .quiz-gestione-preview-row {
     border-radius: 14px;
@@ -10626,7 +10621,6 @@ function dismissAppSplash() {
                 Test
                 <span id="btn-test-gestione-badge" class="btn-test-gestione__badge" aria-hidden="true"></span>
             </button>
-            <button type="button" id="btn-test-verifiche-utente" class="btn-test-verifiche" onclick="showQuizGestioneTestVerificheModal(false, 'verifiche')" title="Le tue verifiche" aria-label="Apri le tue verifiche">Le tue verifiche</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -11143,7 +11137,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605273</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605275</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11275,7 +11269,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605273</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605275</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11722,7 +11716,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605273';
+const APP_BUILD = '202605275';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13661,7 +13655,6 @@ function quizSubscribeGestioneDomandeFallback() {
                 gestioneDomandeApplyCloudData(dat.gestioneTestData);
             }
             gestioneTestSyncDoneFromRemote(dat.testResults);
-            gestioneTestUserResultsButtonUpdate(false, dat.testResults);
         },
         function (err) {
             console.warn('[quiz_gestione_domande fallback snapshot]', err);
@@ -21375,7 +21368,6 @@ async function gestioneTestInviaClick() {
         gestioneTestMarkDoneForUser(currentUserKey, info.packId);
         gestioneTestAcknowledgeCurrentAssignment();
         gestioneTestButtonUpdate();
-        gestioneTestUserResultsButtonUpdate(true);
         await gestioneTestShowCardMessage({
             kicker: 'OK',
             title: 'Il test è stato inviato con successo',
@@ -21401,21 +21393,6 @@ function gestioneTestButtonStateUpdate() {
     var ready = gestioneTestCheckAllAnswered();
     btnInvia.hidden = !ready;
     btnInvia.disabled = !ready;
-}
-
-function gestioneTestUserResultsButtonUpdate(forceVisible, remoteTestResults) {
-    var btn = document.getElementById('btn-test-verifiche-utente');
-    if (!btn) return;
-    if (forceVisible) {
-        btn.classList.add('btn-test-verifiche--visible');
-        return;
-    }
-    var done = gestioneTestDoneLoad();
-    var key = gestioneTestCurrentUserKey();
-    var hasLocalDone = !!(key && done[key] && Object.keys(done[key]).length > 0);
-    var remoteUser = remoteTestResults && key ? remoteTestResults[key] : null;
-    var hasRemoteResults = !!(remoteUser && remoteUser.tests && Object.keys(remoteUser.tests).length > 0);
-    btn.classList.toggle('btn-test-verifiche--visible', hasLocalDone || hasRemoteResults);
 }
 
 // Aggiungi qui gli stili CSS per la pagina Verifica (li aggiungerò alla sezione style più tardi)
@@ -21479,7 +21456,7 @@ async function gestioneVerificaRender(options) {
 function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
     // Implementa qui la logica per mostrare un modal o un'area espandibile
     // con le domande e le risposte dell'utente
-    var overlay = document.getElementById('quiz-gestione-test-overlay'); // Riutilizzo l'overlay esistente o creo uno nuovo
+    var overlay = document.getElementById('quiz-gestione-test-overlay'); // Overlay risultati sotto: resta coperto dall'anteprima dedicata.
     if (!overlay) return;
 
     var originalEditorCompleto = quizGestioneDomandeEditorCompleto;
@@ -21491,27 +21468,33 @@ function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
         titleEl.textContent = 'Anteprima test - ' + (testResult.userLabel || userId) + ' (' + testResult.score + '/100)';
     }
 
-    var creaPanel = document.getElementById('quiz-gestione-panel-crea');
-    var verificaPanel = document.getElementById('quiz-gestione-panel-verifica');
-    var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
-    var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
-
-    if (creaPanel) creaPanel.hidden = true;
-    if (verificaPanel) verificaPanel.hidden = true; // Nascondo entrambi i pannelli per mostrare l'anteprima in un altro modo
-
-    if (footerEditor) footerEditor.hidden = true;
-    if (footerVerifica) footerVerifica.hidden = true;
-
-    // Crea un nuovo container per l'anteprima dentro l'overlay principale
+    // Crea un container fisso: copre completamente la pagina risultati sottostante.
     var previewContainer = document.getElementById('quiz-gestione-test-preview-container');
     if (!previewContainer) {
         previewContainer = document.createElement('div');
         previewContainer.id = 'quiz-gestione-test-preview-container';
-        previewContainer.className = 'quiz-gestione-test-panel'; // Riutilizzo una classe esistente
-        overlay.appendChild(previewContainer);
+        document.body.appendChild(previewContainer);
     }
     previewContainer.hidden = false;
     previewContainer.innerHTML = ''; // Pulisci contenuto precedente
+
+    function closePreview() {
+        previewContainer.hidden = true;
+        previewContainer.innerHTML = '';
+        if (titleEl) titleEl.textContent = previousTitle || 'Gestione test e verifiche';
+        quizGestioneDomandeEditorCompleto = originalEditorCompleto;
+    }
+
+    var escBar = document.createElement('div');
+    escBar.className = 'quiz-gestione-preview-esc';
+    var escButton = document.createElement('button');
+    escButton.type = 'button';
+    escButton.className = 'btn-side btn-reset';
+    escButton.textContent = 'ESC';
+    escButton.setAttribute('aria-label', 'Chiudi anteprima test');
+    escButton.onclick = closePreview;
+    escBar.appendChild(escButton);
+    previewContainer.appendChild(escBar);
 
     var items = Array.isArray(testResult.items) ? testResult.items : [];
     var answers = Array.isArray(testResult.answers) ? testResult.answers : [];
@@ -21527,7 +21510,10 @@ function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
     }).filter(Boolean); // Rimuove eventuali null se non ci sono domande originali
 
     if (!data.length) {
-        previewContainer.innerHTML = '<p class="quiz-gestione-invia-a-empty">Dati del test non disponibili per l\'anteprima.</p>';
+        var empty = document.createElement('p');
+        empty.className = 'quiz-gestione-invia-a-empty';
+        empty.textContent = 'Dati del test non disponibili per l\'anteprima.';
+        previewContainer.appendChild(empty);
         return;
     }
 
@@ -21541,25 +21527,10 @@ function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
         previewWrap.appendChild(card);
     }
 
-    // Aggiungi un pulsante "Torna" per chiudere l'anteprima
-    var backButton = document.createElement('button');
-    backButton.type = 'button';
-    backButton.className = 'btn-side btn-reset';
-    backButton.textContent = 'Torna ai risultati';
-    backButton.style.marginTop = '20px';
-    backButton.onclick = () => {
-        previewContainer.hidden = true;
-        if (creaPanel) creaPanel.hidden = true; // Assicurati che solo verifica sia visibile
-        if (verificaPanel) verificaPanel.hidden = false;
-        if (footerVerifica) footerVerifica.hidden = true;
-        if (titleEl) titleEl.textContent = previousTitle || 'Gestione test e verifiche';
-        quizGestioneDomandeEditorCompleto = originalEditorCompleto; // Ripristina lo stato
-    };
-    previewContainer.appendChild(backButton);
-
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
+    try { escButton.focus(); } catch (eF) { /* ignore */ }
 }
 
 // Funzione helper per costruire la card della domanda per l'anteprima
@@ -23720,10 +23691,13 @@ function quizGestioneSetSezione(sezione) {
     var tabV = document.getElementById('quiz-gestione-tab-verifica');
     var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
     var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
+    var titleMain = document.getElementById('quiz-gestione-modal-title');
+    var btnInviaTest = document.getElementById('quiz-gestione-btn-invia-test');
 
     if (!crea || !verifica || !tabC || !tabV) return;
 
     var wantVerifica = String(sezione).trim() === 'verifica';
+    var isUserTest = quizGestioneDomandeEditorCompleto === false;
 
     crea.hidden = wantVerifica;
     verifica.hidden = !wantVerifica;
@@ -23733,9 +23707,27 @@ function quizGestioneSetSezione(sezione) {
     tabC.setAttribute('aria-selected', String(!wantVerifica));
     tabV.setAttribute('aria-selected', String(wantVerifica));
 
-    var isUserTest = quizGestioneDomandeEditorCompleto === false;
     if (footerEditor) footerEditor.hidden = wantVerifica || isUserTest;
     if (footerVerifica) footerVerifica.hidden = true;
+
+    if (isUserTest) {
+        if (titleMain) titleMain.textContent = wantVerifica ? 'Le tue verifiche' : 'Test di verifica';
+        if (btnInviaTest) {
+            btnInviaTest.hidden = true;
+            btnInviaTest.disabled = true;
+        }
+        if (wantVerifica) {
+            gestioneVerificaRender({
+                currentUserOnly: true,
+                title: 'Le tue verifiche',
+                emptyMessage: 'nessuna verifica presente'
+            });
+        } else {
+            gestioneDomandeRender();
+            gestioneTestButtonStateUpdate();
+        }
+        return;
+    }
 
     if (wantVerifica && !isUserTest) {
         var titleEl = document.querySelector('#quiz-gestione-panel-verifica .quiz-gestione-verifica-title');
@@ -23762,7 +23754,17 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
         titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : (userResultsMode ? 'Le tue verifiche' : 'Test di verifica');
     }
     var tabsWrap = document.querySelector('#quiz-gestione-test-overlay .quiz-gestione-test-segments');
-    if (tabsWrap) tabsWrap.hidden = !editorCompleto;
+    if (tabsWrap) tabsWrap.hidden = false;
+    var tabC = document.getElementById('quiz-gestione-tab-crea');
+    var tabV = document.getElementById('quiz-gestione-tab-verifica');
+    if (tabC) {
+        tabC.textContent = editorCompleto ? 'Crea' : 'Test';
+        tabC.setAttribute('aria-label', editorCompleto ? 'Crea test' : 'Visualizza test di verifica');
+    }
+    if (tabV) {
+        tabV.textContent = editorCompleto ? 'Verifica' : 'Le tue verifiche';
+        tabV.setAttribute('aria-label', editorCompleto ? 'Verifica risultati test' : 'Visualizza le tue verifiche');
+    }
     var destWrap = document.getElementById('quiz-gestione-destinatari-wrap');
     if (destWrap) destWrap.hidden = !editorCompleto;
     var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
@@ -23816,16 +23818,6 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     quizGestioneSetSezione(userResultsMode ? 'verifica' : 'crea');
     gestioneDomandeEnsureResizeListener();
     try {
-        gestioneTestUserResultsButtonUpdate();
-        if (userResultsMode) {
-            gestioneVerificaRender({
-                currentUserOnly: true,
-                title: 'Le tue verifiche',
-                emptyMessage: 'nessuna verifica presente'
-            });
-        } else {
-            gestioneDomandeRender();
-        }
         if (editorCompleto) {
             gestioneRenderDestinatariBadges();
             gestioneGeneraUgualiTuttiRefreshCheckbox();
