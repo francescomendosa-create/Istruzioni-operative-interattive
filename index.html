@@ -6769,6 +6769,120 @@
             padding-top: 8px;
             background: #fff;
         }
+        /* Stili per la pagina Verifica (risultati test utenti) */
+.quiz-gestione-verifica-title {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: center;
+}
+
+.quiz-gestione-verifica-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 10px;
+    max-height: calc(100dvh - 200px); /* Regola l'altezza massima per lo scroll */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-bottom: 30px;
+}
+
+.quiz-gestione-verifica-list::-webkit-scrollbar {
+    width: 8px;
+}
+.quiz-gestione-verifica-list::-webkit-scrollbar-thumb {
+    background: rgba(94, 53, 177, 0.28);
+    border-radius: 8px;
+}
+
+
+.quiz-gestione-verifica-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.quiz-gestione-verifica-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.quiz-gestione-verifica-user-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #3f51b5;
+}
+
+.quiz-gestione-verifica-result-badge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.quiz-gestione-verifica-result-badge--pass {
+    background: linear-gradient(180deg, #81c784 0%, #4caf50 100%);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.quiz-gestione-verifica-result-badge--fail {
+    background: linear-gradient(180deg, #e57373 0%, #f44336 100%);
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+}
+
+.quiz-gestione-verifica-card-details p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: #607d8b;
+}
+
+.quiz-gestione-verifica-preview-btn {
+    align-self: flex-end;
+    margin-top: 10px;
+    font-size: 0.75rem !important;
+    padding: 6px 12px !important;
+}
+
+/* Stili per l'anteprima del test */
+#quiz-gestione-test-preview-container {
+    padding: 10px;
+    max-height: calc(100dvh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.gestione-answer-slot--selected-user {
+    background-color: rgba(33, 150, 243, 0.1); /* Blu chiaro per la risposta dell'utente */
+    border-color: #2196f3;
+}
+
+.gestione-answer-slot--correct {
+    background-color: rgba(76, 175, 80, 0.1); /* Verde chiaro per la risposta corretta */
+    border-color: #4caf50;
+}
+
+.gestione-answer-slot--correct-user {
+    background-color: rgba(76, 175, 80, 0.2); /* Verde più scuro se l'utente ha risposto correttamente */
+    border-color: #388e3c;
+}
         /* Popup Domande — tipografia dedicata (Gestione test e verifiche) */
         #quiz-gestione-test-overlay {
             font-family: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -10995,8 +11109,10 @@ function dismissAppSplash() {
                 <div class="quiz-gestione-test-head-start">
                     <h4 id="quiz-gestione-modal-title" class="quiz-lock-title quiz-gestione-test-title">Gestione test e verifiche</h4>
                     <div class="quiz-gestione-test-segments" role="tablist" aria-label="Sezioni gestione test">
-                        <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
-                        <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
+        var tabCrea = document.getElementById('quiz-gestione-tab-crea');
+    var tabVerifica = document.getElementById('quiz-gestione-tab-verifica');
+    if (tabCrea) tabCrea.hidden = !editorCompleto;
+    if (tabVerifica) tabVerifica.hidden = !editorCompleto;
                     </div>
                     <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
                 </div>
@@ -11035,7 +11151,7 @@ function dismissAppSplash() {
                     <div id="quiz-gestione-destinatari-badges" class="quiz-gestione-destinatari-badges" role="group" aria-label="Selezione destinatario"></div>
                 </div>
                 <div id="quiz-gestione-test-list" class="quiz-app-body"></div>
-                <div class="quiz-lock-actions quiz-gestione-test-footer quiz-gestione-test-footer--triple">
+                <div id="quiz-gestione-test-footer-editor" class="quiz-lock-actions quiz-gestione-test-footer quiz-gestione-test-footer--triple">
                     <button type="button" id="quiz-gestione-btn-save-all" class="btn-side btn-reset btn-gestione-save-all" onclick="gestioneDomandeSaveAllClick()" aria-label="Salva tutte le domande">Salva tutto</button>
                     <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
                     <button type="button" id="quiz-gestione-btn-invia-tutti" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
@@ -11045,6 +11161,7 @@ function dismissAppSplash() {
                 <div class="quiz-gestione-verifica-body">
                     <p class="quiz-gestione-verifica-lead">Sezione <strong>Verifica</strong>: qui potrai usare gli strumenti di verifica del test. Contenuto e funzioni saranno definiti nel prossimo passaggio.</p>
                 </div>
+                <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
         </div>
     </div>
@@ -20596,6 +20713,348 @@ function gestioneDomandeSaveAllClick() {
     gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-save-all'));
 }
 
+function gestioneTestCheckAllAnswered() {
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    for (var ui = 0; ui < nq; ui++) {
+        var ur = document.querySelector('input[name="gestione-corr-' + ui + '"]:checked');
+        if (!ur) return false;
+    }
+    return true;
+}
+
+function gestioneTestCalculateScore() {
+    var data = gestioneDomandeLoad();
+    var picks = gestioneUtenteLoad();
+    var correctCount = 0;
+    for (var i = 0; i < data.length; i++) {
+        if (picks[i] !== null && picks[i] !== undefined && picks[i] === data[i].correctIndex) {
+            correctCount++;
+        }
+    }
+    var totalQuestions = data.length;
+    var score = (totalQuestions > 0) ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    var passed = score >= 60; // 60% per la sufficienza
+    return { correctCount: correctCount, totalQuestions: totalQuestions, score: score, passed: passed };
+}
+
+async function gestioneTestInviaClick() {
+    if (!gestioneTestCheckAllAnswered()) {
+        window.alert('Per favore, rispondi a tutte le domande prima di inviare il test.');
+        return;
+    }
+    var results = gestioneTestCalculateScore();
+    var info = gestioneTestAssignmentInfo();
+    var currentUserKey = gestioneTestCurrentUserKey();
+
+    if (!info.hasAssigned || !info.packId) {
+        window.alert('Non c\'è un test assegnato per essere inviato.');
+        return;
+    }
+
+    try {
+        await quizEnsureFirebase();
+        var userRef = firebase.firestore().collection('quiz_test_results').doc(currentUserKey);
+        var userResults = (await userRef.get()).data() || {};
+
+        if (!userResults.tests) userResults.tests = {};
+        userResults.tests[info.packId] = {
+            packId: info.packId,
+            assignedAtMs: info.slot ? info.slot.assignedAtMs : null,
+            assignedBy: info.slot ? info.slot.assignedBy : null,
+            submittedAtMs: Date.now(),
+            score: results.score,
+            correctCount: results.correctCount,
+            totalQuestions: results.totalQuestions,
+            passed: results.passed,
+            answers: gestioneUtenteLoad() // Salvo le risposte per l'anteprima
+        };
+        await userRef.set(userResults, { merge: true });
+        window.alert('Test inviato con successo! Il tuo punteggio è: ' + results.score + '%');
+        // Chiudi il modal del test dopo l'invio
+        hideQuizGestioneTestVerificheModal();
+    } catch (e) {
+        console.error('Errore durante l\'invio del test:', e);
+        window.alert('Errore durante l\'invio del test. Riprova più tardi.');
+    }
+}
+
+function gestioneTestButtonStateUpdate() {
+    var btnInvia = document.getElementById('quiz-gestione-btn-invia-test');
+    if (!btnInvia) return;
+    btnInvia.disabled = !gestioneTestCheckAllAnswered();
+}
+
+// Aggiungi qui gli stili CSS per la pagina Verifica (li aggiungerò alla sezione style più tardi)
+// .quiz-gestione-verifica-list, .quiz-gestione-verifica-card, etc.
+
+async function gestioneVerificaRender() {
+    var root = document.getElementById('quiz-gestione-panel-verifica');
+    if (!root) return;
+
+    root.innerHTML = ''; // Pulisci il contenuto attuale
+
+    var title = document.createElement('h3');
+    title.textContent = 'Risultati test utenti';
+    title.className = 'quiz-gestione-verifica-title';
+    root.appendChild(title);
+
+    var resultsList = document.createElement('div');
+    resultsList.id = 'quiz-gestione-verifica-list';
+    resultsList.className = 'quiz-gestione-verifica-list';
+    root.appendChild(resultsList);
+
+    try {
+        await quizEnsureFirebase();
+        var allUsersResults = await firebase.firestore().collection('quiz_test_results').get();
+
+        if (allUsersResults.empty) {
+            var p = document.createElement('p');
+            p.textContent = 'Nessun test inviato dagli utenti.';
+            p.className = 'quiz-gestione-invia-a-empty'; // Riutilizzo lo stile esistente
+            resultsList.appendChild(p);
+            return;
+        }
+
+        allUsersResults.forEach(doc => {
+            var userData = doc.data();
+            var userId = doc.id; // Corrisponde alla chiave utente normalizzata
+
+            if (userData.tests) {
+                Object.keys(userData.tests).forEach(packId => {
+                    var testResult = userData.tests[packId];
+                    var card = document.createElement('div');
+                    card.className = 'quiz-gestione-verifica-card';
+
+                    var header = document.createElement('div');
+                    header.className = 'quiz-gestione-verifica-card-header';
+
+                    var userName = document.createElement('span');
+                    userName.className = 'quiz-gestione-verifica-user-name';
+                    userName.textContent = userId; // Qui potresti voler usare displayName se disponibile nei risultati
+                    header.appendChild(userName);
+
+                    var resultBadge = document.createElement('span');
+                    resultBadge.className = 'quiz-gestione-verifica-result-badge';
+                    if (testResult.passed) {
+                        resultBadge.classList.add('quiz-gestione-verifica-result-badge--pass');
+                        resultBadge.textContent = `Passato: ${testResult.score}/100`;
+                    } else {
+                        resultBadge.classList.add('quiz-gestione-verifica-result-badge--fail');
+                        resultBadge.textContent = `Non passato: ${testResult.score}/100`;
+                    }
+                    header.appendChild(resultBadge);
+                    card.appendChild(header);
+
+                    var details = document.createElement('div');
+                    details.className = 'quiz-gestione-verifica-card-details';
+                    details.innerHTML = `
+                        <p><strong>Test ID:</strong> ${packId}</p>
+                        <p><strong>Domande corrette:</strong> ${testResult.correctCount}/${testResult.totalQuestions}</p>
+                        <p><strong>Assegnato da:</strong> ${testResult.assignedBy || 'Sconosciuto'}</p>
+                        <p><strong>Assegnato il:</strong> ${new Date(testResult.assignedAtMs).toLocaleString()}</p>
+                        <p><strong>Inviato il:</strong> ${new Date(testResult.submittedAtMs).toLocaleString()}</p>
+                    `;
+                    card.appendChild(details);
+
+                    // Pulsante per l'anteprima
+                    var previewButton = document.createElement('button');
+                    previewButton.type = 'button';
+                    previewButton.className = 'btn-side btn-report quiz-gestione-verifica-preview-btn';
+                    previewButton.textContent = 'Anteprima Test';
+                    previewButton.onclick = () => gestioneVerificaAnteprimaTest(userId, packId, testResult);
+                    card.appendChild(previewButton);
+
+                    resultsList.appendChild(card);
+                });
+            }
+        });
+
+    } catch (e) {
+        console.error('Errore durante il caricamento dei risultati dei test:', e);
+        var p = document.createElement('p');
+        p.textContent = 'Errore durante il caricamento dei risultati dei test.';
+        p.className = 'quiz-gestione-invia-a-empty';
+        resultsList.appendChild(p);
+    }
+}
+
+// Funzione per l'anteprima del test
+function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
+    // Implementa qui la logica per mostrare un modal o un'area espandibile
+    // con le domande e le risposte dell'utente
+    var overlay = document.getElementById('quiz-gestione-test-overlay'); // Riutilizzo l'overlay esistente o creo uno nuovo
+    if (!overlay) return;
+
+    var originalEditorCompleto = quizGestioneDomandeEditorCompleto;
+    quizGestioneDomandeEditorCompleto = false; // Forza la modalità utente per la visualizzazione
+
+    var titleEl = document.getElementById('quiz-gestione-modal-title');
+    if (titleEl) {
+        titleEl.textContent = `Anteprima Test di ${userId} (${testResult.score}%)`;
+    }
+
+    var creaPanel = document.getElementById('quiz-gestione-panel-crea');
+    var verificaPanel = document.getElementById('quiz-gestione-panel-verifica');
+    var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
+    var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
+
+    if (creaPanel) creaPanel.hidden = true;
+    if (verificaPanel) verificaPanel.hidden = true; // Nascondo entrambi i pannelli per mostrare l'anteprima in un altro modo
+
+    if (footerEditor) footerEditor.hidden = true;
+    if (footerVerifica) footerVerifica.hidden = true;
+
+    // Crea un nuovo container per l'anteprima dentro l'overlay principale
+    var previewContainer = document.getElementById('quiz-gestione-test-preview-container');
+    if (!previewContainer) {
+        previewContainer = document.createElement('div');
+        previewContainer.id = 'quiz-gestione-test-preview-container';
+        previewContainer.className = 'quiz-gestione-test-panel'; // Riutilizzo una classe esistente
+        overlay.appendChild(previewContainer);
+    }
+    previewContainer.hidden = false;
+    previewContainer.innerHTML = ''; // Pulisci contenuto precedente
+
+    var data = testResult.answers.map((answerIndex, qIdx) => {
+        var originalQuestion = testResult.slot.items[qIdx]; // Assumendo che il slot originale sia salvato o recuperabile
+        if (!originalQuestion) return null;
+        return {
+            q: originalQuestion.q,
+            answers: originalQuestion.answers,
+            correctIndex: originalQuestion.correctIndex,
+            userPick: answerIndex
+        };
+    }).filter(Boolean); // Rimuove eventuali null se non ci sono domande originali
+
+    if (!data.length) {
+        previewContainer.innerHTML = '<p class="quiz-gestione-invia-a-empty">Dati del test non disponibili per l\'anteprima.</p>';
+        return;
+    }
+
+    // Renderizza le domande e risposte dell'utente per l'anteprima
+    for (var i = 0; i < data.length; i++) {
+        var card = gestioneDomandeBuildCardForPreview(i, data[i]);
+        previewContainer.appendChild(card);
+    }
+
+    // Aggiungi un pulsante "Torna" per chiudere l'anteprima
+    var backButton = document.createElement('button');
+    backButton.type = 'button';
+    backButton.className = 'btn-side btn-reset';
+    backButton.textContent = 'Torna ai risultati';
+    backButton.style.marginTop = '20px';
+    backButton.onclick = () => {
+        previewContainer.hidden = true;
+        if (creaPanel) creaPanel.hidden = true; // Assicurati che solo verifica sia visibile
+        if (verificaPanel) verificaPanel.hidden = false;
+        if (footerVerifica) footerVerifica.hidden = false;
+        if (titleEl) titleEl.textContent = 'Gestione test e verifiche'; // Ripristina il titolo
+        quizGestioneDomandeEditorCompleto = originalEditorCompleto; // Ripristina lo stato
+    };
+    previewContainer.appendChild(backButton);
+
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+// Funzione helper per costruire la card della domanda per l'anteprima
+// Simile a gestioneDomandeBuildCard ma con focus sulla visualizzazione delle risposte utente
+function gestioneDomandeBuildCardForPreview(i, slot) {
+    slot = slot || gestioneDomandeEmptySlot();
+    var naCfg = gestioneConfigLoad().numAnswers;
+    var letters = ['A', 'B', 'C', 'D', 'E'];
+    var card = document.createElement('div');
+    card.className = 'gestione-q-card';
+    card.id = 'gestione-card-preview-' + i;
+
+    var head = document.createElement('div');
+    head.className = 'gestione-q-card-head';
+    var titleRow = document.createElement('div');
+    titleRow.className = 'gestione-q-card-title-row';
+    var numBadge = document.createElement('span');
+    numBadge.className = 'gestione-q-card-num';
+    var num = i + 1;
+    numBadge.textContent = (num < 10 ? '0' : '') + num;
+    var title = document.createElement('strong');
+    title.textContent = 'Domanda ' + (i + 1);
+    titleRow.appendChild(numBadge);
+    titleRow.appendChild(title);
+    head.appendChild(titleRow);
+    card.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'gestione-q-card-body';
+
+    var secQ = document.createElement('div');
+    secQ.className = 'gestione-q-section gestione-q-section--question';
+    var labQ = document.createElement('span');
+    labQ.className = 'gestione-q-section-label';
+    labQ.textContent = 'Domanda';
+    secQ.appendChild(labQ);
+
+    var ta = document.createElement('textarea');
+    ta.className = 'gestione-q-text';
+    ta.rows = 1;
+    ta.setAttribute('aria-label', 'Domanda ' + (i + 1) + ' (sola lettura)');
+    ta.value = slot.q || '';
+    ta.readOnly = true;
+    secQ.appendChild(ta);
+    body.appendChild(secQ);
+
+    var secA = document.createElement('div');
+    secA.className = 'gestione-q-section gestione-q-section--answers';
+    var labA = document.createElement('span');
+    labA.className = 'gestione-q-section-label';
+    labA.textContent = 'Risposte';
+    secA.appendChild(labA);
+
+    var list = document.createElement('div');
+    list.className = 'gestione-answers-list';
+
+    var ci = Math.min(Math.max(0, naCfg - 1), Math.max(0, parseInt(slot.correctIndex, 10) || 0));
+
+    for (let k = 0; k < naCfg; k++) {
+        var slotWrap = document.createElement('div');
+        slotWrap.className = 'gestione-answer-slot';
+
+        // Mostra la risposta dell'utente
+        if (slot.userPick === k) {
+            slotWrap.classList.add('gestione-answer-slot--selected-user'); // Nuova classe per la risposta utente
+        }
+        // Mostra la risposta corretta (se diversa da quella dell'utente o se l'utente ha sbagliato)
+        if (ci === k && slot.userPick !== k) {
+            slotWrap.classList.add('gestione-answer-slot--correct'); // Nuova classe per la risposta corretta
+        } else if (ci === k && slot.userPick === k) {
+            slotWrap.classList.add('gestione-answer-slot--correct-user'); // Risposta utente è anche corretta
+        }
+
+
+        var letterEl = document.createElement('span');
+        letterEl.className = 'gestione-answer-letter';
+        letterEl.textContent = letters[k];
+        letterEl.setAttribute('aria-hidden', 'true');
+
+        var inp = document.createElement('textarea');
+        inp.className = 'gestione-a-text';
+        inp.rows = 1;
+        inp.setAttribute('aria-label', 'Risposta ' + letters[k] + ' — domanda ' + (i + 1) + ' (sola lettura)');
+        inp.value = slot.answers[k] || '';
+        inp.readOnly = true;
+
+        slotWrap.appendChild(letterEl);
+        slotWrap.appendChild(inp);
+        list.appendChild(slotWrap);
+    }
+
+    secA.appendChild(list);
+    body.appendChild(secA);
+    card.appendChild(body);
+
+    return card;
+}
+
 function gestioneDomandeItemsDeepCopy(items) {
     try {
         return JSON.parse(JSON.stringify(gestioneDomandeNormalizeItems(items)));
@@ -21313,6 +21772,7 @@ function gestioneDomandeBuildCard(i, slot) {
 
         rad.addEventListener('change', function () {
             gestioneDomandeSyncAnswerRows(card);
+            if (quizGestioneDomandeEditorCompleto === false) gestioneTestButtonStateUpdate();
         });
 
         slotWrap.appendChild(letterEl);
@@ -21355,6 +21815,7 @@ function gestioneDomandeRender() {
             gestioneDomandeFitAllGestioneFields();
         });
     });
+    if (quizGestioneDomandeEditorCompleto === false) gestioneTestButtonStateUpdate();
 }
 
 function gestioneCollectGlobalActionPool() {
@@ -22694,23 +23155,29 @@ var quizGestioneDomandeEditorCompleto = true;
 /** Tab «Crea» (domande) vs «Verifica». */
 function quizGestioneSetSezione(sezione) {
     var crea = document.getElementById('quiz-gestione-panel-crea');
-    var ver = document.getElementById('quiz-gestione-panel-verifica');
+    var verifica = document.getElementById('quiz-gestione-panel-verifica');
     var tabC = document.getElementById('quiz-gestione-tab-crea');
     var tabV = document.getElementById('quiz-gestione-tab-verifica');
-    if (!crea || !ver || !tabC || !tabV) return;
-    var wantVerifica = sezione === 'verifica';
+    var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
+    var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
+
+    if (!crea || !verifica || !tabC || !tabV) return;
+
+    var wantVerifica = String(sezione).trim() === 'verifica';
+
     crea.hidden = wantVerifica;
-    ver.hidden = !wantVerifica;
+    verifica.hidden = !wantVerifica;
+
+    tabC.classList.toggle('quiz-gestione-test-tab--active', !wantVerifica);
+    tabV.classList.toggle('quiz-gestione-test-tab--active', wantVerifica);
+    tabC.setAttribute('aria-selected', String(!wantVerifica));
+    tabV.setAttribute('aria-selected', String(wantVerifica));
+
+    if (footerEditor) footerEditor.hidden = wantVerifica;
+    if (footerVerifica) footerVerifica.hidden = !wantVerifica;
+
     if (wantVerifica) {
-        tabC.classList.remove('quiz-gestione-test-tab--active');
-        tabV.classList.add('quiz-gestione-test-tab--active');
-        tabC.setAttribute('aria-selected', 'false');
-        tabV.setAttribute('aria-selected', 'true');
-    } else {
-        tabV.classList.remove('quiz-gestione-test-tab--active');
-        tabC.classList.add('quiz-gestione-test-tab--active');
-        tabV.setAttribute('aria-selected', 'false');
-        tabC.setAttribute('aria-selected', 'true');
+        gestioneVerificaRender(); // Carica i risultati quando si passa alla sezione Verifica
     }
 }
 
@@ -22725,13 +23192,43 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     quizGestioneDomandeEditorCompleto = editorCompleto;
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
+    var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
+    if (footerEditor) footerEditor.hidden = !editorCompleto;
+    var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
+    if (footerVerifica) footerVerifica.hidden = editorCompleto;
+    if (footerVerifica && !editorCompleto && !footerVerifica.dataset.listenerBound) {
+        var btnInvia = document.createElement('button');
+        btnInvia.type = 'button';
+        btnInvia.id = 'quiz-gestione-btn-invia-test';
+        btnInvia.className = 'btn-side btn-report';
+        btnInvia.textContent = 'Invia test';
+        btnInvia.setAttribute('aria-label', 'Invia il test completato');
+        btnInvia.setAttribute('title', 'Invia il test completato');
+        btnInvia.onclick = gestioneTestInviaClick;
+        footerVerifica.appendChild(btnInvia);
+        footerVerifica.dataset.listenerBound = '1';
+    }
     if (!overlay) return;
     var titleEl = document.getElementById('quiz-gestione-modal-title');
     if (titleEl) {
         titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : 'Test di verifica';
     }
-    var destWrap = document.getElementById('quiz-gestione-destinatari-wrap');
-    if (destWrap) destWrap.hidden = !editorCompleto;
+    var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
+    if (footerEditor) footerEditor.hidden = !editorCompleto;
+    var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
+    if (footerVerifica) footerVerifica.hidden = editorCompleto;
+    if (footerVerifica && !editorCompleto && !footerVerifica.dataset.listenerBound) {
+        var btnInvia = document.createElement('button');
+        btnInvia.type = 'button';
+        btnInvia.id = 'quiz-gestione-btn-invia-test';
+        btnInvia.className = 'btn-side btn-report';
+        btnInvia.textContent = 'Invia test';
+        btnInvia.setAttribute('aria-label', 'Invia il test completato');
+        btnInvia.setAttribute('title', 'Invia il test completato');
+        btnInvia.onclick = gestioneTestInviaClick;
+        footerVerifica.appendChild(btnInvia);
+        footerVerifica.dataset.listenerBound = '1';
+    }
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
@@ -22751,6 +23248,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
             tornaBtn.textContent = 'Chiudi';
             tornaBtn.setAttribute('title', 'Chiudi');
             tornaBtn.setAttribute('aria-label', 'Chiudi');
+            gestioneTestButtonStateUpdate();
         }
     }
     overlay.classList.add('visible');
