@@ -10929,7 +10929,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605265</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605266</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11061,7 +11061,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605265</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605266</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11157,8 +11157,11 @@ function dismissAppSplash() {
                 <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
-                <div class="quiz-gestione-verifica-body">
-                    <p class="quiz-gestione-verifica-lead">Sezione <strong>Verifica</strong>: qui potrai usare gli strumenti di verifica del test. Contenuto e funzioni saranno definiti nel prossimo passaggio.</p>
+                <div id="quiz-gestione-verifica-body" class="quiz-gestione-verifica-body">
+                    <h3 class="quiz-gestione-verifica-title">Risultati test utenti</h3>
+                    <div id="quiz-gestione-verifica-list" class="quiz-gestione-verifica-list" aria-live="polite">
+                        <p class="quiz-gestione-invia-a-empty">Apri questa scheda per caricare i test inviati dagli utenti.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -11505,7 +11508,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605265';
+const APP_BUILD = '202605266';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20791,20 +20794,9 @@ function gestioneTestButtonStateUpdate() {
 // .quiz-gestione-verifica-list, .quiz-gestione-verifica-card, etc.
 
 async function gestioneVerificaRender() {
-    var root = document.getElementById('quiz-gestione-panel-verifica');
-    if (!root) return;
-
-    root.innerHTML = ''; // Pulisci il contenuto attuale
-
-    var title = document.createElement('h3');
-    title.textContent = 'Risultati test utenti';
-    title.className = 'quiz-gestione-verifica-title';
-    root.appendChild(title);
-
-    var resultsList = document.createElement('div');
-    resultsList.id = 'quiz-gestione-verifica-list';
-    resultsList.className = 'quiz-gestione-verifica-list';
-    root.appendChild(resultsList);
+    var resultsList = document.getElementById('quiz-gestione-verifica-list');
+    if (!resultsList) return;
+    resultsList.innerHTML = '';
 
     try {
         await quizEnsureFirebase();
@@ -20818,6 +20810,7 @@ async function gestioneVerificaRender() {
             return;
         }
 
+        var rendered = 0;
         allUsersResults.forEach(doc => {
             var userData = doc.data();
             var userId = doc.id; // Corrisponde alla chiave utente normalizzata
@@ -20825,6 +20818,7 @@ async function gestioneVerificaRender() {
             if (userData.tests) {
                 Object.keys(userData.tests).forEach(packId => {
                     var testResult = userData.tests[packId];
+                    rendered++;
                     var card = document.createElement('div');
                     card.className = 'quiz-gestione-verifica-card';
 
@@ -20871,6 +20865,12 @@ async function gestioneVerificaRender() {
                 });
             }
         });
+        if (!rendered) {
+            var pEmpty = document.createElement('p');
+            pEmpty.textContent = 'Nessun test inviato dagli utenti.';
+            pEmpty.className = 'quiz-gestione-invia-a-empty';
+            resultsList.appendChild(pEmpty);
+        }
 
     } catch (e) {
         console.error('Errore durante il caricamento dei risultati dei test:', e);
