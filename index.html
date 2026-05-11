@@ -10940,7 +10940,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605270</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605271</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11072,7 +11072,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605270</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605271</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11519,7 +11519,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605270';
+const APP_BUILD = '202605271';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -11808,6 +11808,8 @@ let gestioneDomandePushTimer = null;
 let gestioneDomandeRemoteApply = false;
 /** unsubscribe quiz_gestione_domande/global */
 let gestioneDomandeFsUnsub = null;
+/** Fallback test su quiz_leaderboard/global se le regole non consentono quiz_gestione_domande. */
+let gestioneDomandeFallbackFsUnsub = null;
 /** Cloud sync cache MCQ IA (debounce push). */
 let gestioneMcqCachePushTimer = null;
 let gestioneMcqCacheRemoteApply = false;
@@ -13372,27 +13374,93 @@ function gestioneDomandeSchedulePushToFirestore() {
     }, 450);
 }
 
+function gestioneDomandeBuildCloudPayload() {
+    var raw = gestioneDomandeLoadRaw();
+    var payload = {
+        v: 2,
+        items: gestioneDomandeNormalizeItems(raw.items || []),
+        updatedAtMs: Date.now()
+    };
+    var pu = gestioneNormalizePerUserMap(raw.perUser || {});
+    if (pu && Object.keys(pu).length > 0) payload.perUser = pu;
+    return payload;
+}
+
+function gestioneDomandePushFallbackToLeaderboard(payload) {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    var clean = gestioneFirestoreCleanValue(payload || gestioneDomandeBuildCloudPayload());
+    return firebase
+        .firestore()
+        .collection(QUIZ_FS_LEADERBOARD)
+        .doc(QUIZ_FS_LEADERBOARD_DOC)
+        .set(
+            {
+                gestioneTestData: clean,
+                gestioneTestUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+        );
+}
+
 function gestioneDomandePushToFirestoreNow() {
     if (!quizFirestoreConfigured() || gestioneDomandeRemoteApply) return;
     quizEnsureFirebase()
         .then(function () {
-            var raw = gestioneDomandeLoadRaw();
-            var payload = {
-                v: 2,
-                items: gestioneDomandeNormalizeItems(raw.items || []),
+            var payload = gestioneDomandeBuildCloudPayload();
+            var primaryPayload = Object.assign({}, payload, {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            var pu = gestioneNormalizePerUserMap(raw.perUser || {});
-            if (pu && Object.keys(pu).length > 0) payload.perUser = pu;
+            });
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_GESTIONE_DOMANDE)
                 .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC)
-                .set(payload, { merge: true });
+                .set(primaryPayload, { merge: true })
+                .catch(function (ePrimary) {
+                    console.warn('[quiz_gestione_domande push primary]', ePrimary);
+                    return gestioneDomandePushFallbackToLeaderboard(payload);
+                });
         })
         .catch(function (e) {
             console.warn('[quiz_gestione_domande push]', e);
         });
+}
+
+function gestioneDomandeApplyCloudData(dat) {
+    gestioneDomandeRemoteApply = true;
+    try {
+        gestioneDomandeApplyFirestoreSnapshot(dat);
+        gestioneTestButtonUpdate();
+        var ov = document.getElementById('quiz-gestione-test-overlay');
+        if (ov && ov.classList.contains('visible')) {
+            gestioneDomandeRender();
+            if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
+        }
+    } catch (eApp) {
+        console.warn('[quiz_gestione_domande apply]', eApp);
+    }
+    gestioneDomandeRemoteApply = false;
+}
+
+function quizSubscribeGestioneDomandeFallback() {
+    if (!quizFirestoreConfigured()) return;
+    if (gestioneDomandeFallbackFsUnsub) {
+        try {
+            gestioneDomandeFallbackFsUnsub();
+        } catch (eU) { /* ignore */ }
+        gestioneDomandeFallbackFsUnsub = null;
+    }
+    var ref = firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+    gestioneDomandeFallbackFsUnsub = ref.onSnapshot(
+        function (snap) {
+            if (!snap.exists) return;
+            var dat = snap.data() || {};
+            if (!dat.gestioneTestData || typeof dat.gestioneTestData !== 'object') return;
+            gestioneDomandeApplyCloudData(dat.gestioneTestData);
+        },
+        function (err) {
+            console.warn('[quiz_gestione_domande fallback snapshot]', err);
+        }
+    );
 }
 
 function quizSubscribeGestioneDomande() {
@@ -13405,6 +13473,7 @@ function quizSubscribeGestioneDomande() {
                 } catch (eU) { /* ignore */ }
                 gestioneDomandeFsUnsub = null;
             }
+            quizSubscribeGestioneDomandeFallback();
             var ref = firebase.firestore().collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
             ref.get()
                 .then(function (gs) {
@@ -13417,19 +13486,7 @@ function quizSubscribeGestioneDomande() {
                 function (snap) {
                     if (!snap.exists) return;
                     var dat = snap.data() || {};
-                    gestioneDomandeRemoteApply = true;
-                    try {
-                        gestioneDomandeApplyFirestoreSnapshot(dat);
-                        gestioneTestButtonUpdate();
-                        var ov = document.getElementById('quiz-gestione-test-overlay');
-                        if (ov && ov.classList.contains('visible')) {
-                            gestioneDomandeRender();
-                            if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
-                        }
-                    } catch (eApp) {
-                        console.warn('[quiz_gestione_domande apply]', eApp);
-                    }
-                    gestioneDomandeRemoteApply = false;
+                    gestioneDomandeApplyCloudData(dat);
                 },
                 function (err) {
                     console.warn('[quiz_gestione_domande snapshot]', err);
@@ -13443,6 +13500,9 @@ function quizSubscribeGestioneDomande() {
         })
         .catch(function (e) {
             console.warn('[quiz_gestione_domande subscribe]', e);
+            try {
+                quizSubscribeGestioneDomandeFallback();
+            } catch (eFb) { /* ignore */ }
         });
 }
 
@@ -20819,8 +20879,8 @@ async function gestioneTestInviaClick() {
         await quizEnsureFirebase();
         var resultRef = firebase
             .firestore()
-            .collection(QUIZ_FS_GESTIONE_DOMANDE)
-            .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
+            .collection(QUIZ_FS_LEADERBOARD)
+            .doc(QUIZ_FS_LEADERBOARD_DOC);
         var submittedAtMs = Date.now();
         var testResult = gestioneFirestoreCleanValue({
             packId: info.packId,
@@ -20884,8 +20944,8 @@ async function gestioneVerificaRender() {
         await quizEnsureFirebase();
         var resultsSnap = await firebase
             .firestore()
-            .collection(QUIZ_FS_GESTIONE_DOMANDE)
-            .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC)
+            .collection(QUIZ_FS_LEADERBOARD)
+            .doc(QUIZ_FS_LEADERBOARD_DOC)
             .get();
 
         if (!resultsSnap.exists) {
