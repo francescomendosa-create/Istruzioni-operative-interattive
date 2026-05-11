@@ -10929,7 +10929,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605116</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605264</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11061,7 +11061,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605214</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605264</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11109,10 +11109,8 @@ function dismissAppSplash() {
                 <div class="quiz-gestione-test-head-start">
                     <h4 id="quiz-gestione-modal-title" class="quiz-lock-title quiz-gestione-test-title">Gestione test e verifiche</h4>
                     <div class="quiz-gestione-test-segments" role="tablist" aria-label="Sezioni gestione test">
-        var tabCrea = document.getElementById('quiz-gestione-tab-crea');
-    var tabVerifica = document.getElementById('quiz-gestione-tab-verifica');
-    if (tabCrea) tabCrea.hidden = !editorCompleto;
-    if (tabVerifica) tabVerifica.hidden = !editorCompleto;
+                        <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
+                        <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
                     </div>
                     <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
                 </div>
@@ -11156,12 +11154,12 @@ function dismissAppSplash() {
                     <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
                     <button type="button" id="quiz-gestione-btn-invia-tutti" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
                 </div>
+                <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
                 <div class="quiz-gestione-verifica-body">
                     <p class="quiz-gestione-verifica-lead">Sezione <strong>Verifica</strong>: qui potrai usare gli strumenti di verifica del test. Contenuto e funzioni saranno definiti nel prossimo passaggio.</p>
                 </div>
-                <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
         </div>
     </div>
@@ -11507,7 +11505,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605263';
+const APP_BUILD = '202605264';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20746,6 +20744,7 @@ async function gestioneTestInviaClick() {
     var results = gestioneTestCalculateScore();
     var info = gestioneTestAssignmentInfo();
     var currentUserKey = gestioneTestCurrentUserKey();
+    var testItems = gestioneDomandeLoad();
 
     if (!info.hasAssigned || !info.packId) {
         window.alert('Non c\'è un test assegnato per essere inviato.');
@@ -20767,6 +20766,8 @@ async function gestioneTestInviaClick() {
             correctCount: results.correctCount,
             totalQuestions: results.totalQuestions,
             passed: results.passed,
+            userLabel: quizPresenceGetWhoami() || currentUserKey,
+            items: testItems,
             answers: gestioneUtenteLoad() // Salvo le risposte per l'anteprima
         };
         await userRef.set(userResults, { merge: true });
@@ -20831,7 +20832,7 @@ async function gestioneVerificaRender() {
 
                     var userName = document.createElement('span');
                     userName.className = 'quiz-gestione-verifica-user-name';
-                    userName.textContent = userId; // Qui potresti voler usare displayName se disponibile nei risultati
+                    userName.textContent = testResult.userLabel || userId;
                     header.appendChild(userName);
 
                     var resultBadge = document.createElement('span');
@@ -20916,8 +20917,10 @@ function gestioneVerificaAnteprimaTest(userId, packId, testResult) {
     previewContainer.hidden = false;
     previewContainer.innerHTML = ''; // Pulisci contenuto precedente
 
-    var data = testResult.answers.map((answerIndex, qIdx) => {
-        var originalQuestion = testResult.slot.items[qIdx]; // Assumendo che il slot originale sia salvato o recuperabile
+    var items = Array.isArray(testResult.items) ? testResult.items : [];
+    var answers = Array.isArray(testResult.answers) ? testResult.answers : [];
+    var data = answers.map((answerIndex, qIdx) => {
+        var originalQuestion = items[qIdx];
         if (!originalQuestion) return null;
         return {
             q: originalQuestion.q,
@@ -23173,10 +23176,11 @@ function quizGestioneSetSezione(sezione) {
     tabC.setAttribute('aria-selected', String(!wantVerifica));
     tabV.setAttribute('aria-selected', String(wantVerifica));
 
-    if (footerEditor) footerEditor.hidden = wantVerifica;
-    if (footerVerifica) footerVerifica.hidden = !wantVerifica;
+    var isUserTest = quizGestioneDomandeEditorCompleto === false;
+    if (footerEditor) footerEditor.hidden = wantVerifica || isUserTest;
+    if (footerVerifica) footerVerifica.hidden = !isUserTest;
 
-    if (wantVerifica) {
+    if (wantVerifica && !isUserTest) {
         gestioneVerificaRender(); // Carica i risultati quando si passa alla sezione Verifica
     }
 }
@@ -23213,6 +23217,10 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     if (titleEl) {
         titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : 'Test di verifica';
     }
+    var tabsWrap = document.querySelector('#quiz-gestione-test-overlay .quiz-gestione-test-segments');
+    if (tabsWrap) tabsWrap.hidden = !editorCompleto;
+    var destWrap = document.getElementById('quiz-gestione-destinatari-wrap');
+    if (destWrap) destWrap.hidden = !editorCompleto;
     var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
     if (footerEditor) footerEditor.hidden = !editorCompleto;
     var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
