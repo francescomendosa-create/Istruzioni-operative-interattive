@@ -501,6 +501,9 @@
             color: #3e2723;
             animation: quiz-test-badge-pulse 1.05s ease-in-out infinite;
         }
+        #quiz-gestione-btn-invia-test[hidden] {
+            display: none !important;
+        }
         @keyframes quiz-test-badge-pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.08); }
@@ -10937,7 +10940,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605267</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605268</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11069,7 +11072,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605267</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605268</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11516,7 +11519,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605267';
+const APP_BUILD = '202605268';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20338,9 +20341,9 @@ function gestioneTestButtonUpdate(raw) {
     if (!btn) return;
     var badge = document.getElementById('btn-test-gestione-badge');
     var info = gestioneTestAssignmentInfo(raw);
-    btn.classList.toggle('btn-test-gestione--assigned', info.hasAssigned);
+    btn.classList.toggle('btn-test-gestione--assigned', info.pending);
     btn.classList.toggle('btn-test-gestione--pending', info.pending);
-    if (badge) badge.textContent = info.pending ? 'Nuovo' : info.hasAssigned ? 'Test' : '';
+    if (badge) badge.textContent = info.pending ? 'NUOVO' : '';
     var label = info.pending
         ? 'Apri test di verifica: nuovo test assegnato'
         : info.hasAssigned
@@ -20795,7 +20798,9 @@ async function gestioneTestInviaClick() {
 function gestioneTestButtonStateUpdate() {
     var btnInvia = document.getElementById('quiz-gestione-btn-invia-test');
     if (!btnInvia) return;
-    btnInvia.disabled = !gestioneTestCheckAllAnswered();
+    var ready = gestioneTestCheckAllAnswered();
+    btnInvia.hidden = !ready;
+    btnInvia.disabled = !ready;
 }
 
 // Aggiungi qui gli stili CSS per la pagina Verifica (li aggiungerò alla sezione style più tardi)
@@ -20812,7 +20817,7 @@ async function gestioneVerificaRender() {
 
         if (allUsersResults.empty) {
             var p = document.createElement('p');
-            p.textContent = 'Nessun test inviato dagli utenti.';
+            p.textContent = 'nessun test presente';
             p.className = 'quiz-gestione-invia-a-empty'; // Riutilizzo lo stile esistente
             resultsList.appendChild(p);
             return;
@@ -20875,7 +20880,7 @@ async function gestioneVerificaRender() {
         });
         if (!rendered) {
             var pEmpty = document.createElement('p');
-            pEmpty.textContent = 'Nessun test inviato dagli utenti.';
+            pEmpty.textContent = 'nessun test presente';
             pEmpty.className = 'quiz-gestione-invia-a-empty';
             resultsList.appendChild(pEmpty);
         }
@@ -20883,7 +20888,7 @@ async function gestioneVerificaRender() {
     } catch (e) {
         console.error('Errore durante il caricamento dei risultati dei test:', e);
         var p = document.createElement('p');
-        p.textContent = 'Errore durante il caricamento dei risultati dei test.';
+        p.textContent = 'nessun test presente';
         p.className = 'quiz-gestione-invia-a-empty';
         resultsList.appendChild(p);
     }
@@ -21812,7 +21817,7 @@ function gestioneDomandeRender() {
         var empty = document.createElement('p');
         empty.className = 'quiz-gestione-invia-a-empty';
         empty.textContent =
-            'Nessun test assegnato al tuo nome. Verifica in Impostazioni > Chi sei? che il nome sia quello usato dal responsabile.';
+            'non hai ancora ricevuto nessun test di verifica';
         root.appendChild(empty);
         gestioneTestButtonUpdate();
         return;
@@ -23187,7 +23192,7 @@ function quizGestioneSetSezione(sezione) {
 
     var isUserTest = quizGestioneDomandeEditorCompleto === false;
     if (footerEditor) footerEditor.hidden = wantVerifica || isUserTest;
-    if (footerVerifica) footerVerifica.hidden = !isUserTest;
+    if (footerVerifica) footerVerifica.hidden = true;
 
     if (wantVerifica && !isUserTest) {
         gestioneVerificaRender(); // Carica i risultati quando si passa alla sezione Verifica
@@ -23217,19 +23222,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
     if (footerEditor) footerEditor.hidden = !editorCompleto;
     var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
-    if (footerVerifica) footerVerifica.hidden = editorCompleto;
-    if (footerVerifica && !editorCompleto && !footerVerifica.dataset.listenerBound) {
-        var btnInvia = document.createElement('button');
-        btnInvia.type = 'button';
-        btnInvia.id = 'quiz-gestione-btn-invia-test';
-        btnInvia.className = 'btn-side btn-report';
-        btnInvia.textContent = 'INVIA';
-        btnInvia.setAttribute('aria-label', 'Invia il test completato');
-        btnInvia.setAttribute('title', 'Invia il test completato');
-        btnInvia.onclick = gestioneTestInviaClick;
-        footerVerifica.appendChild(btnInvia);
-        footerVerifica.dataset.listenerBound = '1';
-    }
+    if (footerVerifica) footerVerifica.hidden = true;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
     if (settingsOverlay) settingsOverlay.classList.remove('visible');
@@ -23237,6 +23230,25 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
     var sperimentaleBtn = document.getElementById('quiz-gestione-btn-sperimentale');
     var setBtn = document.getElementById('quiz-gestione-btn-settings');
     var tornaBtn = document.getElementById('quiz-gestione-btn-torna');
+    var btnInviaTest = document.getElementById('quiz-gestione-btn-invia-test');
+    if (!editorCompleto && tornaBtn) {
+        if (!btnInviaTest) {
+            btnInviaTest = document.createElement('button');
+            btnInviaTest.type = 'button';
+            btnInviaTest.id = 'quiz-gestione-btn-invia-test';
+            btnInviaTest.className = 'btn-side btn-report';
+            btnInviaTest.textContent = 'INVIA';
+            btnInviaTest.setAttribute('aria-label', 'Invia il test completato');
+            btnInviaTest.setAttribute('title', 'Invia il test completato');
+            btnInviaTest.onclick = gestioneTestInviaClick;
+        }
+        if (btnInviaTest.parentNode !== tornaBtn.parentNode) {
+            tornaBtn.parentNode.insertBefore(btnInviaTest, tornaBtn.nextSibling);
+        }
+        btnInviaTest.hidden = true;
+    } else if (btnInviaTest) {
+        btnInviaTest.hidden = true;
+    }
     if (genBtn) genBtn.hidden = !editorCompleto;
     if (sperimentaleBtn) sperimentaleBtn.hidden = !editorCompleto;
     if (setBtn) setBtn.hidden = !editorCompleto;
