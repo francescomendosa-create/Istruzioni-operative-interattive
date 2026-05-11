@@ -11155,7 +11155,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605276</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605277</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11287,7 +11287,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605276</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605277</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11734,7 +11734,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605276';
+const APP_BUILD = '202605277';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24537,7 +24537,14 @@ const db = {
         { p: 7, q: "Ossigeno disciolto rispecchia condizioni operative? Stabile > 2.0 mg/L Ideale: 2.5-4.5 mg/L ?", si: "Il mantenimento dell'ossigeno tra 2 e 4 mg/l è fondamentale per la stabilità del biofilm. Questo range garantisce che l'ossigeno penetri in profondità negli strati della biomassa adesa ai carrier, evitando la formazione di zone morte (anaerobiche) sotto la superficie marrone. Una corretta ossigenazione assicura un metabolismo aerobico efficiente, accelera l'abbattimento del carico organico e mantiene il fango vitale e reattivo.", no: "O2 fuori range (rif. operativo: DO stabile > 2,0 mg/L; ideale 2,5-4,5 mg/L).", tag: "O2",
           o2_consequences: true
         },
-        { p: 8, q: "Il fango si presenta marrone?", si: "Il colore marrone indica una biomassa sana, giovane e ben ossigenata. Questa tonalità conferma che il biofilm aderente ai carrier è composto da popolazioni batteriche attive nel degradare il carico organico. Un marrone vivace è il segnale che il turnover cellulare è corretto: il vecchio biofilm si stacca e viene sostituito da nuova biomassa vitale. È la conferma visiva che i parametri di ossigeno, temperatura e nutrienti (Urea) sono ben bilanciati.", no: "Fango NON marrone.", tag: "Salute" },
+        { p: 8, q: "Il fango si presenta marrone?", si: "Il colore marrone indica una biomassa sana, giovane e ben ossigenata. Questa tonalità conferma che il biofilm aderente ai carrier è composto da popolazioni batteriche attive nel degradare il carico organico. Un marrone vivace è il segnale che il turnover cellulare è corretto: il vecchio biofilm si stacca e viene sostituito da nuova biomassa vitale. È la conferma visiva che i parametri di ossigeno, temperatura e nutrienti (Urea) sono ben bilanciati.", no: "Fango NON marrone.",
+          risk: "Biomassa in sofferenza: colore non marrone indica possibile stress del biofilm, carenza di ossigeno/nutrienti o deriva verso condizioni settiche.",
+          actions: [
+            { c: "Controllo ossigeno e insufflaggio", a: "Verificare DO, soffianti, diffusori e movimento uniforme dei carrier." },
+            { c: "Controllo nutrienti e carico", a: "Verificare valore del cono, COD in ingresso e supporto con nutrienti secondo protocollo." },
+            { c: "Verifica colore fango", a: "Se il fango tende al nero, trattare come possibile condizione settica e controllare subito oli/COD dal chimico-fisico." }
+          ],
+          tag: "Salute" },
         { p: 9, q: "Il fango si presenta nero?", control: true,
           risk: "ALTISSIMO COD / SHOCK TOSSICO BIOMASSA",
           actions: [
@@ -28364,7 +28371,9 @@ function check(s, p, val, btn) {
                 html += `</ul></div></details>`;
             }
 
-            if (item.risk_list || item.risk) {
+            const hasRiskList = Array.isArray(item.risk_list) && item.risk_list.length > 0;
+            const hasRiskText = item.risk != null && String(item.risk).trim().length > 0;
+            if (hasRiskList || hasRiskText) {
                 const riskMbr69AlwaysOpen = s === 'mbr' && (p === 6 || p === 9);
                 const riskDetailsTagOpen = riskMbr69AlwaysOpen
                     ? '<details open class="risk-section risk-accordion risk-blink-until-open">'
@@ -28372,7 +28381,7 @@ function check(s, p, val, btn) {
                 html += `${riskDetailsTagOpen}
                             <summary class="risk-accordion-summary">ATTENZIONE<span class="warn-tri" aria-hidden="true">⚠️</span> Rischio associato!</summary>
                             <div class="risk-accordion-body">`;
-                if (item.risk_list) {
+                if (hasRiskList) {
                     html += `<ul class="critical-list" style="color: #c2410c;">`;
                     item.risk_list.forEach(r => html += `<li>${r}</li>`);
                     html += `</ul>`;
