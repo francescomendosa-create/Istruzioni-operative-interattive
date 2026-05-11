@@ -7068,6 +7068,24 @@
     flex: 0 0 auto;
     font-weight: 900;
 }
+.quiz-test-compact-row {
+    cursor: pointer;
+    transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.quiz-test-compact-row input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.quiz-test-compact-row--selected {
+    background: linear-gradient(135deg, rgba(237, 231, 246, 0.98), rgba(227, 242, 253, 0.96));
+    border-color: rgba(94, 53, 177, 0.38);
+    color: #4527a0;
+    box-shadow: 0 6px 16px rgba(94, 53, 177, 0.16);
+}
+.quiz-test-compact-row:active {
+    transform: scale(0.995);
+}
 
 .gestione-answer-slot--selected-user {
     background-color: rgba(33, 150, 243, 0.1); /* Blu chiaro per la risposta dell'utente */
@@ -11137,7 +11155,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605275</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605276</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11269,7 +11287,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605275</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605276</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11716,7 +11734,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605275';
+const APP_BUILD = '202605276';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22078,10 +22096,76 @@ function gestioneDomandeSyncAnswerRows(card) {
     }
 }
 
+function gestioneDomandeBuildUserCompactCard(i, slot) {
+    slot = slot || gestioneDomandeEmptySlot();
+    var naCfg = gestioneConfigLoad().numAnswers;
+    var letters = ['A', 'B', 'C', 'D', 'E'];
+    var picksUtente = gestioneUtenteLoad();
+    var userPick =
+        picksUtente &&
+        picksUtente[i] !== null &&
+        picksUtente[i] !== undefined
+            ? picksUtente[i]
+            : null;
+
+    var card = document.createElement('div');
+    card.className = 'quiz-gestione-preview-row';
+    card.id = 'gestione-card-' + i;
+
+    var q = document.createElement('p');
+    q.className = 'quiz-gestione-preview-question';
+    q.textContent = (i + 1) + '. ' + (slot.q || 'Domanda senza testo');
+    card.appendChild(q);
+
+    function updateSelectedRows() {
+        var rows = card.querySelectorAll('.quiz-test-compact-row');
+        for (var r = 0; r < rows.length; r++) {
+            var inpR = rows[r].querySelector('input[type="radio"]');
+            rows[r].classList.toggle('quiz-test-compact-row--selected', !!(inpR && inpR.checked));
+        }
+    }
+
+    for (let k = 0; k < naCfg; k++) {
+        var row = document.createElement('label');
+        row.className = 'quiz-gestione-preview-answer quiz-gestione-preview-answer--neutral quiz-test-compact-row';
+        row.setAttribute('for', 'gestione-corr-' + i + '-' + k);
+
+        var rad = document.createElement('input');
+        rad.type = 'radio';
+        rad.name = 'gestione-corr-' + i;
+        rad.value = String(k);
+        rad.id = 'gestione-corr-' + i + '-' + k;
+        if (userPick === k) rad.checked = true;
+        rad.setAttribute('aria-label', 'La tua risposta: opzione ' + letters[k]);
+
+        var mark = document.createElement('span');
+        mark.className = 'quiz-gestione-preview-mark';
+        mark.textContent = letters[k];
+
+        var txt = document.createElement('span');
+        txt.textContent = slot.answers && slot.answers[k] ? slot.answers[k] : '';
+
+        rad.addEventListener('change', function () {
+            updateSelectedRows();
+            gestioneUtentePickSaveOne(i);
+            gestioneTestButtonStateUpdate();
+        });
+
+        row.appendChild(rad);
+        row.appendChild(mark);
+        row.appendChild(txt);
+        card.appendChild(row);
+    }
+
+    updateSelectedRows();
+    return card;
+}
+
 function gestioneDomandeBuildCard(i, slot) {
     slot = slot || gestioneDomandeEmptySlot();
     var naCfg = gestioneConfigLoad().numAnswers;
     var editor = quizGestioneDomandeEditorCompleto;
+    if (!editor) return gestioneDomandeBuildUserCompactCard(i, slot);
     var picksUtente = editor ? null : gestioneUtenteLoad();
     var userPick =
         !editor &&
