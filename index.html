@@ -10940,7 +10940,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605268</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605269</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11072,7 +11072,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605268</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605269</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11519,7 +11519,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605268';
+const APP_BUILD = '202605269';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13353,6 +13353,7 @@ function quizSubscribeCustomSchedario() {
 /*
  * quiz_gestione_domande/global — { v, items[], perUser?: { [key]: { items[], packId, assignedAtMs, assignedBy } }, updatedAt }
  *   perUser: pacchetti test per nome «Chi sei?» normalizzato (chiave); items resta solo fallback editor/legacy.
+ * quiz_gestione_domande/global.testResults — { [key]: { userLabel, tests: { [packId]: result } } }
  * quiz_gestione_domande/mcq_cache — { v, map: { [cacheKey]: { wrong[], correctArt, ts } }, updatedAt }
  * Regole Firestore suggerite:
  *   match /quiz_gestione_domande/{docId} {
@@ -19853,6 +19854,8 @@ var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
 /** Stato locale delle notifiche Test: quale pacchetto assegnato è già stato visto da questo dispositivo. */
 var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v1';
+/** Punto zero Test: ignora test assegnati e risultati inviati prima di questo aggiornamento. */
+var GESTIONE_TEST_RESET_AT_MS = 1778534462558;
 /** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
 var GESTIONE_GENERA_UGUALE_TUTTI_LS = 'io-gestione-genera-uguali-tutti-v1';
 /** Numero domande / opzioni per domanda (persistente). */
@@ -20285,6 +20288,12 @@ function gestioneTestAssignmentPackId(slot) {
     return slot.packId ? String(slot.packId) : gestioneTestPackSignature(slot.items);
 }
 
+function gestioneTestAssignmentIsAfterReset(slot) {
+    if (!slot) return false;
+    var assignedAtMs = Number(slot.assignedAtMs || 0);
+    return assignedAtMs >= GESTIONE_TEST_RESET_AT_MS;
+}
+
 function gestioneTestCurrentPackIdForPicks() {
     if (quizGestioneDomandeEditorCompleto !== false) return '_legacy';
     var slot = gestioneTestAssignmentSlot();
@@ -20312,7 +20321,7 @@ function gestioneTestAssignmentInfo(raw) {
     raw = raw || gestioneDomandeLoadRaw();
     var key = gestioneTestCurrentUserKey();
     var slot = gestioneTestAssignmentSlot(raw, key);
-    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items));
+    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items) && gestioneTestAssignmentIsAfterReset(slot));
     var packId = hasAssigned ? gestioneTestAssignmentPackId(slot) : '';
     var ack = gestioneTestAckLoad();
     return {
@@ -20422,7 +20431,7 @@ function gestioneDomandeLoad() {
     var raw = gestioneDomandeLoadRaw();
     if (quizGestioneDomandeEditorCompleto === false) {
         var slot = gestioneTestAssignmentSlot(raw);
-        if (slot && Array.isArray(slot.items)) {
+        if (slot && Array.isArray(slot.items) && gestioneTestAssignmentIsAfterReset(slot)) {
             return gestioneDomandeNormalizeItems(slot.items);
         }
         return [];
@@ -20750,6 +20759,14 @@ function gestioneTestCalculateScore() {
     return { correctCount: correctCount, totalQuestions: totalQuestions, score: score, passed: passed };
 }
 
+function gestioneVerificaEmptyMessage(resultsList) {
+    if (!resultsList) return;
+    var p = document.createElement('p');
+    p.textContent = 'nessun test presente';
+    p.className = 'quiz-gestione-invia-a-empty';
+    resultsList.appendChild(p);
+}
+
 async function gestioneTestInviaClick() {
     if (!gestioneTestCheckAllAnswered()) {
         window.alert('Per favore, rispondi a tutte le domande prima di inviare il test.');
@@ -20768,10 +20785,19 @@ async function gestioneTestInviaClick() {
 
     try {
         await quizEnsureFirebase();
-        var userRef = firebase.firestore().collection('quiz_test_results').doc(currentUserKey);
-        var userResults = (await userRef.get()).data() || {};
-
-        if (!userResults.tests) userResults.tests = {};
+        var resultRef = firebase
+            .firestore()
+            .collection(QUIZ_FS_GESTIONE_DOMANDE)
+            .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
+        var resultSnap = await resultRef.get();
+        var resultDoc = resultSnap.exists ? resultSnap.data() || {} : {};
+        var users = resultDoc.testResults && typeof resultDoc.testResults === 'object' ? resultDoc.testResults : {};
+        var userResults = users[currentUserKey] && typeof users[currentUserKey] === 'object'
+            ? users[currentUserKey]
+            : {};
+        if (!userResults.tests || typeof userResults.tests !== 'object') userResults.tests = {};
+        userResults.userLabel = quizPresenceGetWhoami() || currentUserKey;
+        userResults.updatedAtMs = Date.now();
         userResults.tests[info.packId] = {
             packId: info.packId,
             assignedAtMs: info.slot ? info.slot.assignedAtMs : null,
@@ -20785,7 +20811,14 @@ async function gestioneTestInviaClick() {
             items: testItems,
             answers: gestioneUtenteLoad() // Salvo le risposte per l'anteprima
         };
-        await userRef.set(userResults, { merge: true });
+        users[currentUserKey] = userResults;
+        await resultRef.set(
+            {
+                testResults: users,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+        );
         window.alert('Test inviato con successo! Il tuo punteggio è: ' + results.score + '%');
         // Chiudi il modal del test dopo l'invio
         hideQuizGestioneTestVerificheModal();
@@ -20813,24 +20846,33 @@ async function gestioneVerificaRender() {
 
     try {
         await quizEnsureFirebase();
-        var allUsersResults = await firebase.firestore().collection('quiz_test_results').get();
+        var resultsSnap = await firebase
+            .firestore()
+            .collection(QUIZ_FS_GESTIONE_DOMANDE)
+            .doc(QUIZ_FS_GESTIONE_DOMANDE_DOC)
+            .get();
 
-        if (allUsersResults.empty) {
-            var p = document.createElement('p');
-            p.textContent = 'nessun test presente';
-            p.className = 'quiz-gestione-invia-a-empty'; // Riutilizzo lo stile esistente
-            resultsList.appendChild(p);
+        if (!resultsSnap.exists) {
+            gestioneVerificaEmptyMessage(resultsList);
             return;
         }
 
+        var allUsersResults = resultsSnap.data() || {};
+        var users = allUsersResults.testResults && typeof allUsersResults.testResults === 'object' ? allUsersResults.testResults : {};
+        var userKeys = Object.keys(users);
+        if (!userKeys.length) {
+            gestioneVerificaEmptyMessage(resultsList);
+            return;
+        }
         var rendered = 0;
-        allUsersResults.forEach(doc => {
-            var userData = doc.data();
-            var userId = doc.id; // Corrisponde alla chiave utente normalizzata
+        userKeys.forEach(userId => {
+            var userData = users[userId] || {};
 
             if (userData.tests) {
                 Object.keys(userData.tests).forEach(packId => {
                     var testResult = userData.tests[packId];
+                    var resultAtMs = Number(testResult.submittedAtMs || testResult.assignedAtMs || 0);
+                    if (resultAtMs < GESTIONE_TEST_RESET_AT_MS) return;
                     rendered++;
                     var card = document.createElement('div');
                     card.className = 'quiz-gestione-verifica-card';
@@ -20879,18 +20921,12 @@ async function gestioneVerificaRender() {
             }
         });
         if (!rendered) {
-            var pEmpty = document.createElement('p');
-            pEmpty.textContent = 'nessun test presente';
-            pEmpty.className = 'quiz-gestione-invia-a-empty';
-            resultsList.appendChild(pEmpty);
+            gestioneVerificaEmptyMessage(resultsList);
         }
 
     } catch (e) {
         console.error('Errore durante il caricamento dei risultati dei test:', e);
-        var p = document.createElement('p');
-        p.textContent = 'nessun test presente';
-        p.className = 'quiz-gestione-invia-a-empty';
-        resultsList.appendChild(p);
+        gestioneVerificaEmptyMessage(resultsList);
     }
 }
 
