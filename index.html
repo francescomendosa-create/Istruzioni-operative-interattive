@@ -443,6 +443,7 @@
 
         /* Tra Quiz e Diagnostica — gestione domande test e verifiche (stesse dimensioni base) */
         .btn-test-gestione {
+            position: relative;
             box-sizing: border-box;
             min-width: 132px;
             padding: 8px 16px;
@@ -465,6 +466,49 @@
         .btn-test-gestione:active {
             transform: translateY(3px) scale(0.99);
             box-shadow: 0 2px 0 rgba(49, 27, 96, 0.45), 0 4px 8px rgba(0, 0, 0, 0.14);
+        }
+        .btn-test-gestione__badge {
+            display: none;
+            position: absolute;
+            top: -9px;
+            right: -9px;
+            min-width: 18px;
+            max-width: 88px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 2px solid #fff;
+            background: linear-gradient(180deg, #ffe082 0%, #f9a825 100%);
+            color: #3e2723;
+            font-size: 0.55rem;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            text-shadow: none;
+            box-shadow: 0 2px 8px rgba(245, 124, 0, 0.38);
+            pointer-events: none;
+        }
+        .btn-test-gestione--assigned .btn-test-gestione__badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-test-gestione--pending {
+            box-shadow: 0 4px 0 rgba(49, 27, 96, 0.42), 0 0 0 4px rgba(255, 193, 7, 0.28), 0 8px 14px rgba(49, 27, 96, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+        .btn-test-gestione--pending .btn-test-gestione__badge {
+            background: linear-gradient(180deg, #ffecb3 0%, #ff9800 100%);
+            color: #3e2723;
+            animation: quiz-test-badge-pulse 1.05s ease-in-out infinite;
+        }
+        @keyframes quiz-test-badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .btn-test-gestione--pending .btn-test-gestione__badge {
+                animation: none;
+            }
         }
 
         .quiz-panel {
@@ -10251,7 +10295,10 @@ function dismissAppSplash() {
     <div class="header-quiz-row">
         <div class="header-quiz-actions">
             <button type="button" class="btn-quiz" onclick="openQuiz()" title="Modalità quiz">Quiz</button>
-            <button type="button" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal(false)" title="Test di verifica (domande assegnate al tuo nome)" aria-label="Apri test di verifica">Test</button>
+            <button type="button" id="btn-test-gestione" class="btn-test-gestione" onclick="showQuizGestioneTestVerificheModal(false)" title="Test di verifica (domande assegnate al tuo nome)" aria-label="Apri test di verifica">
+                Test
+                <span id="btn-test-gestione-badge" class="btn-test-gestione__badge" aria-hidden="true"></span>
+            </button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
         </div>
     </div>
@@ -12110,6 +12157,9 @@ function quizPresenceWhoamiSave() {
         var gOv = document.getElementById('quiz-gestione-test-overlay');
         if (gOv && gOv.classList.contains('visible') && quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
     } catch (eG) { /* ignore */ }
+    try {
+        gestioneTestButtonUpdate();
+    } catch (eTb) { /* ignore */ }
 }
 
 /** Se Chiudi Impostazioni con il modale Chi sei? aperto: salva e invia al server. */
@@ -13172,8 +13222,8 @@ function quizSubscribeCustomSchedario() {
 }
 
 /*
- * quiz_gestione_domande/global — { v, items[], perUser?: { [key]: { items[] } }, updatedAt }
- *   perUser: pacchetti per nome «Chi sei?» normalizzato (chiave); items legacy se perUser assente.
+ * quiz_gestione_domande/global — { v, items[], perUser?: { [key]: { items[], packId, assignedAtMs, assignedBy } }, updatedAt }
+ *   perUser: pacchetti test per nome «Chi sei?» normalizzato (chiave); items resta solo fallback editor/legacy.
  * quiz_gestione_domande/mcq_cache — { v, map: { [cacheKey]: { wrong[], correctArt, ts } }, updatedAt }
  * Regole Firestore suggerite:
  *   match /quiz_gestione_domande/{docId} {
@@ -13240,6 +13290,7 @@ function quizSubscribeGestioneDomande() {
                     gestioneDomandeRemoteApply = true;
                     try {
                         gestioneDomandeApplyFirestoreSnapshot(dat);
+                        gestioneTestButtonUpdate();
                         var ov = document.getElementById('quiz-gestione-test-overlay');
                         if (ov && ov.classList.contains('visible')) {
                             gestioneDomandeRender();
@@ -19671,6 +19722,8 @@ function quizAppModalBackdrop(ev) {
 var GESTIONE_DOMANDE_LS = 'io-gestione-test-domande-v1';
 /** Risposte scelte dall’utente nel flusso Test (barra principale): non modifica correctIndex del banco domande. */
 var GESTIONE_UTENTE_LS = 'io-gestione-test-risposte-utente-v1';
+/** Stato locale delle notifiche Test: quale pacchetto assegnato è già stato visto da questo dispositivo. */
+var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v1';
 /** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
 var GESTIONE_GENERA_UGUALE_TUTTI_LS = 'io-gestione-genera-uguali-tutti-v1';
 /** Numero domande / opzioni per domanda (persistente). */
@@ -19869,10 +19922,15 @@ function gestioneUtentePicksNormalize(picks) {
 }
 
 function gestioneUtenteLoad() {
+    var packId = gestioneTestCurrentPackIdForPicks();
     try {
         var raw = localStorage.getItem(GESTIONE_UTENTE_LS);
         if (!raw) throw new Error('empty');
         var parsed = JSON.parse(raw);
+        if (parsed && parsed.v === 2 && parsed.byPack && typeof parsed.byPack === 'object') {
+            return gestioneUtentePicksNormalize(parsed.byPack[packId] || []);
+        }
+        if (packId !== '_legacy') return gestioneUtentePicksNormalize([]);
         return gestioneUtentePicksNormalize(parsed.picks);
     } catch (e) {
         return gestioneUtentePicksNormalize([]);
@@ -19880,10 +19938,20 @@ function gestioneUtenteLoad() {
 }
 
 function gestioneUtentePersist(picks) {
+    var packId = gestioneTestCurrentPackIdForPicks();
+    var byPack = {};
+    try {
+        var oldRaw = localStorage.getItem(GESTIONE_UTENTE_LS);
+        if (oldRaw) {
+            var old = JSON.parse(oldRaw);
+            if (old && old.byPack && typeof old.byPack === 'object') byPack = old.byPack;
+        }
+    } catch (eOld) { /* ignore */ }
+    byPack[packId] = gestioneUtentePicksNormalize(picks);
     try {
         localStorage.setItem(
             GESTIONE_UTENTE_LS,
-            JSON.stringify({ v: 1, picks: gestioneUtentePicksNormalize(picks) })
+            JSON.stringify({ v: 2, activePackId: packId, byPack: byPack })
         );
     } catch (e) { /* ignore */ }
 }
@@ -20027,11 +20095,133 @@ function gestioneNormalizePerUserMap(pu) {
     var out = {};
     if (!pu || typeof pu !== 'object') return out;
     Object.keys(pu).forEach(function (k) {
+        var cleanKey = String(k || '').trim();
+        if (!cleanKey) return;
         var slot = pu[k];
         if (!slot || !Array.isArray(slot.items)) return;
-        out[k] = { items: gestioneDomandeNormalizeItems(slot.items) };
+        var clean = { items: gestioneDomandeNormalizeItems(slot.items) };
+        if (slot.packId != null) clean.packId = String(slot.packId).slice(0, 80);
+        var assignedAtMs = parseInt(slot.assignedAtMs, 10);
+        if (isFinite(assignedAtMs) && assignedAtMs > 0) clean.assignedAtMs = assignedAtMs;
+        if (slot.assignedBy != null) clean.assignedBy = quizPresenceSanitizeLabel(String(slot.assignedBy)).slice(0, 40);
+        out[cleanKey] = clean;
     });
     return out;
+}
+
+function gestioneTestCurrentUserKey() {
+    return gestioneRecipientKeyFromLabel(quizPresenceGetWhoami());
+}
+
+function gestioneTestPackSignature(items) {
+    var norm = gestioneDomandeNormalizeItems(items || []);
+    var src = '';
+    try {
+        src = JSON.stringify(
+            norm.map(function (it) {
+                return {
+                    q: String((it && it.q) || '').trim(),
+                    answers: ((it && it.answers) || []).map(function (a) {
+                        return String(a || '').trim();
+                    }),
+                    correctIndex: parseInt(it && it.correctIndex, 10) || 0
+                };
+            })
+        );
+    } catch (eJson) {
+        src = String(Date.now());
+    }
+    var h = 0;
+    for (var i = 0; i < src.length; i++) {
+        h = ((h << 5) - h + src.charCodeAt(i)) | 0;
+    }
+    return 'sig-' + Math.abs(h);
+}
+
+function gestioneTestNewPackId(ts) {
+    var base = parseInt(ts, 10);
+    if (!isFinite(base) || base <= 0) base = Date.now();
+    return 'test-' + base + '-' + Math.random().toString(36).slice(2, 8);
+}
+
+function gestioneTestAssignmentSlot(raw, key) {
+    raw = raw || gestioneDomandeLoadRaw();
+    key = String(key || gestioneTestCurrentUserKey()).trim();
+    if (!key || !raw.perUser || !raw.perUser[key] || !Array.isArray(raw.perUser[key].items)) return null;
+    return raw.perUser[key];
+}
+
+function gestioneTestAssignmentPackId(slot) {
+    if (!slot || !Array.isArray(slot.items)) return '';
+    return slot.packId ? String(slot.packId) : gestioneTestPackSignature(slot.items);
+}
+
+function gestioneTestCurrentPackIdForPicks() {
+    if (quizGestioneDomandeEditorCompleto !== false) return '_legacy';
+    var slot = gestioneTestAssignmentSlot();
+    var pid = gestioneTestAssignmentPackId(slot);
+    return pid || '_legacy';
+}
+
+function gestioneTestAckLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_TEST_ACK_LS);
+        if (!raw) return {};
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.byUser && typeof parsed.byUser === 'object') return parsed.byUser;
+    } catch (eAck) { /* ignore */ }
+    return {};
+}
+
+function gestioneTestAckSave(byUser) {
+    try {
+        localStorage.setItem(GESTIONE_TEST_ACK_LS, JSON.stringify({ v: 1, byUser: byUser || {} }));
+    } catch (eAck) { /* ignore */ }
+}
+
+function gestioneTestAssignmentInfo(raw) {
+    raw = raw || gestioneDomandeLoadRaw();
+    var key = gestioneTestCurrentUserKey();
+    var slot = gestioneTestAssignmentSlot(raw, key);
+    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items));
+    var packId = hasAssigned ? gestioneTestAssignmentPackId(slot) : '';
+    var ack = gestioneTestAckLoad();
+    return {
+        key: key,
+        slot: slot,
+        hasAssigned: hasAssigned,
+        packId: packId,
+        pending: !!(hasAssigned && packId && ack[key] !== packId)
+    };
+}
+
+function gestioneTestAcknowledgeCurrentAssignment() {
+    var info = gestioneTestAssignmentInfo();
+    if (!info.hasAssigned || !info.packId) {
+        gestioneTestButtonUpdate();
+        return;
+    }
+    var ack = gestioneTestAckLoad();
+    ack[info.key] = info.packId;
+    gestioneTestAckSave(ack);
+    gestioneTestButtonUpdate();
+}
+
+function gestioneTestButtonUpdate(raw) {
+    var btn = document.getElementById('btn-test-gestione');
+    if (!btn) return;
+    var badge = document.getElementById('btn-test-gestione-badge');
+    var info = gestioneTestAssignmentInfo(raw);
+    btn.classList.toggle('btn-test-gestione--assigned', info.hasAssigned);
+    btn.classList.toggle('btn-test-gestione--pending', info.pending);
+    if (badge) badge.textContent = info.pending ? 'Nuovo' : info.hasAssigned ? 'Test' : '';
+    var label = info.pending
+        ? 'Apri test di verifica: nuovo test assegnato'
+        : info.hasAssigned
+            ? 'Apri test di verifica: test assegnato'
+            : 'Apri test di verifica';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', info.hasAssigned ? 'Test di verifica assegnato al tuo nome' : 'Test di verifica (domande assegnate al tuo nome)');
 }
 
 function gestioneDomandeMigrateV1ToV2(parsed) {
@@ -20083,12 +20273,11 @@ function gestioneDomandeApplyFirestoreSnapshot(dat) {
     raw.v = 2;
     if (!raw.perUser) raw.perUser = {};
     var normItems = Array.isArray(dat.items) ? gestioneDomandeNormalizeItems(dat.items) : null;
-    var hasPU =
+    var hasPUField =
         dat.perUser &&
-        typeof dat.perUser === 'object' &&
-        Object.keys(gestioneNormalizePerUserMap(dat.perUser)).length > 0;
-    if (hasPU) {
-        raw.perUser = gestioneMergePerUserMaps(raw.perUser || {}, gestioneNormalizePerUserMap(dat.perUser));
+        typeof dat.perUser === 'object';
+    if (hasPUField) {
+        raw.perUser = gestioneNormalizePerUserMap(dat.perUser);
     }
     if (normItems) {
         raw.items = normItems;
@@ -20102,12 +20291,12 @@ function gestioneDomandeApplyFirestoreSnapshot(dat) {
 
 function gestioneDomandeLoad() {
     var raw = gestioneDomandeLoadRaw();
-    if (!quizGestioneDomandeEditorCompleto) {
-        var mk = gestioneRecipientKeyFromLabel(quizPresenceGetWhoami());
-        if (raw.perUser && raw.perUser[mk] && Array.isArray(raw.perUser[mk].items)) {
-            return gestioneDomandeNormalizeItems(raw.perUser[mk].items);
+    if (quizGestioneDomandeEditorCompleto === false) {
+        var slot = gestioneTestAssignmentSlot(raw);
+        if (slot && Array.isArray(slot.items)) {
+            return gestioneDomandeNormalizeItems(slot.items);
         }
-        return gestioneDomandeNormalizeItems(raw.items || []);
+        return [];
     }
     return gestioneDomandeNormalizeItems(raw.items || []);
 }
@@ -20134,7 +20323,13 @@ function gestioneDomandePersist(items) {
     if (!raw.perUser) raw.perUser = {};
     var rk = String(raw.recipientKey || '').trim();
     if (rk) {
-        raw.perUser[rk] = { items: norm };
+        var prev = raw.perUser[rk] || {};
+        raw.perUser[rk] = {
+            items: norm,
+            packId: prev.packId,
+            assignedAtMs: prev.assignedAtMs,
+            assignedBy: prev.assignedBy
+        };
     }
     gestioneDomandeSaveRaw(raw);
     gestioneDomandeSchedulePushToFirestore();
@@ -20149,7 +20344,13 @@ function gestioneRecipientSelect(key) {
     if (old && old !== key) {
         try {
             var cur = gestioneReadSlotsFromDom();
-            raw.perUser[old] = { items: gestioneDomandeNormalizeItems(cur) };
+            var prevOld = raw.perUser[old] || {};
+            raw.perUser[old] = {
+                items: gestioneDomandeNormalizeItems(cur),
+                packId: prevOld.packId,
+                assignedAtMs: prevOld.assignedAtMs,
+                assignedBy: prevOld.assignedBy
+            };
         } catch (e) { /* ignore */ }
     }
     raw.recipientKey = key;
@@ -20410,10 +20611,18 @@ function gestioneDomandeFanOutCurrentToKeys(keys) {
     raw.v = 2;
     raw.items = gestioneDomandeItemsDeepCopy(norm);
     if (!raw.perUser) raw.perUser = {};
+    var assignedAtMs = Date.now();
+    var packId = gestioneTestNewPackId(assignedAtMs);
+    var assignedBy = quizPresenceGetWhoami() || 'Gestione';
     for (var i = 0; i < keys.length; i++) {
         var k = String(keys[i] || '').trim();
         if (!k) continue;
-        raw.perUser[k] = { items: gestioneDomandeItemsDeepCopy(norm) };
+        raw.perUser[k] = {
+            items: gestioneDomandeItemsDeepCopy(norm),
+            packId: packId,
+            assignedAtMs: assignedAtMs,
+            assignedBy: assignedBy
+        };
     }
     gestioneDomandeSaveRaw(raw);
 }
@@ -20425,10 +20634,18 @@ function gestioneDomandeFanOutNormalizedPackToKeys(keys, packItems) {
     raw.v = 2;
     raw.items = gestioneDomandeItemsDeepCopy(norm);
     if (!raw.perUser) raw.perUser = {};
+    var assignedAtMs = Date.now();
+    var packId = gestioneTestNewPackId(assignedAtMs);
+    var assignedBy = quizPresenceGetWhoami() || 'Gestione';
     for (var i = 0; i < keys.length; i++) {
         var k = String(keys[i] || '').trim();
         if (!k) continue;
-        raw.perUser[k] = { items: gestioneDomandeItemsDeepCopy(norm) };
+        raw.perUser[k] = {
+            items: gestioneDomandeItemsDeepCopy(norm),
+            packId: packId,
+            assignedAtMs: assignedAtMs,
+            assignedBy: assignedBy
+        };
     }
     gestioneDomandeSaveRaw(raw);
 }
@@ -21119,6 +21336,15 @@ function gestioneDomandeRender() {
     gestioneSlotRevertBaselineInitFromLoadedData(data);
     var nq = gestioneConfigLoad().numQuestions;
     root.innerHTML = '';
+    if (quizGestioneDomandeEditorCompleto === false && !gestioneDomandePackHasAnyContent(data)) {
+        var empty = document.createElement('p');
+        empty.className = 'quiz-gestione-invia-a-empty';
+        empty.textContent =
+            'Nessun test assegnato al tuo nome. Verifica in Impostazioni > Chi sei? che il nome sia quello usato dal responsabile.';
+        root.appendChild(empty);
+        gestioneTestButtonUpdate();
+        return;
+    }
     for (var i = 0; i < nq; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
@@ -22537,6 +22763,8 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni) {
         if (editorCompleto) {
             gestioneRenderDestinatariBadges();
             gestioneGeneraUgualiTuttiRefreshCheckbox();
+        } else {
+            gestioneTestAcknowledgeCurrentAssignment();
         }
     } catch (eR) { /* ignore */ }
 }
@@ -27885,6 +28113,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizSubscribeGestioneDomande();
             } catch (eGd) { /* ignore */ }
+            try {
+                gestioneTestButtonUpdate();
+            } catch (eTb) { /* ignore */ }
             try {
                 quizSubscribeGestioneMcqCache();
             } catch (eMcq) { /* ignore */ }
