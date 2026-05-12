@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605385';
+const APP_BUILD = '202605386';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15191,6 +15191,7 @@ function gestioneApplyRemoteTestResetAtMs(rawResetAtMs) {
         localStorage.setItem(GESTIONE_TEST_RESET_LS, String(GESTIONE_TEST_RESET_AT_MS));
     } catch (eLs) { /* ignore */ }
     var raw = gestioneDomandeLoadRaw();
+    gestioneRecipientsRememberFromPerUser(raw.perUser);
     raw.perUser = {};
     gestioneDomandeSaveRaw(raw);
     try { gestioneTestButtonUpdate(raw); } catch (eBtn) { /* ignore */ }
@@ -15567,8 +15568,11 @@ function quizSubscribeGestioneDomandeFallback() {
     gestioneDomandeFallbackFsUnsub = ref.onSnapshot(
         function (snap) {
             if (!snap.exists) return;
-            if (gestioneDomandePrimarySnapshotReady) return;
             var dat = snap.data() || {};
+            if (dat.gestioneTestData && typeof dat.gestioneTestData === 'object') {
+                gestioneRecipientsRememberFromPerUser(dat.gestioneTestData.perUser);
+            }
+            if (gestioneDomandePrimarySnapshotReady) return;
             if (dat.gestioneTestData && typeof dat.gestioneTestData === 'object') {
                 gestioneDomandeApplyCloudData(dat.gestioneTestData);
             }
@@ -22152,6 +22156,8 @@ var GESTIONE_TEST_ACK_LS = 'io-gestione-test-ack-v2';
 var GESTIONE_TEST_DONE_LS = 'io-gestione-test-consegnati-v1';
 /** Reset locale manuale dei test inviati, usato quando Firestore nega la cancellazione fisica. */
 var GESTIONE_TEST_RESET_LS = 'io-gestione-test-reset-at-ms-v1';
+/** Rubrica destinatari separata dai test assegnati: non si cancella col reset dei test inviati. */
+var GESTIONE_RECIPIENTS_LS = 'io-gestione-test-recipienti-v1';
 /** Punto zero Test: ignora test assegnati e risultati inviati prima di questo aggiornamento. */
 var GESTIONE_TEST_RESET_AT_MS = 1778624400000;
 try {
@@ -22583,6 +22589,57 @@ function gestioneRecipientKeyFromLabel(name) {
     return s.substring(0, 48);
 }
 
+function gestioneRecipientLabelFromKey(key) {
+    return String(key || '')
+        .replace(/-/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() || String(key || '');
+}
+
+function gestioneRecipientsLoad() {
+    try {
+        var raw = localStorage.getItem(GESTIONE_RECIPIENTS_LS);
+        if (!raw) return {};
+        var parsed = JSON.parse(raw);
+        return parsed && parsed.map && typeof parsed.map === 'object' ? parsed.map : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function gestioneRecipientsSave(map) {
+    try {
+        localStorage.setItem(GESTIONE_RECIPIENTS_LS, JSON.stringify({ v: 1, map: map || {} }));
+    } catch (e) { /* ignore */ }
+}
+
+function gestioneRecipientsRemember(key, label) {
+    key = String(key || '').trim();
+    if (!key) return;
+    var map = gestioneRecipientsLoad();
+    map[key] = {
+        label: String(label || gestioneRecipientLabelFromKey(key)).trim() || key,
+        updatedAtMs: Date.now()
+    };
+    gestioneRecipientsSave(map);
+}
+
+function gestioneRecipientsRememberFromPerUser(perUser) {
+    if (!perUser || typeof perUser !== 'object') return;
+    Object.keys(perUser).forEach(function (k) {
+        gestioneRecipientsRemember(k, gestioneRecipientLabelFromKey(k));
+    });
+}
+
+function gestioneRecipientsRememberFromRows(rows) {
+    if (!Array.isArray(rows)) return;
+    rows.forEach(function (row) {
+        var label = quizPresenceDisplayLabelForRow(row);
+        var key = gestioneRecipientKeyFromLabel(label);
+        gestioneRecipientsRemember(key, label);
+    });
+}
+
 function gestioneMergePerUserMaps(a, b) {
     var out = {};
     if (a && typeof a === 'object') {
@@ -22919,6 +22976,7 @@ function gestioneDomandeApplyFirestoreSnapshot(dat) {
     var raw = gestioneDomandeLoadRaw();
     raw.v = 2;
     if (!raw.perUser) raw.perUser = {};
+    gestioneRecipientsRememberFromPerUser(dat && dat.perUser);
     var normItems = Array.isArray(dat.items) ? gestioneDomandeNormalizeItems(dat.items) : null;
     var hasPUField =
         dat.perUser &&
@@ -23086,6 +23144,7 @@ function gestioneCollectRecipientLabels() {
     }
     try {
         var onlineRows = quizPresenceCollectRowsMerged();
+        gestioneRecipientsRememberFromRows(onlineRows);
         var onlineKeys = {};
         var ir;
         for (ir = 0; ir < onlineRows.length; ir++) {
@@ -23095,6 +23154,7 @@ function gestioneCollectRecipientLabels() {
             add(ky, lb, true);
         }
         var rows24 = quizPresenceCollectRowsMerged24h();
+        gestioneRecipientsRememberFromRows(rows24);
         for (var j = 0; j < rows24.length; j++) {
             var lb2 = quizPresenceDisplayLabelForRow(rows24[j]);
             var ky2 = gestioneRecipientKeyFromLabel(lb2);
@@ -23102,10 +23162,18 @@ function gestioneCollectRecipientLabels() {
         }
     } catch (e) { /* ignore */ }
     try {
+        var known = gestioneRecipientsLoad();
+        Object.keys(known).forEach(function (k) {
+            var rec = known[k] || {};
+            add(k, rec.label || gestioneRecipientLabelFromKey(k), false);
+        });
+    } catch (e0) { /* ignore */ }
+    try {
         var rawP = gestioneDomandeLoadRaw();
         if (rawP.perUser) {
             Object.keys(rawP.perUser).forEach(function (k) {
-                if (!seen[k]) add(k, k, false);
+                gestioneRecipientsRemember(k, gestioneRecipientLabelFromKey(k));
+                if (!seen[k]) add(k, gestioneRecipientLabelFromKey(k), false);
             });
         }
     } catch (e2) { /* ignore */ }
@@ -24155,6 +24223,7 @@ async function gestioneEliminaTestInviatiClick() {
         }
         gestioneDomandePrimarySnapshotReady = true;
         var raw = gestioneDomandeLoadRaw();
+        gestioneRecipientsRememberFromPerUser(raw.perUser);
         raw.perUser = {};
         gestioneDomandeSaveRaw(raw);
         try { gestioneTestButtonUpdate(raw); } catch (eBtn) { /* ignore */ }
@@ -24241,7 +24310,6 @@ async function gestioneVerificaRender(options) {
                 Object.keys(userData.tests).forEach(packId => {
                     var testResult = userData.tests[packId];
                     var resultAtMs = Number(testResult.submittedAtMs || testResult.assignedAtMs || 0);
-                    if (resultAtMs < GESTIONE_TEST_RESET_AT_MS) return;
                     records.push({
                         packId: packId,
                         testResult: testResult,
