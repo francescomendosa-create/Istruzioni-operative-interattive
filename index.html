@@ -11648,7 +11648,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605293</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605294</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11799,7 +11799,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605293</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605294</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12246,7 +12246,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605293';
+const APP_BUILD = '202605294';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -29375,25 +29375,42 @@ function syncCf1CorrelationUpdate() {
 
     cf1ResDiv.querySelectorAll('.correlation-cf1-mbbr-foam').forEach((el) => el.remove());
 
-    const foamCorr = correlationYes['mbr-3'] === true && correlationYes['cf-1'] === true;
-    if (!foamCorr) return;
+    const foamCorr = correlationYes['mbr-3'] === true;
+    if (!foamCorr) {
+        if (correlationYes['cf-1'] !== true && correlationYes['cf-1'] !== false && !cf1ResDiv.textContent.trim()) {
+            cf1ResDiv.style.display = 'none';
+            cf1ResDiv.className = 'res';
+        }
+        return;
+    }
+    cf1ResDiv.style.display = 'block';
+    if (!cf1ResDiv.classList.contains('ok') && !cf1ResDiv.classList.contains('bad')) {
+        cf1ResDiv.className = 'res';
+    }
 
     const ackFoam = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf1-ack-schiuma-meta-vasca') === '1');
     const blinkFoam = !ackFoam;
     const foamBody = `
         <div class="correlation-update-box correlation-update-box-biomass">
             <strong>DESCRIZIONE:</strong><br>
-            Se nell'MBBR hai piu di meta vasca invasa dalla schiuma, il problema si risolve nell'immediato con l'antischiuma, ma per fermare l'origine del fenomeno devi "correre a monte" e ispezionare il Chimico-Fisico.<br><br>
-            Ecco i controlli fondamentali da fare sul chiarificato del Chimico-Fisico per capire perche l'MBBR sta "montando":<br><br>
-            <strong>1. Controllo visivo della torbidita - Il "lattiginoso"</strong><br>
-            Il chiarificato deve essere limpido. Se lo vedi opalescente o simile a "latte annacquato", significa che tensioattivi o solidi colloidali non sono stati separati. Nell'MBBR questi residui agiscono come sapone: l'aria delle soffianti li trasforma rapidamente in schiuma densa.<br><br>
-            <strong>2. Verifica del dosaggio dei reagenti</strong><br>
-            Un errore nel chimico-fisico e una delle cause principali della schiuma a valle. Controlla il coagulante, come cloruro ferrico o policloruro di alluminio: se dosato troppo poco non rompe le cariche dei tensioattivi, se dosato troppo puo acidificare l'acqua e stressare i batteri dell'MBBR.<br><br>
-            Controlla anche il flocculante/polielettrolita: se il fiocco di fango non si forma bene, i solidi non precipitano e finiscono nel biologico. Verifica che la pompa del polielettrolita non sia bloccata e che il prodotto non sia terminato.<br><br>
-            <strong>3. Presenza di sostanze oleose o grassi</strong><br>
-            Ispeziona la superficie del chiarificatore chimico-fisico cercando macchie oleose o velature iridescenti. Se grassi e oli non vengono rimossi, arrivano nell'MBBR e generano una schiuma viscosa e scura, difficile da abbattere anche con l'antischiuma.<br><br>
-            <strong>4. Valore del pH</strong><br>
-            Controlla il pHmetro in uscita dal chimico-fisico. Il range ideale per l'MBBR e tra 6.5 e 8.0. Sbalzi repentini di pH dovuti a cattivo funzionamento del chimico-fisico possono danneggiare il biofilm sui carrier; i batteri morti rilasciano proteine che alimentano la schiuma biologica.
+            Se nell'MBBR hai più di metà vasca invasa dalla schiuma, il problema si risolve nell'immediato con l'antischiuma, ma per fermare l'origine del fenomeno devi "correre a monte" e ispezionare il Chimico-Fisico.<br><br>
+            Ecco i controlli fondamentali da fare sul Chiarificato del Chimico-Fisico per capire perché l'MBBR sta "montando":<br><br>
+            <strong>1. Controllo Visivo della Torbidità - Il "Lattiginoso"</strong><br>
+            Il chiarificato deve essere limpido. Se lo vedi opalescente o simile a "latte annacquato":<br><br>
+            <strong>Cosa significa:</strong> i tensioattivi o i solidi colloidali non sono stati separati.<br><br>
+            <strong>Effetto nell'MBBR:</strong> questi residui agiscono come sapone. L'aria delle soffianti li trasforma istantaneamente in schiuma densa.<br><br>
+            <strong>2. Verifica del Dosaggio dei Reagenti</strong><br>
+            Un errore nel chimico-fisico è la causa numero uno della schiuma a valle:<br><br>
+            <strong>Coagulante (es. Cloruro Ferrico o Policloruro di Alluminio):</strong> se ne stai dosando troppo poco, non riesci a "rompere" le cariche dei tensioattivi. Se ne dosi troppo, potresti acidificare troppo l'acqua, stressando i batteri dell'MBBR.<br><br>
+            <strong>Flocculante (Polielettrolita):</strong> se il "fiocco" di fango non si forma bene nel chimico-fisico, i solidi non precipitano e finiscono nell'MBBR. Controlla che la pompa del polielettrolita non sia bloccata o che il prodotto non sia finito.<br><br>
+            <strong>3. Presenza di Sostanze Oleose o Grassi</strong><br>
+            Controlla la superficie del chiarificatore chimico-fisico:<br><br>
+            <strong>Cosa cercare:</strong> macchie oleose o "velature" iridescenti.<br><br>
+            <strong>Perché:</strong> se il chimico-fisico non rimuove i grassi, questi arrivano nell'MBBR e creano una schiuma viscosa e scura, molto difficile da abbattere anche con l'antischiuma.<br><br>
+            <strong>4. Il Valore del pH</strong><br>
+            Controlla il pHmetro all'uscita del chimico-fisico:<br><br>
+            Il range ideale per l'MBBR è tra 6.5 e 8.0.<br><br>
+            Sbalzi di pH repentini dovuti a un cattivo funzionamento del chimico-fisico possono "uccidere" parte del biofilm sui carrier. I batteri morti rilasciano proteine che generano schiuma biologica.
         </div>
     `;
 
@@ -29401,8 +29418,8 @@ function syncCf1CorrelationUpdate() {
         <details id="cf1-corr-mbbr-foam" class="correlation-mbbr-status-accordion correlation-cf1-mbbr-foam${blinkFoam ? ' cf2-stato-blink' : ''}">
             <summary class="correlation-mbbr-status-summary">
                 <span class="correlation-mbbr-status-title">
-                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
-                    <span class="correlation-mbbr-status-line2">-Presenza di schiuma su meta vasca MBBR-</span>
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato. Impatto MBBR confermato</strong>
+                    <span class="correlation-mbbr-status-line2">-Presenza di schiuma su metà vasca MBBR-</span>
                 </span>
             </summary>
             <div class="correlation-mbbr-status-body">${foamBody}</div>
@@ -29745,6 +29762,12 @@ function check(s, p, val, btn) {
                         </div>
                     </div>
                     <div class="cf2-mbbr-link-cluster__stato" id="cf2-mbbr-stato-slot"></div>
+                </div>`;
+            } else if (s === 'mbr' && p === 3) {
+                html += `<div class="correlation-action-row correlation-cf2-goto-wrap">
+                    <div class="cf2-corr-hand-cell" aria-hidden="true"><span class="cf2-corr-hand-hint" id="mbr3-corr-hand-hint">👉</span></div>
+                    <div class="cf2-corr-btn-cell">${jumpBtn}</div>
+                    <div class="cf2-corr-balance-spacer" aria-hidden="true"></div>
                 </div>`;
             } else {
                 html += jumpBtn;
@@ -30120,6 +30143,13 @@ function jumpWithReturn(fromS, fromP, toS, toP) {
     const cf2Hand = document.getElementById("cf2-corr-hand-hint");
     if (cf2Hand) {
         cf2Hand.style.display = "none";
+    }
+    const mbr3Hand = document.getElementById("mbr3-corr-hand-hint");
+    if (mbr3Hand) {
+        mbr3Hand.style.display = "none";
+    }
+    if (fromS === 'mbr' && fromP === 3 && toS === 'cf' && toP === 1) {
+        syncCf1CorrelationUpdate();
     }
 
     scrollToPoint(toS, toP, true);
