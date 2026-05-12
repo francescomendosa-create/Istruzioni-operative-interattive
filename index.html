@@ -7341,6 +7341,22 @@
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(69, 39, 160, 0.16);
 }
+.quiz-gestione-admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: -6px 0 14px;
+}
+.quiz-gestione-admin-actions[hidden] {
+    display: none !important;
+}
+.quiz-gestione-admin-danger {
+    border: 1px solid rgba(198, 40, 40, 0.2) !important;
+    background: linear-gradient(180deg, #ffebee 0%, #ffcdd2 100%) !important;
+    color: #b71c1c !important;
+    box-shadow: 0 4px 0 rgba(183, 28, 28, 0.16), 0 8px 18px rgba(183, 28, 28, 0.12) !important;
+}
 
 .quiz-gestione-verifica-list {
     display: grid;
@@ -12922,6 +12938,10 @@ function dismissAppSplash() {
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
                 <div id="quiz-gestione-verifica-body" class="quiz-gestione-verifica-body">
                     <h3 class="quiz-gestione-verifica-title">ARCHIVIO</h3>
+                    <div id="quiz-gestione-admin-actions" class="quiz-gestione-admin-actions" hidden>
+                        <button type="button" id="quiz-gestione-delete-pending-tests" class="btn-side quiz-gestione-admin-danger" onclick="gestioneEliminaTestInviatiClick()">Elimina Test inviati</button>
+                        <button type="button" id="quiz-gestione-delete-archived-tests" class="btn-side quiz-gestione-admin-danger" onclick="gestioneEliminaTestArchiviatiClick()">Elimina tutti i test archiviati</button>
+                    </div>
                     <div id="quiz-gestione-verifica-list" class="quiz-gestione-verifica-list" aria-live="polite">
                         <p class="quiz-gestione-invia-a-empty">Apri questa scheda per caricare i test inviati dagli utenti.</p>
                     </div>
@@ -13286,7 +13306,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605364';
+const APP_BUILD = '202605365';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19649,8 +19669,8 @@ function quizSetAdvancedModeEnabled(on) {
 
 function quizApplyAdvancedModeUi() {
     var btn = document.getElementById('header-settings-btn');
-    if (!btn) return;
-    btn.classList.toggle('quiz-advanced-active', !!quizAdvancedModeEnabled);
+    if (btn) btn.classList.toggle('quiz-advanced-active', !!quizAdvancedModeEnabled);
+    gestioneAdminActionsSync();
 }
 
 function quizLoadDeveloperModifyFeaturesState() {
@@ -23879,8 +23899,89 @@ function gestioneTestButtonStateUpdate() {
     btnInvia.disabled = !ready;
 }
 
-// Aggiungi qui gli stili CSS per la pagina Verifica (li aggiungerò alla sezione style più tardi)
-// .quiz-gestione-verifica-list, .quiz-gestione-verifica-card, etc.
+function gestioneAdminActionsSync() {
+    var actions = document.getElementById('quiz-gestione-admin-actions');
+    if (!actions) return;
+    var isAdminArchive = quizGestioneDomandeEditorCompleto !== false;
+    actions.hidden = !(isAdminArchive && quizAdvancedModeEnabled);
+}
+
+function gestioneAdminRequireAdvancedMode() {
+    if (quizAdvancedModeEnabled) return true;
+    window.alert('Funzione disponibile solo in modalità avanzata.');
+    return false;
+}
+
+function gestioneAdminDoubleConfirm(firstMessage, secondMessage) {
+    if (!window.confirm(firstMessage)) return false;
+    return window.confirm(secondMessage);
+}
+
+async function gestioneEliminaTestInviatiClick() {
+    if (!gestioneAdminRequireAdvancedMode()) return;
+    if (!gestioneAdminDoubleConfirm(
+        'Vuoi eliminare i test inviati che devono ancora essere svolti?',
+        'Conferma definitiva: elimina tutti i test inviati ancora da svolgere.'
+    )) return;
+
+    var btn = document.getElementById('quiz-gestione-delete-pending-tests');
+    try {
+        if (btn) btn.disabled = true;
+        await quizEnsureFirebase();
+        var db = firebase.firestore();
+        var ts = firebase.firestore.FieldValue.serverTimestamp();
+        await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).set({
+            perUser: {},
+            updatedAtMs: Date.now(),
+            updatedAt: ts
+        }, { merge: true });
+        await db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
+            gestioneTestData: {
+                perUser: {},
+                updatedAtMs: Date.now()
+            },
+            gestioneTestUpdatedAt: ts,
+            updatedAt: ts
+        }, { merge: true });
+        var raw = gestioneDomandeLoadRaw();
+        raw.perUser = {};
+        gestioneDomandeSaveRaw(raw);
+        gestioneTestButtonUpdate(raw);
+        gestioneRenderDestinatariBadges();
+        gestioneUiFlashSaved(btn, 1600, 'Eliminati');
+    } catch (e) {
+        console.error('Errore eliminazione test inviati:', e);
+        window.alert('Errore durante l’eliminazione dei test inviati.');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function gestioneEliminaTestArchiviatiClick() {
+    if (!gestioneAdminRequireAdvancedMode()) return;
+    if (!gestioneAdminDoubleConfirm(
+        'Vuoi eliminare tutti i test archiviati già svolti?',
+        'Conferma definitiva: elimina tutti i test archiviati in tutti i dispositivi.'
+    )) return;
+
+    var btn = document.getElementById('quiz-gestione-delete-archived-tests');
+    try {
+        if (btn) btn.disabled = true;
+        await quizEnsureFirebase();
+        var ts = firebase.firestore.FieldValue.serverTimestamp();
+        await firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
+            testResults: {},
+            updatedAt: ts
+        }, { merge: true });
+        gestioneVerificaRender();
+        gestioneUiFlashSaved(btn, 1600, 'Eliminati');
+    } catch (e) {
+        console.error('Errore eliminazione test archiviati:', e);
+        window.alert('Errore durante l’eliminazione dei test archiviati.');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
 
 async function gestioneVerificaRender(options) {
     options = options || {};
@@ -26513,6 +26614,7 @@ function quizGestioneSetSezione(sezione) {
 
     crea.hidden = wantVerifica;
     verifica.hidden = !wantVerifica;
+    gestioneAdminActionsSync();
 
     tabC.classList.toggle('quiz-gestione-test-tab--active', !wantVerifica);
     tabV.classList.toggle('quiz-gestione-test-tab--active', wantVerifica);
@@ -26641,6 +26743,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     if (footerVerifica) footerVerifica.hidden = true;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
+    gestioneAdminActionsSync();
     if (settingsOverlay) {
         if (editorCompleto) {
             settingsOverlay.classList.add('visible');
