@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605377';
+const APP_BUILD = '202605379';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22203,7 +22203,12 @@ function gestioneAfterConfigChangeResync() {
 
 function gestioneDomandeEditAllowed() {
     if (!quizGestioneDomandeEditorCompleto) return true;
-    return true; // Blocco modifiche temporaneamente disattivato: evita interferenze touch/scroll su tablet Android.
+    if (quizAdvancedModeEnabled) return true;
+    try {
+        return sessionStorage.getItem(QUIZ_SS_MODIFY_WRITE_AUTH) === '1';
+    } catch (e) {
+        return false;
+    }
 }
 
 function gestioneDomandeEditDeniedInfo() {
@@ -22211,13 +22216,16 @@ function gestioneDomandeEditDeniedInfo() {
 }
 
 function gestioneDomandeRequireEditAuth() {
-    return true;
+    if (gestioneDomandeEditAllowed()) return true;
+    gestioneDomandeEditDeniedInfo();
+    gestioneConfigSyncEditToggle();
+    return false;
 }
 
 function gestioneConfigSyncEditToggle() {
     var cb = document.getElementById('gestione-edit-auth-toggle');
     if (!cb) return;
-    var on = true;
+    var on = gestioneDomandeEditAllowed();
     cb.checked = on;
     cb.setAttribute('aria-checked', on ? 'true' : 'false');
 }
@@ -22230,16 +22238,21 @@ function gestioneEditAuthToggleChanged(checked) {
         gestioneDomandeRender();
         return;
     }
-    if (quizModifyWriteAuthIsGranted()) {
+    if (gestioneDomandeEditAllowed()) {
         gestioneConfigSyncEditToggle();
         gestioneDomandeRender();
         return;
     }
     if (cb) cb.checked = false;
-    quizModifyRequireWriteAuth(function () {
+    var pass = window.prompt('Inserisci password per abilitare le modifiche');
+    if (String(pass || '').trim().toLowerCase() === QUIZ_MODIFY_CONTENT_PASSWORD) {
+        quizModifyWriteAuthPersistOk();
         gestioneConfigSyncEditToggle();
         gestioneDomandeRender();
-    });
+    } else {
+        window.alert('Password errata. Modifiche non abilitate.');
+        gestioneConfigSyncEditToggle();
+    }
 }
 
 function gestioneConfigRefreshPopupDisplay() {
@@ -25123,11 +25136,7 @@ function gestioneDomandeBuildCard(i, slot) {
     ta.rows = 1;
     ta.setAttribute('aria-label', editor ? 'Testo domanda ' + (i + 1) : 'Domanda ' + (i + 1) + ' (sola lettura)');
     ta.value = slot.q || '';
-    if (!editor || !canEdit) ta.readOnly = true;
-    if (editor && !canEdit) {
-        ta.addEventListener('pointerdown', gestioneDomandeRequireEditAuth);
-        ta.addEventListener('focus', gestioneDomandeRequireEditAuth);
-    }
+    if (!editor) ta.readOnly = true;
     ta.addEventListener('input', function () {
         gestioneDomandeFitTextareaToContent(ta);
         gestioneDomandeInvioSyncState();
@@ -25230,11 +25239,7 @@ function gestioneDomandeBuildCard(i, slot) {
                 : 'Opzione ' + letters[k] + ' — domanda ' + (i + 1) + ' (sola lettura)'
         );
         inp.value = slot.answers && slot.answers[k] ? slot.answers[k] : '';
-        if (!editor || !canEdit) inp.readOnly = true;
-        if (editor && !canEdit) {
-            inp.addEventListener('pointerdown', gestioneDomandeRequireEditAuth);
-            inp.addEventListener('focus', gestioneDomandeRequireEditAuth);
-        }
+        if (!editor) inp.readOnly = true;
         inp.addEventListener('input', function () {
             gestioneDomandeFitTextareaToContent(inp);
             gestioneDomandeInvioSyncState();
