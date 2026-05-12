@@ -7427,17 +7427,57 @@
         0 34px 80px rgba(0, 0, 0, 0.34),
         0 12px 0 rgba(49, 27, 96, 0.08),
         inset 0 1px 0 rgba(255,255,255,0.96);
-    padding: 16px;
+    padding: 58px 18px 18px;
     box-sizing: border-box;
     transform-origin: center center;
     animation: quizGestioneSheetExtract 0.46s cubic-bezier(0.16, 0.9, 0.18, 1);
 }
+.quiz-gestione-verifica-sheet-toolbar {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    right: 16px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    pointer-events: none;
+}
+.quiz-gestione-verifica-sheet-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 7px 10px;
+    background: rgba(237, 231, 246, 0.92);
+    border: 1px solid rgba(69, 39, 160, 0.16);
+    color: #4527a0;
+    font-size: 0.78rem;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(49, 27, 96, 0.10);
+    pointer-events: auto;
+}
+.quiz-gestione-verifica-sheet-toolbar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+}
+.quiz-gestione-verifica-sheet-a4 {
+    border: 1px solid rgba(25, 118, 210, 0.26);
+    border-radius: 999px;
+    padding: 9px 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #e3f2fd 100%);
+    color: #0d47a1;
+    font-size: 0.76rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.12);
+}
 .quiz-gestione-verifica-sheet-close {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    margin-left: auto;
-    margin-bottom: 8px;
+    position: static;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7451,6 +7491,9 @@
     font-weight: 900;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(49, 27, 96, 0.14);
+}
+.quiz-gestione-verifica-sheet .quiz-gestione-verifica-card--sheet {
+    margin: 0 auto;
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card {
     width: 100%;
@@ -7734,7 +7777,7 @@
 #quiz-gestione-test-preview-container {
     position: fixed;
     inset: max(8px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
-    z-index: 10080;
+    z-index: 10180;
     padding: 12px 10px 14px;
     max-height: none;
     overflow-y: auto;
@@ -12728,7 +12771,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605314';
+const APP_BUILD = '202605315';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22416,7 +22459,7 @@ function gestioneVerificaExtractTopics(testResult) {
     return topics;
 }
 
-function gestioneVerificaBuildResultCard(userId, packId, testResult) {
+function gestioneVerificaBuildResultCard(userId, packId, testResult, navRecords, navIndex) {
     var card = document.createElement('details');
     card.className = 'quiz-gestione-verifica-card';
 
@@ -22432,7 +22475,7 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
         ev.preventDefault();
         ev.stopPropagation();
         if (card.classList.contains('quiz-gestione-verifica-card--fascicolo')) {
-            gestioneVerificaOpenResultSheet(userId, packId, testResult);
+            gestioneVerificaOpenResultSheet(userId, packId, testResult, navRecords, navIndex);
             return;
         }
         card.open = !card.open;
@@ -22520,6 +22563,15 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     };
     actions.appendChild(printButton);
 
+    var a4Button = document.createElement('button');
+    a4Button.type = 'button';
+    a4Button.className = 'btn-side btn-report quiz-gestione-verifica-preview-btn';
+    a4Button.textContent = 'Foglio A4';
+    a4Button.onclick = function () {
+        gestioneVerificaOpenA4Sheet(testResult, userId);
+    };
+    actions.appendChild(a4Button);
+
     body.appendChild(actions);
     card.appendChild(body);
     return card;
@@ -22530,8 +22582,15 @@ function gestioneVerificaCloseResultSheet() {
     if (old && old.parentNode) old.parentNode.removeChild(old);
 }
 
-function gestioneVerificaOpenResultSheet(userId, packId, testResult) {
+var gestioneVerificaSheetWheelLock = 0;
+
+function gestioneVerificaOpenResultSheet(userId, packId, testResult, navRecords, navIndex) {
     gestioneVerificaCloseResultSheet();
+    navRecords = Array.isArray(navRecords) ? navRecords : [{ packId: packId, testResult: testResult }];
+    navIndex = Math.max(0, Math.min(navRecords.length - 1, parseInt(navIndex, 10) || 0));
+    var currentRecord = navRecords[navIndex] || { packId: packId, testResult: testResult };
+    packId = currentRecord.packId || packId;
+    testResult = currentRecord.testResult || testResult;
 
     var overlay = document.createElement('div');
     overlay.id = 'quiz-gestione-verifica-sheet-overlay';
@@ -22547,6 +22606,41 @@ function gestioneVerificaOpenResultSheet(userId, packId, testResult) {
     sheet.setAttribute('aria-modal', 'true');
     sheet.setAttribute('aria-label', 'Documento risultato test');
     sheet.onclick = function (ev) { ev.stopPropagation(); };
+    sheet.addEventListener('wheel', function (ev) {
+        if (!navRecords || navRecords.length < 2) return;
+        var now = Date.now();
+        if (now - gestioneVerificaSheetWheelLock < 520) return;
+        if (Math.abs(ev.deltaY || 0) < 18) return;
+        ev.preventDefault();
+        gestioneVerificaSheetWheelLock = now;
+        var nextIndex = navIndex + (ev.deltaY > 0 ? 1 : -1);
+        if (nextIndex < 0) nextIndex = navRecords.length - 1;
+        if (nextIndex >= navRecords.length) nextIndex = 0;
+        var next = navRecords[nextIndex];
+        if (next) gestioneVerificaOpenResultSheet(userId, next.packId, next.testResult, navRecords, nextIndex);
+    }, { passive: false });
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'quiz-gestione-verifica-sheet-toolbar';
+
+    var navInfo = document.createElement('div');
+    navInfo.className = 'quiz-gestione-verifica-sheet-nav';
+    navInfo.textContent = navRecords.length > 1
+        ? 'Documento ' + (navIndex + 1) + ' di ' + navRecords.length + ' · rotellina per cambiare'
+        : 'Documento 1 di 1';
+    toolbar.appendChild(navInfo);
+
+    var toolbarActions = document.createElement('div');
+    toolbarActions.className = 'quiz-gestione-verifica-sheet-toolbar-actions';
+
+    var a4 = document.createElement('button');
+    a4.type = 'button';
+    a4.className = 'quiz-gestione-verifica-sheet-a4';
+    a4.textContent = 'Foglio A4';
+    a4.onclick = function () {
+        gestioneVerificaOpenA4Sheet(testResult, userId);
+    };
+    toolbarActions.appendChild(a4);
 
     var close = document.createElement('button');
     close.type = 'button';
@@ -22555,7 +22649,9 @@ function gestioneVerificaOpenResultSheet(userId, packId, testResult) {
     close.title = 'Chiudi documento';
     close.textContent = '×';
     close.onclick = gestioneVerificaCloseResultSheet;
-    sheet.appendChild(close);
+    toolbarActions.appendChild(close);
+    toolbar.appendChild(toolbarActions);
+    sheet.appendChild(toolbar);
 
     var card = gestioneVerificaBuildResultCard(userId, packId, testResult);
     card.open = true;
@@ -22567,6 +22663,29 @@ function gestioneVerificaOpenResultSheet(userId, packId, testResult) {
     try {
         close.focus();
     } catch (eFocus) { /* ignore */ }
+}
+
+function gestioneVerificaOpenA4Sheet(testResult, userId) {
+    var topics = gestioneVerificaExtractTopics(testResult);
+    var passed = !!testResult.passed;
+    var safe = function (s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    };
+    var win = window.open('', '_blank', 'width=980,height=1180');
+    if (!win) {
+        gestioneVerificaStampaRisultato(testResult, userId);
+        return;
+    }
+    var html = '<!doctype html><html><head><meta charset="utf-8"><title>Foglio A4 risultato test</title><style>' +
+        'body{margin:0;background:#dfe7f0;font-family:Segoe UI,Arial,sans-serif;color:#263238}.bar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:rgba(31,63,104,.92);box-shadow:0 8px 18px rgba(0,0,0,.22)}button{border:0;border-radius:999px;padding:10px 18px;font-weight:900;cursor:pointer}.print{background:#fff;color:#0d47a1}.close{background:#ede7f6;color:#4527a0}.sheet{width:210mm;min-height:297mm;margin:14mm auto;background:#fff;border-radius:10px;padding:18mm;box-shadow:0 20px 48px rgba(31,63,104,.28);box-sizing:border-box}.top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #e8eaf6;padding-bottom:14px}.name{font-size:25px;font-weight:900;color:#4527a0}.badge{align-self:flex-start;border-radius:999px;padding:8px 14px;color:white;font-weight:900;background:' + (passed ? '#43a047' : '#e53935') + '}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.cell{background:#f5f7fa;border-radius:12px;padding:12px}.cell b{display:block;font-size:11px;text-transform:uppercase;color:#607d8b;margin-bottom:4px}.topics{border:1px solid #d7c9f3;background:#f7f3ff;border-radius:14px;padding:14px;margin-top:18px}.topics h2{margin:0 0 8px;font-size:16px;color:#4527a0}.topics li{margin:5px 0}.footer{margin-top:28px;color:#607d8b;font-size:12px;text-align:center}@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;width:auto;min-height:auto;box-shadow:none;border-radius:0}}' +
+        '</style></head><body><div class="bar"><button class="print" onclick="window.print()">Stampa</button><button class="close" onclick="window.close()">Chiudi</button></div><main class="sheet"><section class="top"><div><div class="name">' + safe(testResult.userLabel || userId) + '</div><div>Risultato test di verifica</div></div><div class="badge">' + (passed ? 'Passato: ' : 'Non passato: ') + safe(testResult.score) + '/100</div></section><section class="grid"><div class="cell"><b>Domande corrette</b>' + safe(testResult.correctCount) + '/' + safe(testResult.totalQuestions) + '</div><div class="cell"><b>Assegnato il</b>' + safe(gestioneVerificaFormatDate(testResult.assignedAtMs)) + '</div><div class="cell"><b>Inviato il</b>' + safe(gestioneVerificaFormatDate(testResult.submittedAtMs)) + '</div></section><section class="topics"><h2>Argomenti trattati</h2><ul>' + topics.map(function (t) { return '<li>' + safe(t) + '</li>'; }).join('') + '</ul></section><p class="footer">Documento generato dall&apos;app Istruzioni operative interattive.</p></main></body></html>';
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
 }
 
 function gestioneVerificaBuildUserFolder(userId, records) {
@@ -22607,8 +22726,8 @@ function gestioneVerificaBuildUserFolder(userId, records) {
 
     var docs = document.createElement('div');
     docs.className = 'quiz-gestione-verifica-folder-docs';
-    records.forEach(function (record) {
-        var docCard = gestioneVerificaBuildResultCard(userId, record.packId, record.testResult);
+    records.forEach(function (record, idx) {
+        var docCard = gestioneVerificaBuildResultCard(userId, record.packId, record.testResult, records, idx);
         docCard.classList.add('quiz-gestione-verifica-card--fascicolo');
         docs.appendChild(docCard);
     });
