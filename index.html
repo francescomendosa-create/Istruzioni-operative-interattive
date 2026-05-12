@@ -12331,6 +12331,12 @@ function dismissAppSplash() {
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
+            <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-stable-21-btn" onclick="quizSettingsStable21Update(this)" aria-label="Aggiorna a versione 2.1 stabile">
+                <div class="quiz-settings-row-title" id="quiz-settings-stable-21-line">
+                    Aggiorna a versione 2.1 stabile
+                </div>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="openQuizProducerPasswordFromSettings()" aria-label="Advanced mode · Sviluppatore">
                 <span><strong>Advanced mode</strong> · Sviluppatore</span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
@@ -12345,7 +12351,7 @@ function dismissAppSplash() {
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
                 <div>
                     <div class="quiz-settings-row-title">Info</div>
-                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">1.2</span></div>
+                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">2.1</span></div>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -12478,7 +12484,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605297</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605297</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12486,15 +12492,6 @@ function dismissAppSplash() {
                 </div>
                 <div class="quiz-info-roadmap">
                     <p class="quiz-info-roadmap-title">Prossimi aggiornamenti</p>
-                    <h5>Versione 2.1</h5>
-                    <p style="margin:0 0 8px;">Possibilità di rendere l’app <strong>programmabile direttamente dalle Impostazioni</strong> tramite interfaccia grafica.</p>
-                    <p style="margin:0 0 4px;"><strong>Implementazioni previste:</strong></p>
-                    <ul>
-                        <li>creare nuove domande con controlli e azioni personalizzabili;</li>
-                        <li>modificare quelle già esistenti;</li>
-                        <li>aggiungere nuove schede impianto (es. membrane MBR con domande dedicate);</li>
-                        <li>aggiungere domande e risposte personalizzate anche per la <strong>modalità Quiz</strong>, dalle Impostazioni tramite interfaccia dedicata, senza doversi interfacciare con lo sviluppatore.</li>
-                    </ul>
                     <h5>Versione 3.1</h5>
                     <p style="margin:0 0 8px;">Possibilità di integrare <strong>manuali tecnici e operativi</strong> e introdurre gradualmente <strong>API open source</strong> di intelligenza artificiale.</p>
                     <p style="margin:0;">L’app sarà in grado di interfacciarsi con i manuali, generare in autonomia domande e percorsi formativi e apprendere nel tempo.</p>
@@ -12929,9 +12926,9 @@ const QUIZ_SS_MODIFY_WRITE_AUTH = 'io-modify-write-auth-session';
 const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 /** Advanced mode: abilita funzioni collegate al tasto Modifica in Impostazioni (toggle nel menu sviluppatore). */
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
-const APP_VERSION = '1.2';
+const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605333';
+const APP_BUILD = '202605336';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13099,6 +13096,7 @@ const QUIZ_SS_REOPEN_PENDING_MSG = 'io-quiz-reopen-pending-msg';
 const QUIZ_REOPEN_PENDING_MIN_MS = 1400;
 /** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
 const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
+const QUIZ_LS_STABLE_21_UPDATED = 'io-quiz-stable-21-updated';
 const QUIZ_LS_HIGHEST_BUILD_SEEN = 'io-quiz-highest-build-seen';
 const QUIZ_SS_BUILD_SELF_HEAL = 'io-quiz-build-self-heal-once';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
@@ -18891,6 +18889,42 @@ function quizSettingsBuildHighlightSet(on) {
     } catch (e) { /* ignore */ }
 }
 
+function quizSettingsStable21IsUpdated() {
+    try {
+        return localStorage.getItem(QUIZ_LS_STABLE_21_UPDATED) === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
+function quizSettingsStable21SetUpdated(on) {
+    try {
+        if (on) localStorage.setItem(QUIZ_LS_STABLE_21_UPDATED, '1');
+        else localStorage.removeItem(QUIZ_LS_STABLE_21_UPDATED);
+    } catch (e) { /* ignore */ }
+}
+
+function quizSettingsStable21LineReset() {
+    var btn = document.getElementById('quiz-settings-stable-21-btn');
+    var line = document.getElementById('quiz-settings-stable-21-line');
+    if (!btn || !line) return;
+    var updated = quizSettingsStable21IsUpdated();
+    line.textContent = updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile';
+    btn.setAttribute(
+        'aria-label',
+        updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile'
+    );
+}
+
+function quizSettingsStable21Update(btn) {
+    quizSettingsStable21SetUpdated(true);
+    quizSettingsStable21LineReset();
+    if (btn) btn.classList.add('quiz-update-available');
+    window.setTimeout(function () {
+        if (btn) btn.classList.remove('quiz-update-available');
+    }, 900);
+}
+
 /** Ripristina riga pulsante: senza aggiornamenti «Aggiornato · Build», con aggiornamento «Aggiornamento disponibile · Build». */
 function quizSettingsRefreshLineReset() {
     var line = document.getElementById('quiz-settings-refresh-line');
@@ -18961,6 +18995,7 @@ async function showQuizSettingsModal() {
     quizSyncDeveloperModifySettingsRow();
     quizRefreshInProgress = false;
     quizSettingsRefreshLineReset();
+    quizSettingsStable21LineReset();
     const vLab = document.getElementById('quiz-settings-version-label');
     if (vLab) vLab.textContent = APP_VERSION;
     /* Non sovrascrivere #quiz-settings-build-label: quizSettingsRefreshLineReset() imposta già
@@ -22200,13 +22235,14 @@ function gestioneTestButtonUpdate(raw) {
     if (!btn) return;
     var badge = document.getElementById('btn-test-gestione-badge');
     var info = gestioneTestAssignmentInfo(raw);
-    btn.classList.toggle('btn-test-gestione--assigned', info.pending);
-    btn.classList.toggle('btn-test-gestione--pending', info.pending);
-    if (badge) badge.textContent = info.pending ? 'NUOVO' : '';
-    var label = info.pending
-        ? 'Apri test di verifica: nuovo test assegnato'
-        : info.hasAssigned
-            ? 'Apri test di verifica: test assegnato'
+    var activeCount = info && Array.isArray(info.slots) ? info.slots.length : 0;
+    btn.classList.toggle('btn-test-gestione--assigned', activeCount > 0);
+    btn.classList.toggle('btn-test-gestione--pending', activeCount > 0);
+    if (badge) badge.textContent = activeCount > 1 ? String(activeCount) : (activeCount === 1 ? 'NUOVO' : '');
+    var label = activeCount > 1
+        ? 'Apri test di verifica: ' + activeCount + ' test assegnati'
+        : activeCount === 1
+            ? 'Apri test di verifica: nuovo test assegnato'
             : 'Apri test di verifica';
     btn.setAttribute('aria-label', label);
     btn.setAttribute('title', info.hasAssigned ? 'Test di verifica assegnato al tuo nome' : 'Test di verifica (domande assegnate al tuo nome)');
@@ -22555,8 +22591,8 @@ function gestioneDomandeResetSlotClick(idx) {
     gestioneMcqCacheFlushPush();
 }
 
-/** Mostra ✓ sul pulsante per ~1s dopo salvataggio riuscito (testo ripristinato dal default memorizzato). */
-function gestioneUiFlashSaved(btn, durationMs) {
+/** Mostra un breve feedback sul pulsante (testo ripristinato dal default memorizzato). */
+function gestioneUiFlashSaved(btn, durationMs, label) {
     if (!btn || btn.nodeType !== 1) return;
     durationMs = durationMs != null ? durationMs : 1000;
     var btnId = btn.id;
@@ -22572,7 +22608,7 @@ function gestioneUiFlashSaved(btn, durationMs) {
     try {
         if (gestioneUiSavedFlashTimers[btnId]) clearTimeout(gestioneUiSavedFlashTimers[btnId]);
     } catch (eFt) { /* ignore */ }
-    btn.textContent = '✓';
+    btn.textContent = label || '✓';
     btn.classList.add('gestione-ui-btn-saved');
     btn.disabled = true;
     gestioneUiSavedFlashTimers[btnId] = window.setTimeout(function () {
@@ -23601,7 +23637,7 @@ function gestioneDomandeInviaATuttiClick() {
     gestioneDomandePushTimer = null;
     gestioneDomandePushToFirestoreNow();
     gestioneMcqCacheFlushPush();
-    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-invia-tutti'));
+    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-invia-tutti'), 1500, 'Inviato');
 }
 
 function gestioneInviaAModalOpen() {
@@ -23789,6 +23825,7 @@ function gestioneInviaASelezionatiClick() {
     gestioneDomandePushToFirestoreNow();
     gestioneMcqCacheFlushPush();
     gestioneInviaAModalClose();
+    gestioneUiFlashSaved(document.getElementById('quiz-gestione-btn-invia-a'), 1500, 'Inviato');
 }
 
 function gestioneDomandeSaveSlotClick(idx) {
