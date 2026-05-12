@@ -7662,15 +7662,40 @@
         }
         /* Torna compatto in linea con titolo + tab (unica riga) */
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-gestione-torna {
-            padding: 4px 9px !important;
-            font-size: 0.68rem !important;
-            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 4px 10px 4px 7px !important;
+            font-size: 0.69rem !important;
+            font-weight: 800;
             min-height: 30px;
             line-height: 1.15;
-            border-radius: 10px !important;
-            box-shadow: 0 1px 5px rgba(49, 27, 96, 0.07);
+            border-radius: 999px !important;
+            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
             flex: 0 0 auto;
             align-self: center;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #ede7f6 0%, #d1c4e9 100%);
+            color: #4527a0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            flex: 0 0 auto;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon svg {
+            width: 13px;
+            height: 13px;
+            display: block;
+            stroke-width: 2.6;
+        }
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__label {
+            white-space: nowrap;
         }
         @media (prefers-reduced-motion: reduce) {
             .quiz-gestione-test-tab,
@@ -11876,7 +11901,7 @@ function dismissAppSplash() {
                         <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea test</button>
                         <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
                     </div>
-                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
+                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni"><span class="btn-gestione-torna__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/></svg></span><span class="btn-gestione-torna__label">Torna</span></button>
                 </div>
             </div>
             <div id="quiz-gestione-panel-crea" class="quiz-gestione-test-panel quiz-gestione-test-panel--crea" role="tabpanel" aria-labelledby="quiz-gestione-tab-crea">
@@ -12273,7 +12298,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605298';
+const APP_BUILD = '202605299';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24794,7 +24819,17 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     if (footerVerifica) footerVerifica.hidden = true;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
-    if (settingsOverlay) settingsOverlay.classList.remove('visible');
+    if (settingsOverlay) {
+        if (editorCompleto) {
+            settingsOverlay.classList.add('visible');
+            settingsOverlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('settings-open');
+        } else {
+            settingsOverlay.classList.remove('visible');
+            settingsOverlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('settings-open');
+        }
+    }
     var genBtn = document.getElementById('quiz-gestione-btn-genera');
     var sperimentaleBtn = document.getElementById('quiz-gestione-btn-sperimentale');
     var setBtn = document.getElementById('quiz-gestione-btn-settings');
@@ -24823,7 +24858,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     if (setBtn) setBtn.hidden = !editorCompleto;
     if (tornaBtn) {
         if (editorCompleto) {
-            tornaBtn.textContent = 'Torna';
+            tornaBtn.innerHTML = '<span class="btn-gestione-torna__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path><path d="M9 12h12"></path></svg></span><span class="btn-gestione-torna__label">Torna</span>';
             tornaBtn.setAttribute('title', 'Torna alle Impostazioni');
             tornaBtn.setAttribute('aria-label', 'Torna alle Impostazioni');
         } else {
@@ -24865,9 +24900,17 @@ function hideQuizGestioneTestVerificheModal() {
     document.body.classList.remove('quiz-info-open');
     var tornaAImpostazioni = quizGestioneDomandeEditorCompleto;
     quizGestioneDomandeEditorCompleto = true;
-    try {
-        if (tornaAImpostazioni && typeof showQuizSettingsModal === 'function') void showQuizSettingsModal();
-    } catch (eGs) { /* ignore */ }
+    if (tornaAImpostazioni) {
+        var settingsOverlay = document.getElementById('quiz-settings-overlay');
+        if (settingsOverlay) {
+            settingsOverlay.classList.add('visible');
+            settingsOverlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('settings-open');
+        }
+        try {
+            quizPresenceUpdateWhoamiSummaryUi();
+        } catch (eWhoUi) { /* ignore */ }
+    }
 }
 
 function quizGestioneTestVerificheBackdrop(ev) {
