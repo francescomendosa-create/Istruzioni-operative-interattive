@@ -6020,6 +6020,22 @@
             vertical-align: -2px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
         }
+        @media (max-width: 480px) and (hover: none) {
+            .supporto-info__box {
+                position: fixed;
+                left: max(18px, calc((100vw - min(92vw, 520px)) / 2 + 14px));
+                right: max(18px, calc((100vw - min(92vw, 520px)) / 2 + 14px));
+                top: clamp(118px, 18vh, 158px);
+                width: auto;
+                max-height: min(52vh, 360px);
+                transform: none;
+                text-align: left;
+            }
+            .supporto-info__box::before {
+                left: clamp(110px, 34vw, 165px);
+                transform: rotate(45deg);
+            }
+        }
         .supporto-lead {
             margin: 0 0 12px;
             color: #455a64;
@@ -7677,13 +7693,45 @@
     pointer-events: none;
 }
 @media (hover: none) and (pointer: coarse) {
+    .quiz-gestione-verifica-folder[open] {
+        overflow: visible;
+    }
+    .quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-body {
+        order: 1 !important;
+        margin-top: 8px;
+    }
+    .quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-summary {
+        order: 3 !important;
+        margin-top: 14px;
+        margin-bottom: 4px;
+    }
     .quiz-gestione-verifica-folder-docs {
-        touch-action: none;
+        gap: 10px;
+        padding: 8px 0 10px;
+        touch-action: pan-y;
         user-select: none;
         -webkit-user-select: none;
     }
-    .quiz-gestione-verifica-folder-docs.is-touch-swiping .quiz-gestione-verifica-card {
-        transition-duration: 0.24s;
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card,
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:first-child,
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(n),
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]):hover,
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--hovered:not([open]),
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--touch-front:not([open]) {
+        z-index: auto;
+        margin-top: 0;
+        transform: none;
+        filter: none;
+    }
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]) {
+        box-shadow:
+            0 12px 24px rgba(49, 27, 96, 0.18),
+            -6px 0 0 rgba(94, 53, 177, 0.28),
+            inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+    .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] {
+        transform: none;
+        margin-top: 0;
     }
 }
 .quiz-gestione-verifica-sheet-overlay {
@@ -12096,7 +12144,7 @@ function dismissAppSplash() {
                 <h4 id="supporto-title">CERCA SUPPORTO</h4>
                 <details class="supporto-info">
                     <summary aria-label="Informazioni sulla ricerca embeddings">i</summary>
-                    <div class="supporto-info__box" onclick="supportoCloseInfoBox()">
+                    <div class="supporto-info__box" onclick="supportoCloseInfoBox(event)">
                         <span class="supporto-info__box-icon" aria-hidden="true">i</span>Ricerca avanzata basata su embeddings: il sistema trasforma i contenuti tecnici in rappresentazioni numeriche salvate offline nell’app. Questo permette di trovare informazioni collegate al significato dei concetti, non solo alla semplice uguaglianza delle parole. In sintesi, aiuta il software a passare dalla lettura del testo alla comprensione del contesto operativo.
                     </div>
                 </details>
@@ -12866,6 +12914,7 @@ function dismissAppSplash() {
                     <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
                     <button type="button" id="quiz-gestione-btn-invia-tutti" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
                 </div>
+                <p id="quiz-gestione-invio-warning" class="quiz-gestione-invia-a-empty" role="alert" aria-live="polite" hidden>verifica risposte prima di inviare</p>
                 <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
@@ -13235,7 +13284,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605359';
+const APP_BUILD = '202605363';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22756,6 +22805,56 @@ function gestioneDomandePackHasAnyContent(items) {
     return false;
 }
 
+function gestioneDomandeValidatePackComplete(items) {
+    var cfg = gestioneConfigLoad();
+    var nq = cfg.numQuestions;
+    var na = cfg.numAnswers;
+    if (!Array.isArray(items) || items.length < nq) return false;
+    for (var i = 0; i < nq; i++) {
+        var it = items[i] || {};
+        if (!String(it.q || '').trim()) return false;
+        var answers = Array.isArray(it.answers) ? it.answers : [];
+        if (answers.length < na) return false;
+        for (var k = 0; k < na; k++) {
+            if (!String(answers[k] || '').trim()) return false;
+        }
+        var ci = parseInt(it.correctIndex, 10);
+        if (!isFinite(ci) || ci < 0 || ci >= na) return false;
+    }
+    return true;
+}
+
+function gestioneDomandeCurrentPackComplete() {
+    try {
+        return gestioneDomandeValidatePackComplete(gestioneReadSlotsFromDom());
+    } catch (e) {
+        return gestioneDomandeValidatePackComplete(gestioneDomandeLoad());
+    }
+}
+
+function gestioneDomandeInvioSyncState() {
+    if (!quizGestioneDomandeEditorCompleto) return true;
+    var ok = gestioneDomandeCurrentPackComplete();
+    var warn = document.getElementById('quiz-gestione-invio-warning');
+    var btnA = document.getElementById('quiz-gestione-btn-invia-a');
+    var btnT = document.getElementById('quiz-gestione-btn-invia-tutti');
+    if (warn) warn.hidden = ok;
+    [btnA, btnT].forEach(function (btn) {
+        if (!btn) return;
+        if (!btn.getAttribute('data-gestione-title-ok')) btn.setAttribute('data-gestione-title-ok', btn.getAttribute('title') || '');
+        btn.disabled = !ok;
+        btn.setAttribute('aria-disabled', ok ? 'false' : 'true');
+        btn.setAttribute('title', ok ? btn.getAttribute('data-gestione-title-ok') : 'verifica risposte prima di inviare');
+    });
+    return ok;
+}
+
+function gestioneDomandeRequirePackCompleteForSend() {
+    if (gestioneDomandeInvioSyncState()) return true;
+    window.alert('verifica risposte prima di inviare');
+    return false;
+}
+
 function gestioneDomandePersist(items) {
     var norm = gestioneDomandeNormalizeItems(items);
     var raw = gestioneDomandeLoadRaw();
@@ -23478,6 +23577,7 @@ function gestioneVerificaBuildUserFolder(userId, records) {
     }
     gestioneVerificaDocsMarkFront();
     docs.addEventListener('pointerdown', function (ev) {
+        if (ev.pointerType !== 'mouse') return;
         if (!folder.open || ev.pointerType === 'mouse') return;
         if (gestioneVerificaDocsCards().length < 2) return;
         touchBrowse.active = true;
@@ -24105,6 +24205,7 @@ function gestioneGeneraUgualiTuttiRefreshCheckbox() {
 /** Invio verso tutti i destinatari noti (stesso elenco dei badge): stesso test per ciascun profilo, poi push Firestore. */
 function gestioneDomandeInviaATuttiClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequirePackCompleteForSend()) return;
     var rows = gestioneCollectRecipientLabels();
     if (!rows.length) {
         window.alert(
@@ -24127,6 +24228,7 @@ function gestioneDomandeInviaATuttiClick() {
 
 function gestioneInviaAModalOpen() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequirePackCompleteForSend()) return;
     var ov = document.getElementById('quiz-gestione-invia-a-overlay');
     var list = document.getElementById('quiz-gestione-invia-a-list');
     if (!ov || !list) return;
@@ -24295,6 +24397,7 @@ function gestioneMcqApplicaRisposteOnlineClick() {
 
 function gestioneInviaASelezionatiClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequirePackCompleteForSend()) return;
     var list = document.getElementById('quiz-gestione-invia-a-list');
     var boxes = list ? list.querySelectorAll('input[type="checkbox"]:checked') : [];
     var keys = [];
@@ -24744,8 +24847,10 @@ function gestioneDomandeBuildCard(i, slot) {
     }
     ta.addEventListener('input', function () {
         gestioneDomandeFitTextareaToContent(ta);
+        gestioneDomandeInvioSyncState();
         requestAnimationFrame(function () {
             gestioneDomandeFitTextareaToContent(ta);
+            gestioneDomandeInvioSyncState();
         });
     });
     ta.addEventListener('paste', function () {
@@ -24849,8 +24954,10 @@ function gestioneDomandeBuildCard(i, slot) {
         }
         inp.addEventListener('input', function () {
             gestioneDomandeFitTextareaToContent(inp);
+            gestioneDomandeInvioSyncState();
             requestAnimationFrame(function () {
                 gestioneDomandeFitTextareaToContent(inp);
+                gestioneDomandeInvioSyncState();
             });
         });
         inp.addEventListener('paste', function () {
@@ -24886,6 +24993,7 @@ function gestioneDomandeBuildCard(i, slot) {
                 return;
             }
             gestioneDomandeSyncAnswerRows(card);
+            gestioneDomandeInvioSyncState();
             if (quizGestioneDomandeEditorCompleto === false) {
                 gestioneUtentePickSaveOne(i);
                 gestioneTestButtonStateUpdate();
@@ -25040,8 +25148,11 @@ function gestioneDomandeRender() {
         requestAnimationFrame(function () {
             gestioneDomandeFitAllGestioneFieldsStable(root);
             gestioneDomandeRestoreListScroll(root, scrollSnap);
+            gestioneDomandeInvioSyncState();
         });
+        gestioneDomandeInvioSyncState();
     });
+    gestioneDomandeInvioSyncState();
     if (quizGestioneDomandeEditorCompleto === false) gestioneTestButtonStateUpdate();
 }
 
@@ -26522,6 +26633,8 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     if (destWrap) destWrap.hidden = !editorCompleto;
     var footerEditor = document.getElementById('quiz-gestione-test-footer-editor');
     if (footerEditor) footerEditor.hidden = !editorCompleto;
+    var invioWarn = document.getElementById('quiz-gestione-invio-warning');
+    if (invioWarn) invioWarn.hidden = true;
     var footerVerifica = document.getElementById('quiz-gestione-test-footer-verifica');
     if (footerVerifica) footerVerifica.hidden = true;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
@@ -28118,7 +28231,13 @@ function supportoModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'supporto-overlay') hideSupportoModal();
 }
 
-function supportoCloseInfoBox() {
+function supportoCloseInfoBox(ev) {
+    if (ev) {
+        try {
+            ev.preventDefault();
+            ev.stopPropagation();
+        } catch (eEv) { /* ignore */ }
+    }
     document.querySelectorAll('.supporto-info[open]').forEach(function (info) {
         info.removeAttribute('open');
     });
@@ -28128,10 +28247,67 @@ function supportoCloseInfoOnOutsidePointer(ev) {
     var overlay = document.getElementById('supporto-overlay');
     if (!overlay || !overlay.classList.contains('visible')) return;
     if (ev && ev.target && ev.target.closest && ev.target.closest('.supporto-info summary')) return;
+    if (ev && ev.target && ev.target.closest && ev.target.closest('.supporto-info__box')) return;
     supportoCloseInfoBox();
 }
 
 document.addEventListener('pointerdown', supportoCloseInfoOnOutsidePointer, true);
+
+var quizOverlayTouchStartY = 0;
+
+function quizVisibleTouchOverlay() {
+    return document.querySelector(
+        '.quiz-settings-overlay.visible, .quiz-lock-overlay.visible, .quiz-exit-confirm-modal.visible, .quiz-gestione-genera-busy-overlay.visible'
+    );
+}
+
+function quizOverlayScrollableAncestor(target, overlay) {
+    var el = target && target.nodeType === 1 ? target : target && target.parentElement;
+    while (el && el !== document.body && el !== document.documentElement) {
+        if (overlay && !overlay.contains(el)) break;
+        try {
+            var cs = window.getComputedStyle(el);
+            var oy = cs.overflowY || cs.overflow || '';
+            if (/(auto|scroll)/.test(oy) && el.scrollHeight > el.clientHeight + 2) return el;
+        } catch (e) { /* ignore */ }
+        el = el.parentElement;
+    }
+    return null;
+}
+
+function quizOverlayTouchStart(ev) {
+    var overlay = quizVisibleTouchOverlay();
+    if (!overlay) return;
+    var t = ev.touches && ev.touches[0];
+    quizOverlayTouchStartY = t ? t.clientY : 0;
+}
+
+function quizOverlayTouchMove(ev) {
+    var overlay = quizVisibleTouchOverlay();
+    if (!overlay) return;
+    var target = ev.target;
+    if (target && target.closest && target.closest('input[type="range"], .quiz-fs-vol-touchpad')) return;
+    if (!target || !overlay.contains(target)) {
+        ev.preventDefault();
+        return;
+    }
+    var t = ev.touches && ev.touches[0];
+    var y = t ? t.clientY : quizOverlayTouchStartY;
+    var dy = y - quizOverlayTouchStartY;
+    var scroller = quizOverlayScrollableAncestor(target, overlay);
+    if (!scroller) {
+        ev.preventDefault();
+        return;
+    }
+    var atTop = scroller.scrollTop <= 0;
+    var atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+    if ((atTop && dy > 0) || (atBottom && dy < 0)) {
+        ev.preventDefault();
+    }
+}
+
+document.addEventListener('touchstart', quizOverlayTouchStart, { capture: true, passive: true });
+document.addEventListener('touchmove', quizOverlayTouchMove, { capture: true, passive: false });
 
 function supportoOpenResult(sectionKey, point) {
     hideSupportoModal();
