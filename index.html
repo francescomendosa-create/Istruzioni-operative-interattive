@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605376';
+const APP_BUILD = '202605377';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18094,6 +18094,35 @@ function quizUnlockUiSfxOnce() {
     quizLoadUiSfxBuffer(QUIZ_SFX_BONUS_FANGO);
 }
 
+function quizWakeMobileAfterStandby() {
+    try {
+        if (quizUiSfxCtx && quizUiSfxCtx.state === 'closed') quizUiSfxCtx = null;
+    } catch (eClosed) {
+        quizUiSfxCtx = null;
+    }
+    quizResumeUiSfxAudioIfNeeded();
+    try {
+        Object.keys(quizUiSfxPool).forEach(function (k) {
+            (quizUiSfxPool[k] || []).forEach(function (a) {
+                try {
+                    a.muted = false;
+                    a.preload = 'auto';
+                    if (!a.src) a.src = quizResolveMediaUrl(k);
+                    a.load();
+                } catch (eA) { /* ignore */ }
+            });
+        });
+    } catch (ePool) { /* ignore */ }
+    try {
+        quizPrimeUiSfxPool();
+    } catch (ePrime) { /* ignore */ }
+    try {
+        if (window.speechSynthesis && typeof window.speechSynthesis.getVoices === 'function') {
+            window.speechSynthesis.getVoices();
+        }
+    } catch (eVoices) { /* ignore */ }
+}
+
 function quizPlayUiSfxFast(relPath, gain) {
     try {
         quizResumeUiSfxAudioIfNeeded();
@@ -18217,7 +18246,7 @@ function initIstruzioniUiClickSounds() {
         'visibilitychange',
         function () {
             if (document.visibilityState === 'visible') {
-                quizResumeUiSfxAudioIfNeeded();
+                quizWakeMobileAfterStandby();
             }
         },
         { passive: true }
@@ -18225,12 +18254,13 @@ function initIstruzioniUiClickSounds() {
     window.addEventListener(
         'pageshow',
         function (ev) {
-            quizResumeUiSfxAudioIfNeeded();
+            quizWakeMobileAfterStandby();
         },
         { passive: true }
     );
+    window.addEventListener('focus', quizWakeMobileAfterStandby, { passive: true });
     const onPressStart = function (ev) {
-        quizResumeUiSfxAudioIfNeeded();
+        quizWakeMobileAfterStandby();
         const now = Date.now();
         let raw = ev.target;
         if (raw && raw.nodeType === 3) raw = raw.parentElement;
@@ -19437,6 +19467,19 @@ function quizSettingsRefreshLineReset() {
 }
 
 async function showQuizSettingsModal() {
+    const overlay = document.getElementById('quiz-settings-overlay');
+    if (!overlay) {
+        try {
+            quizClearReopenSettingsIntentMarkers();
+        } catch (eCl0) { /* ignore */ }
+        return;
+    }
+    try {
+        quizWakeMobileAfterStandby();
+    } catch (eWake) { /* ignore */ }
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('settings-open');
     /* Prima il controllo build/rete (e possibile self-heal replace): così quizClear non cancella i marker
      * mentre un altro quizCheck (timer ~1400 ms) ancora deve fare quizEnsureBuildNotStaleOnLaunch con keepReopen. */
     try {
@@ -19451,13 +19494,6 @@ async function showQuizSettingsModal() {
             'quiz-settings-reopen-pending--search'
         );
     } catch (eRm) { /* ignore */ }
-    const overlay = document.getElementById('quiz-settings-overlay');
-    if (!overlay) {
-        try {
-            quizClearReopenSettingsIntentMarkers();
-        } catch (eCl0) { /* ignore */ }
-        return;
-    }
     /* Baseline locale prima del fetch: poi il cloud sovrascrive (mai il contrario dopo fetch:
      * riscrivere da sola localStorage cancellava il flag applicato da Firestore su mobile/Safari senza storage affidabile). */
     quizLoadDeveloperModifyFeaturesState();
@@ -19480,9 +19516,6 @@ async function showQuizSettingsModal() {
         refBtn.classList.remove('is-updating');
     }
     quizSyncSpeechUi();
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('settings-open');
     try {
         quizPresenceUpdateWhoamiSummaryUi();
     } catch (eWho) { /* ignore */ }
