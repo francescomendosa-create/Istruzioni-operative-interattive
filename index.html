@@ -6276,9 +6276,69 @@
         }
         .quiz-modify-shell-header .quiz-modify-shell-header__title {
             margin: 0;
-            flex: 1;
+            flex: 0 1 auto;
             min-width: 0;
             text-align: left;
+        }
+        .quiz-modify-title-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .quiz-modify-title-info {
+            position: relative;
+            flex: 0 0 auto;
+        }
+        .quiz-modify-title-info summary {
+            list-style: none;
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid rgba(21, 101, 192, 0.35);
+            background: linear-gradient(180deg, #ffffff 0%, #e3f2fd 100%);
+            color: #1565c0;
+            font-weight: 900;
+            font-size: 0.9rem;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(21, 101, 192, 0.16);
+            user-select: none;
+        }
+        .quiz-modify-title-info summary::-webkit-details-marker {
+            display: none;
+        }
+        .quiz-modify-title-info summary:focus-visible {
+            outline: 2px solid #1565c0;
+            outline-offset: 2px;
+        }
+        .quiz-modify-title-info__box {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            z-index: 6;
+            width: min(72vw, 390px);
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(21, 101, 192, 0.18);
+            background: #ffffff;
+            color: #455a64;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            font-weight: 600;
+            box-shadow: 0 12px 28px rgba(25, 118, 210, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        @media (max-width: 520px) {
+            .quiz-modify-title-info__box {
+                left: auto;
+                right: -42px;
+                width: min(84vw, 340px);
+            }
         }
         .quiz-modify-dev-back-btn {
             display: inline-flex;
@@ -12083,7 +12143,15 @@ function dismissAppSplash() {
     <div id="quiz-modify-dev-overlay" class="quiz-lock-overlay quiz-lock-overlay--modify-full" aria-hidden="true" onclick="quizModifyDevModalBackdrop(event)">
         <div class="quiz-lock-box quiz-modify-shell" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-dev-title" onclick="event.stopPropagation()">
             <div class="quiz-modify-shell-header">
-                <h4 id="quiz-modify-dev-title" class="quiz-lock-title quiz-modify-shell-header__title">Modifica contenuti</h4>
+                <div class="quiz-modify-title-wrap">
+                    <h4 id="quiz-modify-dev-title" class="quiz-lock-title quiz-modify-shell-header__title">Modifica contenuti</h4>
+                    <details class="quiz-modify-title-info">
+                        <summary aria-label="Informazioni su Modifica contenuti" title="Informazioni">i</summary>
+                        <div class="quiz-modify-title-info__box">
+                            Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda» (struttura vuota pronta per nuove domande). Con Firebase configurato, le schede create si sincronizzano su <strong>tutti i dispositivi</strong> del progetto.
+                        </div>
+                    </details>
+                </div>
                 <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn" onclick="quizModifyDevBackClick()" aria-label="Torna indietro" title="Torna">
                     <span class="quiz-modify-dev-back-btn__icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -12096,9 +12164,6 @@ function dismissAppSplash() {
             </div>
 
             <div id="quiz-modify-view-list" class="quiz-modify-view">
-                <p class="quiz-modify-lead">
-                    Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda» (struttura vuota pronta per nuove domande). Con Firebase configurato, le schede create si sincronizzano su <strong>tutti i dispositivi</strong> del progetto.
-                </p>
                 <div class="quiz-modify-new-scheda-row" id="quiz-modify-new-scheda-host">
                     <button type="button" class="quiz-modify-btn-new-scheda" id="quiz-modify-btn-new-scheda" title="Aggiungi una scheda vuota con la stessa struttura delle altre">Crea nuova scheda</button>
                     <div id="quiz-modify-new-scheda-form" class="quiz-modify-new-scheda-form" hidden>
@@ -12298,7 +12363,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605299';
+const APP_BUILD = '202605300';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
