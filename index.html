@@ -13060,7 +13060,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605350';
+const APP_BUILD = '202605351';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -27758,6 +27758,7 @@ function showSupportoModal() {
 function hideSupportoModal() {
     var overlay = document.getElementById('supporto-overlay');
     if (!overlay) return;
+    supportoCloseInfoBox();
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-info-open');
@@ -27766,6 +27767,21 @@ function hideSupportoModal() {
 function supportoModalBackdrop(ev) {
     if (ev && ev.target && ev.target.id === 'supporto-overlay') hideSupportoModal();
 }
+
+function supportoCloseInfoBox() {
+    document.querySelectorAll('.supporto-info[open]').forEach(function (info) {
+        info.removeAttribute('open');
+    });
+}
+
+function supportoCloseInfoOnOutsidePointer(ev) {
+    var overlay = document.getElementById('supporto-overlay');
+    if (!overlay || !overlay.classList.contains('visible')) return;
+    if (ev && ev.target && ev.target.closest && ev.target.closest('.supporto-info')) return;
+    supportoCloseInfoBox();
+}
+
+document.addEventListener('pointerdown', supportoCloseInfoOnOutsidePointer, true);
 
 function supportoOpenResult(sectionKey, point) {
     hideSupportoModal();
