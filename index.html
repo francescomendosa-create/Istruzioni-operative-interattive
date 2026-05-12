@@ -125,6 +125,20 @@
             width: 18px;
             height: 18px;
         }
+        .header-title-actions {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+        .btn-supporto--title {
+            display: none;
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
 
         /* Presenza utenti + Chiudi: stessa riga del titolo, in coda a destra */
         .quiz-settings-heading-row {
@@ -484,6 +498,9 @@
         .btn-supporto:active {
             transform: translateY(3px) scale(0.98);
             box-shadow: 0 1px 0 rgba(120, 72, 0, 0.42), 0 3px 8px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.42);
+        }
+        .btn-supporto.btn-supporto--title {
+            display: none;
         }
 
         /* Tra Quiz e Diagnostica — gestione domande test e verifiche (stesse dimensioni base) */
@@ -5955,15 +5972,15 @@
             display: none;
         }
         .supporto-info__box {
-            position: fixed;
+            position: absolute;
             left: 50%;
-            top: clamp(86px, 18vh, 150px);
+            top: calc(100% + 9px);
             z-index: 10140;
-            width: min(86vw, 380px);
-            max-height: min(64vh, 420px);
+            width: min(82vw, 380px);
+            max-height: min(58vh, 390px);
             overflow-y: auto;
             transform: translateX(-50%);
-            padding: 12px;
+            padding: 12px 13px;
             border-radius: 13px;
             background: #ffffff;
             border: 1px solid #bbdefb;
@@ -5973,6 +5990,35 @@
             line-height: 1.45;
             font-weight: 650;
             box-sizing: border-box;
+            cursor: pointer;
+        }
+        .supporto-info__box::before {
+            content: '';
+            position: absolute;
+            top: -7px;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            transform: translateX(-50%) rotate(45deg);
+            background: #ffffff;
+            border-left: 1px solid #bbdefb;
+            border-top: 1px solid #bbdefb;
+        }
+        .supporto-info__box-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 7px;
+            border-radius: 999px;
+            background: #e3f2fd;
+            border: 1px solid #64b5f6;
+            color: #0d47a1;
+            font-size: 0.78rem;
+            font-weight: 950;
+            vertical-align: -2px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
         }
         .supporto-lead {
             margin: 0 0 12px;
@@ -9951,9 +9997,19 @@
             body {
                 padding-top: 212px;
             }
+            .header-title-bar {
+                grid-template-columns: 74px minmax(0, 1fr) 74px;
+            }
             .header-title-bar .header-main-title {
                 font-size: 0.78rem;
                 letter-spacing: 0.02em;
+            }
+            .header-title-actions {
+                width: 74px;
+                justify-content: flex-end;
+            }
+            .btn-supporto.btn-supporto--title {
+                display: inline-flex;
             }
             .btn-side {
                 min-width: 62px;
@@ -10014,7 +10070,17 @@
         /* Solo smartphone: Diagnostica centrata, Cerca supporto sotto e separato. */
         @media (max-width: 480px) and (hover: none) {
             body {
-                padding-top: 254px;
+                padding-top: 224px;
+            }
+            .header-title-bar {
+                grid-template-columns: 74px minmax(0, 1fr) 74px;
+            }
+            .header-title-actions {
+                width: 74px;
+                justify-content: flex-end;
+            }
+            .btn-supporto.btn-supporto--title {
+                display: inline-flex;
             }
             .header-quiz-actions {
                 display: grid;
@@ -10037,9 +10103,7 @@
                 width: min(100%, 168px);
             }
             .header-quiz-actions .btn-supporto {
-                grid-column: 1 / -1;
-                justify-self: center;
-                margin-top: 1px;
+                display: none;
             }
             .header-quiz-actions.header-quiz-actions--quiz-disabled .btn-test-gestione {
                 grid-column: 1;
@@ -11998,9 +12062,12 @@ function dismissAppSplash() {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
-        <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </button>
+        <div class="header-title-actions">
+            <button type="button" class="btn-supporto btn-supporto--title" onclick="showSupportoModal()" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
+            <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+        </div>
     </div>
     <div class="header-sec-row header-sec-area">
         <div class="header-sec-grid" id="header-sec-grid">
@@ -12029,8 +12096,8 @@ function dismissAppSplash() {
                 <h4 id="supporto-title">CERCA SUPPORTO</h4>
                 <details class="supporto-info">
                     <summary aria-label="Informazioni sulla ricerca embeddings">i</summary>
-                    <div class="supporto-info__box">
-                        Ricerca avanzata basata su embeddings: il sistema trasforma i contenuti tecnici in rappresentazioni numeriche salvate offline nell’app. Questo permette di trovare informazioni collegate al significato dei concetti, non solo alla semplice uguaglianza delle parole. In sintesi, aiuta il software a passare dalla lettura del testo alla comprensione del contesto operativo.
+                    <div class="supporto-info__box" onclick="supportoCloseInfoBox()">
+                        <span class="supporto-info__box-icon" aria-hidden="true">i</span>Ricerca avanzata basata su embeddings: il sistema trasforma i contenuti tecnici in rappresentazioni numeriche salvate offline nell’app. Questo permette di trovare informazioni collegate al significato dei concetti, non solo alla semplice uguaglianza delle parole. In sintesi, aiuta il software a passare dalla lettura del testo alla comprensione del contesto operativo.
                     </div>
                 </details>
             </div>
@@ -13168,7 +13235,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605357';
+const APP_BUILD = '202605359';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -28060,7 +28127,7 @@ function supportoCloseInfoBox() {
 function supportoCloseInfoOnOutsidePointer(ev) {
     var overlay = document.getElementById('supporto-overlay');
     if (!overlay || !overlay.classList.contains('visible')) return;
-    if (ev && ev.target && ev.target.closest && ev.target.closest('.supporto-info')) return;
+    if (ev && ev.target && ev.target.closest && ev.target.closest('.supporto-info summary')) return;
     supportoCloseInfoBox();
 }
 
