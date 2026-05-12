@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605381';
+const APP_BUILD = '202605382';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13653,6 +13653,8 @@ let gestioneDomandeRemoteApply = false;
 let gestioneDomandeFsUnsub = null;
 /** Fallback test su quiz_leaderboard/global se le regole non consentono quiz_gestione_domande. */
 let gestioneDomandeFallbackFsUnsub = null;
+/** Se il documento primario risponde, ignora il fallback vecchio su quiz_leaderboard. */
+let gestioneDomandePrimarySnapshotReady = false;
 /** Cloud sync cache MCQ IA (debounce push). */
 let gestioneMcqCachePushTimer = null;
 let gestioneMcqCacheRemoteApply = false;
@@ -15536,6 +15538,7 @@ function quizSubscribeGestioneDomandeFallback() {
     gestioneDomandeFallbackFsUnsub = ref.onSnapshot(
         function (snap) {
             if (!snap.exists) return;
+            if (gestioneDomandePrimarySnapshotReady) return;
             var dat = snap.data() || {};
             if (dat.gestioneTestData && typeof dat.gestioneTestData === 'object') {
                 gestioneDomandeApplyCloudData(dat.gestioneTestData);
@@ -15570,11 +15573,13 @@ function quizSubscribeGestioneDomande() {
             gestioneDomandeFsUnsub = ref.onSnapshot(
                 function (snap) {
                     if (!snap.exists) return;
+                    gestioneDomandePrimarySnapshotReady = true;
                     var dat = snap.data() || {};
                     gestioneDomandeApplyCloudData(dat);
                 },
                 function (err) {
                     console.warn('[quiz_gestione_domande snapshot]', err);
+                    gestioneDomandePrimarySnapshotReady = false;
                     window.setTimeout(function () {
                         try {
                             quizSubscribeGestioneDomande();
@@ -24109,7 +24114,6 @@ async function gestioneEliminaTestInviatiClick() {
         });
         clearedPayload.updatedAt = ts;
         var gestioneRef = db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
-        var fallbackRef = db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
         try {
             await gestioneRef.update({
                 perUser: firebase.firestore.FieldValue.delete(),
@@ -24118,32 +24122,11 @@ async function gestioneEliminaTestInviatiClick() {
             });
         } catch (eGestUpdate) { /* doc assente o non aggiornabile: riscrivo sotto */ }
         await gestioneRef.set(clearedPayload);
-        try {
-            await fallbackRef.update({
-                gestioneTestData: firebase.firestore.FieldValue.delete(),
-                gestioneTestUpdatedAt: ts,
-                updatedAt: ts
-            });
-        } catch (eFallbackDelete) { /* doc assente o non aggiornabile: riscrivo sotto */ }
-        await fallbackRef.set({
-            gestioneTestData: gestioneFirestoreCleanValue({
-                v: 2,
-                items: gestioneDomandeNormalizeItems(rawForClear.items || []),
-                updatedAtMs: Date.now()
-            }),
-            gestioneTestUpdatedAt: ts,
-            updatedAt: ts
-        }, { merge: true });
+        gestioneDomandePrimarySnapshotReady = true;
         var controllo = await gestioneRef.get();
         var controlloData = controllo.exists ? (controllo.data() || {}) : {};
         if (controlloData.perUser && Object.keys(controlloData.perUser).length > 0) {
             throw new Error('Controllo eliminazione non superato: test inviati ancora presenti.');
-        }
-        var controlloFallback = await fallbackRef.get();
-        var controlloFallbackData = controlloFallback.exists ? (controlloFallback.data() || {}) : {};
-        var fallbackPerUser = controlloFallbackData.gestioneTestData && controlloFallbackData.gestioneTestData.perUser;
-        if (fallbackPerUser && Object.keys(fallbackPerUser).length > 0) {
-            throw new Error('Controllo eliminazione non superato: test inviati ancora presenti nel fallback.');
         }
         var raw = gestioneDomandeLoadRaw();
         raw.perUser = {};
