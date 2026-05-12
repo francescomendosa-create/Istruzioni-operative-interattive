@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605384';
+const APP_BUILD = '202605385';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15177,6 +15177,32 @@ function quizCoerceModifyFeaturesEnabled(raw) {
     return null;
 }
 
+function quizCoerceTestResetAtMs(raw) {
+    var n = Number(raw || 0);
+    if (!isFinite(n) || n <= 0) return 0;
+    return Math.floor(n);
+}
+
+function gestioneApplyRemoteTestResetAtMs(rawResetAtMs) {
+    var resetAt = quizCoerceTestResetAtMs(rawResetAtMs);
+    if (!resetAt || resetAt <= GESTIONE_TEST_RESET_AT_MS) return;
+    GESTIONE_TEST_RESET_AT_MS = resetAt;
+    try {
+        localStorage.setItem(GESTIONE_TEST_RESET_LS, String(GESTIONE_TEST_RESET_AT_MS));
+    } catch (eLs) { /* ignore */ }
+    var raw = gestioneDomandeLoadRaw();
+    raw.perUser = {};
+    gestioneDomandeSaveRaw(raw);
+    try { gestioneTestButtonUpdate(raw); } catch (eBtn) { /* ignore */ }
+    try {
+        var ov = document.getElementById('quiz-gestione-test-overlay');
+        if (ov && ov.classList.contains('visible')) {
+            if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
+            gestioneDomandeRender();
+        }
+    } catch (eRender) { /* ignore */ }
+}
+
 /** Propaga il flag sul doc classifica (merge): fallback per client che non leggono quiz_app_flags. */
 function quizMirrorModifyFeaturesToLeaderboardDoc(want) {
     if (!quizFirestoreConfigured()) return;
@@ -15230,6 +15256,7 @@ function quizFetchModifyFeaturesFromFirestore(reason) {
             return ref.get().then(function (snap) {
                 if (snap.exists) {
                     var d = snap.data() || {};
+                    gestioneApplyRemoteTestResetAtMs(d.gestioneTestResetAtMs);
                     var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
                     if (want !== null) {
                         quizApplyModifyFeaturesFromRemote(want);
@@ -15300,10 +15327,12 @@ function quizSubscribeModifyFeaturesFlag() {
                     function (snap) {
                         if (!snap.exists) return;
                         var d = snap.data() || {};
+                        gestioneApplyRemoteTestResetAtMs(d.gestioneTestResetAtMs);
                         var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
-                        if (want === null) return;
-                        quizApplyModifyFeaturesFromRemote(want);
-                        quizMirrorModifyFeaturesToLeaderboardDoc(want);
+                        if (want !== null) {
+                            quizApplyModifyFeaturesFromRemote(want);
+                            quizMirrorModifyFeaturesToLeaderboardDoc(want);
+                        }
                     },
                     function (err) {
                         console.warn('[quiz_app_flags snapshot]', err);
@@ -24115,6 +24144,15 @@ async function gestioneEliminaTestInviatiClick() {
         try {
             localStorage.setItem(GESTIONE_TEST_RESET_LS, String(GESTIONE_TEST_RESET_AT_MS));
         } catch (eLsReset) { /* ignore */ }
+        try {
+            await quizEnsureFirebase();
+            await firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC).set({
+                gestioneTestResetAtMs: GESTIONE_TEST_RESET_AT_MS,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        } catch (eCloudReset) {
+            console.warn('[gestione test reset cloud]', eCloudReset);
+        }
         gestioneDomandePrimarySnapshotReady = true;
         var raw = gestioneDomandeLoadRaw();
         raw.perUser = {};
