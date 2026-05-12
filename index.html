@@ -11648,7 +11648,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605294</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605295</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11799,7 +11799,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605294</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605295</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12246,7 +12246,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605294';
+const APP_BUILD = '202605295';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -29438,6 +29438,25 @@ function syncCf1CorrelationUpdate() {
     }
 }
 
+function forceCf1NoForMbrFoamCorrelation() {
+    if (correlationYes['mbr-3'] !== true || correlationYes['cf-1'] !== true) return false;
+    const btnNo = document.getElementById('btn-cf-1-no');
+    if (!btnNo) {
+        correlationYes['cf-1'] = false;
+        return false;
+    }
+    const prevUpdating = isUpdating;
+    isUpdating = true;
+    try {
+        btnNo.click();
+    } catch (e) {
+        correlationYes['cf-1'] = false;
+    } finally {
+        isUpdating = prevUpdating;
+    }
+    return true;
+}
+
 function syncCf2CorrelationUpdate() {
     const cf2ResDiv = document.getElementById('r-cf-2');
     if (!cf2ResDiv) return;
@@ -29578,6 +29597,15 @@ function check(s, p, val, btn) {
 
     // salva stato
     correlationYes[`${s}-${p}`] = val;
+
+    // Se la schiuma MBBR e confermata, il chiarificato CF punto 1 non puo restare su "Si".
+    if (s === 'cf' && p === 1 && val === true && correlationYes['mbr-3'] === true) {
+        if (forceCf1NoForMbrFoamCorrelation()) return;
+    }
+    if (s === 'mbr' && p === 3 && val === true) {
+        forceCf1NoForMbrFoamCorrelation();
+        syncCf1CorrelationUpdate();
+    }
 
     // 👉 CASO GIUSTO: MBBR punto 3 → CF punto 2
     if (s === 'mbr' && p === 4 && val === true) {
