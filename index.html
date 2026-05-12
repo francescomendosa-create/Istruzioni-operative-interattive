@@ -7752,7 +7752,8 @@
 }
 .quiz-gestione-verifica-sheet {
     position: relative;
-    width: min(900px, calc(100vw - 32px));
+    right: clamp(6px, 1.4vw, 18px);
+    width: min(840px, calc(100vw - 44px));
     max-height: min(88dvh, calc(100dvh - 32px));
     overflow: auto;
     border-radius: 22px;
@@ -7833,6 +7834,7 @@
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card--sheet {
     margin: 0 auto;
+    max-width: 100%;
     cursor: zoom-in;
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card {
@@ -13284,7 +13286,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605363';
+const APP_BUILD = '202605364';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23496,8 +23498,8 @@ function gestioneVerificaOpenA4Sheet(testResult, userId) {
         gestioneVerificaStampaRisultato(testResult, userId);
         return;
     }
-    var html = '<!doctype html><html><head><meta charset="utf-8"><title>Foglio A4 risultato test</title><style>' +
-        'body{margin:0;background:#dfe7f0;font-family:Segoe UI,Arial,sans-serif;color:#263238}.bar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:rgba(31,63,104,.92);box-shadow:0 8px 18px rgba(0,0,0,.22)}button{border:0;border-radius:999px;padding:10px 18px;font-weight:900;cursor:pointer}.print{background:#fff;color:#0d47a1}.close{background:#ede7f6;color:#4527a0}.sheet{width:210mm;min-height:297mm;margin:14mm auto;background:#fff;border-radius:10px;padding:18mm;box-shadow:0 20px 48px rgba(31,63,104,.28);box-sizing:border-box}.top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #e8eaf6;padding-bottom:14px}.name{font-size:25px;font-weight:900;color:#4527a0}.badge{align-self:flex-start;border-radius:999px;padding:8px 14px;color:white;font-weight:900;background:' + (passed ? '#43a047' : '#e53935') + '}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.cell{background:#f5f7fa;border-radius:12px;padding:12px}.cell b{display:block;font-size:11px;text-transform:uppercase;color:#607d8b;margin-bottom:4px}.topics{border:1px solid #d7c9f3;background:#f7f3ff;border-radius:14px;padding:14px;margin-top:18px}.topics h2{margin:0 0 8px;font-size:16px;color:#4527a0}.topics li{margin:5px 0}.footer{margin-top:28px;color:#607d8b;font-size:12px;text-align:center}@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;width:auto;min-height:auto;box-shadow:none;border-radius:0}}' +
+    var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Foglio A4 risultato test</title><style>' +
+        'body{margin:0;background:#dfe7f0;font-family:Segoe UI,Arial,sans-serif;color:#263238}.bar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:rgba(31,63,104,.92);box-shadow:0 8px 18px rgba(0,0,0,.22)}button{border:0;border-radius:999px;padding:10px 18px;font-weight:900;cursor:pointer}.print{background:#fff;color:#0d47a1}.close{background:#ede7f6;color:#4527a0}.sheet{width:210mm;min-height:297mm;margin:14mm auto;background:#fff;border-radius:10px;padding:18mm;box-shadow:0 20px 48px rgba(31,63,104,.28);box-sizing:border-box}.top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #e8eaf6;padding-bottom:14px}.name{font-size:25px;font-weight:900;color:#4527a0}.badge{align-self:flex-start;border-radius:999px;padding:8px 14px;color:white;font-weight:900;background:' + (passed ? '#43a047' : '#e53935') + '}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.cell{background:#f5f7fa;border-radius:12px;padding:12px}.cell b{display:block;font-size:11px;text-transform:uppercase;color:#607d8b;margin-bottom:4px}.topics{border:1px solid #d7c9f3;background:#f7f3ff;border-radius:14px;padding:14px;margin-top:18px}.topics h2{margin:0 0 8px;font-size:16px;color:#4527a0}.topics li{margin:5px 0}.footer{margin-top:28px;color:#607d8b;font-size:12px;text-align:center}@media screen and (max-width:700px){body{background:#e8eef6}.bar{gap:10px;padding:18px max(10px,env(safe-area-inset-right)) 18px max(10px,env(safe-area-inset-left));align-items:center}.bar button{font-size:clamp(1.22rem,5vw,1.6rem);line-height:1.05;padding:clamp(18px,5vw,24px) clamp(20px,7vw,34px);min-width:min(44vw,170px);min-height:72px;box-shadow:0 8px 18px rgba(0,0,0,.22)}.sheet{width:calc(100vw - 14px);min-height:auto;margin:8px auto 20px;border-radius:15px;padding:18px 14px;box-shadow:0 14px 34px rgba(31,63,104,.25)}.top{flex-direction:column;align-items:stretch}.name{font-size:clamp(1.25rem,6vw,1.6rem)}.badge{align-self:stretch;text-align:center;font-size:1rem}.grid{grid-template-columns:1fr;gap:8px;margin:16px 0}.topics{padding:12px}.topics ul{padding-left:20px}}@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;width:auto;min-height:auto;box-shadow:none;border-radius:0}}' +
         '</style></head><body><div class="bar"><button class="print" onclick="window.print()">Stampa</button><button class="close" onclick="window.close()">Chiudi</button></div><main class="sheet"><section class="top"><div><div class="name">' + safe(testResult.userLabel || userId) + '</div><div>Risultato test di verifica</div></div><div class="badge">' + (passed ? 'Passato: ' : 'Non passato: ') + safe(testResult.score) + '/100</div></section><section class="grid"><div class="cell"><b>Domande corrette</b>' + safe(testResult.correctCount) + '/' + safe(testResult.totalQuestions) + '</div><div class="cell"><b>Assegnato il</b>' + safe(gestioneVerificaFormatDate(testResult.assignedAtMs)) + '</div><div class="cell"><b>Inviato il</b>' + safe(gestioneVerificaFormatDate(testResult.submittedAtMs)) + '</div></section><section class="topics"><h2>Argomenti trattati</h2><ul>' + topics.map(function (t) { return '<li>' + safe(t) + '</li>'; }).join('') + '</ul></section><p class="footer">Documento generato dall&apos;app Istruzioni operative interattive.</p></main></body></html>';
     win.document.open();
     win.document.write(html);
