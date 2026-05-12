@@ -7167,8 +7167,8 @@
     border-radius: 20px 20px 16px 16px;
     border: 1px solid rgba(69, 39, 160, 0.22);
     background:
-        linear-gradient(180deg, rgba(238, 232, 249, 0.98) 0%, rgba(218, 207, 238, 0.98) 100%),
-        radial-gradient(circle at 12% 0%, rgba(255,255,255,0.70), transparent 35%),
+        linear-gradient(180deg, rgba(232, 224, 246, 0.98) 0%, rgba(207, 194, 231, 0.98) 100%),
+        radial-gradient(circle at 12% 0%, rgba(255,255,255,0.64), transparent 35%),
         radial-gradient(circle at 100% 0%, rgba(66, 165, 245, 0.16), transparent 38%);
     box-shadow:
         0 18px 36px rgba(49, 27, 96, 0.18),
@@ -7219,8 +7219,8 @@
     grid-column: auto;
     overflow: hidden;
     background:
-        linear-gradient(180deg, rgba(238, 232, 249, 0.98) 0%, rgba(218, 207, 238, 0.98) 100%),
-        radial-gradient(circle at 8% 0%, rgba(255,255,255,0.72), transparent 38%),
+        linear-gradient(180deg, rgba(232, 224, 246, 0.98) 0%, rgba(207, 194, 231, 0.98) 100%),
+        radial-gradient(circle at 8% 0%, rgba(255,255,255,0.66), transparent 38%),
         radial-gradient(circle at 100% 0%, rgba(66, 165, 245, 0.16), transparent 40%);
     box-shadow:
         0 26px 54px rgba(49, 27, 96, 0.24),
@@ -7446,14 +7446,14 @@
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]):hover,
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--hovered:not([open]) {
-    transform: perspective(2400px) rotateY(-0.8deg) rotateX(0deg) translateX(0) translateY(-7px) translateZ(110px) scale(1.02);
+    transform: perspective(2400px) rotateY(-0.7deg) rotateX(0deg) translateX(0) translateY(-5px) translateZ(82px) scale(1.011);
     border-color: rgba(94, 53, 177, 0.28);
     box-shadow:
         0 34px 62px rgba(49, 27, 96, 0.30),
         0 10px 0 rgba(49, 27, 96, 0.10),
         -8px 0 0 rgba(94, 53, 177, 0.34),
         inset 0 1px 0 rgba(255,255,255,0.95);
-    filter: brightness(1.08) saturate(1.03);
+    filter: brightness(1.045) saturate(1.015);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] {
     z-index: 20;
@@ -12858,7 +12858,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605329';
+const APP_BUILD = '202605330';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
