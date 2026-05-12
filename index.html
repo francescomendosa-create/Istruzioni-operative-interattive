@@ -7479,14 +7479,16 @@
         /* Popup Domande (Gestione test e verifiche): stesse dimensioni di Modifica contenuti */
         #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
             width: min(96vw, 900px);
-            max-width: min(96vw, 900px);
+            max-width: calc(100vw - 24px);
             height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-            max-height: none;
+            max-height: calc(100dvh - 10px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+            min-width: min(94vw, 360px);
+            min-height: min(88dvh, 480px);
             padding: 12px 14px 10px;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            min-height: 0;
+            min-height: min(88dvh, 480px);
             overflow: hidden;
             background: linear-gradient(165deg, #f3e5f5 0%, #fafafa 28%, #ffffff 55%);
             border: 1px solid rgba(94, 53, 177, 0.14);
@@ -7494,11 +7496,32 @@
                 0 14px 40px rgba(49, 27, 96, 0.12),
                 0 2px 0 rgba(255, 255, 255, 0.85) inset;
             border-radius: 16px;
+            position: relative;
+            resize: both;
         }
         @media (min-width: 900px) {
             #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
-                padding: 14px 16px 12px;
+                padding: 12px 14px 10px;
             }
+        }
+        .quiz-gestione-resize-handle {
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            cursor: nwse-resize;
+            touch-action: none;
+            z-index: 5;
+            opacity: 0.58;
+            background:
+                linear-gradient(135deg, transparent 0 45%, rgba(94, 53, 177, 0.6) 46% 52%, transparent 53%),
+                linear-gradient(135deg, transparent 0 64%, rgba(94, 53, 177, 0.46) 65% 71%, transparent 72%),
+                linear-gradient(135deg, transparent 0 82%, rgba(94, 53, 177, 0.34) 83% 88%, transparent 89%);
+        }
+        .quiz-gestione-resize-handle:hover {
+            opacity: 0.9;
         }
         .quiz-gestione-test-head {
             display: flex;
@@ -7506,9 +7529,9 @@
             justify-content: flex-start;
             gap: 0;
             flex-wrap: nowrap;
-            margin: 0 0 12px;
+            margin: 0 0 8px;
             flex-shrink: 0;
-            padding-bottom: 10px;
+            padding-bottom: 7px;
             border-bottom: 1px solid rgba(94, 53, 177, 0.12);
             min-width: 0;
         }
@@ -7522,7 +7545,7 @@
         }
         .quiz-gestione-test-head .quiz-gestione-test-title {
             margin: 0;
-            font-size: clamp(0.82rem, 2.4vw, 1.05rem);
+            font-size: clamp(0.78rem, 2.1vw, 0.98rem);
             font-weight: 800;
             letter-spacing: -0.02em;
             color: #311b92;
@@ -7621,17 +7644,17 @@
                 display: grid;
                 grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
                 align-items: center;
-                column-gap: 12px;
+                column-gap: 10px;
             }
             #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-segments {
                 grid-column: 2;
                 justify-content: center;
-                gap: 12px;
+                gap: 10px;
             }
             #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-tab {
-                min-width: 138px;
-                padding: 8px 22px;
-                font-size: 0.82rem;
+                min-width: 126px;
+                padding: 7px 18px;
+                font-size: 0.78rem;
             }
             #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-btn-torna {
                 grid-column: 3;
@@ -7736,15 +7759,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin: 0 0 6px;
-            padding: 0 2px;
+            margin: 0 0 4px;
+            padding: 0 1px;
             flex-shrink: 0;
         }
         .quiz-gestione-crea-domande-title {
             margin: 0;
-            font-size: 0.88rem;
+            font-size: 0.82rem;
             font-weight: 800;
             letter-spacing: -0.02em;
             color: #4527a0;
@@ -7757,19 +7780,19 @@
             align-items: center;
             justify-content: flex-end;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
         }
         #quiz-gestione-test-overlay .quiz-gestione-crea-domande-toolbar .btn-side {
-            font-size: 0.72rem;
-            padding: 5px 10px;
-            min-height: 32px;
-            border-radius: 10px;
+            font-size: 0.68rem;
+            padding: 4px 8px;
+            min-height: 28px;
+            border-radius: 9px;
             font-weight: 700;
         }
         .quiz-gestione-crea-domande-title-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
             flex: 1 1 auto;
             min-width: 0;
         }
@@ -7778,19 +7801,23 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            width: 29px;
+            height: 29px;
             padding: 0;
             border: 1px solid rgba(94, 53, 177, 0.35);
-            border-radius: 12px;
+            border-radius: 10px;
             background: rgba(255, 255, 255, 0.9);
             color: #5e35b1;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.08);
+            box-shadow: 0 1px 5px rgba(49, 27, 96, 0.07);
             transition:
                 background 0.15s ease,
                 border-color 0.15s ease,
                 color 0.15s ease;
+        }
+        .quiz-gestione-settings-icon-btn svg {
+            width: 15px;
+            height: 15px;
         }
         .quiz-gestione-settings-icon-btn:hover {
             background: #fff;
@@ -8521,7 +8548,7 @@
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             justify-content: space-between;
             align-items: center;
             align-self: stretch;
@@ -8529,8 +8556,8 @@
             box-sizing: border-box;
             margin-top: auto;
             margin-bottom: 0;
-            padding-top: 8px;
-            padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+            padding-top: 5px;
+            padding-bottom: max(5px, env(safe-area-inset-bottom, 0px));
             border-top: 1px solid rgba(94, 53, 177, 0.12);
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(243, 229, 245, 0.45) 100%);
             flex: 0 0 auto;
@@ -8541,7 +8568,7 @@
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions.quiz-gestione-test-footer--triple {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-            gap: 8px;
+            gap: 6px;
             align-items: stretch;
             justify-items: stretch;
         }
@@ -8590,20 +8617,20 @@
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-save-all {
             flex: 0 1 auto;
-            min-width: min(42%, 160px);
-            min-height: 36px;
-            border-radius: 10px;
-            padding: 7px 12px;
+            min-width: min(38%, 136px);
+            min-height: 30px;
+            border-radius: 9px;
+            padding: 5px 10px;
             font-weight: 800;
-            font-size: 0.76rem;
+            font-size: 0.7rem;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-a-footer {
             flex: 0 1 auto;
-            min-height: 36px;
-            border-radius: 10px;
-            padding: 7px 14px;
+            min-height: 30px;
+            border-radius: 9px;
+            padding: 5px 12px;
             font-weight: 800;
-            font-size: 0.76rem;
+            font-size: 0.7rem;
             color: #4e342e;
             border: 1px solid rgba(245, 181, 42, 0.85);
             background: linear-gradient(180deg, #fffef5 0%, #ffe082 42%, #ffca28 100%);
@@ -8639,12 +8666,12 @@
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer .btn-gestione-invia-tutti {
             flex: 0 1 auto;
-            min-width: min(42%, 160px);
-            min-height: 36px;
-            border-radius: 10px;
-            padding: 7px 12px;
+            min-width: min(38%, 136px);
+            min-height: 30px;
+            border-radius: 9px;
+            padding: 5px 10px;
             font-weight: 800;
-            font-size: 0.76rem;
+            font-size: 0.7rem;
             box-shadow: 0 3px 10px rgba(31, 174, 100, 0.22);
         }
         .quiz-info-version-line {
@@ -11648,7 +11675,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605295</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605296</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11799,7 +11826,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605295</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605296</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11902,6 +11929,7 @@ function dismissAppSplash() {
                     </div>
                 </div>
             </div>
+            <div class="quiz-gestione-resize-handle" aria-hidden="true" title="Ridimensiona finestra"></div>
         </div>
     </div>
 
@@ -12246,7 +12274,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605295';
+const APP_BUILD = '202605296';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24659,6 +24687,57 @@ function quizGestioneSetSezione(sezione) {
     }
 }
 
+function gestioneTestModalResetSize() {
+    var modal = document.querySelector('#quiz-gestione-test-overlay .quiz-gestione-test-modal');
+    if (!modal) return;
+    modal.style.width = '';
+    modal.style.height = '';
+}
+
+function gestioneTestModalEnsureResizeHandle() {
+    var modal = document.querySelector('#quiz-gestione-test-overlay .quiz-gestione-test-modal');
+    var handle = modal ? modal.querySelector('.quiz-gestione-resize-handle') : null;
+    if (!modal || !handle || handle.dataset.resizeBound === '1') return;
+    handle.dataset.resizeBound = '1';
+    handle.addEventListener('pointerdown', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        var startX = ev.clientX;
+        var startY = ev.clientY;
+        var rect = modal.getBoundingClientRect();
+        var startW = rect.width;
+        var startH = rect.height;
+        var minW = Math.min(window.innerWidth - 24, 360);
+        var minH = Math.min(window.innerHeight - 20, 420);
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+        function onMove(moveEv) {
+            var maxW = Math.max(minW, window.innerWidth - 24);
+            var maxH = Math.max(minH, window.innerHeight - 12);
+            modal.style.width = clamp(startW + (moveEv.clientX - startX), minW, maxW) + 'px';
+            modal.style.height = clamp(startH + (moveEv.clientY - startY), minH, maxH) + 'px';
+            try {
+                gestioneDomandeFitAllGestioneFieldsStable();
+            } catch (eFit) { /* ignore */ }
+        }
+        function onUp() {
+            document.removeEventListener('pointermove', onMove, true);
+            document.removeEventListener('pointerup', onUp, true);
+            document.removeEventListener('pointercancel', onUp, true);
+            try {
+                if (handle.releasePointerCapture) handle.releasePointerCapture(ev.pointerId);
+            } catch (eRel) { /* ignore */ }
+        }
+        try {
+            if (handle.setPointerCapture) handle.setPointerCapture(ev.pointerId);
+        } catch (eCap) { /* ignore */ }
+        document.addEventListener('pointermove', onMove, true);
+        document.addEventListener('pointerup', onUp, true);
+        document.addEventListener('pointercancel', onUp, true);
+    });
+}
+
 function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     try {
         gestioneInviaAModalClose();
@@ -24672,6 +24751,8 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
+    gestioneTestModalResetSize();
+    gestioneTestModalEnsureResizeHandle();
     var titleEl = document.getElementById('quiz-gestione-modal-title');
     if (titleEl) {
         titleEl.textContent = editorCompleto ? 'Gestione test e verifiche' : (userResultsMode ? 'Le tue verifiche' : 'Test di verifica');
