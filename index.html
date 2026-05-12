@@ -13434,7 +13434,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605388';
+const APP_BUILD = '202605389';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -15304,26 +15304,31 @@ function gestioneApplyRemoteTestResetAtMs(rawResetAtMs) {
     } catch (eRender) { /* ignore */ }
 }
 
-/** Propaga il flag sul doc classifica (merge): fallback per client che non leggono quiz_app_flags. */
-function quizMirrorModifyFeaturesToLeaderboardDoc(want) {
+/** Propaga flag/reset sul doc classifica (merge): fallback per client che non leggono quiz_app_flags. */
+function quizMirrorAppFlagsToLeaderboardDoc(fields) {
     if (!quizFirestoreConfigured()) return;
+    fields = fields && typeof fields === 'object' ? fields : {};
+    var payload = {};
+    Object.keys(fields).forEach(function (k) {
+        payload[k] = fields[k];
+    });
     quizEnsureFirebase()
         .then(function () {
-            return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(
-                {
-                    modifyFeaturesEnabled: !!want,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                },
-                { merge: true }
-            );
+            payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            return firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set(payload, { merge: true });
         })
         .catch(function (e) {
-            console.warn('[quiz modify mirror → leaderboard]', e);
+            console.warn('[quiz app flags mirror → leaderboard]', e);
         });
+}
+
+function quizMirrorModifyFeaturesToLeaderboardDoc(want) {
+    quizMirrorAppFlagsToLeaderboardDoc({ modifyFeaturesEnabled: !!want });
 }
 
 function quizTryApplyModifyFeaturesFromDocField(d) {
     try {
+        if (d && d.gestioneTestResetAtMs != null) gestioneApplyRemoteTestResetAtMs(d.gestioneTestResetAtMs);
         var want = quizCoerceModifyFeaturesEnabled((d || {}).modifyFeaturesEnabled);
         if (want === null) return;
         quizApplyModifyFeaturesFromRemote(want);
@@ -15339,6 +15344,7 @@ function quizFetchModifyFeaturesFromLeaderboardDoc(reason) {
         .then(function (snap) {
             if (!snap.exists) return;
             var d = snap.data() || {};
+            if (d.gestioneTestResetAtMs != null) gestioneApplyRemoteTestResetAtMs(d.gestioneTestResetAtMs);
             var want = quizCoerceModifyFeaturesEnabled(d.modifyFeaturesEnabled);
             if (want === null) return;
             quizApplyModifyFeaturesFromRemote(want);
@@ -24376,6 +24382,7 @@ async function gestioneEliminaTestInviatiClick() {
         } catch (eLsReset) { /* ignore */ }
         try {
             await quizEnsureFirebase();
+            quizMirrorAppFlagsToLeaderboardDoc({ gestioneTestResetAtMs: GESTIONE_TEST_RESET_AT_MS });
             await firebase.firestore().collection(QUIZ_FS_APP_FLAGS).doc(QUIZ_FS_APP_FLAGS_DOC).set({
                 gestioneTestResetAtMs: GESTIONE_TEST_RESET_AT_MS,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
