@@ -7458,22 +7458,20 @@
     box-shadow: 0 4px 12px rgba(49, 27, 96, 0.10);
     pointer-events: auto;
 }
+.quiz-gestione-verifica-sheet-nav-arrows {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0;
+    margin-left: 4px;
+    color: #1565c0;
+    font-size: 0.58rem;
+    line-height: 0.85;
+}
 .quiz-gestione-verifica-sheet-toolbar-actions {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     pointer-events: auto;
-}
-.quiz-gestione-verifica-sheet-a4 {
-    border: 1px solid rgba(25, 118, 210, 0.26);
-    border-radius: 999px;
-    padding: 9px 12px;
-    background: linear-gradient(180deg, #ffffff 0%, #e3f2fd 100%);
-    color: #0d47a1;
-    font-size: 0.76rem;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.12);
 }
 .quiz-gestione-verifica-sheet-close {
     position: static;
@@ -7494,6 +7492,7 @@
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card--sheet {
     margin: 0 auto;
+    cursor: zoom-in;
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card {
     width: 100%;
@@ -12771,7 +12770,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605315';
+const APP_BUILD = '202605316';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22625,22 +22624,18 @@ function gestioneVerificaOpenResultSheet(userId, packId, testResult, navRecords,
 
     var navInfo = document.createElement('div');
     navInfo.className = 'quiz-gestione-verifica-sheet-nav';
-    navInfo.textContent = navRecords.length > 1
-        ? 'Documento ' + (navIndex + 1) + ' di ' + navRecords.length + ' · rotellina per cambiare'
-        : 'Documento 1 di 1';
+    navInfo.appendChild(document.createTextNode('Documento ' + (navIndex + 1) + ' di ' + navRecords.length));
+    if (navRecords.length > 1) {
+        var arrows = document.createElement('span');
+        arrows.className = 'quiz-gestione-verifica-sheet-nav-arrows';
+        arrows.setAttribute('aria-hidden', 'true');
+        arrows.innerHTML = '<span>▲</span><span>▼</span>';
+        navInfo.appendChild(arrows);
+    }
     toolbar.appendChild(navInfo);
 
     var toolbarActions = document.createElement('div');
     toolbarActions.className = 'quiz-gestione-verifica-sheet-toolbar-actions';
-
-    var a4 = document.createElement('button');
-    a4.type = 'button';
-    a4.className = 'quiz-gestione-verifica-sheet-a4';
-    a4.textContent = 'Foglio A4';
-    a4.onclick = function () {
-        gestioneVerificaOpenA4Sheet(testResult, userId);
-    };
-    toolbarActions.appendChild(a4);
 
     var close = document.createElement('button');
     close.type = 'button';
@@ -22656,6 +22651,12 @@ function gestioneVerificaOpenResultSheet(userId, packId, testResult, navRecords,
     var card = gestioneVerificaBuildResultCard(userId, packId, testResult);
     card.open = true;
     card.classList.add('quiz-gestione-verifica-card--sheet');
+    card.addEventListener('click', function (ev) {
+        var interactive = ev.target && ev.target.closest && ev.target.closest('button, a, summary');
+        if (interactive) return;
+        ev.preventDefault();
+        gestioneVerificaOpenA4Sheet(testResult, userId);
+    });
     sheet.appendChild(card);
 
     overlay.appendChild(sheet);
