@@ -5577,8 +5577,8 @@
             display: flex;
         }
         .quiz-presence-sub-overlay__box {
-            width: min(92vw, 380px);
-            max-height: min(78vh, 420px);
+            width: min(94vw, 460px);
+            max-height: min(88vh, 720px);
             overflow: auto;
             border-radius: 14px;
             padding: 18px 16px 16px;
@@ -5650,7 +5650,9 @@
             color: #37474f;
             margin-bottom: 6px;
         }
-        .quiz-presence-sub-overlay__box input[type='text'] {
+        .quiz-presence-sub-overlay__box input[type='text'],
+        .quiz-presence-sub-overlay__box input[type='email'],
+        .quiz-presence-sub-overlay__box input[type='password'] {
             width: 100%;
             box-sizing: border-box;
             padding: 10px 12px;
@@ -5658,6 +5660,56 @@
             border: 1px solid #90caf9;
             font-size: 0.95rem;
             margin-bottom: 14px;
+        }
+        .quiz-account-panel {
+            margin: 2px 0 14px;
+            padding: 12px;
+            border: 1px solid rgba(21, 101, 192, 0.18);
+            border-radius: 14px;
+            background: linear-gradient(165deg, #f7fbff 0%, #ffffff 58%, #f3e5f5 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        .quiz-account-panel h5 {
+            margin: 0 0 6px;
+            color: #1a237e;
+            font-size: 0.98rem;
+            font-weight: 900;
+        }
+        .quiz-account-current {
+            margin: 0 0 10px;
+            color: #546e7a;
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
+        .quiz-account-status {
+            min-height: 1.2em;
+            margin: -4px 0 10px;
+            color: #1565c0;
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        .quiz-account-status.is-error {
+            color: #c62828;
+        }
+        .quiz-account-status.is-ok {
+            color: #2e7d32;
+        }
+        .quiz-account-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .quiz-account-actions .btn-side {
+            min-width: 0;
+            width: 100%;
+            font-size: 0.76rem;
+            padding: 7px 9px;
+        }
+        @media (max-width: 430px) {
+            .quiz-account-actions {
+                grid-template-columns: 1fr;
+            }
         }
         .quiz-presence-sub-overlay__actions {
             display: flex;
@@ -11244,8 +11296,8 @@ function dismissAppSplash() {
                     <button type="button" id="quiz-settings-close-btn" class="btn-side btn-reset" onclick="hideQuizSettingsModal()" aria-label="Chiudi impostazioni">Chiudi</button>
                 </div>
             </div>
-            <button type="button" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei?">
-                <span><strong>Chi sei?</strong></span>
+            <button type="button" id="quiz-settings-whoami-btn" class="quiz-settings-row quiz-settings-row--action" onclick="quizPresenceOpenWhoamiModal()" aria-label="Chi sei? crea il tuo account">
+                <span><strong id="quiz-settings-whoami-label">Chi sei? (crea il tuo account)</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <label class="quiz-settings-row quiz-settings-row--toggle">
@@ -11266,7 +11318,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605283</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605285</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11294,9 +11346,28 @@ function dismissAppSplash() {
     <div id="quiz-presence-whoami-overlay" class="quiz-presence-sub-overlay" aria-hidden="true" onclick="quizPresenceWhoamiBackdrop(event)">
         <div class="quiz-presence-sub-overlay__box" role="dialog" aria-modal="true" aria-labelledby="quiz-presence-whoami-title" onclick="event.stopPropagation()">
             <h4 id="quiz-presence-whoami-title">Chi sei?</h4>
-            <p class="quiz-presence-sub-overlay__lead">Come vuoi essere mostrato tra gli utenti collegati. Non è il nome della classifica quiz.</p>
+            <p class="quiz-presence-sub-overlay__lead">Nome provvisorio usato su questo dispositivo per presenza, test e verifiche.</p>
             <label for="quiz-presence-whoami-input">Il tuo nome</label>
             <input type="text" id="quiz-presence-whoami-input" maxlength="40" autocomplete="nickname" placeholder="Facoltativo · lascia vuoto se preferisci">
+            <div class="quiz-account-panel" id="quiz-account-panel">
+                <h5 id="quiz-account-title">Crea account</h5>
+                <p id="quiz-account-current" class="quiz-account-current">Account non collegato. Puoi creare un account o accedere se lo hai già creato.</p>
+                <label for="quiz-account-name">Nome</label>
+                <input type="text" id="quiz-account-name" maxlength="40" autocomplete="name" placeholder="Nome account">
+                <label for="quiz-account-email">Email</label>
+                <input type="email" id="quiz-account-email" autocomplete="email" placeholder="nome@email.it">
+                <label for="quiz-account-password">Password</label>
+                <input type="password" id="quiz-account-password" autocomplete="new-password" placeholder="Password">
+                <label for="quiz-account-password2">Ripeti password</label>
+                <input type="password" id="quiz-account-password2" autocomplete="new-password" placeholder="Ripeti password">
+                <p id="quiz-account-status" class="quiz-account-status" aria-live="polite"></p>
+                <div class="quiz-account-actions">
+                    <button type="button" class="btn-side btn-report" onclick="quizAccountCreate()">Crea account</button>
+                    <button type="button" class="btn-side btn-report" onclick="quizAccountSignIn()">Accedi</button>
+                    <button type="button" class="btn-side btn-reset" onclick="quizAccountSendPasswordReset()">Password smarrita</button>
+                    <button type="button" id="quiz-account-logout-btn" class="btn-side btn-reset" onclick="quizAccountSignOut()" hidden>Esci dall'account</button>
+                </div>
+            </div>
             <div class="quiz-presence-sub-overlay__actions">
                 <button type="button" class="btn-side btn-reset" onclick="quizPresenceHideWhoamiModal()">Annulla</button>
                 <button type="button" class="btn-side btn-report" onclick="quizPresenceWhoamiSave()">Salva</button>
@@ -11398,7 +11469,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605283</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605285</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11845,7 +11916,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605283';
+const APP_BUILD = '202605285';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -12310,11 +12381,19 @@ function quizEnsureFirebase() {
                 }
                 quizApplyFirestoreTransportSettings();
                 const auth = firebase.auth();
-                if (auth.currentUser) {
-                    resolve();
-                    return;
-                }
-                auth.signInAnonymously().then(function () { resolve(); }).catch(reject);
+                var authReady = Promise.resolve();
+                try {
+                    if (firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+                        authReady = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                    }
+                } catch (ePers) { /* ignore */ }
+                authReady.then(function () {
+                    if (auth.currentUser) {
+                        resolve();
+                        return;
+                    }
+                    auth.signInAnonymously().then(function () { resolve(); }).catch(reject);
+                }).catch(reject);
             } catch (e) {
                 reject(e);
             }
@@ -12571,7 +12650,206 @@ function quizPresenceGetWhoami() {
 }
 
 function quizPresenceUpdateWhoamiSummaryUi() {
-    /* Sottotitolo riga «Chi sei?» rimosso: niente da aggiornare. */
+    var label = document.getElementById('quiz-settings-whoami-label');
+    var btn = document.getElementById('quiz-settings-whoami-btn');
+    var who = quizPresenceGetWhoami();
+    if (label) label.textContent = who || 'Chi sei? (crea il tuo account)';
+    if (btn) {
+        btn.setAttribute('aria-label', who ? 'Chi sei? ' + who + '. Clicca per cambiare nome o gestire account' : 'Chi sei? crea il tuo account');
+        btn.title = who ? 'Nome presenza: ' + who + ' · clicca per cambiare o gestire account' : 'Chi sei? (crea il tuo account)';
+    }
+}
+
+function quizAccountAuthUser() {
+    try {
+        if (typeof firebase === 'undefined' || !firebase.auth) return null;
+        return firebase.auth().currentUser || null;
+    } catch (eAuth) {
+        return null;
+    }
+}
+
+function quizAccountSetStatus(text, type) {
+    var el = document.getElementById('quiz-account-status');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.remove('is-error', 'is-ok');
+    if (type === 'error') el.classList.add('is-error');
+    if (type === 'ok') el.classList.add('is-ok');
+}
+
+function quizAccountErrorText(err) {
+    var code = err && err.code ? String(err.code) : '';
+    if (code === 'auth/email-already-in-use') return 'Email gia registrata: usa Accedi oppure Password smarrita.';
+    if (code === 'auth/invalid-email') return 'Email non valida.';
+    if (code === 'auth/weak-password') return 'Password troppo debole: usa almeno 6 caratteri.';
+    if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-login-credentials') return 'Email o password non corretti.';
+    if (code === 'auth/too-many-requests') return 'Troppi tentativi: attendi qualche minuto e riprova.';
+    if (code === 'auth/operation-not-allowed') return 'Accesso email/password non abilitato in Firebase Authentication.';
+    return quizFormatSyncError(err) || 'Operazione non riuscita.';
+}
+
+function quizAccountFillFieldsFromState() {
+    var who = quizPresenceGetWhoami();
+    var user = quizAccountAuthUser();
+    var nameEl = document.getElementById('quiz-account-name');
+    var emailEl = document.getElementById('quiz-account-email');
+    var titleEl = document.getElementById('quiz-account-title');
+    var currentEl = document.getElementById('quiz-account-current');
+    var logoutBtn = document.getElementById('quiz-account-logout-btn');
+    if (nameEl && !nameEl.value) nameEl.value = who || (user && user.displayName) || '';
+    if (emailEl && user && !user.isAnonymous && user.email && !emailEl.value) emailEl.value = user.email;
+    if (titleEl) titleEl.textContent = user && !user.isAnonymous ? 'Account collegato' : 'Crea account oppure accedi';
+    if (currentEl) {
+        if (user && !user.isAnonymous) {
+            currentEl.textContent = 'Sei collegato come ' + (user.email || 'account registrato') + '. Resterai collegato anche chiudendo l\'app, finche non premi Esci dall\'account.';
+        } else {
+            currentEl.textContent = 'Account non collegato. Crea un account per accedere con email e password, oppure accedi se lo hai gia creato.';
+        }
+    }
+    if (logoutBtn) logoutBtn.hidden = !(user && !user.isAnonymous);
+}
+
+function quizAccountReadForm() {
+    var nameEl = document.getElementById('quiz-account-name');
+    var emailEl = document.getElementById('quiz-account-email');
+    var passEl = document.getElementById('quiz-account-password');
+    var pass2El = document.getElementById('quiz-account-password2');
+    return {
+        name: quizPresenceSanitizeLabel(nameEl && nameEl.value != null ? nameEl.value : ''),
+        email: String(emailEl && emailEl.value != null ? emailEl.value : '').trim(),
+        password: String(passEl && passEl.value != null ? passEl.value : ''),
+        password2: String(pass2El && pass2El.value != null ? pass2El.value : '')
+    };
+}
+
+function quizAccountClearPasswords() {
+    ['quiz-account-password', 'quiz-account-password2'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+function quizAccountApplyName(name) {
+    var clean = quizPresenceSanitizeLabel(name || '');
+    if (clean) {
+        quizPresencePersistWhoami(clean);
+        var whoInput = document.getElementById('quiz-presence-whoami-input');
+        if (whoInput) whoInput.value = clean;
+        var nameEl = document.getElementById('quiz-account-name');
+        if (nameEl) nameEl.value = clean;
+        quizPresenceUpdateWhoamiSummaryUi();
+    }
+}
+
+function quizAccountCreate() {
+    var data = quizAccountReadForm();
+    if (!data.name) {
+        quizAccountSetStatus('Inserisci il nome account.', 'error');
+        return;
+    }
+    if (!data.email) {
+        quizAccountSetStatus('Inserisci una email.', 'error');
+        return;
+    }
+    if (!data.password || data.password.length < 6) {
+        quizAccountSetStatus('La password deve avere almeno 6 caratteri.', 'error');
+        return;
+    }
+    if (data.password !== data.password2) {
+        quizAccountSetStatus('Le password non coincidono.', 'error');
+        return;
+    }
+    quizAccountSetStatus('Creazione account in corso...', '');
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.auth().createUserWithEmailAndPassword(data.email, data.password);
+        })
+        .then(function (cred) {
+            var user = cred && cred.user ? cred.user : firebase.auth().currentUser;
+            quizAccountApplyName(data.name);
+            if (user && user.updateProfile) return user.updateProfile({ displayName: data.name });
+            return null;
+        })
+        .then(function () {
+            quizFirebaseInitPromise = null;
+            quizAccountClearPasswords();
+            quizAccountFillFieldsFromState();
+            quizAccountSetStatus('Account creato. Sei collegato e resterai collegato su questo dispositivo.', 'ok');
+            return quizPresencePing();
+        })
+        .catch(function (err) {
+            quizAccountSetStatus(quizAccountErrorText(err), 'error');
+        });
+}
+
+function quizAccountSignIn() {
+    var data = quizAccountReadForm();
+    if (!data.email || !data.password) {
+        quizAccountSetStatus('Inserisci email e password per accedere.', 'error');
+        return;
+    }
+    quizAccountSetStatus('Accesso in corso...', '');
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.auth().signInWithEmailAndPassword(data.email, data.password);
+        })
+        .then(function (cred) {
+            var user = cred && cred.user ? cred.user : firebase.auth().currentUser;
+            var name = data.name || (user && user.displayName) || quizPresenceGetWhoami();
+            if (name) quizAccountApplyName(name);
+            return user && data.name && user.updateProfile ? user.updateProfile({ displayName: data.name }) : null;
+        })
+        .then(function () {
+            quizFirebaseInitPromise = null;
+            quizAccountClearPasswords();
+            quizAccountFillFieldsFromState();
+            quizAccountSetStatus('Accesso eseguito. Rimarrai collegato anche chiudendo l\'app.', 'ok');
+            return quizPresencePing();
+        })
+        .catch(function (err) {
+            quizAccountSetStatus(quizAccountErrorText(err), 'error');
+        });
+}
+
+function quizAccountSendPasswordReset() {
+    var data = quizAccountReadForm();
+    if (!data.email) {
+        quizAccountSetStatus('Inserisci la email per ricevere il ripristino password.', 'error');
+        return;
+    }
+    quizAccountSetStatus('Invio email di ripristino...', '');
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.auth().sendPasswordResetEmail(data.email);
+        })
+        .then(function () {
+            quizAccountSetStatus('Email di ripristino inviata. Controlla anche la posta indesiderata.', 'ok');
+        })
+        .catch(function (err) {
+            quizAccountSetStatus(quizAccountErrorText(err), 'error');
+        });
+}
+
+function quizAccountSignOut() {
+    quizAccountSetStatus('Uscita dall\'account...', '');
+    quizEnsureFirebase()
+        .then(function () {
+            return firebase.auth().signOut();
+        })
+        .then(function () {
+            quizFirebaseInitPromise = null;
+            quizAccountClearPasswords();
+            return quizEnsureFirebase();
+        })
+        .then(function () {
+            quizAccountFillFieldsFromState();
+            quizAccountSetStatus('Sei uscito dall\'account. Il nome provvisorio resta disponibile su questo dispositivo.', 'ok');
+            return quizPresencePing();
+        })
+        .catch(function (err) {
+            quizAccountSetStatus(quizAccountErrorText(err), 'error');
+        });
 }
 
 function quizPresenceWhoamiBackdrop(ev) {
@@ -12583,9 +12861,20 @@ function quizPresenceOpenWhoamiModal() {
     var inp = document.getElementById('quiz-presence-whoami-input');
     if (!overlay || !inp) return;
     inp.value = quizPresenceGetWhoami();
+    var acctName = document.getElementById('quiz-account-name');
+    if (acctName) acctName.value = quizPresenceGetWhoami();
+    quizAccountSetStatus('', '');
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     quizPresenceUpdateWhoamiSummaryUi();
+    quizEnsureFirebase()
+        .then(function () {
+            quizAccountFillFieldsFromState();
+        })
+        .catch(function (err) {
+            quizAccountFillFieldsFromState();
+            quizAccountSetStatus(quizAccountErrorText(err), 'error');
+        });
     requestAnimationFrame(function () {
         try {
             inp.focus();
