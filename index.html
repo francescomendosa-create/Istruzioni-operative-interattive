@@ -6134,6 +6134,20 @@
         .quiz-settings-row--toggle {
             cursor: default;
         }
+        #quiz-settings-quiz-feature-row {
+            width: min(100%, 300px);
+            padding: 8px 10px;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        #quiz-settings-quiz-feature-row .quiz-settings-row-text {
+            font-size: 0.84rem;
+        }
+        #quiz-settings-quiz-toggle {
+            width: 18px !important;
+            height: 18px !important;
+            flex-shrink: 0;
+        }
         .quiz-settings-row--compact {
             padding: 7px 10px;
             margin: 0 0 6px;
@@ -12406,7 +12420,7 @@ function dismissAppSplash() {
                 <span><strong id="quiz-settings-whoami-label">Chi sei? (crea il tuo account)</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
-            <label class="quiz-settings-row quiz-settings-row--toggle">
+            <label class="quiz-settings-row quiz-settings-row--toggle" id="quiz-settings-quiz-feature-row">
                 <span class="quiz-settings-row-text">Abilita <strong>Quiz</strong> nella barra</span>
                 <input type="checkbox" id="quiz-settings-quiz-toggle" onchange="settingsQuizFeatureToggle(this.checked)" style="width:22px;height:22px;accent-color:#1565c0;">
             </label>
@@ -13025,7 +13039,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605346';
+const APP_BUILD = '202605347';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
