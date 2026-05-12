@@ -13025,7 +13025,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605343';
+const APP_BUILD = '202605344';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -13194,6 +13194,7 @@ const QUIZ_REOPEN_PENDING_MIN_MS = 1400;
 /** Dopo «Aggiorna» con build server più nuova della pagina: numero build verde fino al prossimo controllo che risulta allineato. */
 const QUIZ_LS_SETTINGS_BUILD_HIGHLIGHT = 'io-quiz-settings-build-updated-highlight';
 const QUIZ_LS_STABLE_21_UPDATED = 'io-quiz-stable-21-updated';
+const QUIZ_STABLE_21_BUILD = '202605344';
 const QUIZ_LS_HIGHEST_BUILD_SEEN = 'io-quiz-highest-build-seen';
 const QUIZ_SS_BUILD_SELF_HEAL = 'io-quiz-build-self-heal-once';
 const QUIZ_LS_PANEL = 'io-quiz-panel-open';
@@ -18988,7 +18989,7 @@ function quizSettingsBuildHighlightSet(on) {
 
 function quizSettingsStable21IsUpdated() {
     try {
-        return localStorage.getItem(QUIZ_LS_STABLE_21_UPDATED) === '1';
+        return localStorage.getItem(QUIZ_LS_STABLE_21_UPDATED) === QUIZ_STABLE_21_BUILD;
     } catch (e) {
         return false;
     }
@@ -18996,7 +18997,7 @@ function quizSettingsStable21IsUpdated() {
 
 function quizSettingsStable21SetUpdated(on) {
     try {
-        if (on) localStorage.setItem(QUIZ_LS_STABLE_21_UPDATED, '1');
+        if (on) localStorage.setItem(QUIZ_LS_STABLE_21_UPDATED, QUIZ_STABLE_21_BUILD);
         else localStorage.removeItem(QUIZ_LS_STABLE_21_UPDATED);
     } catch (e) { /* ignore */ }
 }
@@ -19006,10 +19007,11 @@ function quizSettingsStable21LineReset() {
     var line = document.getElementById('quiz-settings-stable-21-line');
     if (!btn || !line) return;
     var updated = quizSettingsStable21IsUpdated();
-    line.textContent = updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile';
+    var label = updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile';
+    line.textContent = label + ' · build ' + QUIZ_STABLE_21_BUILD;
     btn.setAttribute(
         'aria-label',
-        updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile'
+        label + ' build ' + QUIZ_STABLE_21_BUILD
     );
 }
 
