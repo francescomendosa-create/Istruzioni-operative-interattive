@@ -12928,7 +12928,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605336';
+const APP_BUILD = '202605337';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -18917,12 +18917,35 @@ function quizSettingsStable21LineReset() {
 }
 
 function quizSettingsStable21Update(btn) {
-    quizSettingsStable21SetUpdated(true);
-    quizSettingsStable21LineReset();
-    if (btn) btn.classList.add('quiz-update-available');
+    try {
+        document.documentElement.classList.add('quiz-settings-reopen-pending', 'quiz-settings-reopen-pending--apply');
+        document.documentElement.classList.remove('quiz-settings-reopen-pending--search');
+    } catch (eShow) { /* ignore */ }
+    if (btn) {
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        btn.classList.add('is-updating');
+    }
     window.setTimeout(function () {
-        if (btn) btn.classList.remove('quiz-update-available');
-    }, 900);
+        quizSettingsStable21SetUpdated(true);
+        quizSettingsStable21LineReset();
+        try {
+            document.documentElement.classList.remove(
+                'quiz-settings-reopen-pending',
+                'quiz-settings-reopen-pending--apply',
+                'quiz-settings-reopen-pending--search'
+            );
+        } catch (eHide) { /* ignore */ }
+        if (btn) {
+            btn.disabled = false;
+            btn.removeAttribute('aria-busy');
+            btn.classList.remove('is-updating');
+            btn.classList.add('quiz-update-available');
+        }
+        window.setTimeout(function () {
+            if (btn) btn.classList.remove('quiz-update-available');
+        }, 900);
+    }, 850);
 }
 
 /** Ripristina riga pulsante: senza aggiornamenti «Aggiornato · Build», con aggiornamento «Aggiornamento disponibile · Build». */
