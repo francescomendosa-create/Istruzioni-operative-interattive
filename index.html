@@ -9044,6 +9044,68 @@
             color: #78909c;
             line-height: 1.35;
         }
+        .quiz-gestione-destinatari-list-btn {
+            font-family: inherit;
+            border: 1px solid rgba(69, 39, 160, 0.22);
+            background: rgba(237, 231, 246, 0.92);
+            color: #4527a0;
+            border-radius: 999px;
+            padding: 4px 9px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .quiz-gestione-destinatari-list-btn:hover {
+            background: rgba(225, 215, 245, 0.98);
+            border-color: rgba(69, 39, 160, 0.35);
+        }
+        .quiz-gestione-utenti-mem-list {
+            display: grid;
+            gap: 8px;
+            max-height: min(58vh, 420px);
+            overflow-y: auto;
+            padding: 2px 2px 2px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .quiz-gestione-utenti-mem-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 10px;
+            align-items: start;
+            padding: 10px 12px;
+            border: 1px solid rgba(84, 110, 122, 0.16);
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f6ff 100%);
+            box-shadow: 0 8px 20px rgba(69, 39, 160, 0.08);
+        }
+        .quiz-gestione-utenti-mem-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            margin-top: 5px;
+            background: #90a4ae;
+            box-shadow: 0 0 0 4px rgba(144, 164, 174, 0.14);
+        }
+        .quiz-gestione-utenti-mem-dot--online {
+            background: #2e7d32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.14);
+        }
+        .quiz-gestione-utenti-mem-name {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 850;
+            color: #263238;
+            line-height: 1.2;
+        }
+        .quiz-gestione-utenti-mem-meta {
+            display: block;
+            margin-top: 3px;
+            font-size: 0.72rem;
+            color: #607d8b;
+            line-height: 1.35;
+            word-break: break-word;
+        }
         .quiz-gestione-destinatari-badge {
             font-family: inherit;
             font-size: 0.76rem;
@@ -12959,6 +13021,7 @@ function dismissAppSplash() {
                 <div id="quiz-gestione-destinatari-wrap" class="quiz-gestione-destinatari-wrap" hidden>
                     <div class="quiz-gestione-destinatari-head">
                         <span class="quiz-gestione-destinatari-title">Destinatari del test</span>
+                        <button type="button" class="quiz-gestione-destinatari-list-btn" onclick="gestioneUtentiMemorizzatiOpen()" title="Mostra la lista completa degli utenti recuperati">Lista utenti</button>
                         <label
                             class="quiz-gestione-destinatari-pref"
                             for="gestione-genera-uguali-tutti"
@@ -13035,6 +13098,17 @@ function dismissAppSplash() {
             <div class="quiz-lock-actions quiz-gestione-invia-a-actions">
                 <button type="button" class="btn-side btn-reset" onclick="gestioneInviaAModalClose()">Annulla</button>
                 <button type="button" class="btn-side btn-report" onclick="gestioneInviaASelezionatiClick()">Invia</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-gestione-utenti-mem-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneUtentiMemorizzatiBackdrop(event)">
+        <div class="quiz-lock-box quiz-app-box quiz-gestione-invia-a-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-utenti-mem-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-gestione-utenti-mem-title" class="quiz-lock-title">Utenti memorizzati</h4>
+            <p class="quiz-gestione-invia-a-lead">Lista ricostruita da rubrica recuperata, presenza online/ultimi accessi, pacchetti salvati e fallback cloud disponibili su questo dispositivo.</p>
+            <div id="quiz-gestione-utenti-mem-list" class="quiz-gestione-utenti-mem-list" aria-live="polite"></div>
+            <div class="quiz-lock-actions quiz-gestione-invia-a-actions">
+                <button type="button" class="btn-side btn-report" onclick="gestioneUtentiMemorizzatiClose()">Chiudi</button>
             </div>
         </div>
     </div>
@@ -13360,7 +13434,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605386';
+const APP_BUILD = '202605387';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23183,6 +23257,61 @@ function gestioneCollectRecipientLabels() {
     return list;
 }
 
+function gestioneUtentiMemorizzatiOpen() {
+    var ov = document.getElementById('quiz-gestione-utenti-mem-overlay');
+    var listEl = document.getElementById('quiz-gestione-utenti-mem-list');
+    if (!ov || !listEl) return;
+    listEl.innerHTML = '';
+    var rows = gestioneCollectRecipientLabels();
+    if (!rows.length) {
+        var empty = document.createElement('p');
+        empty.className = 'quiz-gestione-invia-a-empty';
+        empty.textContent = 'Nessun utente recuperato su questo dispositivo.';
+        listEl.appendChild(empty);
+    } else {
+        rows.forEach(function (r) {
+            var row = document.createElement('div');
+            row.className = 'quiz-gestione-utenti-mem-row';
+
+            var dot = document.createElement('span');
+            dot.className = 'quiz-gestione-utenti-mem-dot';
+            if (r.online) dot.classList.add('quiz-gestione-utenti-mem-dot--online');
+            dot.setAttribute('aria-hidden', 'true');
+            row.appendChild(dot);
+
+            var body = document.createElement('span');
+            var name = document.createElement('span');
+            name.className = 'quiz-gestione-utenti-mem-name';
+            name.textContent = r.label || r.key;
+            body.appendChild(name);
+
+            var meta = document.createElement('span');
+            meta.className = 'quiz-gestione-utenti-mem-meta';
+            meta.textContent = (r.online ? 'Online ora' : 'Offline / memorizzato') + ' · chiave: ' + r.key;
+            body.appendChild(meta);
+
+            row.appendChild(body);
+            listEl.appendChild(row);
+        });
+    }
+    ov.classList.add('visible');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function gestioneUtentiMemorizzatiClose() {
+    var ov = document.getElementById('quiz-gestione-utenti-mem-overlay');
+    if (!ov) return;
+    ov.classList.remove('visible');
+    ov.setAttribute('aria-hidden', 'true');
+    var otherOpen = document.querySelector('.quiz-lock-overlay.visible, .quiz-app-overlay.visible');
+    if (!otherOpen) document.body.classList.remove('quiz-info-open');
+}
+
+function gestioneUtentiMemorizzatiBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-gestione-utenti-mem-overlay') gestioneUtentiMemorizzatiClose();
+}
+
 function gestioneRenderDestinatariBadges() {
     var host = document.getElementById('quiz-gestione-destinatari-badges');
     if (!host) return;
@@ -28641,6 +28770,7 @@ function quizVisibleTouchOverlay() {
         '#quiz-gestione-genera-busy-overlay.visible',
         '.quiz-exit-confirm-modal.visible, .quiz-exit-confirm-modal.quiz-exit-confirm-modal--open',
         '#quiz-gestione-config-overlay.visible',
+        '#quiz-gestione-utenti-mem-overlay.visible',
         '#quiz-gestione-invia-a-overlay.visible',
         '#quiz-gestione-sperimentale-overlay.visible',
         '#quiz-gestione-test-overlay.visible',
