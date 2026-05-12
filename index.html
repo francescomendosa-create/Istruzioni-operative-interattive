@@ -7206,13 +7206,13 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 4px rgba(49, 27, 96, 0.12);
 }
 .quiz-gestione-verifica-folder[open] {
-    grid-column: 1 / -1;
+    grid-column: auto;
     overflow: hidden;
     background:
         linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245, 241, 255, 0.98) 44%, rgba(232, 234, 246, 0.96) 100%),
         radial-gradient(circle at 8% 0%, rgba(255,255,255,1), transparent 38%),
         radial-gradient(circle at 100% 0%, rgba(66, 165, 245, 0.20), transparent 40%);
-    animation: quizGestioneDrawerOpen 0.64s cubic-bezier(0.16, 0.84, 0.18, 1);
+    animation: quizGestioneDrawerOpen 1.05s cubic-bezier(0.16, 0.84, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-summary {
     position: relative;
@@ -7249,6 +7249,12 @@
 }
 .quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-summary::after {
     content: '▴';
+}
+.quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-summary {
+    animation: quizGestioneDrawerFrontSlide 1.05s cubic-bezier(0.16, 0.84, 0.18, 1);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(213, 205, 238, 0.98) 100%),
+        radial-gradient(circle at 0% 0%, rgba(66, 165, 245, 0.20), transparent 42%);
 }
 .quiz-gestione-verifica-folder-name {
     min-width: 0;
@@ -7288,7 +7294,7 @@
     flex-direction: column;
     gap: 10px;
     transform-origin: top center;
-    animation: quizGestioneDrawerDocsOut 0.72s cubic-bezier(0.16, 0.84, 0.18, 1);
+    animation: quizGestioneDrawerDocsOut 1.08s cubic-bezier(0.16, 0.84, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-docs-title {
     margin: 0;
@@ -7311,7 +7317,7 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-top: -7px;
+    margin-top: -8px;
     padding: 15px 16px;
     border-radius: 8px 16px 16px 8px;
     transform-origin: left center;
@@ -7375,20 +7381,28 @@
         0 24px 46px rgba(49, 27, 96, 0.23),
         -7px 0 0 rgba(94, 53, 177, 0.25),
         inset 0 1px 0 rgba(255,255,255,0.98);
-    animation: quizGestionePaperOut 0.58s cubic-bezier(0.16, 0.9, 0.18, 1);
+    animation: quizGestionePaperOut 0.74s cubic-bezier(0.16, 0.9, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] .quiz-gestione-verifica-card-body {
     animation: quizGestioneFascicoloBodyOpen 0.28s ease-out;
 }
 @keyframes quizGestioneDrawerOpen {
-    0% { transform: perspective(1400px) rotateX(-8deg) translateY(-5px) scale(0.99); opacity: 0.92; }
-    48% { transform: perspective(1400px) rotateX(3deg) translateY(2px) scale(1.006); opacity: 1; }
+    0% { transform: perspective(1400px) rotateX(-7deg) translateY(-4px) scale(0.994); opacity: 0.94; }
+    38% { transform: perspective(1400px) rotateX(4deg) translateY(2px) scale(1.004); opacity: 1; }
+    72% { transform: perspective(1400px) rotateX(-1deg) translateY(0) scale(1.001); opacity: 1; }
     100% { transform: perspective(1400px) rotateX(0deg) translateY(0) scale(1); opacity: 1; }
 }
+@keyframes quizGestioneDrawerFrontSlide {
+    0% { transform: perspective(1200px) translateY(0) translateZ(0) rotateX(0deg); box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 5px 14px rgba(49, 27, 96, 0.10); }
+    36% { transform: perspective(1200px) translateY(8px) translateZ(24px) rotateX(-4deg); box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 14px 26px rgba(49, 27, 96, 0.18); }
+    72% { transform: perspective(1200px) translateY(3px) translateZ(10px) rotateX(-1deg); box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 8px 18px rgba(49, 27, 96, 0.14); }
+    100% { transform: perspective(1200px) translateY(0) translateZ(0) rotateX(0deg); box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 5px 14px rgba(49, 27, 96, 0.10); }
+}
 @keyframes quizGestioneDrawerDocsOut {
-    0% { opacity: 0; transform: perspective(1200px) rotateX(-12deg) translateY(-28px) translateZ(-48px) scaleY(0.92); }
-    44% { opacity: 0.68; transform: perspective(1200px) rotateX(-4deg) translateY(-10px) translateZ(-14px) scaleY(0.98); }
-    78% { opacity: 1; transform: perspective(1200px) rotateX(1.5deg) translateY(4px) translateZ(10px) scaleY(1.01); }
+    0% { opacity: 0; transform: perspective(1200px) rotateX(-14deg) translateY(-32px) translateZ(-54px) scaleY(0.9); }
+    36% { opacity: 0.32; transform: perspective(1200px) rotateX(-9deg) translateY(-22px) translateZ(-34px) scaleY(0.94); }
+    62% { opacity: 0.78; transform: perspective(1200px) rotateX(-3deg) translateY(-8px) translateZ(-8px) scaleY(0.99); }
+    86% { opacity: 1; transform: perspective(1200px) rotateX(1.2deg) translateY(3px) translateZ(8px) scaleY(1.006); }
     100% { opacity: 1; transform: perspective(1200px) rotateX(0deg) translateY(0) translateZ(0); }
 }
 @keyframes quizGestionePaperOut {
@@ -12631,7 +12645,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605311';
+const APP_BUILD = '202605312';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
