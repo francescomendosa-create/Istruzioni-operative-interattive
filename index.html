@@ -7134,6 +7134,8 @@
 .quiz-gestione-verifica-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    align-items: start;
+    grid-auto-rows: max-content;
     gap: 20px;
     padding: 10px;
     max-height: calc(100dvh - 200px); /* Regola l'altezza massima per lo scroll */
@@ -7154,6 +7156,7 @@
 .quiz-gestione-verifica-card {
     container-type: inline-size;
     position: relative;
+    align-self: start;
     background:
         linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,252,255,0.98)),
         radial-gradient(circle at 100% 0%, rgba(126, 87, 194, 0.12), transparent 34%);
@@ -12369,7 +12372,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605304';
+const APP_BUILD = '202605306';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23331,7 +23334,13 @@ function gestioneDomandeBuildCard(i, slot) {
         var letterEl = document.createElement('span');
         letterEl.className = 'gestione-answer-letter';
         letterEl.textContent = letters[k];
-        letterEl.setAttribute('aria-hidden', 'true');
+        if (editor) {
+            letterEl.setAttribute('role', 'button');
+            letterEl.setAttribute('tabindex', '0');
+            letterEl.setAttribute('aria-label', 'Seleziona risposta corretta ' + letters[k]);
+        } else {
+            letterEl.setAttribute('aria-hidden', 'true');
+        }
 
         var rad = document.createElement('input');
         rad.type = 'radio';
@@ -23399,6 +23408,19 @@ function gestioneDomandeBuildCard(i, slot) {
                 gestioneTestButtonStateUpdate();
             }
         });
+        if (editor) {
+            letterEl.addEventListener('click', function () {
+                rad.checked = true;
+                rad.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            letterEl.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    rad.checked = true;
+                    rad.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
 
         slotWrap.appendChild(letterEl);
         slotWrap.appendChild(rad);
