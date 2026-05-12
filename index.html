@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605380';
+const APP_BUILD = '202605381';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24110,7 +24110,21 @@ async function gestioneEliminaTestInviatiClick() {
         clearedPayload.updatedAt = ts;
         var gestioneRef = db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
         var fallbackRef = db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+        try {
+            await gestioneRef.update({
+                perUser: firebase.firestore.FieldValue.delete(),
+                updatedAtMs: Date.now(),
+                updatedAt: ts
+            });
+        } catch (eGestUpdate) { /* doc assente o non aggiornabile: riscrivo sotto */ }
         await gestioneRef.set(clearedPayload);
+        try {
+            await fallbackRef.update({
+                gestioneTestData: firebase.firestore.FieldValue.delete(),
+                gestioneTestUpdatedAt: ts,
+                updatedAt: ts
+            });
+        } catch (eFallbackDelete) { /* doc assente o non aggiornabile: riscrivo sotto */ }
         await fallbackRef.set({
             gestioneTestData: gestioneFirestoreCleanValue({
                 v: 2,
@@ -24120,21 +24134,6 @@ async function gestioneEliminaTestInviatiClick() {
             gestioneTestUpdatedAt: ts,
             updatedAt: ts
         }, { merge: true });
-        try {
-            await fallbackRef.update({
-                'gestioneTestData.perUser': firebase.firestore.FieldValue.delete()
-            });
-        } catch (eDelNested) {
-            await fallbackRef.set({
-                gestioneTestData: gestioneFirestoreCleanValue({
-                    v: 2,
-                    items: gestioneDomandeNormalizeItems(rawForClear.items || []),
-                    updatedAtMs: Date.now()
-                }),
-                gestioneTestUpdatedAt: ts,
-                updatedAt: ts
-            }, { merge: true });
-        }
         var controllo = await gestioneRef.get();
         var controlloData = controllo.exists ? (controllo.data() || {}) : {};
         if (controlloData.perUser && Object.keys(controlloData.perUser).length > 0) {
@@ -24154,7 +24153,8 @@ async function gestioneEliminaTestInviatiClick() {
         try { gestioneUiFlashSaved(btn, 1600, 'Eliminati'); } catch (eFlash) { /* ignore */ }
     } catch (e) {
         console.error('Errore eliminazione test inviati:', e);
-        window.alert('Errore durante l’eliminazione dei test inviati.');
+        var detail = e && (e.code || e.message) ? String(e.code || '') + (e.code && e.message ? ': ' : '') + String(e.message || '') : '';
+        window.alert('Errore durante l’eliminazione dei test inviati.' + (detail ? '\n\nDettaglio: ' + detail : ''));
     } finally {
         if (btn) btn.disabled = false;
     }
