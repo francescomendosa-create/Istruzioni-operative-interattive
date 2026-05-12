@@ -8341,6 +8341,16 @@
             position: relative;
             resize: both;
         }
+        @media (hover: none) and (pointer: coarse) {
+            #quiz-gestione-test-overlay.quiz-lock-overlay.visible {
+                touch-action: pan-y;
+            }
+            #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
+                overflow: hidden;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+            }
+        }
         @media (min-width: 900px) {
             #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
                 padding: 14px 16px 12px;
@@ -10178,23 +10188,34 @@
             }
             .header-quiz-actions {
                 display: grid;
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                grid-template-columns: repeat(3, minmax(0, 1fr));
                 justify-items: center;
                 align-items: center;
-                gap: 8px 10px;
+                gap: 6px;
                 width: 100%;
-                max-width: 310px;
+                max-width: 350px;
                 margin: 0 auto;
             }
-            .header-quiz-actions .btn-quiz,
+            .header-quiz-actions .btn-quiz {
+                grid-column: 1;
+                grid-row: 1;
+            }
             .header-quiz-actions .btn-test-gestione {
-                width: 100%;
-                min-width: 0;
+                grid-column: 2;
+                grid-row: 1;
             }
             .header-quiz-actions .btn-diagnostica {
-                grid-column: 1 / -1;
-                justify-self: center;
-                width: min(100%, 168px);
+                grid-column: 3;
+                grid-row: 1;
+            }
+            .header-quiz-actions .btn-quiz,
+            .header-quiz-actions .btn-test-gestione,
+            .header-quiz-actions .btn-diagnostica {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                padding: 8px 5px;
+                font-size: 0.66rem;
             }
             .header-quiz-actions .btn-supporto {
                 display: none;
@@ -10210,6 +10231,7 @@
             .header-quiz-actions.header-quiz-actions--quiz-disabled .btn-supporto {
                 grid-column: 1 / -1;
                 grid-row: 2;
+                display: none;
             }
         }
 
@@ -13338,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605373';
+const APP_BUILD = '202605376';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24032,16 +24054,22 @@ async function gestioneEliminaTestInviatiClick() {
         await quizEnsureFirebase();
         var db = firebase.firestore();
         var ts = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).set({
-            perUser: {},
+        var rawForClear = gestioneDomandeLoadRaw();
+        var clearedPayload = gestioneFirestoreCleanValue({
+            v: 2,
+            items: gestioneDomandeNormalizeItems(rawForClear.items || []),
             updatedAtMs: Date.now(),
-            updatedAt: ts
-        }, { merge: true });
+            perUser: {}
+        });
+        clearedPayload.updatedAt = ts;
+        await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).set(clearedPayload);
         await db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
-            gestioneTestData: {
-                perUser: {},
-                updatedAtMs: Date.now()
-            },
+            gestioneTestData: gestioneFirestoreCleanValue({
+                v: 2,
+                items: gestioneDomandeNormalizeItems(rawForClear.items || []),
+                updatedAtMs: Date.now(),
+                perUser: {}
+            }),
             gestioneTestUpdatedAt: ts,
             updatedAt: ts
         }, { merge: true });
@@ -28478,9 +28506,25 @@ document.addEventListener('pointerdown', supportoCloseInfoOnOutsidePointer, true
 var quizOverlayTouchStartY = 0;
 
 function quizVisibleTouchOverlay() {
-    return document.querySelector(
-        '.quiz-settings-overlay.visible, .quiz-lock-overlay.visible, .quiz-exit-confirm-modal.visible, .quiz-gestione-genera-busy-overlay.visible'
-    );
+    var priority = [
+        '#quiz-gestione-genera-busy-overlay.visible',
+        '.quiz-exit-confirm-modal.visible, .quiz-exit-confirm-modal.quiz-exit-confirm-modal--open',
+        '#quiz-gestione-config-overlay.visible',
+        '#quiz-gestione-invia-a-overlay.visible',
+        '#quiz-gestione-sperimentale-overlay.visible',
+        '#quiz-gestione-test-overlay.visible',
+        '#supporto-overlay.visible',
+        '#quiz-developer-menu-overlay.visible',
+        '#quiz-modify-dev-overlay.visible',
+        '#quiz-producer-overlay.visible',
+        '#quiz-settings-overlay.visible',
+        '.quiz-lock-overlay.visible'
+    ];
+    for (var i = 0; i < priority.length; i++) {
+        var el = document.querySelector(priority[i]);
+        if (el) return el;
+    }
+    return null;
 }
 
 function quizOverlayScrollableAncestor(target, overlay) {
@@ -28509,6 +28553,14 @@ function quizOverlayTouchMove(ev) {
     if (!overlay) return;
     var target = ev.target;
     if (target && target.closest && target.closest('input[type="range"], .quiz-fs-vol-touchpad')) return;
+    if (
+        overlay.id === 'quiz-gestione-test-overlay' &&
+        target &&
+        target.closest &&
+        target.closest('.quiz-gestione-test-modal')
+    ) {
+        return;
+    }
     if (!target || !overlay.contains(target)) {
         ev.preventDefault();
         return;
@@ -28519,14 +28571,6 @@ function quizOverlayTouchMove(ev) {
     var scroller = quizOverlayScrollableAncestor(target, overlay);
     if (!scroller) {
         ev.preventDefault();
-        return;
-    }
-    if (
-        overlay.id === 'quiz-gestione-test-overlay' &&
-        target &&
-        target.closest &&
-        target.closest('.quiz-gestione-test-modal')
-    ) {
         return;
     }
     var atTop = scroller.scrollTop <= 0;
