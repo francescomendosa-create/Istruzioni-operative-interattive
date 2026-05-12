@@ -5867,6 +5867,16 @@
             border: 1px solid #d0d7de;
             box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
         }
+        #quiz-settings-overlay .quiz-settings-heading-row {
+            position: sticky;
+            top: -18px;
+            z-index: 4;
+            margin: -18px -16px 14px;
+            padding: 18px 16px 12px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+            border-bottom: 1px solid #e3edf7;
+            box-shadow: 0 7px 16px rgba(31, 63, 104, 0.08);
+        }
         .supporto-overlay .supporto-box {
             width: min(92vw, clamp(360px, 94vw, 520px));
             max-height: min(88vh, 620px);
@@ -6219,6 +6229,17 @@
             color: #607d8b;
             margin-top: 4px;
             font-weight: 600;
+        }
+        .quiz-settings-info-row .quiz-settings-inline-label {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 7px;
+            min-width: 0;
+            white-space: nowrap;
+        }
+        .quiz-settings-info-row .quiz-settings-inline-label .quiz-settings-row-sub {
+            margin-top: 0;
+            font-size: 0.84rem;
         }
         .quiz-settings-info-row .quiz-settings-build-label {
             color: #78909c;
@@ -12453,16 +12474,16 @@ function dismissAppSplash() {
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizAppModal()" aria-label="App e barcode accesso">
-                <div>
-                    <div class="quiz-settings-row-title">App</div>
-                    <div class="quiz-settings-row-sub">Barcode accesso rapido</div>
+                <div class="quiz-settings-inline-label">
+                    <span class="quiz-settings-row-title">App</span>
+                    <span class="quiz-settings-row-sub">Barcode accesso rapido</span>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" onclick="showQuizInfoDetailModal()" aria-label="Info e copyright">
-                <div>
-                    <div class="quiz-settings-row-title">Info</div>
-                    <div class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">2.1</span></div>
+                <div class="quiz-settings-inline-label">
+                    <span class="quiz-settings-row-title">Info</span>
+                    <span class="quiz-settings-row-sub">Versione <span id="quiz-settings-version-label">2.1</span></span>
                 </div>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
@@ -13039,7 +13060,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605347';
+const APP_BUILD = '202605350';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19016,12 +19037,26 @@ function quizSettingsStable21SetUpdated(on) {
     } catch (e) { /* ignore */ }
 }
 
+function quizSettingsStable21IsPreviousBuild() {
+    try {
+        if (typeof quizCompareBuildTokens === 'function') {
+            return quizCompareBuildTokens(APP_BUILD, QUIZ_STABLE_21_BUILD) > 0;
+        }
+        return String(APP_BUILD || '') > String(QUIZ_STABLE_21_BUILD || '');
+    } catch (e) {
+        return false;
+    }
+}
+
 function quizSettingsStable21LineReset() {
     var btn = document.getElementById('quiz-settings-stable-21-btn');
     var line = document.getElementById('quiz-settings-stable-21-line');
     if (!btn || !line) return;
     var updated = quizSettingsStable21IsUpdated();
     var label = updated ? 'Aggiornato a versione 2.1 stabile' : 'Aggiorna a versione 2.1 stabile';
+    if (updated && quizSettingsStable21IsPreviousBuild()) {
+        label += ' (torna a versione precedente)';
+    }
     line.textContent = label;
     btn.setAttribute(
         'aria-label',
@@ -27694,10 +27729,6 @@ function supportoSearchChanged() {
     host.innerHTML = '';
     var computed = supportoComputeResults(raw);
     if (!computed.q) {
-        var intro = document.createElement('div');
-        intro.className = 'supporto-empty';
-        intro.textContent = 'Inizia a scrivere una problematica: compariranno ricerche correlate collegate a domande, rischi, azioni e controlli presenti nelle schede.';
-        host.appendChild(intro);
         return;
     }
     if (!computed.results.length) {
