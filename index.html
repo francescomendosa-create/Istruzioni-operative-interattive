@@ -8784,6 +8784,79 @@
         #quiz-gestione-test-overlay.quiz-gestione--solo-utente #quiz-gestione-test-list > :last-child {
             margin-bottom: 0 !important;
         }
+        .quiz-test-assigned-list {
+            display: grid;
+            gap: 12px;
+            padding: 4px 2px 10px;
+        }
+        .quiz-test-assigned-list__title {
+            margin: 4px 2px 2px;
+            color: #4527a0;
+            font-size: clamp(1.05rem, 3.8vw, 1.35rem);
+            font-weight: 900;
+            text-align: center;
+        }
+        .quiz-test-assigned-card {
+            width: 100%;
+            text-align: left;
+            border: 1px solid rgba(94, 53, 177, 0.20);
+            border-radius: 16px;
+            padding: 14px;
+            cursor: pointer;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245, 241, 255, 0.98)),
+                radial-gradient(circle at 100% 0%, rgba(126, 87, 194, 0.16), transparent 36%);
+            box-shadow: 0 12px 28px rgba(49, 27, 96, 0.10), inset 0 1px 0 rgba(255,255,255,0.95);
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        }
+        .quiz-test-assigned-card:hover,
+        .quiz-test-assigned-card:focus-visible {
+            transform: translateY(-2px);
+            border-color: rgba(94, 53, 177, 0.38);
+            box-shadow: 0 16px 34px rgba(49, 27, 96, 0.15), inset 0 1px 0 rgba(255,255,255,0.98);
+            outline: none;
+        }
+        .quiz-test-assigned-card__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .quiz-test-assigned-card__kicker {
+            color: #5e35b1;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .quiz-test-assigned-card__date {
+            color: #37474f;
+            font-size: 0.82rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+        .quiz-test-assigned-card__text {
+            margin: 0;
+            color: #455a64;
+            font-size: 0.9rem;
+            line-height: 1.35;
+        }
+        .quiz-test-active-head {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+        .quiz-test-back-list {
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 13px;
+            cursor: pointer;
+            color: #4527a0;
+            background: #ede7f6;
+            font-weight: 900;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+        }
         #quiz-gestione-test-list::-webkit-scrollbar {
             width: 8px;
         }
@@ -12858,7 +12931,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605331';
+const APP_BUILD = '202605333';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21874,12 +21947,23 @@ function gestioneNormalizePerUserMap(pu) {
         var cleanKey = String(k || '').trim();
         if (!cleanKey) return;
         var slot = pu[k];
-        if (!slot || !Array.isArray(slot.items)) return;
-        var clean = { items: gestioneDomandeNormalizeItems(slot.items) };
-        if (slot.packId != null) clean.packId = String(slot.packId).slice(0, 80);
-        var assignedAtMs = parseInt(slot.assignedAtMs, 10);
-        if (isFinite(assignedAtMs) && assignedAtMs > 0) clean.assignedAtMs = assignedAtMs;
-        if (slot.assignedBy != null) clean.assignedBy = quizPresenceSanitizeLabel(String(slot.assignedBy)).slice(0, 40);
+        var slots = gestioneTestAssignmentSlotsFromRawSlot(slot, true);
+        if (!slots.length) return;
+        var clean = {
+            items: gestioneDomandeItemsDeepCopy(slots[0].items),
+            packId: slots[0].packId,
+            assignedAtMs: slots[0].assignedAtMs,
+            assignedBy: slots[0].assignedBy,
+            tests: {}
+        };
+        slots.forEach(function (s) {
+            clean.tests[s.packId] = {
+                items: gestioneDomandeItemsDeepCopy(s.items),
+                packId: s.packId,
+                assignedAtMs: s.assignedAtMs,
+                assignedBy: s.assignedBy
+            };
+        });
         out[cleanKey] = clean;
     });
     return out;
@@ -21920,23 +22004,85 @@ function gestioneTestNewPackId(ts) {
     return 'test-' + base + '-' + Math.random().toString(36).slice(2, 8);
 }
 
-function gestioneTestAssignmentSlot(raw, key) {
+function gestioneTestNormalizeAssignmentSlot(slot) {
+    if (!slot || !Array.isArray(slot.items)) return null;
+    var clean = { items: gestioneDomandeNormalizeItems(slot.items) };
+    clean.packId = slot.packId ? String(slot.packId).slice(0, 80) : gestioneTestPackSignature(clean.items);
+    var assignedAtMs = parseInt(slot.assignedAtMs, 10);
+    clean.assignedAtMs = isFinite(assignedAtMs) && assignedAtMs > 0 ? assignedAtMs : 0;
+    clean.assignedBy = slot.assignedBy != null
+        ? quizPresenceSanitizeLabel(String(slot.assignedBy)).slice(0, 40)
+        : '';
+    return clean;
+}
+
+function gestioneTestAssignmentSlotsFromRawSlot(slot, includeDone) {
+    var out = [];
+    var seen = {};
+    function add(rawSlot) {
+        var clean = gestioneTestNormalizeAssignmentSlot(rawSlot);
+        if (!clean || !clean.packId || seen[clean.packId]) return;
+        if (!gestioneDomandePackHasAnyContent(clean.items)) return;
+        if (!gestioneTestAssignmentIsAfterReset(clean)) return;
+        seen[clean.packId] = 1;
+        out.push(clean);
+    }
+    if (slot && slot.tests && typeof slot.tests === 'object') {
+        if (Array.isArray(slot.tests)) {
+            slot.tests.forEach(add);
+        } else {
+            Object.keys(slot.tests).forEach(function (pid) {
+                var rawTest = slot.tests[pid] || {};
+                if (rawTest.packId == null) rawTest.packId = pid;
+                add(rawTest);
+            });
+        }
+    }
+    add(slot);
+    out.sort(function (a, b) {
+        return Number(b.assignedAtMs || 0) - Number(a.assignedAtMs || 0);
+    });
+    return out;
+}
+
+function gestioneTestRawUserSlot(raw, key) {
     raw = raw || gestioneDomandeLoadRaw();
     key = String(key || gestioneTestCurrentUserKey()).trim();
     if (!key || !raw.perUser || typeof raw.perUser !== 'object') return null;
-    if (raw.perUser[key] && Array.isArray(raw.perUser[key].items)) return raw.perUser[key];
+    if (raw.perUser[key]) return raw.perUser[key];
     var wanted = gestioneRecipientKeyFromLabel(key);
     var found = null;
     Object.keys(raw.perUser).some(function (k) {
-        var slot = raw.perUser[k];
-        if (!slot || !Array.isArray(slot.items)) return false;
         if (gestioneRecipientKeyFromLabel(k) === wanted) {
-            found = slot;
+            found = raw.perUser[k];
             return true;
         }
         return false;
     });
     return found;
+}
+
+function gestioneTestAssignmentSlots(raw, key, includeDone) {
+    raw = raw || gestioneDomandeLoadRaw();
+    key = String(key || gestioneTestCurrentUserKey()).trim();
+    var slots = gestioneTestAssignmentSlotsFromRawSlot(gestioneTestRawUserSlot(raw, key), includeDone);
+    if (includeDone) return slots;
+    return slots.filter(function (slot) {
+        return !gestioneTestIsDoneForUser(key, gestioneTestAssignmentPackId(slot));
+    });
+}
+
+function gestioneTestAssignmentSlot(raw, key) {
+    raw = raw || gestioneDomandeLoadRaw();
+    key = String(key || gestioneTestCurrentUserKey()).trim();
+    var slots = gestioneTestAssignmentSlots(raw, key, false);
+    if (!slots.length) return null;
+    if (gestioneTestSelectedPackId) {
+        for (var i = 0; i < slots.length; i++) {
+            if (gestioneTestAssignmentPackId(slots[i]) === gestioneTestSelectedPackId) return slots[i];
+        }
+    }
+    return slots[0];
 }
 
 function gestioneTestAssignmentPackId(slot) {
@@ -22022,17 +22168,18 @@ function gestioneTestSyncDoneFromRemote(remoteTestResults) {
 function gestioneTestAssignmentInfo(raw) {
     raw = raw || gestioneDomandeLoadRaw();
     var key = gestioneTestCurrentUserKey();
+    var slots = gestioneTestAssignmentSlots(raw, key, false);
     var slot = gestioneTestAssignmentSlot(raw, key);
     var packId = slot ? gestioneTestAssignmentPackId(slot) : '';
-    var alreadyDone = gestioneTestIsDoneForUser(key, packId);
-    var hasAssigned = !!(slot && gestioneDomandePackHasAnyContent(slot.items) && gestioneTestAssignmentIsAfterReset(slot) && !alreadyDone);
     var ack = gestioneTestAckLoad();
+    var newestPendingPackId = slots.length ? gestioneTestAssignmentPackId(slots[0]) : '';
     return {
         key: key,
         slot: slot,
-        hasAssigned: hasAssigned,
+        slots: slots,
+        hasAssigned: slots.length > 0,
         packId: packId,
-        pending: !!(hasAssigned && packId && ack[key] !== packId)
+        pending: !!(newestPendingPackId && ack[key] !== newestPendingPackId)
     };
 }
 
@@ -22168,11 +22315,21 @@ function gestioneDomandePersist(items) {
     var rk = String(raw.recipientKey || '').trim();
     if (rk) {
         var prev = raw.perUser[rk] || {};
+        var tests = prev.tests && typeof prev.tests === 'object' ? prev.tests : {};
+        if (prev.packId) {
+            tests[prev.packId] = {
+                items: gestioneDomandeItemsDeepCopy(norm),
+                packId: prev.packId,
+                assignedAtMs: prev.assignedAtMs,
+                assignedBy: prev.assignedBy
+            };
+        }
         raw.perUser[rk] = {
             items: norm,
             packId: prev.packId,
             assignedAtMs: prev.assignedAtMs,
-            assignedBy: prev.assignedBy
+            assignedBy: prev.assignedBy,
+            tests: tests
         };
     }
     gestioneDomandeSaveRaw(raw);
@@ -22193,14 +22350,15 @@ function gestioneRecipientSelect(key) {
                 items: gestioneDomandeNormalizeItems(cur),
                 packId: prevOld.packId,
                 assignedAtMs: prevOld.assignedAtMs,
-                assignedBy: prevOld.assignedBy
+                assignedBy: prevOld.assignedBy,
+                tests: prevOld.tests
             };
         } catch (e) { /* ignore */ }
     }
     raw.recipientKey = key;
     if (!raw.perUser[key]) {
         var seed = raw.items && raw.items.length ? raw.items : gestioneDomandeDefaultPack();
-        raw.perUser[key] = { items: gestioneDomandeNormalizeItems(seed) };
+        raw.perUser[key] = { items: gestioneDomandeNormalizeItems(seed), tests: {} };
     }
     raw.items = gestioneDomandeNormalizeItems(raw.perUser[key].items);
     gestioneDomandeSaveRaw(raw);
@@ -22878,18 +23036,29 @@ function gestioneVerificaBuildUserFolder(userId, records) {
     body.appendChild(docs);
     folder.appendChild(body);
 
+    var syncDrawerFrontPosition = function () {
+        if (folder.open) {
+            if (summary.nextSibling !== null) folder.appendChild(summary);
+        } else if (folder.firstChild !== summary) {
+            folder.insertBefore(summary, body);
+        }
+    };
+
     summary.addEventListener('click', function (ev) {
         ev.preventDefault();
         ev.stopPropagation();
         folder.open = !folder.open;
+        syncDrawerFrontPosition();
     });
     folder.addEventListener('keydown', function (ev) {
         if (ev.target !== summary && !(ev.target && ev.target.closest && ev.target.closest('.quiz-gestione-verifica-folder-summary') === summary)) return;
         if (ev.key === 'Enter' || ev.key === ' ') {
             ev.preventDefault();
             folder.open = !folder.open;
+            syncDrawerFrontPosition();
         }
     });
+    folder.addEventListener('toggle', syncDrawerFrontPosition);
 
     return folder;
 }
@@ -23296,6 +23465,36 @@ function gestioneDomandeItemsDeepCopy(items) {
     }
 }
 
+function gestioneTestAppendAssignmentForKey(raw, key, norm, packId, assignedAtMs, assignedBy) {
+    key = String(key || '').trim();
+    if (!key) return;
+    if (!raw.perUser) raw.perUser = {};
+    var tests = {};
+    gestioneTestAssignmentSlots(raw, key, true).forEach(function (slot) {
+        var pid = gestioneTestAssignmentPackId(slot);
+        if (!pid) return;
+        tests[pid] = {
+            items: gestioneDomandeItemsDeepCopy(slot.items),
+            packId: pid,
+            assignedAtMs: slot.assignedAtMs,
+            assignedBy: slot.assignedBy
+        };
+    });
+    tests[packId] = {
+        items: gestioneDomandeItemsDeepCopy(norm),
+        packId: packId,
+        assignedAtMs: assignedAtMs,
+        assignedBy: assignedBy
+    };
+    raw.perUser[key] = {
+        items: gestioneDomandeItemsDeepCopy(norm),
+        packId: packId,
+        assignedAtMs: assignedAtMs,
+        assignedBy: assignedBy,
+        tests: tests
+    };
+}
+
 /** Copia il pacchetto domande attuale (editor) in raw.items e in perUser per ogni chiave indicata, poi persistenza locale. */
 function gestioneDomandeFanOutCurrentToKeys(keys) {
     var norm = gestioneDomandeNormalizeItems(gestioneReadSlotsFromDom());
@@ -23309,12 +23508,7 @@ function gestioneDomandeFanOutCurrentToKeys(keys) {
     for (var i = 0; i < keys.length; i++) {
         var k = String(keys[i] || '').trim();
         if (!k) continue;
-        raw.perUser[k] = {
-            items: gestioneDomandeItemsDeepCopy(norm),
-            packId: packId,
-            assignedAtMs: assignedAtMs,
-            assignedBy: assignedBy
-        };
+        gestioneTestAppendAssignmentForKey(raw, k, norm, packId, assignedAtMs, assignedBy);
     }
     gestioneDomandeSaveRaw(raw);
 }
@@ -23332,12 +23526,7 @@ function gestioneDomandeFanOutNormalizedPackToKeys(keys, packItems) {
     for (var i = 0; i < keys.length; i++) {
         var k = String(keys[i] || '').trim();
         if (!k) continue;
-        raw.perUser[k] = {
-            items: gestioneDomandeItemsDeepCopy(norm),
-            packId: packId,
-            assignedAtMs: assignedAtMs,
-            assignedBy: assignedBy
-        };
+        gestioneTestAppendAssignmentForKey(raw, k, norm, packId, assignedAtMs, assignedBy);
     }
     gestioneDomandeSaveRaw(raw);
 }
@@ -24185,10 +24374,81 @@ function gestioneDomandeBuildCard(i, slot) {
     return card;
 }
 
+function gestioneTestRenderAssignmentChooser(root, slots) {
+    var wrap = document.createElement('div');
+    wrap.className = 'quiz-test-assigned-list';
+    var title = document.createElement('h3');
+    title.className = 'quiz-test-assigned-list__title';
+    title.textContent = 'Scegli il test da compilare';
+    wrap.appendChild(title);
+    slots.forEach(function (slot, idx) {
+        var packId = gestioneTestAssignmentPackId(slot);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quiz-test-assigned-card';
+        btn.setAttribute('aria-label', 'Apri test ricevuto il ' + gestioneVerificaFormatDate(slot.assignedAtMs));
+        var top = document.createElement('div');
+        top.className = 'quiz-test-assigned-card__top';
+        var kicker = document.createElement('span');
+        kicker.className = 'quiz-test-assigned-card__kicker';
+        kicker.textContent = 'Test ' + (idx + 1);
+        var date = document.createElement('span');
+        date.className = 'quiz-test-assigned-card__date';
+        date.textContent = gestioneVerificaFormatDate(slot.assignedAtMs);
+        top.appendChild(kicker);
+        top.appendChild(date);
+        var text = document.createElement('p');
+        text.className = 'quiz-test-assigned-card__text';
+        text.textContent = 'Ricevuto da ' + (slot.assignedBy || 'Gestione') + ' · ' + (slot.items ? slot.items.length : 0) + ' domande';
+        btn.appendChild(top);
+        btn.appendChild(text);
+        btn.onclick = function () {
+            gestioneTestSelectedPackId = packId;
+            gestioneDomandeRender();
+            gestioneTestButtonStateUpdate();
+        };
+        wrap.appendChild(btn);
+    });
+    root.appendChild(wrap);
+}
+
+function gestioneTestRenderBackToList(root, slots) {
+    if (!slots || slots.length < 2 || !gestioneTestSelectedPackId) return;
+    var head = document.createElement('div');
+    head.className = 'quiz-test-active-head';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quiz-test-back-list';
+    btn.textContent = '← Elenco test';
+    btn.onclick = function () {
+        gestioneTestSelectedPackId = '';
+        gestioneDomandeRender();
+    };
+    head.appendChild(btn);
+    root.appendChild(head);
+}
+
 function gestioneDomandeRender() {
     var root = document.getElementById('quiz-gestione-test-list');
     if (!root) return;
     var scrollSnap = gestioneDomandeCaptureListScroll(root);
+    var assignedSlots = [];
+    if (quizGestioneDomandeEditorCompleto === false) {
+        assignedSlots = gestioneTestAssignmentSlots(gestioneDomandeLoadRaw(), gestioneTestCurrentUserKey(), false);
+        if (gestioneTestSelectedPackId) {
+            var selectedStillValid = assignedSlots.some(function (slot) {
+                return gestioneTestAssignmentPackId(slot) === gestioneTestSelectedPackId;
+            });
+            if (!selectedStillValid) gestioneTestSelectedPackId = '';
+        }
+        if (assignedSlots.length > 1 && !gestioneTestSelectedPackId) {
+            root.innerHTML = '';
+            gestioneTestRenderAssignmentChooser(root, assignedSlots);
+            gestioneTestButtonStateUpdate();
+            gestioneTestButtonUpdate();
+            return;
+        }
+    }
     var data = gestioneDomandeLoad();
     gestioneSlotRevertBaselineInitFromLoadedData(data);
     var nq = gestioneConfigLoad().numQuestions;
@@ -24212,6 +24472,7 @@ function gestioneDomandeRender() {
         gestioneTestButtonUpdate();
         return;
     }
+    if (quizGestioneDomandeEditorCompleto === false) gestioneTestRenderBackToList(root, assignedSlots);
     for (var i = 0; i < nq; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
@@ -25561,6 +25822,7 @@ async function gestioneGeneraDomandeClick() {
 
 /** false = aperto da barra principale (Test): niente Genera; alla chiusura non si riapre Impostazioni. true = da Impostazioni. */
 var quizGestioneDomandeEditorCompleto = true;
+var gestioneTestSelectedPackId = '';
 
 /** Tab «Crea» (domande) vs «Verifica». */
 function quizGestioneSetSezione(sezione) {
@@ -25676,6 +25938,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     var editorCompleto = fromImpostazioni !== false;
     var userResultsMode = !editorCompleto && mode === 'verifiche';
     quizGestioneDomandeEditorCompleto = editorCompleto;
+    if (!editorCompleto && !userResultsMode) gestioneTestSelectedPackId = '';
     var overlay = document.getElementById('quiz-gestione-test-overlay');
     var settingsOverlay = document.getElementById('quiz-settings-overlay');
     if (!overlay) return;
