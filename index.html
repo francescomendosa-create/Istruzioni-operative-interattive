@@ -13434,7 +13434,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605391';
+const APP_BUILD = '202605392';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -16342,6 +16342,9 @@ function quizAttachLeaderboardRealtime() {
                     try {
                         if (document.body.classList.contains('producer-open')) quizProducerRefreshTable();
                     } catch (e3) { /* ignore */ }
+                    try {
+                        gestioneVerificaRefreshIfOpenFromCloud(d);
+                    } catch (eVf) { /* ignore */ }
                 },
                 function (err) {
                     console.warn('[quiz leaderboard realtime]', err);
@@ -24417,6 +24420,27 @@ async function gestioneEliminaTestInviatiClick() {
     } finally {
         if (btn) btn.disabled = false;
     }
+}
+
+function gestioneVerificaRefreshIfOpenFromCloud(allUsersResults) {
+    try {
+        var overlay = document.getElementById('quiz-gestione-test-overlay');
+        var verifica = document.getElementById('quiz-gestione-panel-verifica');
+        if (!overlay || !overlay.classList.contains('visible') || !verifica || verifica.hidden) return;
+        var users = allUsersResults && allUsersResults.testResults && typeof allUsersResults.testResults === 'object'
+            ? allUsersResults.testResults
+            : {};
+        if (!Object.keys(users).length) gestioneVerificaCloseResultSheet();
+        if (quizGestioneDomandeEditorCompleto === false) {
+            gestioneVerificaRender({
+                currentUserOnly: true,
+                title: 'Le tue verifiche',
+                emptyMessage: 'nessuna verifica presente'
+            });
+        } else {
+            gestioneVerificaRender();
+        }
+    } catch (e) { /* ignore */ }
 }
 
 async function gestioneEliminaTestArchiviatiClick() {
