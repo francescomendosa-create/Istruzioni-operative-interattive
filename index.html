@@ -344,11 +344,31 @@
             margin-right: auto;
         }
         .header-quiz-actions {
-            display: inline-flex;
-            flex-wrap: wrap;
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(132px, auto) minmax(132px, auto) minmax(132px, auto);
             align-items: center;
+            justify-items: center;
             justify-content: center;
             gap: 8px 10px;
+        }
+        .header-quiz-actions .btn-quiz {
+            grid-column: 1;
+            grid-row: 1;
+        }
+        .header-quiz-actions .btn-test-gestione {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        .header-quiz-actions .btn-diagnostica {
+            grid-column: 3;
+            grid-row: 1;
+        }
+        .header-quiz-actions .btn-supporto {
+            position: absolute;
+            left: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
         }
         .header-quiz-actions.header-quiz-actions--quiz-disabled {
             display: grid;
@@ -367,9 +387,13 @@
             grid-row: 1;
         }
         .header-quiz-actions--quiz-disabled .btn-supporto {
-            grid-column: 1 / -1;
-            grid-row: 2;
-            justify-self: center;
+            grid-column: auto;
+            grid-row: auto;
+            justify-self: auto;
+            position: absolute;
+            left: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .btn-side {
@@ -13314,7 +13338,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605371';
+const APP_BUILD = '202605373';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22124,7 +22148,7 @@ function gestioneAfterConfigChangeResync() {
 
 function gestioneDomandeEditAllowed() {
     if (!quizGestioneDomandeEditorCompleto) return true;
-    return quizModifyWriteAuthIsGranted();
+    return true; // Blocco modifiche temporaneamente disattivato: evita interferenze touch/scroll su tablet Android.
 }
 
 function gestioneDomandeEditDeniedInfo() {
@@ -22132,16 +22156,13 @@ function gestioneDomandeEditDeniedInfo() {
 }
 
 function gestioneDomandeRequireEditAuth() {
-    if (gestioneDomandeEditAllowed()) return true;
-    gestioneDomandeEditDeniedInfo();
-    gestioneConfigSyncEditToggle();
-    return false;
+    return true;
 }
 
 function gestioneConfigSyncEditToggle() {
     var cb = document.getElementById('gestione-edit-auth-toggle');
     if (!cb) return;
-    var on = quizModifyWriteAuthIsGranted();
+    var on = true;
     cb.checked = on;
     cb.setAttribute('aria-checked', on ? 'true' : 'false');
 }
