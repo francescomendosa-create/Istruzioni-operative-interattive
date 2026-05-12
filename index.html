@@ -13434,7 +13434,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605387';
+const APP_BUILD = '202605388';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14525,6 +14525,32 @@ function quizPresenceCollectRowsMerged24h() {
         };
     });
     mirrorRows24.forEach(function (r) {
+        var uid = String((r && r.uid) || '');
+        var sid = String((r && r.sessionId) || '');
+        var key = uid + '|' + sid;
+        if (!key || key === '|') return;
+        var prev = map[key];
+        var t = Number((r && r.lastSeenMs) || 0) || 0;
+        if (!prev || t >= (Number(prev.lastSeenMs) || 0)) {
+            map[key] = {
+                label: r && r.label ? String(r.label).trim() : '',
+                uid: uid,
+                sessionId: sid,
+                lastSeenMs: t,
+                path: r && r.path != null ? String(r.path).slice(0, 160) : ''
+            };
+        }
+    });
+    return quizPresenceCollapseRowsByUid(Object.keys(map).map(function (k) { return map[k]; }));
+}
+
+function quizPresenceCollectRowsAllKnown() {
+    var longWindowMs = 10 * 365 * 24 * 60 * 60 * 1000;
+    var baseRows = quizPresenceCollectRowsFromSnapshotWithWindow(quizPresenceLatestSnap, longWindowMs);
+    var mirrorRowsAll = quizPresenceExtractMirrorRowsFromLeaderboardDocWithWindow(quizPresenceMirrorRawDoc, longWindowMs);
+    var mirrorRowsNow = Array.isArray(quizPresenceMirrorRows) ? quizPresenceMirrorRows : [];
+    var map = {};
+    baseRows.concat(mirrorRowsAll, mirrorRowsNow).forEach(function (r) {
         var uid = String((r && r.uid) || '');
         var sid = String((r && r.sessionId) || '');
         var key = uid + '|' + sid;
@@ -23234,6 +23260,13 @@ function gestioneCollectRecipientLabels() {
             var ky2 = gestioneRecipientKeyFromLabel(lb2);
             add(ky2, lb2, !!onlineKeys[ky2]);
         }
+        var allKnownRows = quizPresenceCollectRowsAllKnown();
+        gestioneRecipientsRememberFromRows(allKnownRows);
+        for (var kAll = 0; kAll < allKnownRows.length; kAll++) {
+            var lbAll = quizPresenceDisplayLabelForRow(allKnownRows[kAll]);
+            var kyAll = gestioneRecipientKeyFromLabel(lbAll);
+            add(kyAll, lbAll, !!onlineKeys[kyAll]);
+        }
     } catch (e) { /* ignore */ }
     try {
         var known = gestioneRecipientsLoad();
@@ -27207,6 +27240,11 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
         if (editorCompleto) {
             gestioneRenderDestinatariBadges();
             gestioneGeneraUgualiTuttiRefreshCheckbox();
+            try {
+                quizPresenceReadMirrorFromServerPreferred().then(function () {
+                    try { gestioneRenderDestinatariBadges(); } catch (eRe) { /* ignore */ }
+                });
+            } catch (eMirror) { /* ignore */ }
         }
     } catch (eR) { /* ignore */ }
 }
