@@ -13025,7 +13025,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605345';
+const APP_BUILD = '202605346';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -26964,6 +26964,8 @@ let supportoOnlineRunId = 0;
 let supportoOnlineTimer = null;
 let supportoOnlineCache = {};
 const SUPPORTO_EMBEDDINGS_LS = 'io-supporto-embeddings-offline-v1';
+const SUPPORTO_LEARNED_SEARCH_LS = 'io-supporto-learned-search-v1';
+const SUPPORTO_LEARNED_SEARCH_MAX = 160;
 const SUPPORTO_EMBEDDING_DIMS = 96;
 
 function supportoNormalizeText(s) {
@@ -27099,6 +27101,97 @@ function supportoValidConceptIds(ids) {
         if (id && supportoGetSemanticRule(id) && out.indexOf(id) === -1) out.push(id);
     });
     return out;
+}
+
+function supportoLearnedSearchLoad() {
+    try {
+        var saved = JSON.parse(localStorage.getItem(SUPPORTO_LEARNED_SEARCH_LS) || 'null');
+        if (saved && saved.v === 1 && Array.isArray(saved.items)) return saved.items;
+    } catch (e) { /* ignore */ }
+    return [];
+}
+
+function supportoLearnedSearchSave(items) {
+    try {
+        localStorage.setItem(SUPPORTO_LEARNED_SEARCH_LS, JSON.stringify({
+            v: 1,
+            updatedAt: Date.now(),
+            items: (items || []).slice(0, SUPPORTO_LEARNED_SEARCH_MAX)
+        }));
+    } catch (e) { /* ignore */ }
+}
+
+function supportoLearnedExpansionFor(queryNorm) {
+    var q = supportoCanonicalQuery(queryNorm || '');
+    if (!q || q.length < 3) return { terms: [], concepts: [], best: [] };
+    var qTokens = q.split(/\s+/).filter(function (t) { return t && t.length > 2; });
+    var terms = [];
+    var concepts = [];
+    var best = [];
+    function addTerm(t) {
+        t = supportoCanonicalQuery(t);
+        if (t && terms.indexOf(t) === -1) terms.push(t);
+    }
+    function addConcept(id) {
+        if (id && concepts.indexOf(id) === -1) concepts.push(id);
+    }
+    function addBest(key) {
+        key = String(key || '').trim();
+        if (key && best.indexOf(key) === -1) best.push(key);
+    }
+    supportoLearnedSearchLoad().forEach(function (item) {
+        if (!item || !item.key) return;
+        var key = supportoCanonicalQuery(item.key);
+        var exact = key === q || key.indexOf(q) >= 0 || q.indexOf(key) >= 0;
+        var overlap = 0;
+        if (!exact && qTokens.length) {
+            var learnedTokens = key.split(/\s+/);
+            qTokens.forEach(function (t) {
+                if (learnedTokens.indexOf(t) >= 0) overlap++;
+            });
+        }
+        if (!exact && overlap < Math.min(2, qTokens.length)) return;
+        (item.terms || []).forEach(addTerm);
+        supportoValidConceptIds(item.concepts || []).forEach(addConcept);
+        (item.best || []).forEach(addBest);
+    });
+    return { terms: terms.slice(0, 14), concepts: concepts.slice(0, 6), best: best.slice(0, 10) };
+}
+
+function supportoLearnFromOnline(raw, expansion, computed) {
+    var key = supportoCanonicalQuery(raw || '');
+    if (!key || key.length < 3 || !expansion) return;
+    var terms = Array.isArray(expansion.terms) ? expansion.terms.map(function (x) {
+        return supportoCanonicalQuery(x).slice(0, 80);
+    }).filter(Boolean) : [];
+    var concepts = supportoValidConceptIds(expansion.concepts || []);
+    if (!terms.length && !concepts.length) return;
+    var best = [];
+    if (computed && Array.isArray(computed.results)) {
+        best = computed.results.slice(0, 5).map(function (row) {
+            return row && row.entry ? (row.entry.sectionKey + ':' + row.entry.point) : '';
+        }).filter(Boolean);
+    }
+    var previous = null;
+    var items = supportoLearnedSearchLoad().filter(function (item) {
+        if (item && item.key === key) {
+            previous = item;
+            return false;
+        }
+        return !!item;
+    });
+    items.unshift({
+        key: key,
+        terms: terms,
+        concepts: concepts,
+        best: best,
+        uses: Number(previous && previous.uses || 0) + 1,
+        updatedAt: Date.now()
+    });
+    items.sort(function (a, b) {
+        return Number(b.updatedAt || 0) - Number(a.updatedAt || 0);
+    });
+    supportoLearnedSearchSave(items);
 }
 
 function supportoAiStatusShow(msg) {
@@ -27303,11 +27396,12 @@ function supportoRenderSuggestions(query) {
     host.innerHTML = '';
     var q = supportoCanonicalQuery(query || '');
     var offlineExpansion = supportoOfflineQueryExpansion(q);
-    var queryConcepts = supportoDetectConcepts(q, true).concat(offlineExpansion.concepts).filter(function (x, pos, arr) {
+    var learnedExpansion = supportoLearnedExpansionFor(q);
+    var queryConcepts = supportoDetectConcepts(q, true).concat(offlineExpansion.concepts).concat(learnedExpansion.concepts).filter(function (x, pos, arr) {
         return x && arr.indexOf(x) === pos;
     });
     var semanticHints = supportoConceptLabels(queryConcepts);
-    var allHints = semanticHints.concat(offlineExpansion.terms).concat(SUPPORTO_SEARCH_HINTS).filter(function (x, pos, arr) {
+    var allHints = semanticHints.concat(offlineExpansion.terms).concat(learnedExpansion.terms).concat(SUPPORTO_SEARCH_HINTS).filter(function (x, pos, arr) {
         return x && arr.indexOf(x) === pos;
     });
     var picked = allHints.filter(function (h) {
@@ -27366,9 +27460,17 @@ function supportoComputeResults(raw, onlineExpansion) {
     var q = supportoCanonicalQuery(raw);
     var queryConcepts = supportoDetectConcepts(q, true);
     var offlineExpansion = supportoOfflineQueryExpansion(q);
-    var extraTerms = offlineExpansion.terms.slice();
+    var learnedExpansion = supportoLearnedExpansionFor(q);
+    var extraTerms = offlineExpansion.terms.concat(learnedExpansion.terms).filter(function (x, pos, arr) {
+        return x && arr.indexOf(x) === pos;
+    });
     if (offlineExpansion.concepts.length) {
         queryConcepts = queryConcepts.concat(offlineExpansion.concepts).filter(function (x, pos, arr) {
+            return x && arr.indexOf(x) === pos;
+        });
+    }
+    if (learnedExpansion.concepts.length) {
+        queryConcepts = queryConcepts.concat(learnedExpansion.concepts).filter(function (x, pos, arr) {
             return x && arr.indexOf(x) === pos;
         });
     }
@@ -27387,7 +27489,9 @@ function supportoComputeResults(raw, onlineExpansion) {
     });
     var queryEmbedding = supportoBuildEmbedding(expanded, queryConcepts);
     var results = supportoGetSearchIndex().map(function (entry) {
-        return { entry: entry, score: supportoScoreEntry(entry, q, tokens, queryConcepts, queryEmbedding) };
+        var learnedKey = entry.sectionKey + ':' + entry.point;
+        var learnedBoost = learnedExpansion.best && learnedExpansion.best.indexOf(learnedKey) >= 0 ? 55 : 0;
+        return { entry: entry, score: supportoScoreEntry(entry, q, tokens, queryConcepts, queryEmbedding) + learnedBoost };
     }).filter(function (x) {
         return x.score > 0;
     }).sort(function (a, b) {
@@ -27536,7 +27640,9 @@ async function supportoGeminiExpandQuery(raw) {
 }
 
 function supportoScheduleOnlineSearch(raw, runId, localRows) {
-    if (!supportoShouldUseOnline(localRows)) return;
+    var q = supportoCanonicalQuery(raw || '');
+    if (!q || q.length < 3) return;
+    var shouldRefreshVisibleResults = supportoShouldUseOnline(localRows);
     if (supportoOnlineTimer) window.clearTimeout(supportoOnlineTimer);
     supportoOnlineTimer = window.setTimeout(function () {
         if (runId !== supportoOnlineRunId) return;
@@ -27546,9 +27652,12 @@ function supportoScheduleOnlineSearch(raw, runId, localRows) {
         }
         supportoGeminiExpandQuery(raw).then(function (expansion) {
             if (runId !== supportoOnlineRunId) return;
-            var host = document.getElementById('supporto-results');
-            if (!host || !expansion) return;
+            if (!expansion) return;
             var computed = supportoComputeResults(raw, expansion);
+            supportoLearnFromOnline(raw, expansion, computed);
+            supportoRenderSuggestions(raw);
+            var host = document.getElementById('supporto-results');
+            if (!host || !shouldRefreshVisibleResults) return;
             if (!computed.results.length) {
                 return;
             }
