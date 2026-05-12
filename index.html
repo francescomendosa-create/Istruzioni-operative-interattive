@@ -7170,6 +7170,7 @@
         inset 0 -12px 22px rgba(69, 39, 160, 0.08);
     padding: 16px;
     overflow: hidden;
+    isolation: isolate;
     transition: box-shadow 0.22s ease, transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 .quiz-gestione-verifica-folder:hover {
@@ -7206,12 +7207,12 @@
 }
 .quiz-gestione-verifica-folder[open] {
     grid-column: 1 / -1;
-    overflow: visible;
+    overflow: hidden;
     background:
         linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245, 241, 255, 0.98) 44%, rgba(232, 234, 246, 0.96) 100%),
         radial-gradient(circle at 8% 0%, rgba(255,255,255,1), transparent 38%),
         radial-gradient(circle at 100% 0%, rgba(66, 165, 245, 0.20), transparent 40%);
-    animation: quizGestioneDrawerOpen 0.34s cubic-bezier(0.2, 0.82, 0.22, 1);
+    animation: quizGestioneDrawerOpen 0.64s cubic-bezier(0.16, 0.84, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-summary {
     position: relative;
@@ -7266,17 +7267,20 @@
 }
 .quiz-gestione-verifica-folder-body {
     margin-top: 16px;
-    padding: 14px 12px 12px;
-    border-radius: 16px;
+    padding: 20px 14px 14px;
+    border-radius: 18px;
     border: 1px solid rgba(21, 101, 192, 0.12);
     background:
-        linear-gradient(180deg, rgba(227, 242, 253, 0.62), rgba(255,255,255,0.88)),
+        linear-gradient(180deg, rgba(49, 27, 96, 0.11) 0%, rgba(227, 242, 253, 0.68) 12%, rgba(255,255,255,0.92) 100%),
         repeating-linear-gradient(90deg, rgba(69, 39, 160, 0.035) 0 1px, transparent 1px 28px);
+    box-shadow:
+        inset 0 16px 20px rgba(49, 27, 96, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.9);
     display: flex;
     flex-direction: column;
     gap: 10px;
     transform-origin: top center;
-    animation: quizGestioneDrawerDocsOut 0.38s cubic-bezier(0.2, 0.82, 0.22, 1);
+    animation: quizGestioneDrawerDocsOut 0.72s cubic-bezier(0.16, 0.84, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-docs-title {
     margin: 0;
@@ -7289,13 +7293,16 @@
 .quiz-gestione-verifica-folder-docs {
     display: flex;
     flex-direction: column;
-    gap: 13px;
+    gap: 0;
     perspective: 1300px;
     transform-style: preserve-3d;
+    padding: 12px 4px 6px;
+    overflow: visible;
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card {
     width: 100%;
-    padding: 13px 15px;
+    margin-top: -7px;
+    padding: 15px 16px;
     border-radius: 8px 16px 16px 8px;
     transform-origin: left center;
     background:
@@ -7307,13 +7314,36 @@
         0 10px 22px rgba(49, 27, 96, 0.12),
         -5px 0 0 rgba(94, 53, 177, 0.2),
         inset 0 1px 0 rgba(255,255,255,0.95);
-    transition: transform 0.32s cubic-bezier(0.2, 0.82, 0.22, 1), box-shadow 0.24s ease, border-color 0.2s ease, background 0.22s ease;
+    transition:
+        transform 0.42s cubic-bezier(0.16, 0.84, 0.18, 1),
+        margin 0.32s ease,
+        box-shadow 0.28s ease,
+        border-color 0.22s ease,
+        background 0.24s ease;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:first-child {
+    margin-top: 0;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(1) {
+    z-index: 8;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(2) {
+    z-index: 7;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(3) {
+    z-index: 6;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(4) {
+    z-index: 5;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(n+5) {
+    z-index: 4;
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]) {
-    transform: perspective(1300px) rotateY(-10deg) translateX(0) translateZ(0);
+    transform: perspective(1300px) rotateY(-8deg) rotateX(1.5deg) translateX(0) translateY(0) translateZ(0);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]):hover {
-    transform: perspective(1300px) rotateY(-5deg) translateX(10px) translateZ(18px);
+    transform: perspective(1300px) rotateY(-4deg) rotateX(0deg) translateX(8px) translateY(-3px) translateZ(18px);
     border-color: rgba(94, 53, 177, 0.28);
     box-shadow:
         0 16px 30px rgba(49, 27, 96, 0.16),
@@ -7321,8 +7351,11 @@
         inset 0 1px 0 rgba(255,255,255,0.95);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] {
+    z-index: 20;
+    margin-top: 8px;
+    margin-bottom: 14px;
     border-radius: 6px 18px 18px 6px;
-    transform: perspective(1300px) rotateY(0deg) translateX(20px) translateZ(42px) scale(1.01);
+    transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(12px) translateY(-8px) translateZ(42px) scale(1.006);
     border-color: rgba(94, 53, 177, 0.30);
     background:
         linear-gradient(90deg, rgba(94, 53, 177, 0.22) 0 10px, rgba(255,255,255,0.96) 10px 16px, transparent 16px),
@@ -7332,25 +7365,26 @@
         0 24px 46px rgba(49, 27, 96, 0.23),
         -7px 0 0 rgba(94, 53, 177, 0.25),
         inset 0 1px 0 rgba(255,255,255,0.98);
-    animation: quizGestionePaperOut 0.42s cubic-bezier(0.18, 0.88, 0.22, 1);
+    animation: quizGestionePaperOut 0.58s cubic-bezier(0.16, 0.9, 0.18, 1);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] .quiz-gestione-verifica-card-body {
     animation: quizGestioneFascicoloBodyOpen 0.28s ease-out;
 }
 @keyframes quizGestioneDrawerOpen {
-    0% { transform: perspective(1400px) rotateX(-5deg) translateY(-4px) scale(0.992); opacity: 0.94; }
-    70% { transform: perspective(1400px) rotateX(1deg) translateY(1px) scale(1.004); opacity: 1; }
+    0% { transform: perspective(1400px) rotateX(-8deg) translateY(-5px) scale(0.99); opacity: 0.92; }
+    48% { transform: perspective(1400px) rotateX(3deg) translateY(2px) scale(1.006); opacity: 1; }
     100% { transform: perspective(1400px) rotateX(0deg) translateY(0) scale(1); opacity: 1; }
 }
 @keyframes quizGestioneDrawerDocsOut {
-    0% { opacity: 0; transform: perspective(1200px) rotateX(-8deg) translateY(-18px) translateZ(-30px); }
-    70% { opacity: 1; transform: perspective(1200px) rotateX(1deg) translateY(3px) translateZ(8px); }
+    0% { opacity: 0; transform: perspective(1200px) rotateX(-12deg) translateY(-28px) translateZ(-48px) scaleY(0.92); }
+    44% { opacity: 0.68; transform: perspective(1200px) rotateX(-4deg) translateY(-10px) translateZ(-14px) scaleY(0.98); }
+    78% { opacity: 1; transform: perspective(1200px) rotateX(1.5deg) translateY(4px) translateZ(10px) scaleY(1.01); }
     100% { opacity: 1; transform: perspective(1200px) rotateX(0deg) translateY(0) translateZ(0); }
 }
 @keyframes quizGestionePaperOut {
-    0% { transform: perspective(1300px) rotateY(-13deg) translateX(-8px) translateZ(-18px) scale(0.98); }
-    58% { transform: perspective(1300px) rotateY(2deg) translateX(24px) translateZ(56px) scale(1.018); }
-    100% { transform: perspective(1300px) rotateY(0deg) translateX(20px) translateZ(42px) scale(1.01); }
+    0% { transform: perspective(1300px) rotateY(-12deg) rotateX(2deg) translateX(-6px) translateY(2px) translateZ(-18px) scale(0.985); }
+    54% { transform: perspective(1300px) rotateY(2deg) rotateX(-1deg) translateX(16px) translateY(-11px) translateZ(58px) scale(1.014); }
+    100% { transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(12px) translateY(-8px) translateZ(42px) scale(1.006); }
 }
 @keyframes quizGestioneFascicoloBodyOpen {
     from { opacity: 0; transform: translateX(-14px) scaleX(0.98); }
@@ -12587,7 +12621,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605309';
+const APP_BUILD = '202605310';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
