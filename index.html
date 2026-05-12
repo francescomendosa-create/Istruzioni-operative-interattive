@@ -7152,6 +7152,106 @@
     border-radius: 8px;
 }
 
+.quiz-gestione-verifica-folder {
+    position: relative;
+    align-self: start;
+    border-radius: 18px;
+    border: 1px solid rgba(94, 53, 177, 0.18);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,255,0.98)),
+        radial-gradient(circle at 0% 0%, rgba(66, 165, 245, 0.12), transparent 34%);
+    box-shadow: 0 14px 32px rgba(49, 27, 96, 0.11), inset 0 1px 0 rgba(255,255,255,0.9);
+    padding: 16px;
+    overflow: hidden;
+}
+.quiz-gestione-verifica-folder::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, #42a5f5, #7e57c2);
+}
+.quiz-gestione-verifica-folder[open] {
+    grid-column: span 1;
+}
+.quiz-gestione-verifica-folder-summary {
+    position: relative;
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 0 22px 0 4px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.quiz-gestione-verifica-folder-summary::-webkit-details-marker {
+    display: none;
+}
+.quiz-gestione-verifica-folder-summary::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #1565c0;
+    font-size: 0.84rem;
+    font-weight: 900;
+}
+.quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-summary::after {
+    content: '▲';
+}
+.quiz-gestione-verifica-folder-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #1a237e;
+    font-size: clamp(0.86rem, 2.8cqw, 1.08rem);
+    font-weight: 900;
+    line-height: 1.15;
+}
+.quiz-gestione-verifica-folder-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 1px solid rgba(21, 101, 192, 0.18);
+    color: #0d47a1;
+    font-size: 0.72rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+.quiz-gestione-verifica-folder-body {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(21, 101, 192, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.quiz-gestione-verifica-folder-docs-title {
+    margin: 0;
+    color: #546e7a;
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.quiz-gestione-verifica-folder-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card {
+    padding: 14px;
+    box-shadow: 0 8px 20px rgba(49, 27, 96, 0.09), inset 0 1px 0 rgba(255,255,255,0.9);
+}
 
 .quiz-gestione-verifica-card {
     container-type: inline-size;
@@ -12372,7 +12472,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605306';
+const APP_BUILD = '202605307';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22165,6 +22265,58 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     return card;
 }
 
+function gestioneVerificaBuildUserFolder(userId, records) {
+    records = Array.isArray(records) ? records.slice() : [];
+    records.sort(function (a, b) {
+        var ar = a && a.testResult ? a.testResult : {};
+        var br = b && b.testResult ? b.testResult : {};
+        var at = Number(ar.submittedAtMs || ar.assignedAtMs || 0);
+        var bt = Number(br.submittedAtMs || br.assignedAtMs || 0);
+        return bt - at;
+    });
+
+    var first = records[0] && records[0].testResult ? records[0].testResult : {};
+    var folder = document.createElement('details');
+    folder.className = 'quiz-gestione-verifica-folder';
+
+    var summary = document.createElement('summary');
+    summary.className = 'quiz-gestione-verifica-folder-summary';
+    summary.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        folder.open = !folder.open;
+    });
+
+    var name = document.createElement('span');
+    name.className = 'quiz-gestione-verifica-folder-name';
+    name.textContent = first.userLabel || userId;
+    summary.appendChild(name);
+
+    var meta = document.createElement('span');
+    meta.className = 'quiz-gestione-verifica-folder-meta';
+    meta.textContent = records.length === 1 ? '1 documento' : records.length + ' documenti';
+    summary.appendChild(meta);
+    folder.appendChild(summary);
+
+    var body = document.createElement('div');
+    body.className = 'quiz-gestione-verifica-folder-body';
+
+    var title = document.createElement('p');
+    title.className = 'quiz-gestione-verifica-folder-docs-title';
+    title.textContent = 'Documenti raccolti';
+    body.appendChild(title);
+
+    var docs = document.createElement('div');
+    docs.className = 'quiz-gestione-verifica-folder-docs';
+    records.forEach(function (record) {
+        docs.appendChild(gestioneVerificaBuildResultCard(userId, record.packId, record.testResult));
+    });
+    body.appendChild(docs);
+    folder.appendChild(body);
+
+    return folder;
+}
+
 function gestioneVerificaStampaRisultato(testResult, userId) {
     var topics = gestioneVerificaExtractTopics(testResult);
     var passed = !!testResult.passed;
@@ -22392,18 +22544,38 @@ async function gestioneVerificaRender(options) {
             return;
         }
         var rendered = 0;
+        var groupedResults = [];
         userKeys.forEach(userId => {
             var userData = users[userId] || {};
+            var records = [];
 
             if (userData.tests) {
                 Object.keys(userData.tests).forEach(packId => {
                     var testResult = userData.tests[packId];
                     var resultAtMs = Number(testResult.submittedAtMs || testResult.assignedAtMs || 0);
                     if (resultAtMs < GESTIONE_TEST_RESET_AT_MS) return;
-                    rendered++;
-                    resultsList.appendChild(gestioneVerificaBuildResultCard(userId, packId, testResult));
+                    records.push({
+                        packId: packId,
+                        testResult: testResult,
+                        resultAtMs: resultAtMs
+                    });
                 });
             }
+            if (records.length) {
+                rendered += records.length;
+                records.sort(function (a, b) { return b.resultAtMs - a.resultAtMs; });
+                groupedResults.push({
+                    userId: userId,
+                    records: records,
+                    latestAtMs: records[0].resultAtMs
+                });
+            }
+        });
+        groupedResults.sort(function (a, b) {
+            return b.latestAtMs - a.latestAtMs;
+        });
+        groupedResults.forEach(function (group) {
+            resultsList.appendChild(gestioneVerificaBuildUserFolder(group.userId, group.records));
         });
         if (!rendered) {
             gestioneVerificaEmptyMessage(resultsList, options.emptyMessage);
