@@ -336,6 +336,27 @@
             justify-content: center;
             gap: 8px 10px;
         }
+        .header-quiz-actions.header-quiz-actions--quiz-disabled {
+            display: grid;
+            grid-template-columns: minmax(132px, auto) minmax(132px, auto);
+            justify-content: center;
+            justify-items: center;
+            align-items: center;
+            gap: 8px 10px;
+        }
+        .header-quiz-actions--quiz-disabled .btn-test-gestione {
+            grid-column: 1;
+            grid-row: 1;
+        }
+        .header-quiz-actions--quiz-disabled .btn-diagnostica {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        .header-quiz-actions--quiz-disabled .btn-supporto {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            justify-self: center;
+        }
 
         .btn-side {
             padding: 8px 15px;
@@ -10020,6 +10041,18 @@
                 justify-self: center;
                 margin-top: 1px;
             }
+            .header-quiz-actions.header-quiz-actions--quiz-disabled .btn-test-gestione {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            .header-quiz-actions.header-quiz-actions--quiz-disabled .btn-diagnostica {
+                grid-column: 2;
+                grid-row: 1;
+            }
+            .header-quiz-actions.header-quiz-actions--quiz-disabled .btn-supporto {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
         }
 
         /*
@@ -13135,7 +13168,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605356';
+const APP_BUILD = '202605357';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -16353,8 +16386,10 @@ function quizShouldRestorePanelOpen() {
 
 function applyQuizVisibility() {
     const quizNav = document.querySelector('.fixed-header .btn-quiz');
+    const quizActions = document.querySelector('.fixed-header .header-quiz-actions');
     const quizPanel = document.getElementById('quiz-panel');
     if (quizNav) quizNav.style.display = quizFeatureEnabled ? '' : 'none';
+    if (quizActions) quizActions.classList.toggle('header-quiz-actions--quiz-disabled', !quizFeatureEnabled);
     if (quizPanel && !quizFeatureEnabled) {
         quizStopQuizAmbientMusic();
         quizStopSpeech();
