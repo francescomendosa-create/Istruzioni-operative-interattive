@@ -5931,6 +5931,20 @@
             gap: 6px;
             margin: 0 0 12px;
         }
+        .supporto-ai-status {
+            margin: -4px 0 10px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #eef7ff;
+            border: 1px solid #bbdefb;
+            color: #1565c0;
+            font-size: 0.76rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+        .supporto-ai-status[hidden] {
+            display: none;
+        }
         .supporto-chip {
             border: 1px solid #c5cae9;
             border-radius: 999px;
@@ -11812,6 +11826,7 @@ function dismissAppSplash() {
             <input id="supporto-input" type="search" placeholder="Esempio: problema polielettrolita, schiuma nera, PAC, aria..." autocomplete="off" oninput="supportoSearchChanged()" />
         </label>
         <div id="supporto-suggest" class="supporto-suggest" aria-label="Ricerche correlate"></div>
+        <div id="supporto-ai-status" class="supporto-ai-status" hidden></div>
         <div id="supporto-results" class="supporto-results" aria-live="polite"></div>
     </div>
 </div>
@@ -12928,7 +12943,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605337';
+const APP_BUILD = '202605339';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -26783,6 +26798,8 @@ const SUPPORTO_SEARCH_HINTS = [
     'COD alti',
     'chiarificato torbido',
     'carico organico elevato',
+    'biologico non respira',
+    'reattore in carenza di ossigeno',
     'fango nero',
     'azioni e controlli'
 ];
@@ -26832,8 +26849,8 @@ const SUPPORTO_SEMANTIC_RULES = [
     {
         id: 'aria_ossigeno',
         label: 'aria e ossigenazione',
-        query: /aria|ossigen|o2|o\s*2|soffiant|aeraz|aereaz|insufflag|bolle|diffusor|zona\s+morta/,
-        entry: /aria|ossigen|o2|soffiant|aeraz|aereaz|insufflag|diffusor|carrier/,
+        query: /aria|ossigen|o2|o\s*2|soffiant|aeraz|aereaz|insufflag|bolle|diffusor|zona\s+morta|biologico\s+non\s+respir|reattore\s+non\s+respir|asfiss|soffoc/,
+        entry: /aria|ossigen|o2|soffiant|aeraz|aereaz|insufflag|diffusor|carrier|respir|asfiss/,
         priority: /insufflaggio\s+d.aria|aereazione\s+uniforme/
     },
     {
@@ -26859,6 +26876,11 @@ const SUPPORTO_SEMANTIC_RULES = [
     }
 ];
 let supportoSearchCache = null;
+let supportoOnlineRunId = 0;
+let supportoOnlineTimer = null;
+let supportoOnlineCache = {};
+const SUPPORTO_EMBEDDINGS_LS = 'io-supporto-embeddings-offline-v1';
+const SUPPORTO_EMBEDDING_DIMS = 96;
 
 function supportoNormalizeText(s) {
     return String(s || '')
@@ -26938,6 +26960,23 @@ function supportoGetSemanticRule(id) {
         if (SUPPORTO_SEMANTIC_RULES[i].id === id) return SUPPORTO_SEMANTIC_RULES[i];
     }
     return null;
+}
+
+function supportoValidConceptIds(ids) {
+    var out = [];
+    if (!Array.isArray(ids)) return out;
+    ids.forEach(function (id) {
+        id = String(id || '').trim();
+        if (id && supportoGetSemanticRule(id) && out.indexOf(id) === -1) out.push(id);
+    });
+    return out;
+}
+
+function supportoAiStatusShow(msg) {
+    var el = document.getElementById('supporto-ai-status');
+    if (!el) return;
+    el.textContent = '';
+    el.setAttribute('hidden', '');
 }
 
 function supportoKindForMatch(entry, queryNorm, queryConcepts) {
@@ -27020,8 +27059,107 @@ function supportoBuildSearchIndex() {
 }
 
 function supportoGetSearchIndex() {
-    if (!supportoSearchCache) supportoSearchCache = supportoBuildSearchIndex();
+    if (!supportoSearchCache) {
+        supportoSearchCache = supportoBuildSearchIndex();
+        supportoAttachOfflineEmbeddings(supportoSearchCache);
+    }
     return supportoSearchCache;
+}
+
+function supportoEmbeddingHash(s) {
+    s = String(s || '');
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return Math.abs(h);
+}
+
+function supportoEmbeddingTerms(text, concepts) {
+    var base = supportoCanonicalQuery(text)
+        .replace(/[^\wàèéìòù]+/gi, ' ')
+        .split(/\s+/)
+        .filter(function (t) { return t && t.length > 1; });
+    var terms = base.slice();
+    (concepts || []).forEach(function (id) {
+        var rule = supportoGetSemanticRule(id);
+        if (!rule) return;
+        terms.push(id);
+        supportoCanonicalQuery(rule.label || '').split(/\s+/).forEach(function (t) {
+            if (t && t.length > 1) terms.push(t);
+        });
+    });
+    for (var i = 0; i < base.length - 1; i++) {
+        terms.push(base[i] + '_' + base[i + 1]);
+    }
+    return terms;
+}
+
+function supportoBuildEmbedding(text, concepts) {
+    var vec = {};
+    var terms = supportoEmbeddingTerms(text, concepts);
+    for (var i = 0; i < terms.length; i++) {
+        var term = terms[i];
+        var idx = supportoEmbeddingHash(term) % SUPPORTO_EMBEDDING_DIMS;
+        var weight = term.indexOf('_') >= 0 ? 1.35 : 1;
+        if (String(term).indexOf('cod') >= 0 || String(term).indexOf('ossigen') >= 0 || String(term).indexOf('schium') >= 0) weight += 0.35;
+        vec[idx] = (vec[idx] || 0) + weight;
+    }
+    var norm = 0;
+    Object.keys(vec).forEach(function (k) { norm += vec[k] * vec[k]; });
+    norm = Math.sqrt(norm) || 1;
+    Object.keys(vec).forEach(function (k) { vec[k] = Math.round((vec[k] / norm) * 10000) / 10000; });
+    return vec;
+}
+
+function supportoEmbeddingCosine(a, b) {
+    if (!a || !b) return 0;
+    var dot = 0;
+    var keys = Object.keys(a);
+    for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (b[k]) dot += a[k] * b[k];
+    }
+    return dot;
+}
+
+function supportoEmbeddingsSignature(index) {
+    var src = String(typeof APP_BUILD !== 'undefined' ? APP_BUILD : '') + '|' + index.length + '|';
+    for (var i = 0; i < index.length; i++) {
+        src += index[i].sectionKey + ':' + index[i].point + ':' + supportoEmbeddingHash(index[i].allNorm + index[i].detailNorm) + '|';
+    }
+    return String(supportoEmbeddingHash(src));
+}
+
+function supportoAttachOfflineEmbeddings(index) {
+    if (!Array.isArray(index) || !index.length) return;
+    var sig = supportoEmbeddingsSignature(index);
+    var saved = null;
+    try {
+        saved = JSON.parse(localStorage.getItem(SUPPORTO_EMBEDDINGS_LS) || 'null');
+    } catch (eRead) { saved = null; }
+    if (!saved || saved.signature !== sig || !Array.isArray(saved.items) || saved.items.length !== index.length) {
+        saved = {
+            v: 1,
+            signature: sig,
+            items: index.map(function (entry) {
+                return {
+                    key: entry.sectionKey + ':' + entry.point,
+                    vector: supportoBuildEmbedding(
+                        [entry.title, entry.question, entry.detail, entry.tags.join(' ')].join(' '),
+                        entry.concepts
+                    )
+                };
+            })
+        };
+        try {
+            localStorage.setItem(SUPPORTO_EMBEDDINGS_LS, JSON.stringify(saved));
+        } catch (eWrite) { /* ignore */ }
+    }
+    for (var i = 0; i < index.length; i++) {
+        index[i].embedding = saved.items[i] && saved.items[i].vector ? saved.items[i].vector : null;
+    }
 }
 
 function supportoRenderSuggestions(query) {
@@ -27056,7 +27194,7 @@ function supportoRenderSuggestions(query) {
     });
 }
 
-function supportoScoreEntry(entry, queryNorm, tokens, queryConcepts) {
+function supportoScoreEntry(entry, queryNorm, tokens, queryConcepts, queryEmbedding) {
     if (!queryNorm) return 0;
     var score = 0;
     if (entry.allNorm.indexOf(queryNorm) >= 0) score += 42;
@@ -27081,44 +27219,41 @@ function supportoScoreEntry(entry, queryNorm, tokens, queryConcepts) {
             if (entry.questionNorm && rule && rule.entry && rule.entry.test(entry.questionNorm)) score += 18;
         }
     }
+    var semanticScore = supportoEmbeddingCosine(queryEmbedding, entry.embedding);
+    if (semanticScore > 0.16) score += Math.round(semanticScore * 95);
     return score;
 }
 
-function supportoSearchChanged() {
-    var input = document.getElementById('supporto-input');
-    var host = document.getElementById('supporto-results');
-    if (!host) return;
-    var raw = input ? input.value : '';
-    supportoRenderSuggestions(raw);
-    host.innerHTML = '';
+function supportoComputeResults(raw, onlineExpansion) {
     var q = supportoCanonicalQuery(raw);
-    if (!q) {
-        var intro = document.createElement('div');
-        intro.className = 'supporto-empty';
-        intro.textContent = 'Inizia a scrivere una problematica: compariranno ricerche correlate collegate a domande, rischi, azioni e controlli presenti nelle schede.';
-        host.appendChild(intro);
-        return;
-    }
     var queryConcepts = supportoDetectConcepts(q, true);
+    var extraTerms = [];
+    if (onlineExpansion && Array.isArray(onlineExpansion.terms)) {
+        extraTerms = onlineExpansion.terms.map(function (x) { return supportoCanonicalQuery(x); }).filter(Boolean);
+    }
+    if (onlineExpansion && Array.isArray(onlineExpansion.concepts)) {
+        queryConcepts = queryConcepts.concat(supportoValidConceptIds(onlineExpansion.concepts)).filter(function (x, pos, arr) {
+            return x && arr.indexOf(x) === pos;
+        });
+    }
     var conceptTokens = supportoConceptLabels(queryConcepts).join(' ');
-    var tokens = (q + ' ' + supportoCanonicalQuery(conceptTokens)).split(/\s+/).filter(function (x, pos, arr) {
+    var expanded = [q, conceptTokens].concat(extraTerms).join(' ');
+    var tokens = supportoCanonicalQuery(expanded).split(/\s+/).filter(function (x, pos, arr) {
         return x && x.length > 1 && arr.indexOf(x) === pos;
     });
+    var queryEmbedding = supportoBuildEmbedding(expanded, queryConcepts);
     var results = supportoGetSearchIndex().map(function (entry) {
-        return { entry: entry, score: supportoScoreEntry(entry, q, tokens, queryConcepts) };
+        return { entry: entry, score: supportoScoreEntry(entry, q, tokens, queryConcepts, queryEmbedding) };
     }).filter(function (x) {
         return x.score > 0;
     }).sort(function (a, b) {
         return b.score - a.score;
     }).slice(0, 10);
-    if (!results.length) {
-        var empty = document.createElement('div');
-        empty.className = 'supporto-empty';
-        empty.textContent = 'Nessuna corrispondenza trovata. Prova con parole come PAC, polielettrolita, schiuma, aria, torbidità, olio, fango o ossigeno.';
-        host.appendChild(empty);
-        return;
-    }
-    results.forEach(function (row) {
+    return { q: q, queryConcepts: queryConcepts, results: results };
+}
+
+function supportoRenderResultRows(host, rows, q, queryConcepts) {
+    rows.forEach(function (row) {
         var entry = row.entry;
         var card = document.createElement('button');
         card.type = 'button';
@@ -27158,6 +27293,122 @@ function supportoSearchChanged() {
         if (entry.tags.length) card.appendChild(tags);
         host.appendChild(card);
     });
+}
+
+function supportoShouldUseOnline(rows) {
+    if (!rows || rows.length < 3) return true;
+    return Number(rows[0] && rows[0].score || 0) < 85;
+}
+
+async function supportoGeminiExpandQuery(raw) {
+    var q = String(raw || '').trim();
+    var key = supportoCanonicalQuery(q);
+    if (!key || key.length < 3) return null;
+    if (supportoOnlineCache[key]) return supportoOnlineCache[key];
+    if (!navigator.onLine) throw new Error('supporto_offline');
+    var cfg = typeof quizResolveAiConfig === 'function' ? quizResolveAiConfig() : { textKey: '' };
+    var apiKey = String(cfg && cfg.textKey || '').trim();
+    if (!apiKey) throw new Error('supporto_gemini_missing_key');
+    var allowed = SUPPORTO_SEMANTIC_RULES.map(function (r) {
+        return r.id + '=' + r.label;
+    }).join('; ');
+    var prompt =
+        'Sei un assistente tecnico per depurazione acque industriali. ' +
+        'Devi interpretare una ricerca utente e restituire SOLO JSON valido, senza markdown. ' +
+        'Non inventare risposte operative: devi solo generare parole chiave per cercare dentro una banca dati locale.\n' +
+        'Frase utente: "' + q.replace(/"/g, "'") + '"\n' +
+        'Concetti ammessi: ' + allowed + '\n' +
+        'Formato JSON: {"terms":["termine tecnico 1","termine tecnico 2"],"concepts":["id_concetto"]}\n' +
+        'Massimo 8 terms e massimo 4 concepts. Esempio: biologico non respira -> terms ossigeno basso, soffianti, aerazione insufficiente, MBBR, biofilm; concepts aria_ossigeno.';
+    var controller = new AbortController();
+    var timer = window.setTimeout(function () {
+        try { controller.abort(); } catch (eAbort) { /* ignore */ }
+    }, 6500);
+    try {
+        var res = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
+                encodeURIComponent(apiKey),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.15, maxOutputTokens: 220 }
+                })
+            }
+        );
+        if (!res.ok) throw new Error('supporto_gemini_http_' + String(res.status || 0));
+        var data = await res.json();
+        var text = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        var rawText = text.map(function (p) { return p && p.text ? p.text : ''; }).join('\n').trim();
+        var jsonText = rawText;
+        var m = rawText.match(/\{[\s\S]*\}/);
+        if (m) jsonText = m[0];
+        var parsed = JSON.parse(jsonText);
+        var out = {
+            terms: Array.isArray(parsed.terms) ? parsed.terms.slice(0, 8).map(function (x) {
+                return supportoPlainText(String(x || '')).slice(0, 80);
+            }).filter(Boolean) : [],
+            concepts: supportoValidConceptIds(parsed.concepts || []).slice(0, 4)
+        };
+        supportoOnlineCache[key] = out;
+        return out;
+    } finally {
+        window.clearTimeout(timer);
+    }
+}
+
+function supportoScheduleOnlineSearch(raw, runId, localRows) {
+    if (!supportoShouldUseOnline(localRows)) return;
+    if (supportoOnlineTimer) window.clearTimeout(supportoOnlineTimer);
+    supportoOnlineTimer = window.setTimeout(function () {
+        if (runId !== supportoOnlineRunId) return;
+        var cfg = typeof quizResolveAiConfig === 'function' ? quizResolveAiConfig() : { textKey: '' };
+        if (!cfg || !String(cfg.textKey || '').trim()) {
+            return;
+        }
+        supportoGeminiExpandQuery(raw).then(function (expansion) {
+            if (runId !== supportoOnlineRunId) return;
+            var host = document.getElementById('supporto-results');
+            if (!host || !expansion) return;
+            var computed = supportoComputeResults(raw, expansion);
+            if (!computed.results.length) {
+                return;
+            }
+            host.innerHTML = '';
+            supportoRenderResultRows(host, computed.results, computed.q, computed.queryConcepts);
+        }).catch(function () {
+            if (runId !== supportoOnlineRunId) return;
+        });
+    }, 550);
+}
+
+function supportoSearchChanged() {
+    var input = document.getElementById('supporto-input');
+    var host = document.getElementById('supporto-results');
+    if (!host) return;
+    var runId = ++supportoOnlineRunId;
+    var raw = input ? input.value : '';
+    supportoRenderSuggestions(raw);
+    supportoAiStatusShow('');
+    host.innerHTML = '';
+    var computed = supportoComputeResults(raw);
+    if (!computed.q) {
+        var intro = document.createElement('div');
+        intro.className = 'supporto-empty';
+        intro.textContent = 'Inizia a scrivere una problematica: compariranno ricerche correlate collegate a domande, rischi, azioni e controlli presenti nelle schede.';
+        host.appendChild(intro);
+        return;
+    }
+    if (!computed.results.length) {
+        var empty = document.createElement('div');
+        empty.className = 'supporto-empty';
+        empty.textContent = 'Nessuna corrispondenza offline trovata. Prova con parole come PAC, polielettrolita, schiuma, aria, torbidità, olio, fango o ossigeno.';
+        host.appendChild(empty);
+    }
+    supportoRenderResultRows(host, computed.results, computed.q, computed.queryConcepts);
+    supportoScheduleOnlineSearch(raw, runId, computed.results);
 }
 
 function showSupportoModal() {
