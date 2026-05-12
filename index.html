@@ -8162,6 +8162,7 @@
             min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
+            overflow-anchor: none;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
             scroll-padding-bottom: 0;
@@ -8169,6 +8170,11 @@
             text-align: left;
             scrollbar-color: rgba(94, 53, 177, 0.35) transparent;
             scrollbar-width: thin;
+        }
+        #quiz-gestione-test-list .gestione-q-card,
+        #quiz-gestione-test-list .gestione-answer-slot,
+        #quiz-gestione-test-list textarea {
+            overflow-anchor: none;
         }
         #quiz-gestione-test-overlay.quiz-gestione--solo-utente #quiz-gestione-test-list {
             overscroll-behavior-y: none;
@@ -11642,7 +11648,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605291</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605293</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11793,7 +11799,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605291</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605293</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12240,7 +12246,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605291';
+const APP_BUILD = '202605293';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22852,6 +22858,46 @@ function gestioneDomandeFitAllGestioneFields() {
     gestioneDomandeFitAllAnswerTextareas();
 }
 
+function gestioneDomandeIsEditorListStable() {
+    try {
+        var overlay = document.getElementById('quiz-gestione-test-overlay');
+        var panel = document.getElementById('quiz-gestione-panel-crea');
+        return !!(
+            quizGestioneDomandeEditorCompleto &&
+            overlay &&
+            overlay.classList.contains('visible') &&
+            panel &&
+            !panel.hidden
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
+function gestioneDomandeCaptureListScroll(root) {
+    if (!root || !gestioneDomandeIsEditorListStable()) return null;
+    return {
+        top: root.scrollTop || 0,
+        left: root.scrollLeft || 0
+    };
+}
+
+function gestioneDomandeRestoreListScroll(root, snap) {
+    if (!root || !snap || !gestioneDomandeIsEditorListStable()) return;
+    try {
+        var maxTop = Math.max(0, root.scrollHeight - root.clientHeight);
+        root.scrollTop = Math.min(Math.max(0, snap.top), maxTop);
+        root.scrollLeft = snap.left || 0;
+    } catch (e) { /* ignore */ }
+}
+
+function gestioneDomandeFitAllGestioneFieldsStable(root) {
+    root = root || document.getElementById('quiz-gestione-test-list');
+    var snap = gestioneDomandeCaptureListScroll(root);
+    gestioneDomandeFitAllGestioneFields();
+    gestioneDomandeRestoreListScroll(root, snap);
+}
+
 function gestioneDomandeEnsureResizeListener() {
     if (window._gestioneDomandeResizeFitBound) return;
     window._gestioneDomandeResizeFitBound = true;
@@ -22862,7 +22908,7 @@ function gestioneDomandeEnsureResizeListener() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function () {
                 var o = document.getElementById('quiz-gestione-test-overlay');
-                if (o && o.classList.contains('visible')) gestioneDomandeFitAllGestioneFields();
+                if (o && o.classList.contains('visible')) gestioneDomandeFitAllGestioneFieldsStable();
             }, 120);
         },
         { passive: true }
@@ -23186,6 +23232,7 @@ function gestioneDomandeBuildCard(i, slot) {
 function gestioneDomandeRender() {
     var root = document.getElementById('quiz-gestione-test-list');
     if (!root) return;
+    var scrollSnap = gestioneDomandeCaptureListScroll(root);
     var data = gestioneDomandeLoad();
     gestioneSlotRevertBaselineInitFromLoadedData(data);
     var nq = gestioneConfigLoad().numQuestions;
@@ -23212,11 +23259,14 @@ function gestioneDomandeRender() {
     for (var i = 0; i < nq; i++) {
         root.appendChild(gestioneDomandeBuildCard(i, data[i]));
     }
+    gestioneDomandeRestoreListScroll(root, scrollSnap);
     if (quizGestioneDomandeEditorCompleto) gestioneRenderDestinatariBadges();
     requestAnimationFrame(function () {
-        gestioneDomandeFitAllGestioneFields();
+        gestioneDomandeFitAllGestioneFieldsStable(root);
+        gestioneDomandeRestoreListScroll(root, scrollSnap);
         requestAnimationFrame(function () {
-            gestioneDomandeFitAllGestioneFields();
+            gestioneDomandeFitAllGestioneFieldsStable(root);
+            gestioneDomandeRestoreListScroll(root, scrollSnap);
         });
     });
     if (quizGestioneDomandeEditorCompleto === false) gestioneTestButtonStateUpdate();
@@ -25308,6 +25358,8 @@ const db = {
             { c: "Azione COD", a: "Mettere in serie i sediflottatori" },
             { c: "Ossigeno (O2)", a: "Se in eccesso provoca schiuma, usare un solo compressore" }
           ],
+          goto: { s: "cf", p: 1 },
+          gotoLabel: "valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
           tag: "Schiuma" 
         },
         { p: 4, q: "Presenza di schiuma nera?",
@@ -29317,6 +29369,58 @@ function scheduleMbrViewportRestore() {
     setTimeout(() => { mbrViewportSticky = null; }, 320);
 }
 
+function syncCf1CorrelationUpdate() {
+    const cf1ResDiv = document.getElementById('r-cf-1');
+    if (!cf1ResDiv) return;
+
+    cf1ResDiv.querySelectorAll('.correlation-cf1-mbbr-foam').forEach((el) => el.remove());
+
+    const foamCorr = correlationYes['mbr-3'] === true && correlationYes['cf-1'] === true;
+    if (!foamCorr) return;
+
+    const ackFoam = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf1-ack-schiuma-meta-vasca') === '1');
+    const blinkFoam = !ackFoam;
+    const foamBody = `
+        <div class="correlation-update-box correlation-update-box-biomass">
+            <strong>DESCRIZIONE:</strong><br>
+            Se nell'MBBR hai piu di meta vasca invasa dalla schiuma, il problema si risolve nell'immediato con l'antischiuma, ma per fermare l'origine del fenomeno devi "correre a monte" e ispezionare il Chimico-Fisico.<br><br>
+            Ecco i controlli fondamentali da fare sul chiarificato del Chimico-Fisico per capire perche l'MBBR sta "montando":<br><br>
+            <strong>1. Controllo visivo della torbidita - Il "lattiginoso"</strong><br>
+            Il chiarificato deve essere limpido. Se lo vedi opalescente o simile a "latte annacquato", significa che tensioattivi o solidi colloidali non sono stati separati. Nell'MBBR questi residui agiscono come sapone: l'aria delle soffianti li trasforma rapidamente in schiuma densa.<br><br>
+            <strong>2. Verifica del dosaggio dei reagenti</strong><br>
+            Un errore nel chimico-fisico e una delle cause principali della schiuma a valle. Controlla il coagulante, come cloruro ferrico o policloruro di alluminio: se dosato troppo poco non rompe le cariche dei tensioattivi, se dosato troppo puo acidificare l'acqua e stressare i batteri dell'MBBR.<br><br>
+            Controlla anche il flocculante/polielettrolita: se il fiocco di fango non si forma bene, i solidi non precipitano e finiscono nel biologico. Verifica che la pompa del polielettrolita non sia bloccata e che il prodotto non sia terminato.<br><br>
+            <strong>3. Presenza di sostanze oleose o grassi</strong><br>
+            Ispeziona la superficie del chiarificatore chimico-fisico cercando macchie oleose o velature iridescenti. Se grassi e oli non vengono rimossi, arrivano nell'MBBR e generano una schiuma viscosa e scura, difficile da abbattere anche con l'antischiuma.<br><br>
+            <strong>4. Valore del pH</strong><br>
+            Controlla il pHmetro in uscita dal chimico-fisico. Il range ideale per l'MBBR e tra 6.5 e 8.0. Sbalzi repentini di pH dovuti a cattivo funzionamento del chimico-fisico possono danneggiare il biofilm sui carrier; i batteri morti rilasciano proteine che alimentano la schiuma biologica.
+        </div>
+    `;
+
+    const inject = `
+        <details id="cf1-corr-mbbr-foam" class="correlation-mbbr-status-accordion correlation-cf1-mbbr-foam${blinkFoam ? ' cf2-stato-blink' : ''}">
+            <summary class="correlation-mbbr-status-summary">
+                <span class="correlation-mbbr-status-title">
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
+                    <span class="correlation-mbbr-status-line2">-Presenza di schiuma su meta vasca MBBR-</span>
+                </span>
+            </summary>
+            <div class="correlation-mbbr-status-body">${foamBody}</div>
+        </details>`;
+
+    cf1ResDiv.innerHTML += inject;
+    const det = document.getElementById('cf1-corr-mbbr-foam');
+    if (det) {
+        det.addEventListener('toggle', function cf1CorrToggle() {
+            if (!det.open) return;
+            det.classList.remove('cf2-stato-blink');
+            try {
+                sessionStorage.setItem('checklist-cf1-ack-schiuma-meta-vasca', '1');
+            } catch (e) {}
+        });
+    }
+}
+
 function syncCf2CorrelationUpdate() {
     const cf2ResDiv = document.getElementById('r-cf-2');
     if (!cf2ResDiv) return;
@@ -29431,6 +29535,7 @@ function clearAnswerToggle(s, p) {
         });
         log = log.filter((l) => !(l.s === s && l.p === p));
     }
+    syncCf1CorrelationUpdate();
     syncCf2CorrelationUpdate();
     updateRealTimeReport();
 }
@@ -29619,13 +29724,15 @@ function check(s, p, val, btn) {
         }
 
         if (item.goto) {
-            let buttonText = `ANALIZZA CORRELAZIONE (${item.goto.s.toUpperCase()} P.${item.goto.p})`;
+            let buttonText = item.gotoLabel || `ANALIZZA CORRELAZIONE (${item.goto.s.toUpperCase()} P.${item.goto.p})`;
             let buttonStyle = "";
             let buttonAnimation = "";
             if (s === 'cf' && p === 2) {
                 buttonText = "CORRELAZIONE — Possibile impatto su MBBR";
                 buttonStyle = "background: #dc2626; border-color: #dc2626;";
                 buttonAnimation = "";
+            } else if (s === 'mbr' && p === 3) {
+                buttonStyle = "background: #dc2626; border-color: #dc2626;";
             }
             const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
             if (s === 'cf' && p === 2) {
@@ -29674,6 +29781,10 @@ function check(s, p, val, btn) {
         }
         resDiv.innerHTML = okHtml;
         restoreRiskAckForRes(resDiv);
+    }
+
+    if ((s === 'cf' && p === 1) || (s === 'mbr' && p === 3)) {
+        syncCf1CorrelationUpdate();
     }
 
     if (s === 'cf' && p === 2) {
