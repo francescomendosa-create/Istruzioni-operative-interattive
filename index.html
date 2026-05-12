@@ -11642,7 +11642,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605290</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605291</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11793,7 +11793,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605290</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605291</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12240,7 +12240,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605290';
+const APP_BUILD = '202605291';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -25369,7 +25369,84 @@ const SUPPORTO_SEARCH_HINTS = [
     'fango marrone',
     'cono Imhoff',
     'ossigeno basso',
+    'acqua sporca',
+    'COD alti',
+    'chiarificato torbido',
+    'carico organico elevato',
+    'fango nero',
     'azioni e controlli'
+];
+const SUPPORTO_SEMANTIC_RULES = [
+    {
+        id: 'chiarificato_sporco',
+        label: 'chiarificato sporco / torbidità',
+        query: /acqua\s+(sporca|torbida|non\s+pulita|scura)|chiarificat|torbid|ntu|solidi\s+sospesi|uscita\s+sporca|acqua\s+non\s+limpida/,
+        entry: /acqua\s+in\s+uscita\s+chiarificata\s+e\s+pulita|chiarificat|torbid|ntu|solidi\s+sospesi|acqua\s+in\s+uscita\s+torbida/,
+        priority: /acqua\s+in\s+uscita\s+chiarificata\s+e\s+pulita/
+    },
+    {
+        id: 'cod_alto',
+        label: 'COD alto / carico organico',
+        query: /cod\s*(alto|alti|elevat|fuori|aument|tropp)|c\s*o\s*d|carico\s+organico|shock\s+load|inquinant/,
+        entry: /cod|carico\s+organico|shock\s+load|abbattimento|biologico|biomassa|chiarificato|fango\s+nero/,
+        priority: /cod|fango\s+si\s+presenta\s+nero|acqua\s+in\s+uscita\s+chiarificata\s+e\s+pulita/
+    },
+    {
+        id: 'polielettrolita',
+        label: 'polielettrolita / PAM',
+        query: /polielettrolit|pam|poly|floccul|floc|fiocc|diluit|viscos|filante|colla|polimero/,
+        entry: /polielettrolit|pam|poly|floccul|floc|fiocc|diluit|viscos|filante|polimero/,
+        priority: /polielettrolita.*arriva|polielettrolita\s+troppo\s+diluito/
+    },
+    {
+        id: 'pac_coagulazione',
+        label: 'coagulazione / PAC',
+        query: /pac|coagul|sali\s+di\s+ferro|colloid|carica|prodotto\s+chimico|chimica/,
+        entry: /pac|coagul|sali\s+di\s+ferro|colloid|carica|miscelazione|mixer/,
+        priority: /coagulante.*pac.*arriva|ph\s+a\s+norma/
+    },
+    {
+        id: 'schiuma_biologico',
+        label: 'schiuma biologica',
+        query: /schium|spuma|foam|bolle\s+superficiali|schiuma\s+(nera|scura|bianca)|vasca\s+con\s+schiuma/,
+        entry: /schium|spuma|biofilm|tensioattiv|olio|fango\s+nero|biologico\s+mbbr/,
+        priority: /schiuma\s+presente|fango\s+si\s+presenta\s+nero/
+    },
+    {
+        id: 'olio_chiarificato',
+        label: 'olio nel chiarificato',
+        query: /olio|oli|oleos|grasso|grassi|patina|film\s+superficiale|idrofo/,
+        entry: /olio|oli|oleos|grasso|film\s+superficiale|raschiator|chiarificato/,
+        priority: /tracce\s+di\s+olio/
+    },
+    {
+        id: 'aria_ossigeno',
+        label: 'aria e ossigenazione',
+        query: /aria|ossigen|o2|o\s*2|soffiant|aeraz|aereaz|insufflag|bolle|diffusor|zona\s+morta/,
+        entry: /aria|ossigen|o2|soffiant|aeraz|aereaz|insufflag|diffusor|carrier/,
+        priority: /insufflaggio\s+d.aria|aereazione\s+uniforme/
+    },
+    {
+        id: 'flottazione_saturatore',
+        label: 'flottazione e saturatore',
+        query: /flottaz|sediflott|saturator|microboll|acqua\s+bianca|pressione|ricircolo|daf/,
+        entry: /flottaz|sediflott|saturator|microboll|acqua\s+bianca|pressione|ricircolo|daf/,
+        priority: /aria\s+di\s+flottazione|saturatore/
+    },
+    {
+        id: 'fango_anomalo',
+        label: 'fango anomalo',
+        query: /fango\s+(nero|scuro|marrone|chiaro|leggero|pesante)|cono|imhoff|settic|odore|h2s|uova/,
+        entry: /fango\s+(nero|scuro|marrone|chiaro|leggero|pesante)|cono|imhoff|settic|odore|h2s|biomassa/,
+        priority: /fango\s+si\s+presenta|cono/
+    },
+    {
+        id: 'azioni_controlli',
+        label: 'azioni e controlli',
+        query: /cosa\s+fare|azione|azioni|controll|verific|regol|pompa|valvol|manutenz|dcs|dosagg|come\s+intervenire/,
+        entry: /azione|azioni|controll|verific|regol|pompa|valvol|manutenz|dcs|dosagg/,
+        priority: /verificare|controllo|azione/
+    }
 ];
 let supportoSearchCache = null;
 
@@ -25378,6 +25455,16 @@ function supportoNormalizeText(s) {
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase();
+}
+
+function supportoCanonicalQuery(s) {
+    return supportoNormalizeText(s)
+        .replace(/\bc\s+o\s+d\b/g, 'cod')
+        .replace(/\bo\s+2\b/g, 'o2')
+        .replace(/\bp\s+a\s+c\b/g, 'pac')
+        .replace(/\bp\s+a\s+m\b/g, 'pam')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 function supportoPlainText(s) {
@@ -25414,12 +25501,42 @@ function supportoInferTags(text, sectionKey) {
     return tags.slice(0, 4);
 }
 
-function supportoKindForMatch(entry, queryNorm) {
+function supportoDetectConcepts(text, useQueryPatterns) {
+    var hay = supportoCanonicalQuery(text);
+    var concepts = [];
+    for (var i = 0; i < SUPPORTO_SEMANTIC_RULES.length; i++) {
+        var rule = SUPPORTO_SEMANTIC_RULES[i];
+        var re = useQueryPatterns ? rule.query : rule.entry;
+        if (re && re.test(hay)) {
+            concepts.push(rule.id);
+        }
+    }
+    return concepts;
+}
+
+function supportoConceptLabels(concepts) {
+    var labels = [];
+    for (var i = 0; i < SUPPORTO_SEMANTIC_RULES.length; i++) {
+        var rule = SUPPORTO_SEMANTIC_RULES[i];
+        if (concepts.indexOf(rule.id) >= 0 && labels.indexOf(rule.label) === -1) labels.push(rule.label);
+    }
+    return labels;
+}
+
+function supportoGetSemanticRule(id) {
+    for (var i = 0; i < SUPPORTO_SEMANTIC_RULES.length; i++) {
+        if (SUPPORTO_SEMANTIC_RULES[i].id === id) return SUPPORTO_SEMANTIC_RULES[i];
+    }
+    return null;
+}
+
+function supportoKindForMatch(entry, queryNorm, queryConcepts) {
     if (!queryNorm) return 'Scheda';
     if (entry.actionsNorm.indexOf(queryNorm) >= 0) return 'Azioni';
     if (entry.risksNorm.indexOf(queryNorm) >= 0) return 'Rischi';
     if (entry.questionNorm.indexOf(queryNorm) >= 0) return 'Domanda';
     if (entry.detailNorm.indexOf(queryNorm) >= 0) return 'Dettagli';
+    if (queryConcepts && queryConcepts.some(function (c) { return entry.concepts.indexOf(c) >= 0; })) return 'Supporto IA';
     return 'Scheda';
 }
 
@@ -25468,6 +25585,8 @@ function supportoBuildSearchIndex() {
                 siText
             ].filter(Boolean).join(' ');
             var allText = [label, 'punto ' + (item.p || (i + 1)), question, detailText].join(' ');
+            var concepts = supportoDetectConcepts(allText, false);
+            var conceptLabels = supportoConceptLabels(concepts);
             out.push({
                 sectionKey: sectionKey,
                 point: item.p || (i + 1),
@@ -25475,12 +25594,15 @@ function supportoBuildSearchIndex() {
                 title: label + ' - Punto ' + (item.p || (i + 1)),
                 question: question,
                 detail: detailText,
-                allNorm: supportoNormalizeText(allText),
-                questionNorm: supportoNormalizeText(question),
-                actionsNorm: supportoNormalizeText(actions),
-                risksNorm: supportoNormalizeText(risks + ' ' + critical),
-                detailNorm: supportoNormalizeText(detailText),
-                tags: supportoInferTags(allText, sectionKey)
+                allNorm: supportoCanonicalQuery(allText),
+                questionNorm: supportoCanonicalQuery(question),
+                actionsNorm: supportoCanonicalQuery(actions),
+                risksNorm: supportoCanonicalQuery(risks + ' ' + critical),
+                detailNorm: supportoCanonicalQuery(detailText),
+                concepts: concepts,
+                tags: supportoInferTags(allText, sectionKey).concat(conceptLabels).filter(function (x, pos, arr) {
+                    return x && arr.indexOf(x) === pos;
+                }).slice(0, 5)
             });
         }
     }
@@ -25496,11 +25618,16 @@ function supportoRenderSuggestions(query) {
     var host = document.getElementById('supporto-suggest');
     if (!host) return;
     host.innerHTML = '';
-    var q = supportoNormalizeText(query || '');
-    var picked = SUPPORTO_SEARCH_HINTS.filter(function (h) {
+    var q = supportoCanonicalQuery(query || '');
+    var queryConcepts = supportoDetectConcepts(q, true);
+    var semanticHints = supportoConceptLabels(queryConcepts);
+    var allHints = semanticHints.concat(SUPPORTO_SEARCH_HINTS).filter(function (x, pos, arr) {
+        return x && arr.indexOf(x) === pos;
+    });
+    var picked = allHints.filter(function (h) {
         if (!q) return true;
-        var n = supportoNormalizeText(h);
-        return n.indexOf(q) >= 0 || n.split(/\s+/).some(function (w) { return w.indexOf(q) === 0; });
+        var n = supportoCanonicalQuery(h);
+        return n.indexOf(q) >= 0 || q.indexOf(n) >= 0 || n.split(/\s+/).some(function (w) { return w.indexOf(q) === 0; });
     }).slice(0, 8);
     picked.forEach(function (hint) {
         var btn = document.createElement('button');
@@ -25519,7 +25646,7 @@ function supportoRenderSuggestions(query) {
     });
 }
 
-function supportoScoreEntry(entry, queryNorm, tokens) {
+function supportoScoreEntry(entry, queryNorm, tokens, queryConcepts) {
     if (!queryNorm) return 0;
     var score = 0;
     if (entry.allNorm.indexOf(queryNorm) >= 0) score += 42;
@@ -25534,6 +25661,16 @@ function supportoScoreEntry(entry, queryNorm, tokens) {
         if (words.some(function (w) { return w.indexOf(t) === 0; })) score += t.length === 1 ? 8 : 12;
     }
     if (entry.tags.some(function (tag) { return supportoNormalizeText(tag).indexOf(queryNorm) >= 0; })) score += 15;
+    if (Array.isArray(queryConcepts) && queryConcepts.length) {
+        for (var c = 0; c < queryConcepts.length; c++) {
+            var conceptId = queryConcepts[c];
+            if (entry.concepts.indexOf(conceptId) < 0) continue;
+            var rule = supportoGetSemanticRule(conceptId);
+            score += 70;
+            if (rule && rule.priority && rule.priority.test(entry.questionNorm + ' ' + entry.detailNorm)) score += 45;
+            if (entry.questionNorm && rule && rule.entry && rule.entry.test(entry.questionNorm)) score += 18;
+        }
+    }
     return score;
 }
 
@@ -25544,7 +25681,7 @@ function supportoSearchChanged() {
     var raw = input ? input.value : '';
     supportoRenderSuggestions(raw);
     host.innerHTML = '';
-    var q = supportoNormalizeText(raw).replace(/\s+/g, ' ').trim();
+    var q = supportoCanonicalQuery(raw);
     if (!q) {
         var intro = document.createElement('div');
         intro.className = 'supporto-empty';
@@ -25552,9 +25689,13 @@ function supportoSearchChanged() {
         host.appendChild(intro);
         return;
     }
-    var tokens = q.split(/\s+/).filter(Boolean);
+    var queryConcepts = supportoDetectConcepts(q, true);
+    var conceptTokens = supportoConceptLabels(queryConcepts).join(' ');
+    var tokens = (q + ' ' + supportoCanonicalQuery(conceptTokens)).split(/\s+/).filter(function (x, pos, arr) {
+        return x && x.length > 1 && arr.indexOf(x) === pos;
+    });
     var results = supportoGetSearchIndex().map(function (entry) {
-        return { entry: entry, score: supportoScoreEntry(entry, q, tokens) };
+        return { entry: entry, score: supportoScoreEntry(entry, q, tokens, queryConcepts) };
     }).filter(function (x) {
         return x.score > 0;
     }).sort(function (a, b) {
@@ -25581,7 +25722,7 @@ function supportoSearchChanged() {
         title.textContent = entry.title;
         var kind = document.createElement('div');
         kind.className = 'supporto-result-kind';
-        kind.textContent = supportoKindForMatch(entry, q);
+        kind.textContent = supportoKindForMatch(entry, q, queryConcepts);
         top.appendChild(title);
         top.appendChild(kind);
 
