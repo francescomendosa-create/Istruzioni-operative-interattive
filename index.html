@@ -7560,7 +7560,7 @@
         }
         @media (min-width: 900px) {
             #quiz-gestione-test-overlay .quiz-lock-box.quiz-gestione-test-modal {
-                padding: 12px 14px 10px;
+                padding: 14px 16px 12px;
             }
         }
         .quiz-gestione-resize-handle {
@@ -7588,9 +7588,9 @@
             justify-content: flex-start;
             gap: 0;
             flex-wrap: nowrap;
-            margin: 0 0 8px;
+            margin: 0 0 10px;
             flex-shrink: 0;
-            padding-bottom: 7px;
+            padding-bottom: 8px;
             border-bottom: 1px solid rgba(94, 53, 177, 0.12);
             min-width: 0;
         }
@@ -7604,7 +7604,7 @@
         }
         .quiz-gestione-test-head .quiz-gestione-test-title {
             margin: 0;
-            font-size: clamp(0.78rem, 2.1vw, 0.98rem);
+            font-size: clamp(0.9rem, 2.2vw, 1.14rem);
             font-weight: 800;
             letter-spacing: -0.02em;
             color: #311b92;
@@ -7630,12 +7630,12 @@
             display: none !important;
         }
         .quiz-gestione-test-tab {
-            padding: 6px 11px;
+            padding: 7px 12px;
             border: 2px solid rgba(255, 255, 255, 0.98);
             border-radius: 22px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.72rem;
+            font-size: 0.78rem;
             line-height: 1.15;
             background: linear-gradient(180deg, #ffffff 0%, #e8ecf3 55%, #dce3ee 100%);
             color: var(--primary);
@@ -7643,7 +7643,7 @@
             min-width: 58px;
             width: auto;
             flex: 0 0 auto;
-            min-height: 34px;
+            min-height: 36px;
             box-sizing: border-box;
             text-align: center;
             font-family: inherit;
@@ -7712,8 +7712,9 @@
             }
             #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-tab {
                 min-width: 126px;
-                padding: 7px 18px;
-                font-size: 0.78rem;
+                padding: 9px 18px;
+                font-size: 0.88rem;
+                min-height: 40px;
             }
             #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-btn-torna {
                 grid-column: 3;
@@ -7725,20 +7726,20 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            padding: 4px 10px 4px 7px !important;
-            font-size: 0.69rem !important;
+            gap: 6px;
+            padding: 7px 12px 7px 9px !important;
+            font-size: 0.78rem !important;
             font-weight: 800;
-            min-height: 30px;
-            line-height: 1.15;
+            min-height: 40px;
+            line-height: 1.2;
             border-radius: 999px !important;
             box-shadow: 0 2px 8px rgba(49, 27, 96, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
             flex: 0 0 auto;
             align-self: center;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon {
-            width: 18px;
-            height: 18px;
+            width: 28px;
+            height: 28px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -7749,10 +7750,10 @@
             flex: 0 0 auto;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon svg {
-            width: 13px;
-            height: 13px;
+            width: 18px;
+            height: 18px;
             display: block;
-            stroke-width: 2.6;
+            stroke-width: 2.3;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__label {
             white-space: nowrap;
@@ -8420,6 +8421,9 @@
             overflow: hidden;
             overflow-y: hidden;
             overflow-x: hidden;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
             background: rgba(250, 247, 255, 0.85);
             color: #263238;
             transition:
@@ -8446,6 +8450,7 @@
             border: 1px solid #e8eaf6;
             background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
             min-height: 0;
+            min-width: 0;
             align-self: stretch;
             transition:
                 border-color 0.15s ease,
@@ -8494,6 +8499,7 @@
         .gestione-answer-slot textarea.gestione-a-text {
             flex: 1 1 0;
             align-self: flex-start;
+            width: 100%;
             min-width: 0;
             min-height: 0;
             max-height: none;
@@ -8541,18 +8547,18 @@
             font-size: 0.72rem;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-test-list {
-            padding: 2px 5px 0 1px;
+            padding: 1px 4px 0 1px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card {
-            margin-bottom: 7px;
-            border-radius: 11px;
+            margin-bottom: 5px;
+            border-radius: 10px;
             box-shadow:
                 0 4px 14px rgba(49, 27, 96, 0.055),
                 0 1px 0 rgba(255, 255, 255, 0.88) inset;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-head {
-            padding: 6px 8px;
-            gap: 6px;
+            padding: 5px 7px;
+            gap: 5px;
             flex-wrap: nowrap;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-title-row {
@@ -8587,29 +8593,29 @@
             font-size: 0.66rem;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-body {
-            padding: 6px 8px 7px;
+            padding: 5px 7px 6px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-section {
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-section-label {
-            margin-bottom: 4px;
-            font-size: 0.58rem;
+            margin-bottom: 3px;
+            font-size: 0.6rem;
             letter-spacing: 0.045em;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-text {
-            padding: 5px 8px;
+            padding: 4px 7px;
             border-radius: 9px;
-            font-size: 0.76rem;
-            line-height: 1.35;
+            font-size: 0.83rem;
+            line-height: 1.28;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answers-list {
-            gap: 5px;
+            gap: 4px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-slot {
-            gap: 6px;
-            padding: 5px 7px 5px 5px;
-            border-radius: 9px;
+            gap: 5px;
+            padding: 4px 6px 4px 5px;
+            border-radius: 8px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-letter {
             width: 22px;
@@ -8624,10 +8630,10 @@
             margin-top: 4px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-slot textarea.gestione-a-text {
-            padding: 4px 7px;
+            padding: 4px 6px;
             border-radius: 8px;
-            font-size: 0.74rem;
-            line-height: 1.32;
+            font-size: 0.8rem;
+            line-height: 1.26;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions {
             display: flex;
@@ -12363,7 +12369,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605300';
+const APP_BUILD = '202605303';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14487,7 +14493,29 @@ function gestioneDomandePushToFirestoreNow() {
         });
 }
 
+function gestioneDomandeHasActiveTextEdit() {
+    try {
+        var overlay = document.getElementById('quiz-gestione-test-overlay');
+        var active = document.activeElement;
+        return !!(
+            overlay &&
+            overlay.classList.contains('visible') &&
+            quizGestioneDomandeEditorCompleto &&
+            active &&
+            active.tagName === 'TEXTAREA' &&
+            active.closest &&
+            active.closest('#quiz-gestione-test-list')
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 function gestioneDomandeApplyCloudData(dat) {
+    if (gestioneDomandeHasActiveTextEdit()) {
+        /* Non ridisegnare/sovrascrivere la lista mentre l'admin sta digitando: evita perdita focus e salti di riga. */
+        return;
+    }
     gestioneDomandeRemoteApply = true;
     try {
         gestioneDomandeApplyFirestoreSnapshot(dat);
@@ -22863,8 +22891,30 @@ function gestioneDomandeEnsureMirror() {
 
 function gestioneDomandeFitTextareaToContent(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
-    var mirror = gestioneDomandeEnsureMirror();
     var cs = window.getComputedStyle(el);
+    var currentH = el.offsetHeight || 0;
+
+    el.style.overflow = 'hidden';
+    el.style.overflowY = 'hidden';
+    el.style.overflowX = 'hidden';
+    el.style.minHeight = '0';
+    el.style.maxHeight = 'none';
+    el.style.height = 'auto';
+
+    var scrollTarget = Math.ceil(el.scrollHeight || 0);
+    if (scrollTarget > 0) {
+        el.style.height = scrollTarget + 'px';
+        try {
+            var stillHidden = el.scrollHeight - el.clientHeight;
+            if (stillHidden > 1) el.style.height = (el.offsetHeight + stillHidden) + 'px';
+        } catch (eScroll) { /* ignore */ }
+        if (document.activeElement === el && currentH && Math.abs((el.offsetHeight || scrollTarget) - currentH) <= 2) {
+            el.style.height = currentH + 'px';
+        }
+        return;
+    }
+
+    var mirror = gestioneDomandeEnsureMirror();
     var ow = el.offsetWidth;
     if (!ow || ow < 16) {
         try {
