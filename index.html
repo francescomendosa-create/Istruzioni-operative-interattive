@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605379';
+const APP_BUILD = '202605380';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24108,23 +24108,39 @@ async function gestioneEliminaTestInviatiClick() {
             perUser: {}
         });
         clearedPayload.updatedAt = ts;
-        await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).set(clearedPayload);
-        await db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
+        var gestioneRef = db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
+        var fallbackRef = db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+        await gestioneRef.set(clearedPayload);
+        await fallbackRef.set({
             gestioneTestData: gestioneFirestoreCleanValue({
                 v: 2,
                 items: gestioneDomandeNormalizeItems(rawForClear.items || []),
-                updatedAtMs: Date.now(),
-                perUser: {}
+                updatedAtMs: Date.now()
             }),
             gestioneTestUpdatedAt: ts,
             updatedAt: ts
         }, { merge: true });
-        var controllo = await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).get();
+        try {
+            await fallbackRef.update({
+                'gestioneTestData.perUser': firebase.firestore.FieldValue.delete()
+            });
+        } catch (eDelNested) {
+            await fallbackRef.set({
+                gestioneTestData: gestioneFirestoreCleanValue({
+                    v: 2,
+                    items: gestioneDomandeNormalizeItems(rawForClear.items || []),
+                    updatedAtMs: Date.now()
+                }),
+                gestioneTestUpdatedAt: ts,
+                updatedAt: ts
+            }, { merge: true });
+        }
+        var controllo = await gestioneRef.get();
         var controlloData = controllo.exists ? (controllo.data() || {}) : {};
         if (controlloData.perUser && Object.keys(controlloData.perUser).length > 0) {
             throw new Error('Controllo eliminazione non superato: test inviati ancora presenti.');
         }
-        var controlloFallback = await db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).get();
+        var controlloFallback = await fallbackRef.get();
         var controlloFallbackData = controlloFallback.exists ? (controlloFallback.data() || {}) : {};
         var fallbackPerUser = controlloFallbackData.gestioneTestData && controlloFallbackData.gestioneTestData.perUser;
         if (fallbackPerUser && Object.keys(fallbackPerUser).length > 0) {
@@ -24133,9 +24149,9 @@ async function gestioneEliminaTestInviatiClick() {
         var raw = gestioneDomandeLoadRaw();
         raw.perUser = {};
         gestioneDomandeSaveRaw(raw);
-        gestioneTestButtonUpdate(raw);
-        gestioneRenderDestinatariBadges();
-        gestioneUiFlashSaved(btn, 1600, 'Eliminati');
+        try { gestioneTestButtonUpdate(raw); } catch (eBtn) { /* ignore */ }
+        try { gestioneRenderDestinatariBadges(); } catch (eBadges) { /* ignore */ }
+        try { gestioneUiFlashSaved(btn, 1600, 'Eliminati'); } catch (eFlash) { /* ignore */ }
     } catch (e) {
         console.error('Errore eliminazione test inviati:', e);
         window.alert('Errore durante l’eliminazione dei test inviati.');
