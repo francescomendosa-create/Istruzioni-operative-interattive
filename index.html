@@ -441,6 +441,30 @@
         .btn-diagnostica:hover { filter: brightness(1.06); }
         .btn-diagnostica:active { transform: translateY(3px) scale(0.99); box-shadow: 0 2px 0 rgba(10, 70, 45, 0.35), 0 3px 8px rgba(0,0,0,0.14); }
 
+        .btn-supporto {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            padding: 0;
+            border: 2px solid rgba(255,255,255,0.58);
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.16rem;
+            line-height: 1;
+            background: linear-gradient(180deg, #ffe082 0%, #ffb300 58%, #f57f17 100%);
+            color: #2b2110;
+            box-shadow: 0 4px 0 rgba(120, 72, 0, 0.42), 0 7px 13px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.52);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+        }
+        .btn-supporto:hover { filter: brightness(1.05); }
+        .btn-supporto:active {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 1px 0 rgba(120, 72, 0, 0.42), 0 3px 8px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.42);
+        }
+
         /* Tra Quiz e Diagnostica — gestione domande test e verifiche (stesse dimensioni base) */
         .btn-test-gestione {
             position: relative;
@@ -5843,6 +5867,159 @@
             border: 1px solid #d0d7de;
             box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
         }
+        .supporto-overlay .supporto-box {
+            width: min(92vw, clamp(360px, 94vw, 520px));
+            max-height: min(88vh, 620px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            border-radius: 14px;
+            padding: 18px 16px 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+            border: 1px solid #d0d7de;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+            box-sizing: border-box;
+        }
+        .supporto-heading-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 0 12px;
+        }
+        .supporto-heading-row h4 {
+            margin: 0;
+            color: #1a237e;
+            font-size: 1.05rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+        }
+        .supporto-lead {
+            margin: 0 0 12px;
+            color: #455a64;
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+        .supporto-search-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            margin: 0 0 10px;
+            border: 1px solid #bbdefb;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 6px 16px rgba(21,101,192,0.08);
+        }
+        .supporto-search-field span {
+            flex: 0 0 auto;
+            font-size: 1.05rem;
+        }
+        .supporto-search-field input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            font: inherit;
+            font-size: 0.98rem;
+            color: #263238;
+            background: transparent;
+        }
+        .supporto-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 0 0 12px;
+        }
+        .supporto-chip {
+            border: 1px solid #c5cae9;
+            border-radius: 999px;
+            padding: 6px 9px;
+            background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
+            color: #283593;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .supporto-results {
+            display: grid;
+            gap: 9px;
+        }
+        .supporto-result-card {
+            width: 100%;
+            text-align: left;
+            border: 1px solid #d7e3f0;
+            border-radius: 13px;
+            padding: 11px 12px;
+            background: linear-gradient(180deg, #ffffff 0%, #f4f8fc 100%);
+            color: #263238;
+            cursor: pointer;
+            box-shadow: 0 7px 18px rgba(31, 63, 104, 0.08);
+            font-family: inherit;
+        }
+        .supporto-result-card:hover {
+            border-color: #90caf9;
+            box-shadow: 0 10px 22px rgba(21, 101, 192, 0.14);
+        }
+        .supporto-result-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .supporto-result-title {
+            font-weight: 900;
+            color: #0d47a1;
+            font-size: 0.9rem;
+        }
+        .supporto-result-kind {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            padding: 3px 7px;
+            background: #e8f5e9;
+            color: #1b5e20;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .supporto-result-question {
+            margin: 0 0 7px;
+            font-size: 0.86rem;
+            font-weight: 750;
+            color: #37474f;
+            line-height: 1.35;
+        }
+        .supporto-result-detail {
+            margin: 0;
+            font-size: 0.78rem;
+            line-height: 1.42;
+            color: #546e7a;
+        }
+        .supporto-result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .supporto-result-tags span {
+            border-radius: 999px;
+            padding: 3px 7px;
+            background: #fff3e0;
+            color: #e65100;
+            font-size: 0.68rem;
+            font-weight: 850;
+        }
+        .supporto-empty {
+            margin: 6px 0 0;
+            padding: 14px;
+            border-radius: 13px;
+            background: #f5f7fa;
+            color: #546e7a;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            text-align: center;
+        }
         .quiz-settings-heading-row h4 {
             color: #1a237e;
             font-size: 1.05rem;
@@ -10933,7 +11110,24 @@ function dismissAppSplash() {
                 <span id="btn-test-gestione-badge" class="btn-test-gestione__badge" aria-hidden="true"></span>
             </button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
+            <button type="button" class="btn-supporto" onclick="showSupportoModal()" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
         </div>
+    </div>
+</div>
+
+<div id="supporto-overlay" class="quiz-lock-overlay supporto-overlay" aria-hidden="true" onclick="supportoModalBackdrop(event)">
+    <div class="quiz-lock-box supporto-box" role="dialog" aria-modal="true" aria-labelledby="supporto-title" onclick="event.stopPropagation()">
+        <div class="supporto-heading-row">
+            <h4 id="supporto-title">CERCA SUPPORTO</h4>
+            <button type="button" class="btn-side btn-reset" onclick="hideSupportoModal()">Chiudi</button>
+        </div>
+        <p class="supporto-lead">Scrivi anche solo l’inizio del problema: il sistema cerca nelle domande, nei rischi associati, nelle azioni e nei controlli delle schede operative.</p>
+        <label class="supporto-search-field" for="supporto-input">
+            <span aria-hidden="true">🔎</span>
+            <input id="supporto-input" type="search" placeholder="Esempio: problema polielettrolita, schiuma nera, PAC, aria..." autocomplete="off" oninput="supportoSearchChanged()" />
+        </label>
+        <div id="supporto-suggest" class="supporto-suggest" aria-label="Ricerche correlate"></div>
+        <div id="supporto-results" class="supporto-results" aria-live="polite"></div>
     </div>
 </div>
 
@@ -11448,7 +11642,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605289</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605290</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11599,7 +11793,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605289</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605290</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12046,7 +12240,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605289';
+const APP_BUILD = '202605290';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24823,6 +25017,7 @@ function setupQuizTitleToggle() {
         const devMenu = document.getElementById('quiz-developer-menu-overlay');
         const modifyDev = document.getElementById('quiz-modify-dev-overlay');
         const settings = document.getElementById('quiz-settings-overlay');
+        const supporto = document.getElementById('supporto-overlay');
         if (modifyAuth && modifyAuth.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
@@ -24884,6 +25079,13 @@ function setupQuizTitleToggle() {
             } else if (ev.key === 'Enter') {
                 ev.preventDefault();
                 confirmQuizPassword();
+            }
+            return;
+        }
+        if (supporto && supporto.classList.contains('visible')) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                hideSupportoModal();
             }
             return;
         }
@@ -25151,6 +25353,294 @@ const db = {
         }
     ]
 };
+
+const SUPPORTO_SEARCH_HINTS = [
+    'problema polielettrolita',
+    'dosaggio PAC',
+    'coagulazione',
+    'flocculazione',
+    'schiuma biologico MBBR',
+    'schiuma nera',
+    'olio nel chiarificato',
+    'torbidità alta',
+    'aria insufficiente',
+    'saturatore e microbolle',
+    'raschiatori',
+    'fango marrone',
+    'cono Imhoff',
+    'ossigeno basso',
+    'azioni e controlli'
+];
+let supportoSearchCache = null;
+
+function supportoNormalizeText(s) {
+    return String(s || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+function supportoPlainText(s) {
+    var raw = String(s || '');
+    try {
+        var div = document.createElement('div');
+        div.innerHTML = raw.replace(/<br\s*\/?>/gi, ' ');
+        raw = div.textContent || div.innerText || raw;
+    } catch (e) {
+        raw = raw.replace(/<[^>]+>/g, ' ');
+    }
+    return raw.replace(/\s+/g, ' ').trim();
+}
+
+function supportoShortText(s, maxLen) {
+    var t = supportoPlainText(s);
+    var n = Number(maxLen || 150);
+    if (t.length <= n) return t;
+    return t.slice(0, Math.max(20, n - 3)).trim() + '...';
+}
+
+function supportoInferTags(text, sectionKey) {
+    var hay = supportoNormalizeText(text);
+    var tags = [];
+    function has(re) { return re.test(hay); }
+    function add(t) { if (tags.indexOf(t) === -1) tags.push(t); }
+    if (sectionKey === 'cf' || has(/chimico[\s-]?fisico|chiarificat|sediflott|flottaz|torbid|ntu/)) add('chimico-fisico');
+    if (sectionKey === 'mbr' || has(/biologico|mbbr|biofilm|carrier|biomassa|fango|schium/)) add('biologico MBBR');
+    if (has(/pac|coagul|sali di ferro|colloid|carica/)) add('coagulazione/PAC');
+    if (has(/polielettrolit|pam|floccul|floc|fiocc|diluiz|viscos|filante/)) add('polielettrolita/PAM');
+    if (has(/azione|controll|verific|regol|pompa|valvol|dosagg|manutenz|dcs/)) add('azioni e controlli');
+    if (has(/aria|ossigen|o2|soffiant|aeraz|aereaz|saturator|microboll/)) add('aria e ossigenazione');
+    if (has(/olio|oli|schium|settic|shock|odore|h2s|nero/)) add('anomalie operative');
+    return tags.slice(0, 4);
+}
+
+function supportoKindForMatch(entry, queryNorm) {
+    if (!queryNorm) return 'Scheda';
+    if (entry.actionsNorm.indexOf(queryNorm) >= 0) return 'Azioni';
+    if (entry.risksNorm.indexOf(queryNorm) >= 0) return 'Rischi';
+    if (entry.questionNorm.indexOf(queryNorm) >= 0) return 'Domanda';
+    if (entry.detailNorm.indexOf(queryNorm) >= 0) return 'Dettagli';
+    return 'Scheda';
+}
+
+function supportoBuildSearchIndex() {
+    var out = [];
+    var keys = [];
+    try {
+        keys = typeof quizGetOrderedSectionKeys === 'function' ? quizGetOrderedSectionKeys() : Object.keys(db || {});
+    } catch (eK) {
+        keys = Object.keys(db || {});
+    }
+    for (var k = 0; k < keys.length; k++) {
+        var sectionKey = keys[k];
+        var rows = [];
+        try {
+            rows = typeof quizModifyGetSectionRows === 'function' ? quizModifyGetSectionRows(sectionKey) : (db[sectionKey] || []);
+        } catch (eR) {
+            rows = db[sectionKey] || [];
+        }
+        if (!Array.isArray(rows)) continue;
+        for (var i = 0; i < rows.length; i++) {
+            var raw = rows[i] || {};
+            var item = raw;
+            try {
+                if (typeof quizModifyGetMergedItem === 'function') {
+                    item = Object.assign({}, raw, quizModifyGetMergedItem(sectionKey, i));
+                }
+            } catch (eM) { item = raw; }
+            var actions = Array.isArray(item.actions)
+                ? item.actions.map(function (a) { return [a && a.c, a && a.a].filter(Boolean).join(': '); }).join(' | ')
+                : '';
+            var risks = Array.isArray(item.risk_list) ? item.risk_list.join(' | ') : (item.risk || '');
+            var critical = Array.isArray(item.critical) ? item.critical.join(' | ') : '';
+            var label = typeof quizModifySectionDisplayLabel === 'function' ? quizModifySectionDisplayLabel(sectionKey) : sectionKey;
+            var question = supportoPlainText(item.q || '');
+            var noText = supportoPlainText(item.no || '');
+            var siText = supportoPlainText(item.si || '');
+            var detailText = [
+                item.tag ? 'Tag: ' + item.tag : '',
+                noText ? 'Anomalia: ' + noText : '',
+                actions ? 'Azioni e controlli: ' + supportoPlainText(actions) : '',
+                risks ? 'Rischi associati: ' + supportoPlainText(risks) : '',
+                critical ? 'Criticità: ' + supportoPlainText(critical) : '',
+                item.correlation_update ? 'Correlazione: ' + supportoPlainText(item.correlation_update) : '',
+                item.expand_content ? supportoPlainText(item.expand_content) : '',
+                siText
+            ].filter(Boolean).join(' ');
+            var allText = [label, 'punto ' + (item.p || (i + 1)), question, detailText].join(' ');
+            out.push({
+                sectionKey: sectionKey,
+                point: item.p || (i + 1),
+                sectionLabel: label,
+                title: label + ' - Punto ' + (item.p || (i + 1)),
+                question: question,
+                detail: detailText,
+                allNorm: supportoNormalizeText(allText),
+                questionNorm: supportoNormalizeText(question),
+                actionsNorm: supportoNormalizeText(actions),
+                risksNorm: supportoNormalizeText(risks + ' ' + critical),
+                detailNorm: supportoNormalizeText(detailText),
+                tags: supportoInferTags(allText, sectionKey)
+            });
+        }
+    }
+    return out;
+}
+
+function supportoGetSearchIndex() {
+    if (!supportoSearchCache) supportoSearchCache = supportoBuildSearchIndex();
+    return supportoSearchCache;
+}
+
+function supportoRenderSuggestions(query) {
+    var host = document.getElementById('supporto-suggest');
+    if (!host) return;
+    host.innerHTML = '';
+    var q = supportoNormalizeText(query || '');
+    var picked = SUPPORTO_SEARCH_HINTS.filter(function (h) {
+        if (!q) return true;
+        var n = supportoNormalizeText(h);
+        return n.indexOf(q) >= 0 || n.split(/\s+/).some(function (w) { return w.indexOf(q) === 0; });
+    }).slice(0, 8);
+    picked.forEach(function (hint) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'supporto-chip';
+        btn.textContent = hint;
+        btn.onclick = function () {
+            var input = document.getElementById('supporto-input');
+            if (input) {
+                input.value = hint;
+                input.focus();
+            }
+            supportoSearchChanged();
+        };
+        host.appendChild(btn);
+    });
+}
+
+function supportoScoreEntry(entry, queryNorm, tokens) {
+    if (!queryNorm) return 0;
+    var score = 0;
+    if (entry.allNorm.indexOf(queryNorm) >= 0) score += 42;
+    if (entry.questionNorm.indexOf(queryNorm) >= 0) score += 18;
+    if (entry.actionsNorm.indexOf(queryNorm) >= 0) score += 16;
+    if (entry.risksNorm.indexOf(queryNorm) >= 0) score += 14;
+    var words = entry.allNorm.split(/\s+/);
+    for (var i = 0; i < tokens.length; i++) {
+        var t = tokens[i];
+        if (!t) continue;
+        if (entry.allNorm.indexOf(t) >= 0) score += t.length === 1 ? 4 : 9;
+        if (words.some(function (w) { return w.indexOf(t) === 0; })) score += t.length === 1 ? 8 : 12;
+    }
+    if (entry.tags.some(function (tag) { return supportoNormalizeText(tag).indexOf(queryNorm) >= 0; })) score += 15;
+    return score;
+}
+
+function supportoSearchChanged() {
+    var input = document.getElementById('supporto-input');
+    var host = document.getElementById('supporto-results');
+    if (!host) return;
+    var raw = input ? input.value : '';
+    supportoRenderSuggestions(raw);
+    host.innerHTML = '';
+    var q = supportoNormalizeText(raw).replace(/\s+/g, ' ').trim();
+    if (!q) {
+        var intro = document.createElement('div');
+        intro.className = 'supporto-empty';
+        intro.textContent = 'Inizia a scrivere una problematica: compariranno ricerche correlate collegate a domande, rischi, azioni e controlli presenti nelle schede.';
+        host.appendChild(intro);
+        return;
+    }
+    var tokens = q.split(/\s+/).filter(Boolean);
+    var results = supportoGetSearchIndex().map(function (entry) {
+        return { entry: entry, score: supportoScoreEntry(entry, q, tokens) };
+    }).filter(function (x) {
+        return x.score > 0;
+    }).sort(function (a, b) {
+        return b.score - a.score;
+    }).slice(0, 10);
+    if (!results.length) {
+        var empty = document.createElement('div');
+        empty.className = 'supporto-empty';
+        empty.textContent = 'Nessuna corrispondenza trovata. Prova con parole come PAC, polielettrolita, schiuma, aria, torbidità, olio, fango o ossigeno.';
+        host.appendChild(empty);
+        return;
+    }
+    results.forEach(function (row) {
+        var entry = row.entry;
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'supporto-result-card';
+        card.onclick = function () { supportoOpenResult(entry.sectionKey, entry.point); };
+
+        var top = document.createElement('div');
+        top.className = 'supporto-result-top';
+        var title = document.createElement('div');
+        title.className = 'supporto-result-title';
+        title.textContent = entry.title;
+        var kind = document.createElement('div');
+        kind.className = 'supporto-result-kind';
+        kind.textContent = supportoKindForMatch(entry, q);
+        top.appendChild(title);
+        top.appendChild(kind);
+
+        var question = document.createElement('p');
+        question.className = 'supporto-result-question';
+        question.textContent = entry.question || 'Punto operativo della scheda.';
+
+        var detail = document.createElement('p');
+        detail.className = 'supporto-result-detail';
+        detail.textContent = supportoShortText(entry.detail || 'Contenuto operativo collegato alla ricerca.', 220);
+
+        var tags = document.createElement('div');
+        tags.className = 'supporto-result-tags';
+        entry.tags.forEach(function (tag) {
+            var sp = document.createElement('span');
+            sp.textContent = tag;
+            tags.appendChild(sp);
+        });
+
+        card.appendChild(top);
+        card.appendChild(question);
+        card.appendChild(detail);
+        if (entry.tags.length) card.appendChild(tags);
+        host.appendChild(card);
+    });
+}
+
+function showSupportoModal() {
+    supportoSearchCache = null;
+    var overlay = document.getElementById('supporto-overlay');
+    if (!overlay) return;
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+    supportoSearchChanged();
+    setTimeout(function () {
+        var input = document.getElementById('supporto-input');
+        if (input) input.focus();
+    }, 80);
+}
+
+function hideSupportoModal() {
+    var overlay = document.getElementById('supporto-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('quiz-info-open');
+}
+
+function supportoModalBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'supporto-overlay') hideSupportoModal();
+}
+
+function supportoOpenResult(sectionKey, point) {
+    hideSupportoModal();
+    setTimeout(function () {
+        if (typeof scrollToPoint === 'function') scrollToPoint(sectionKey, point, true);
+    }, 80);
+}
 
 /* ========= Quiz (livelli 1–3, punteggi 5/10/15, vite a zero = fine, bonus vermi, classifica: Firestore + cache locale) ========= */
 let quizBankCache = null;
