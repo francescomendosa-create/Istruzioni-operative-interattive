@@ -13360,7 +13360,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605382';
+const APP_BUILD = '202605383';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -24114,14 +24114,7 @@ async function gestioneEliminaTestInviatiClick() {
         });
         clearedPayload.updatedAt = ts;
         var gestioneRef = db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC);
-        try {
-            await gestioneRef.update({
-                perUser: firebase.firestore.FieldValue.delete(),
-                updatedAtMs: Date.now(),
-                updatedAt: ts
-            });
-        } catch (eGestUpdate) { /* doc assente o non aggiornabile: riscrivo sotto */ }
-        await gestioneRef.set(clearedPayload);
+        await gestioneRef.set(clearedPayload, { merge: true });
         gestioneDomandePrimarySnapshotReady = true;
         var controllo = await gestioneRef.get();
         var controlloData = controllo.exists ? (controllo.data() || {}) : {};
