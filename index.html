@@ -391,6 +391,11 @@
             border-color: rgba(255,255,255,0.45);
             text-shadow: 0 1px 0 rgba(0,0,0,0.25);
         }
+        .btn-side.quiz-send-blocked {
+            cursor: not-allowed;
+            filter: grayscale(0.55) brightness(0.92);
+            opacity: 0.72;
+        }
         .btn-side:hover { filter: brightness(1.06); box-shadow: 0 7px 0 rgba(0,0,0,0.28), 0 18px 26px rgba(0,0,0,0.28), 0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.4); }
         .btn-side:active { transform: translateY(4px) scale(0.99); box-shadow: 0 2px 0 rgba(0,0,0,0.28), 0 5px 12px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.25); }
 
@@ -7711,15 +7716,21 @@
 @media (hover: none) and (pointer: coarse) {
     .quiz-gestione-verifica-folder[open] {
         overflow: visible;
+        padding-bottom: 92px;
     }
     .quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-body {
         order: 1 !important;
         margin-top: 8px;
+        margin-bottom: 0;
     }
     .quiz-gestione-verifica-folder[open] .quiz-gestione-verifica-folder-summary {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        z-index: 6;
         order: 3 !important;
-        margin-top: 14px;
-        margin-bottom: 4px;
+        margin: 0;
     }
     .quiz-gestione-verifica-folder-docs {
         gap: 10px;
@@ -7768,8 +7779,8 @@
 }
 .quiz-gestione-verifica-sheet {
     position: relative;
-    right: clamp(6px, 1.4vw, 18px);
-    width: min(840px, calc(100vw - 44px));
+    right: clamp(20px, 4vw, 42px);
+    width: min(860px, calc(100vw - 26px));
     max-height: min(88dvh, calc(100dvh - 32px));
     overflow: auto;
     border-radius: 22px;
@@ -7780,7 +7791,7 @@
         0 34px 80px rgba(0, 0, 0, 0.34),
         0 12px 0 rgba(49, 27, 96, 0.08),
         inset 0 1px 0 rgba(255,255,255,0.96);
-    padding: 58px 18px 18px;
+    padding: 58px 10px 18px 0;
     box-sizing: border-box;
     transform-origin: center center;
     animation: quizGestioneSheetExtract 0.46s cubic-bezier(0.16, 0.9, 0.18, 1);
@@ -7788,7 +7799,7 @@
 .quiz-gestione-verifica-sheet-toolbar {
     position: absolute;
     top: 12px;
-    left: 16px;
+    left: 10px;
     right: 16px;
     z-index: 3;
     display: flex;
@@ -7849,7 +7860,7 @@
     box-shadow: 0 4px 12px rgba(49, 27, 96, 0.14);
 }
 .quiz-gestione-verifica-sheet .quiz-gestione-verifica-card--sheet {
-    margin: 0 auto;
+    margin: 0 auto 0 0;
     max-width: 100%;
     cursor: zoom-in;
 }
@@ -12932,7 +12943,7 @@ function dismissAppSplash() {
                     <button type="button" id="quiz-gestione-btn-invia-a" class="btn-side btn-gestione-invia-a-footer" onclick="gestioneInviaAModalOpen()" title="Scegli uno o più destinatari e invia loro questo test" aria-label="Invia il test a destinatari selezionati">Invia a…</button>
                     <button type="button" id="quiz-gestione-btn-invia-tutti" class="btn-side btn-report btn-gestione-invia-tutti" onclick="gestioneDomandeInviaATuttiClick()" aria-label="Copia questo test su tutti i destinatari noti e sincronizza sul cloud">Invia a tutti</button>
                 </div>
-                <p id="quiz-gestione-invio-warning" class="quiz-gestione-invia-a-empty" role="alert" aria-live="polite" hidden>verifica risposte prima di inviare</p>
+                <p id="quiz-gestione-invio-warning" class="quiz-gestione-invia-a-empty" role="alert" aria-live="polite" hidden>Completa le risposte prima di inviare</p>
                 <div id="quiz-gestione-test-footer-verifica" class="quiz-lock-actions quiz-gestione-test-footer" hidden></div>
             </div>
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
@@ -13306,7 +13317,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605365';
+const APP_BUILD = '202605367';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22864,16 +22875,17 @@ function gestioneDomandeInvioSyncState() {
     [btnA, btnT].forEach(function (btn) {
         if (!btn) return;
         if (!btn.getAttribute('data-gestione-title-ok')) btn.setAttribute('data-gestione-title-ok', btn.getAttribute('title') || '');
-        btn.disabled = !ok;
+        btn.disabled = false;
+        btn.classList.toggle('quiz-send-blocked', !ok);
         btn.setAttribute('aria-disabled', ok ? 'false' : 'true');
-        btn.setAttribute('title', ok ? btn.getAttribute('data-gestione-title-ok') : 'verifica risposte prima di inviare');
+        btn.setAttribute('title', ok ? btn.getAttribute('data-gestione-title-ok') : 'Completa le risposte prima di inviare');
     });
     return ok;
 }
 
 function gestioneDomandeRequirePackCompleteForSend() {
     if (gestioneDomandeInvioSyncState()) return true;
-    window.alert('verifica risposte prima di inviare');
+    window.alert('Completa le risposte prima di inviare');
     return false;
 }
 
