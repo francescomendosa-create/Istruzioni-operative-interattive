@@ -7346,16 +7346,6 @@
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(69, 39, 160, 0.16);
 }
-.quiz-gestione-admin-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin: -6px 0 14px;
-}
-.quiz-gestione-admin-actions[hidden] {
-    display: none !important;
-}
 .quiz-gestione-admin-danger {
     border: 1px solid rgba(198, 40, 40, 0.2) !important;
     background: linear-gradient(180deg, #ffebee 0%, #ffcdd2 100%) !important;
@@ -7372,6 +7362,8 @@
     padding: 10px;
     max-height: calc(100dvh - 200px); /* Regola l'altezza massima per lo scroll */
     overflow-y: auto;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     padding-bottom: 30px;
     perspective: 1400px;
@@ -9066,6 +9058,7 @@
             overflow-x: hidden;
             overflow-anchor: none;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
             overscroll-behavior-y: contain;
             scroll-padding-bottom: 0;
             padding: 4px 6px 2px 2px;
@@ -12949,10 +12942,6 @@ function dismissAppSplash() {
             <div id="quiz-gestione-panel-verifica" class="quiz-gestione-test-panel quiz-gestione-test-panel--verifica" role="tabpanel" aria-labelledby="quiz-gestione-tab-verifica" hidden>
                 <div id="quiz-gestione-verifica-body" class="quiz-gestione-verifica-body">
                     <h3 class="quiz-gestione-verifica-title">ARCHIVIO</h3>
-                    <div id="quiz-gestione-admin-actions" class="quiz-gestione-admin-actions" hidden>
-                        <button type="button" id="quiz-gestione-delete-pending-tests" class="btn-side quiz-gestione-admin-danger" onclick="gestioneEliminaTestInviatiClick()">Elimina Test inviati</button>
-                        <button type="button" id="quiz-gestione-delete-archived-tests" class="btn-side quiz-gestione-admin-danger" onclick="gestioneEliminaTestArchiviatiClick()">Elimina tutti i test archiviati</button>
-                    </div>
                     <div id="quiz-gestione-verifica-list" class="quiz-gestione-verifica-list" aria-live="polite">
                         <p class="quiz-gestione-invia-a-empty">Apri questa scheda per caricare i test inviati dagli utenti.</p>
                     </div>
@@ -13079,6 +13068,14 @@ function dismissAppSplash() {
             <p style="margin:0 0 14px;font-size:0.88rem;color:#546e7a;line-height:1.45;"><strong>Modifica</strong> in Impostazioni: spento = pulsante assente; acceso = visibile. Con Firebase configurato, lo stato si aggiorna su <strong>tutti i dispositivi</strong> del progetto (tempo reale).</p>
             <button type="button" class="quiz-settings-row quiz-settings-row--action" style="width:100%;box-sizing:border-box;" onclick="quizDeveloperOpenClassifica()" aria-label="Apri classifica">
                 <span><strong>Classifica</strong></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <button type="button" id="quiz-developer-delete-pending-tests" class="quiz-settings-row quiz-settings-row--action quiz-gestione-admin-danger" style="width:100%;box-sizing:border-box;margin-top:10px;" onclick="gestioneEliminaTestInviatiClick()" aria-label="Elimina test inviati ancora da svolgere">
+                <span><strong>Elimina Test inviati</strong></span>
+                <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
+            </button>
+            <button type="button" id="quiz-developer-delete-archived-tests" class="quiz-settings-row quiz-settings-row--action quiz-gestione-admin-danger" style="width:100%;box-sizing:border-box;margin-top:10px;" onclick="gestioneEliminaTestArchiviatiClick()" aria-label="Elimina tutti i test archiviati">
+                <span><strong>Elimina tutti i test archiviati</strong></span>
                 <span class="quiz-settings-info-chev" aria-hidden="true">›</span>
             </button>
             <label class="quiz-settings-row quiz-settings-row--toggle" style="width:100%;box-sizing:border-box;margin-top:10px;">
@@ -13317,7 +13314,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605367';
+const APP_BUILD = '202605371';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19681,7 +19678,6 @@ function quizSetAdvancedModeEnabled(on) {
 function quizApplyAdvancedModeUi() {
     var btn = document.getElementById('header-settings-btn');
     if (btn) btn.classList.toggle('quiz-advanced-active', !!quizAdvancedModeEnabled);
-    gestioneAdminActionsSync();
 }
 
 function quizLoadDeveloperModifyFeaturesState() {
@@ -23911,32 +23907,105 @@ function gestioneTestButtonStateUpdate() {
     btnInvia.disabled = !ready;
 }
 
-function gestioneAdminActionsSync() {
-    var actions = document.getElementById('quiz-gestione-admin-actions');
-    if (!actions) return;
-    var isAdminArchive = quizGestioneDomandeEditorCompleto !== false;
-    actions.hidden = !(isAdminArchive && quizAdvancedModeEnabled);
-}
-
 function gestioneAdminRequireAdvancedMode() {
     if (quizAdvancedModeEnabled) return true;
     window.alert('Funzione disponibile solo in modalità avanzata.');
     return false;
 }
 
-function gestioneAdminDoubleConfirm(firstMessage, secondMessage) {
-    if (!window.confirm(firstMessage)) return false;
-    return window.confirm(secondMessage);
+function gestioneAdminConfirmDialog(options) {
+    options = options || {};
+    return new Promise(function (resolve) {
+        var overlay = document.createElement('div');
+        overlay.className = 'quiz-exit-confirm-modal quiz-exit-confirm-modal--open';
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.setAttribute('role', 'presentation');
+
+        var box = document.createElement('div');
+        box.className = 'quiz-exit-confirm-modal__box';
+        box.setAttribute('role', 'alertdialog');
+        box.setAttribute('aria-modal', 'true');
+        box.onclick = function (ev) { ev.stopPropagation(); };
+
+        var icon = document.createElement('div');
+        icon.className = 'quiz-exit-confirm-modal__icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '!';
+        box.appendChild(icon);
+
+        var title = document.createElement('h3');
+        title.textContent = options.title || 'Conferma operazione';
+        box.appendChild(title);
+
+        var lead = document.createElement('p');
+        lead.className = 'quiz-exit-confirm-modal__lead';
+        lead.textContent = options.message || 'Confermi?';
+        box.appendChild(lead);
+
+        var actions = document.createElement('div');
+        actions.className = 'quiz-exit-confirm-modal__actions';
+
+        var cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'btn-side btn-quiz-exit-cancel';
+        cancel.textContent = options.cancelText || 'Annulla';
+
+        var ok = document.createElement('button');
+        ok.type = 'button';
+        ok.className = 'btn-side btn-quiz-exit-confirm';
+        ok.textContent = options.okText || 'Conferma';
+
+        function close(value) {
+            try {
+                document.removeEventListener('keydown', onKey, true);
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            } catch (eRm) { /* ignore */ }
+            resolve(value);
+        }
+        function onKey(ev) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                close(false);
+            }
+        }
+        overlay.onclick = function () { close(false); };
+        cancel.onclick = function () { close(false); };
+        ok.onclick = function () { close(true); };
+
+        actions.appendChild(cancel);
+        actions.appendChild(ok);
+        box.appendChild(actions);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        document.addEventListener('keydown', onKey, true);
+        try { cancel.focus(); } catch (eF) { /* ignore */ }
+    });
+}
+
+async function gestioneAdminDoubleConfirm(firstMessage, secondMessage) {
+    var first = await gestioneAdminConfirmDialog({
+        title: 'Conferma eliminazione',
+        message: firstMessage,
+        okText: 'Continua',
+        cancelText: 'Annulla'
+    });
+    if (!first) return false;
+    return gestioneAdminConfirmDialog({
+        title: 'Riconferma eliminazione',
+        message: secondMessage,
+        okText: 'Elimina',
+        cancelText: 'Annulla'
+    });
 }
 
 async function gestioneEliminaTestInviatiClick() {
     if (!gestioneAdminRequireAdvancedMode()) return;
-    if (!gestioneAdminDoubleConfirm(
+    if (!await gestioneAdminDoubleConfirm(
         'Vuoi eliminare i test inviati che devono ancora essere svolti?',
         'Conferma definitiva: elimina tutti i test inviati ancora da svolgere.'
     )) return;
 
-    var btn = document.getElementById('quiz-gestione-delete-pending-tests');
+    var btn = document.getElementById('quiz-developer-delete-pending-tests');
     try {
         if (btn) btn.disabled = true;
         await quizEnsureFirebase();
@@ -23955,6 +24024,17 @@ async function gestioneEliminaTestInviatiClick() {
             gestioneTestUpdatedAt: ts,
             updatedAt: ts
         }, { merge: true });
+        var controllo = await db.collection(QUIZ_FS_GESTIONE_DOMANDE).doc(QUIZ_FS_GESTIONE_DOMANDE_DOC).get();
+        var controlloData = controllo.exists ? (controllo.data() || {}) : {};
+        if (controlloData.perUser && Object.keys(controlloData.perUser).length > 0) {
+            throw new Error('Controllo eliminazione non superato: test inviati ancora presenti.');
+        }
+        var controlloFallback = await db.collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).get();
+        var controlloFallbackData = controlloFallback.exists ? (controlloFallback.data() || {}) : {};
+        var fallbackPerUser = controlloFallbackData.gestioneTestData && controlloFallbackData.gestioneTestData.perUser;
+        if (fallbackPerUser && Object.keys(fallbackPerUser).length > 0) {
+            throw new Error('Controllo eliminazione non superato: test inviati ancora presenti nel fallback.');
+        }
         var raw = gestioneDomandeLoadRaw();
         raw.perUser = {};
         gestioneDomandeSaveRaw(raw);
@@ -23971,20 +24051,26 @@ async function gestioneEliminaTestInviatiClick() {
 
 async function gestioneEliminaTestArchiviatiClick() {
     if (!gestioneAdminRequireAdvancedMode()) return;
-    if (!gestioneAdminDoubleConfirm(
+    if (!await gestioneAdminDoubleConfirm(
         'Vuoi eliminare tutti i test archiviati già svolti?',
         'Conferma definitiva: elimina tutti i test archiviati in tutti i dispositivi.'
     )) return;
 
-    var btn = document.getElementById('quiz-gestione-delete-archived-tests');
+    var btn = document.getElementById('quiz-developer-delete-archived-tests');
     try {
         if (btn) btn.disabled = true;
         await quizEnsureFirebase();
         var ts = firebase.firestore.FieldValue.serverTimestamp();
-        await firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC).set({
+        var ref = firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+        await ref.set({
             testResults: {},
             updatedAt: ts
         }, { merge: true });
+        var controllo = await ref.get();
+        var controlloData = controllo.exists ? (controllo.data() || {}) : {};
+        if (controlloData.testResults && Object.keys(controlloData.testResults).length > 0) {
+            throw new Error('Controllo eliminazione non superato: test archiviati ancora presenti.');
+        }
         gestioneVerificaRender();
         gestioneUiFlashSaved(btn, 1600, 'Eliminati');
     } catch (e) {
@@ -26626,7 +26712,6 @@ function quizGestioneSetSezione(sezione) {
 
     crea.hidden = wantVerifica;
     verifica.hidden = !wantVerifica;
-    gestioneAdminActionsSync();
 
     tabC.classList.toggle('quiz-gestione-test-tab--active', !wantVerifica);
     tabV.classList.toggle('quiz-gestione-test-tab--active', wantVerifica);
@@ -26755,7 +26840,6 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     if (footerVerifica) footerVerifica.hidden = true;
     if (editorCompleto) overlay.classList.remove('quiz-gestione--solo-utente');
     else overlay.classList.add('quiz-gestione--solo-utente');
-    gestioneAdminActionsSync();
     if (settingsOverlay) {
         if (editorCompleto) {
             settingsOverlay.classList.add('visible');
@@ -28414,6 +28498,14 @@ function quizOverlayTouchMove(ev) {
     var scroller = quizOverlayScrollableAncestor(target, overlay);
     if (!scroller) {
         ev.preventDefault();
+        return;
+    }
+    if (
+        overlay.id === 'quiz-gestione-test-overlay' &&
+        target &&
+        target.closest &&
+        target.closest('.quiz-gestione-test-modal')
+    ) {
         return;
     }
     var atTop = scroller.scrollTop <= 0;
