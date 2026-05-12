@@ -5924,20 +5924,24 @@
             display: none;
         }
         .supporto-info__box {
-            position: absolute;
-            left: 0;
-            top: calc(100% + 8px);
-            z-index: 3;
-            width: min(76vw, 360px);
+            position: fixed;
+            left: 50%;
+            top: clamp(86px, 18vh, 150px);
+            z-index: 10140;
+            width: min(86vw, 380px);
+            max-height: min(64vh, 420px);
+            overflow-y: auto;
+            transform: translateX(-50%);
             padding: 12px;
             border-radius: 13px;
             background: #ffffff;
             border: 1px solid #bbdefb;
             color: #37474f;
-            box-shadow: 0 14px 34px rgba(31, 63, 104, 0.18);
+            box-shadow: 0 18px 44px rgba(31, 63, 104, 0.26);
             font-size: 0.8rem;
             line-height: 1.45;
             font-weight: 650;
+            box-sizing: border-box;
         }
         .supporto-lead {
             margin: 0 0 12px;
@@ -6054,6 +6058,31 @@
             font-size: 0.78rem;
             line-height: 1.42;
             color: #546e7a;
+        }
+        .supporto-result-actions {
+            margin-top: 8px;
+            padding: 8px 9px;
+            border-radius: 11px;
+            background: #f1f8e9;
+            border: 1px solid #c5e1a5;
+        }
+        .supporto-result-actions__title {
+            margin: 0 0 5px;
+            color: #33691e;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .supporto-result-actions ul {
+            margin: 0;
+            padding-left: 16px;
+            color: #37474f;
+            font-size: 0.76rem;
+            line-height: 1.38;
+        }
+        .supporto-result-actions li + li {
+            margin-top: 3px;
         }
         .supporto-result-tags {
             display: flex;
@@ -12996,7 +13025,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605340';
+const APP_BUILD = '202605343';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -26952,6 +26981,51 @@ function supportoCanonicalQuery(s) {
         .trim();
 }
 
+function supportoOfflineQueryExpansion(queryNorm) {
+    var q = supportoCanonicalQuery(queryNorm || '');
+    var terms = [];
+    var concepts = [];
+    function addTerm(t) {
+        t = supportoCanonicalQuery(t);
+        if (t && terms.indexOf(t) === -1) terms.push(t);
+    }
+    function addConcept(id) {
+        if (id && concepts.indexOf(id) === -1) concepts.push(id);
+    }
+    var hasDrop = /\b(scend|sces|cala|calo|dimin|abbass|croll|cade|riduc|basso|bassa)\w*\b/.test(q);
+    var hasRise = /\b(sal|sale|sali|aument|alto|alta|elevat|cresce|fuori)\w*\b/.test(q);
+    var mentionsOxygen = /ossigen|o2|aria|soffiant|aeraz|respir|asfiss|soffoc/.test(q);
+    var mentionsCod = /cod|carico|organico|inquinant|abbattimento/.test(q);
+    var mentionsPh = /\bph\b|acido|soda|neutralizz|dosagg/.test(q);
+    var mentionsFango = /fango|cono|imhoff|biomassa|carrier/.test(q);
+
+    if (hasDrop || hasRise) {
+        addTerm('variazione parametro processo controllo valori trend impianto');
+        addConcept('azioni_controlli');
+    }
+    if ((hasDrop && !mentionsCod && !mentionsPh && !mentionsFango) || mentionsOxygen) {
+        addTerm('ossigeno basso carenza ossigeno biologico non respira soffianti aerazione insufficiente diffusori insufflaggio carrier mbbr');
+        addConcept('aria_ossigeno');
+    }
+    if (mentionsCod || (hasDrop || hasRise)) {
+        addTerm('cod carico organico abbattimento biologico shock tossico biomassa chiarificato fango nero');
+        addConcept('cod_alto');
+    }
+    if (mentionsPh || (hasDrop || hasRise)) {
+        addTerm('ph a norma dosaggio acido soda coagulazione pac sali di ferro chimico fisico');
+        addConcept('pac_coagulazione');
+    }
+    if (mentionsFango || hasDrop || hasRise) {
+        addTerm('fango cono imhoff biomassa fango marrone fango nero fango leggero salute biologico mbbr');
+        addConcept('fango_anomalo');
+    }
+    if (/sporc|torbid|limpid|chiarificat|uscita/.test(q)) {
+        addTerm('chiarificato torbido acqua sporca acqua non limpida solidi sospesi uscita non pulita');
+        addConcept('chiarificato_sporco');
+    }
+    return { terms: terms, concepts: concepts };
+}
+
 function supportoPlainText(s) {
     var raw = String(s || '');
     try {
@@ -27070,6 +27144,11 @@ function supportoBuildSearchIndex() {
             var actions = Array.isArray(item.actions)
                 ? item.actions.map(function (a) { return [a && a.c, a && a.a].filter(Boolean).join(': '); }).join(' | ')
                 : '';
+            var actionsList = Array.isArray(item.actions)
+                ? item.actions.map(function (a) {
+                    return supportoPlainText([a && a.c, a && a.a].filter(Boolean).join(': '));
+                }).filter(Boolean)
+                : [];
             var risks = Array.isArray(item.risk_list) ? item.risk_list.join(' | ') : (item.risk || '');
             var critical = Array.isArray(item.critical) ? item.critical.join(' | ') : '';
             var label = typeof quizModifySectionDisplayLabel === 'function' ? quizModifySectionDisplayLabel(sectionKey) : sectionKey;
@@ -27101,6 +27180,7 @@ function supportoBuildSearchIndex() {
                 actionsNorm: supportoCanonicalQuery(actions),
                 risksNorm: supportoCanonicalQuery(risks + ' ' + critical),
                 detailNorm: supportoCanonicalQuery(detailText),
+                actionsList: actionsList,
                 concepts: concepts,
                 tags: supportoInferTags(allText, sectionKey).concat(conceptLabels).filter(function (x, pos, arr) {
                     return x && arr.indexOf(x) === pos;
@@ -27220,9 +27300,12 @@ function supportoRenderSuggestions(query) {
     if (!host) return;
     host.innerHTML = '';
     var q = supportoCanonicalQuery(query || '');
-    var queryConcepts = supportoDetectConcepts(q, true);
+    var offlineExpansion = supportoOfflineQueryExpansion(q);
+    var queryConcepts = supportoDetectConcepts(q, true).concat(offlineExpansion.concepts).filter(function (x, pos, arr) {
+        return x && arr.indexOf(x) === pos;
+    });
     var semanticHints = supportoConceptLabels(queryConcepts);
-    var allHints = semanticHints.concat(SUPPORTO_SEARCH_HINTS).filter(function (x, pos, arr) {
+    var allHints = semanticHints.concat(offlineExpansion.terms).concat(SUPPORTO_SEARCH_HINTS).filter(function (x, pos, arr) {
         return x && arr.indexOf(x) === pos;
     });
     var picked = allHints.filter(function (h) {
@@ -27280,9 +27363,15 @@ function supportoScoreEntry(entry, queryNorm, tokens, queryConcepts, queryEmbedd
 function supportoComputeResults(raw, onlineExpansion) {
     var q = supportoCanonicalQuery(raw);
     var queryConcepts = supportoDetectConcepts(q, true);
-    var extraTerms = [];
+    var offlineExpansion = supportoOfflineQueryExpansion(q);
+    var extraTerms = offlineExpansion.terms.slice();
+    if (offlineExpansion.concepts.length) {
+        queryConcepts = queryConcepts.concat(offlineExpansion.concepts).filter(function (x, pos, arr) {
+            return x && arr.indexOf(x) === pos;
+        });
+    }
     if (onlineExpansion && Array.isArray(onlineExpansion.terms)) {
-        extraTerms = onlineExpansion.terms.map(function (x) { return supportoCanonicalQuery(x); }).filter(Boolean);
+        extraTerms = extraTerms.concat(onlineExpansion.terms.map(function (x) { return supportoCanonicalQuery(x); }).filter(Boolean));
     }
     if (onlineExpansion && Array.isArray(onlineExpansion.concepts)) {
         queryConcepts = queryConcepts.concat(supportoValidConceptIds(onlineExpansion.concepts)).filter(function (x, pos, arr) {
@@ -27332,6 +27421,22 @@ function supportoRenderResultRows(host, rows, q, queryConcepts) {
         detail.className = 'supporto-result-detail';
         detail.textContent = supportoShortText(entry.detail || 'Contenuto operativo collegato alla ricerca.', 220);
 
+        var actionsPreview = [];
+        if (Array.isArray(entry.actionsList) && entry.actionsList.length) {
+            var qNorm = supportoCanonicalQuery(q);
+            var tokens = qNorm.split(/\s+/).filter(function (t) { return t && t.length > 1; });
+            actionsPreview = entry.actionsList.filter(function (a) {
+                var an = supportoCanonicalQuery(a);
+                if (entry.actionsNorm.indexOf(qNorm) >= 0) return true;
+                if (queryConcepts && queryConcepts.indexOf('azioni_controlli') >= 0) return true;
+                return tokens.some(function (t) { return an.indexOf(t) >= 0; });
+            });
+            if (!actionsPreview.length && (row.score > 80 || (queryConcepts && queryConcepts.length))) {
+                actionsPreview = entry.actionsList.slice(0, 2);
+            }
+            actionsPreview = actionsPreview.slice(0, 3);
+        }
+
         var tags = document.createElement('div');
         tags.className = 'supporto-result-tags';
         entry.tags.forEach(function (tag) {
@@ -27343,6 +27448,22 @@ function supportoRenderResultRows(host, rows, q, queryConcepts) {
         card.appendChild(top);
         card.appendChild(question);
         card.appendChild(detail);
+        if (actionsPreview.length) {
+            var actionsBox = document.createElement('div');
+            actionsBox.className = 'supporto-result-actions';
+            var actionsTitle = document.createElement('p');
+            actionsTitle.className = 'supporto-result-actions__title';
+            actionsTitle.textContent = 'Azioni operative e controlli - ' + entry.title;
+            var ul = document.createElement('ul');
+            actionsPreview.forEach(function (a) {
+                var li = document.createElement('li');
+                li.textContent = supportoShortText(a, 150);
+                ul.appendChild(li);
+            });
+            actionsBox.appendChild(actionsTitle);
+            actionsBox.appendChild(ul);
+            card.appendChild(actionsBox);
+        }
         if (entry.tags.length) card.appendChild(tags);
         host.appendChild(card);
     });
