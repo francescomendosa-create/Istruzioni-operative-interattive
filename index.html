@@ -7568,7 +7568,8 @@
         0 -1px 0 rgba(255,255,255,0.78);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]):hover,
-.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--hovered:not([open]) {
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--hovered:not([open]),
+.quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--touch-front:not([open]) {
     transform: perspective(2400px) rotateY(-0.7deg) rotateX(0deg) translateX(0) translateY(-5px) translateZ(82px) scale(1.011);
     border-color: rgba(94, 53, 177, 0.28);
     box-shadow:
@@ -7607,6 +7608,16 @@
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card--fascicolo > * {
     pointer-events: none;
+}
+@media (hover: none) and (pointer: coarse) {
+    .quiz-gestione-verifica-folder-docs {
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .quiz-gestione-verifica-folder-docs.is-touch-swiping .quiz-gestione-verifica-card {
+        transition-duration: 0.24s;
+    }
 }
 .quiz-gestione-verifica-sheet-overlay {
     position: fixed;
@@ -8542,6 +8553,29 @@
             font-size: 0.84rem;
             color: #546e7a;
             line-height: 1.5;
+        }
+        .quiz-gestione-edit-auth-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 4px 0 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(94, 53, 177, 0.18);
+            background: linear-gradient(180deg, #ffffff 0%, #f7f2ff 100%);
+            color: #311b92;
+        }
+        .quiz-gestione-edit-auth-row__text {
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+        .quiz-gestione-edit-auth-row__sub {
+            display: block;
+            margin-top: 2px;
+            color: #607d8b;
+            font-size: 0.73rem;
+            font-weight: 650;
         }
         .quiz-gestione-config-field {
             display: flex;
@@ -9953,6 +9987,38 @@
             }
             .quiz-podium-worm-svg {
                 max-height: 40px;
+            }
+        }
+
+        /* Solo smartphone: Diagnostica centrata, Cerca supporto sotto e separato. */
+        @media (max-width: 480px) and (hover: none) {
+            body {
+                padding-top: 254px;
+            }
+            .header-quiz-actions {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                justify-items: center;
+                align-items: center;
+                gap: 8px 10px;
+                width: 100%;
+                max-width: 310px;
+                margin: 0 auto;
+            }
+            .header-quiz-actions .btn-quiz,
+            .header-quiz-actions .btn-test-gestione {
+                width: 100%;
+                min-width: 0;
+            }
+            .header-quiz-actions .btn-diagnostica {
+                grid-column: 1 / -1;
+                justify-self: center;
+                width: min(100%, 168px);
+            }
+            .header-quiz-actions .btn-supporto {
+                grid-column: 1 / -1;
+                justify-self: center;
+                margin-top: 1px;
             }
         }
 
@@ -12759,7 +12825,16 @@ function dismissAppSplash() {
     <div id="quiz-gestione-config-overlay" class="quiz-lock-overlay quiz-app-overlay" aria-hidden="true" onclick="gestioneConfigPopupBackdrop(event)">
         <div class="quiz-lock-box quiz-app-box quiz-gestione-config-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-gestione-config-title" onclick="event.stopPropagation()">
             <h4 id="quiz-gestione-config-title" class="quiz-lock-title">Impostazioni domande</h4>
-            <p class="quiz-gestione-config-hint">Scegli come comporre i flussi offline e le domande; il pulsante <strong>Genera</strong> nella schermata Domande usa queste impostazioni.</p>
+            <label class="quiz-gestione-edit-auth-row" for="gestione-edit-auth-toggle">
+                <span class="quiz-gestione-edit-auth-row__text">
+                    Abilita modifiche
+                    <span class="quiz-gestione-edit-auth-row__sub">Richiede password se non sei sviluppatore</span>
+                </span>
+                <span class="quiz-dev-ios-switch">
+                    <input type="checkbox" id="gestione-edit-auth-toggle" class="quiz-dev-ios-switch-input" role="switch" aria-label="Abilita modifiche domande e risposte" onchange="gestioneEditAuthToggleChanged(this.checked)">
+                    <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                </span>
+            </label>
             <div class="quiz-gestione-config-field quiz-gestione-config-field--flow">
                 <span class="quiz-gestione-config-label" id="gestione-config-flow-heading">Flusso domande</span>
                 <div class="quiz-gestione-config-flow-body" role="group" aria-labelledby="gestione-config-flow-heading">
@@ -13060,7 +13135,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605351';
+const APP_BUILD = '202605356';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19579,6 +19654,12 @@ function quizModifyWriteAuthPersistOk() {
     } catch (e) { /* ignore */ }
 }
 
+function quizModifyWriteAuthClear() {
+    try {
+        sessionStorage.removeItem(QUIZ_SS_MODIFY_WRITE_AUTH);
+    } catch (e) { /* ignore */ }
+}
+
 function quizModifyRequireWriteAuth(doneFn) {
     if (typeof doneFn !== 'function') return;
     if (quizModifyWriteAuthIsGranted()) {
@@ -21861,6 +21942,50 @@ function gestioneAfterConfigChangeResync() {
     } catch (eR) { /* ignore */ }
 }
 
+function gestioneDomandeEditAllowed() {
+    if (!quizGestioneDomandeEditorCompleto) return true;
+    return quizModifyWriteAuthIsGranted();
+}
+
+function gestioneDomandeEditDeniedInfo() {
+    window.alert('Non sei abilitato alle modifiche. Apri Impostazioni domande e attiva "Abilita modifiche" con password.');
+}
+
+function gestioneDomandeRequireEditAuth() {
+    if (gestioneDomandeEditAllowed()) return true;
+    gestioneDomandeEditDeniedInfo();
+    gestioneConfigSyncEditToggle();
+    return false;
+}
+
+function gestioneConfigSyncEditToggle() {
+    var cb = document.getElementById('gestione-edit-auth-toggle');
+    if (!cb) return;
+    var on = quizModifyWriteAuthIsGranted();
+    cb.checked = on;
+    cb.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
+function gestioneEditAuthToggleChanged(checked) {
+    var cb = document.getElementById('gestione-edit-auth-toggle');
+    if (!checked) {
+        if (!quizAdvancedModeEnabled) quizModifyWriteAuthClear();
+        gestioneConfigSyncEditToggle();
+        gestioneDomandeRender();
+        return;
+    }
+    if (quizModifyWriteAuthIsGranted()) {
+        gestioneConfigSyncEditToggle();
+        gestioneDomandeRender();
+        return;
+    }
+    if (cb) cb.checked = false;
+    quizModifyRequireWriteAuth(function () {
+        gestioneConfigSyncEditToggle();
+        gestioneDomandeRender();
+    });
+}
+
 function gestioneConfigRefreshPopupDisplay() {
     var cfg = gestioneConfigLoad();
     var fgEl = document.getElementById('gestione-flow-generic');
@@ -21881,9 +22006,11 @@ function gestioneConfigRefreshPopupDisplay() {
     if (nqp) nqp.disabled = cfg.numQuestions >= GESTIONE_CONFIG_NQ_MAX;
     if (nam) nam.disabled = cfg.numAnswers <= GESTIONE_CONFIG_NA_MIN;
     if (nap) nap.disabled = cfg.numAnswers >= GESTIONE_CONFIG_NA_MAX;
+    gestioneConfigSyncEditToggle();
 }
 
 function gestioneConfigDeltaNq(delta) {
+    if (!gestioneDomandeRequireEditAuth()) return;
     var cfg = gestioneConfigLoad();
     cfg.numQuestions = Math.min(
         GESTIONE_CONFIG_NQ_MAX,
@@ -21895,6 +22022,7 @@ function gestioneConfigDeltaNq(delta) {
 }
 
 function gestioneConfigDeltaNa(delta) {
+    if (!gestioneDomandeRequireEditAuth()) return;
     var cfg = gestioneConfigLoad();
     cfg.numAnswers = Math.min(
         GESTIONE_CONFIG_NA_MAX,
@@ -21906,6 +22034,10 @@ function gestioneConfigDeltaNa(delta) {
 }
 
 function gestioneConfigSetFlowGeneriche(checked) {
+    if (!gestioneDomandeRequireEditAuth()) {
+        gestioneConfigRefreshPopupDisplay();
+        return;
+    }
     var cfg = gestioneConfigLoad();
     cfg.flowGeneriche = !!checked;
     if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowCar = true;
@@ -21915,6 +22047,10 @@ function gestioneConfigSetFlowGeneriche(checked) {
 }
 
 function gestioneConfigSetFlowCar(checked) {
+    if (!gestioneDomandeRequireEditAuth()) {
+        gestioneConfigRefreshPopupDisplay();
+        return;
+    }
     var cfg = gestioneConfigLoad();
     cfg.flowCar = !!checked;
     if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowGeneriche = true;
@@ -21924,6 +22060,10 @@ function gestioneConfigSetFlowCar(checked) {
 }
 
 function gestioneConfigSetFlowVuoto(checked) {
+    if (!gestioneDomandeRequireEditAuth()) {
+        gestioneConfigRefreshPopupDisplay();
+        return;
+    }
     var cfg = gestioneConfigLoad();
     cfg.flowVuoto = !!checked;
     if (!cfg.flowGeneriche && !cfg.flowCar && !cfg.flowVuoto) cfg.flowGeneriche = true;
@@ -21958,6 +22098,7 @@ function gestioneConfigPopupBackdrop(ev) {
 }
 
 function gestioneConfigPopupGeneraClick() {
+    if (!gestioneDomandeRequireEditAuth()) return;
     gestioneConfigPopupClose();
     gestioneGeneraDomandeClick();
 }
@@ -22717,6 +22858,7 @@ function gestioneSlotRevertBaselineUpdateAllFromDom() {
 /** Ripristina la domanda allo stato di riferimento (come dopo ultimo render o salvataggio su quella scheda / tutto). */
 function gestioneDomandeResetSlotClick(idx) {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequireEditAuth()) return;
     var cfg = gestioneConfigLoad();
     var nq = cfg.numQuestions;
     var na = cfg.numAnswers;
@@ -22795,6 +22937,7 @@ function gestioneDomandeSaveAllClick() {
         gestioneUtentePersistFromDom();
         return;
     }
+    if (!gestioneDomandeRequireEditAuth()) return;
     gestioneDomandePersist(gestioneReadSlotsFromDom());
     try {
         clearTimeout(gestioneDomandePushTimer);
@@ -23201,8 +23344,77 @@ function gestioneVerificaBuildUserFolder(userId, records) {
         };
         docs.appendChild(docCard);
     });
+    var touchBrowse = {
+        active: false,
+        startY: 0,
+        lastY: 0,
+        moved: false,
+        suppressClickUntil: 0
+    };
+    function gestioneVerificaDocsCards() {
+        return Array.prototype.slice.call(docs.querySelectorAll('.quiz-gestione-verifica-card--fascicolo'));
+    }
+    function gestioneVerificaDocsMarkFront() {
+        var cards = gestioneVerificaDocsCards();
+        cards.forEach(function (card, ix) {
+            card.classList.toggle('quiz-gestione-verifica-card--touch-front', ix === cards.length - 1);
+        });
+    }
+    function gestioneVerificaDocsRotate(direction) {
+        var cards = gestioneVerificaDocsCards();
+        if (cards.length < 2) return;
+        docs.classList.add('is-touch-swiping');
+        if (direction > 0) {
+            docs.insertBefore(cards[cards.length - 1], cards[0]);
+        } else {
+            docs.appendChild(cards[0]);
+        }
+        gestioneVerificaDocsMarkFront();
+        window.setTimeout(function () {
+            docs.classList.remove('is-touch-swiping');
+        }, 260);
+    }
+    gestioneVerificaDocsMarkFront();
+    docs.addEventListener('pointerdown', function (ev) {
+        if (!folder.open || ev.pointerType === 'mouse') return;
+        if (gestioneVerificaDocsCards().length < 2) return;
+        touchBrowse.active = true;
+        touchBrowse.startY = ev.clientY || 0;
+        touchBrowse.lastY = touchBrowse.startY;
+        touchBrowse.moved = false;
+        try { docs.setPointerCapture(ev.pointerId); } catch (eCap) { /* ignore */ }
+    });
+    docs.addEventListener('pointermove', function (ev) {
+        if (!touchBrowse.active || ev.pointerType === 'mouse') return;
+        var y = ev.clientY || 0;
+        var dy = y - touchBrowse.lastY;
+        var total = y - touchBrowse.startY;
+        if (Math.abs(total) > 8) {
+            touchBrowse.moved = true;
+            ev.preventDefault();
+        }
+        if (Math.abs(dy) >= 34) {
+            gestioneVerificaDocsRotate(dy > 0 ? 1 : -1);
+            touchBrowse.lastY = y;
+            touchBrowse.suppressClickUntil = Date.now() + 420;
+        }
+    }, { passive: false });
+    docs.addEventListener('pointerup', function (ev) {
+        if (!touchBrowse.active || ev.pointerType === 'mouse') return;
+        try { docs.releasePointerCapture(ev.pointerId); } catch (eRel) { /* ignore */ }
+        if (touchBrowse.moved) touchBrowse.suppressClickUntil = Date.now() + 420;
+        touchBrowse.active = false;
+    });
+    docs.addEventListener('pointercancel', function () {
+        touchBrowse.active = false;
+    });
     docs.addEventListener('click', function (ev) {
         if (!folder.open) return;
+        if (Date.now() < touchBrowse.suppressClickUntil) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            return;
+        }
         var cards = Array.prototype.slice.call(docs.querySelectorAll('.quiz-gestione-verifica-card--fascicolo'));
         var x = ev.clientX;
         var y = ev.clientY;
@@ -23900,6 +24112,7 @@ function gestioneSperimentaleModalBackdrop(ev) {
 /** Applica alla lista corrente (DOM) i testi articolati già in cache Gemini per stem+risposta corretta (non CAR). */
 function gestioneMcqApplicaRisposteOnlineClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequireEditAuth()) return;
     var fbEl = document.getElementById('quiz-gestione-sperimentale-feedback');
     function gestioneSperimentaleFeedbackShow(msg) {
         if (!fbEl) return;
@@ -24008,6 +24221,7 @@ function gestioneDomandeSaveSlotClick(idx) {
         gestioneUiFlashSaved(slotBtn);
         return;
     }
+    if (!gestioneDomandeRequireEditAuth()) return;
     gestioneDomandePersist(gestioneReadSlotsFromDom());
     try {
         clearTimeout(gestioneDomandePushTimer);
@@ -24335,6 +24549,7 @@ function gestioneDomandeBuildCard(i, slot) {
     var naCfg = gestioneConfigLoad().numAnswers;
     var editor = quizGestioneDomandeEditorCompleto;
     if (!editor) return gestioneDomandeBuildUserCompactCard(i, slot);
+    var canEdit = gestioneDomandeEditAllowed();
     var picksUtente = editor ? null : gestioneUtenteLoad();
     var userPick =
         !editor &&
@@ -24378,7 +24593,9 @@ function gestioneDomandeBuildCard(i, slot) {
             'aria-label',
             'Ripristina domanda ' + (i + 1) + ' allo stato di riferimento'
         );
+        if (!canEdit) bReset.setAttribute('aria-disabled', 'true');
         bReset.onclick = function () {
+            if (!gestioneDomandeRequireEditAuth()) return;
             gestioneDomandeResetSlotClick(i);
         };
         actions.appendChild(bReset);
@@ -24391,7 +24608,9 @@ function gestioneDomandeBuildCard(i, slot) {
         bSav.setAttribute('data-gestione-default-label', 'Salva');
         bSav.textContent = 'Salva';
         bSav.setAttribute('aria-label', 'Salva domanda e risposte ' + (i + 1) + ' su cloud');
+        if (!canEdit) bSav.setAttribute('aria-disabled', 'true');
         bSav.onclick = function () {
+            if (!gestioneDomandeRequireEditAuth()) return;
             gestioneDomandeSaveSlotClick(i);
         };
         actions.appendChild(bSav);
@@ -24416,7 +24635,11 @@ function gestioneDomandeBuildCard(i, slot) {
     ta.rows = 1;
     ta.setAttribute('aria-label', editor ? 'Testo domanda ' + (i + 1) : 'Domanda ' + (i + 1) + ' (sola lettura)');
     ta.value = slot.q || '';
-    if (!editor) ta.readOnly = true;
+    if (!editor || !canEdit) ta.readOnly = true;
+    if (editor && !canEdit) {
+        ta.addEventListener('pointerdown', gestioneDomandeRequireEditAuth);
+        ta.addEventListener('focus', gestioneDomandeRequireEditAuth);
+    }
     ta.addEventListener('input', function () {
         gestioneDomandeFitTextareaToContent(ta);
         requestAnimationFrame(function () {
@@ -24484,6 +24707,7 @@ function gestioneDomandeBuildCard(i, slot) {
             letterEl.setAttribute('role', 'button');
             letterEl.setAttribute('tabindex', '0');
             letterEl.setAttribute('aria-label', 'Seleziona risposta corretta ' + letters[k]);
+            if (!canEdit) letterEl.setAttribute('aria-disabled', 'true');
         } else {
             letterEl.setAttribute('aria-hidden', 'true');
         }
@@ -24516,7 +24740,11 @@ function gestioneDomandeBuildCard(i, slot) {
                 : 'Opzione ' + letters[k] + ' — domanda ' + (i + 1) + ' (sola lettura)'
         );
         inp.value = slot.answers && slot.answers[k] ? slot.answers[k] : '';
-        if (!editor) inp.readOnly = true;
+        if (!editor || !canEdit) inp.readOnly = true;
+        if (editor && !canEdit) {
+            inp.addEventListener('pointerdown', gestioneDomandeRequireEditAuth);
+            inp.addEventListener('focus', gestioneDomandeRequireEditAuth);
+        }
         inp.addEventListener('input', function () {
             gestioneDomandeFitTextareaToContent(inp);
             requestAnimationFrame(function () {
@@ -24548,6 +24776,13 @@ function gestioneDomandeBuildCard(i, slot) {
         });
 
         rad.addEventListener('change', function () {
+            if (editor && !gestioneDomandeEditAllowed()) {
+                var originalRad = card.querySelector('input[name="gestione-corr-' + i + '"][value="' + ci + '"]');
+                if (originalRad) originalRad.checked = true;
+                gestioneDomandeRequireEditAuth();
+                gestioneDomandeSyncAnswerRows(card);
+                return;
+            }
             gestioneDomandeSyncAnswerRows(card);
             if (quizGestioneDomandeEditorCompleto === false) {
                 gestioneUtentePickSaveOne(i);
@@ -24556,16 +24791,27 @@ function gestioneDomandeBuildCard(i, slot) {
         });
         if (editor) {
             letterEl.addEventListener('click', function () {
+                if (!gestioneDomandeRequireEditAuth()) return;
                 rad.checked = true;
                 rad.dispatchEvent(new Event('change', { bubbles: true }));
             });
             letterEl.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
+                    if (!gestioneDomandeRequireEditAuth()) return;
                     rad.checked = true;
                     rad.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
+            if (!canEdit) {
+                rad.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var originalRad = card.querySelector('input[name="gestione-corr-' + i + '"][value="' + ci + '"]');
+                    if (originalRad) originalRad.checked = true;
+                    gestioneDomandeRequireEditAuth();
+                    gestioneDomandeSyncAnswerRows(card);
+                });
+            }
         }
 
         slotWrap.appendChild(letterEl);
@@ -25912,6 +26158,7 @@ function gestioneGeneraBusyHide() {
 /** Scarica da Gemini risposte articolate (corretta + errate) per ogni slot già salvato — riempie la cache offline. */
 async function gestioneMcqPrefetchArticulatedClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequireEditAuth()) return;
     if (!quizResolveAiConfig().textKey) {
         console.warn('[Scarica risposte online] configurare la chiave API nella telecronaca.');
         return;
@@ -25974,6 +26221,7 @@ async function gestioneMcqPrefetchArticulatedClick() {
 
 async function gestioneGeneraDomandeClick() {
     if (!quizGestioneDomandeEditorCompleto) return;
+    if (!gestioneDomandeRequireEditAuth()) return;
     var btn = document.getElementById('quiz-gestione-btn-genera');
     var btnCfg = document.getElementById('quiz-gestione-btn-genera-config');
     var prefBtn = document.getElementById('quiz-gestione-sperimentale-prefetch');
