@@ -7439,6 +7439,28 @@
             outline: 3px solid rgba(149, 117, 205, 0.9);
             outline-offset: 3px;
         }
+        @media (min-width: 641px) {
+            #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-head-start {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+                align-items: center;
+                column-gap: 12px;
+            }
+            #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-segments {
+                grid-column: 2;
+                justify-content: center;
+                gap: 12px;
+            }
+            #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-test-tab {
+                min-width: 138px;
+                padding: 8px 22px;
+                font-size: 0.82rem;
+            }
+            #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-btn-torna {
+                grid-column: 3;
+                justify-self: end;
+            }
+        }
         /* Torna compatto in linea con titolo + tab (unica riga) */
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-gestione-torna {
             padding: 4px 9px !important;
@@ -8204,6 +8226,114 @@
             outline: none;
             border-color: #9575cd;
             box-shadow: 0 0 0 2px rgba(149, 117, 205, 0.2);
+        }
+        /* Gestione test e verifiche > Crea: layout più compatto per configurare molte domande. */
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-crea-domande-row {
+            margin-bottom: 3px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-destinatari-wrap {
+            margin-bottom: 5px;
+            padding: 5px 8px;
+            border-radius: 10px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-destinatari-head {
+            margin-bottom: 4px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-destinatari-badges {
+            gap: 4px 6px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-destinatari-badge {
+            padding: 3px 7px;
+            font-size: 0.58rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-test-list {
+            padding: 2px 5px 0 1px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card {
+            margin-bottom: 7px;
+            border-radius: 11px;
+            box-shadow:
+                0 4px 14px rgba(49, 27, 96, 0.055),
+                0 1px 0 rgba(255, 255, 255, 0.88) inset;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-head {
+            padding: 6px 8px;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-title-row {
+            gap: 6px;
+            flex: 1 1 auto;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-num {
+            min-width: 1.55rem;
+            height: 1.55rem;
+            padding: 0 5px;
+            border-radius: 8px;
+            font-size: 0.66rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-head strong {
+            font-size: 0.78rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-actions {
+            gap: 5px;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-actions .btn-side {
+            min-height: 28px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.66rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-actions .btn-side.btn-report {
+            min-height: 28px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.66rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-card-body {
+            padding: 6px 8px 7px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-section {
+            margin-bottom: 6px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-section-label {
+            margin-bottom: 4px;
+            font-size: 0.58rem;
+            letter-spacing: 0.045em;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-q-text {
+            padding: 5px 8px;
+            border-radius: 9px;
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answers-list {
+            gap: 5px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-slot {
+            gap: 6px;
+            padding: 5px 7px 5px 5px;
+            border-radius: 9px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-letter {
+            width: 22px;
+            height: 22px;
+            margin-top: 1px;
+            border-radius: 7px;
+            font-size: 0.66rem;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-slot input[type='radio'] {
+            width: 15px;
+            height: 15px;
+            margin-top: 4px;
+        }
+        #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .gestione-answer-slot textarea.gestione-a-text {
+            padding: 4px 7px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            line-height: 1.32;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-modal .quiz-gestione-test-footer.quiz-lock-actions {
             display: flex;
@@ -11318,7 +11448,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605285</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605289</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11350,8 +11480,8 @@ function dismissAppSplash() {
             <label for="quiz-presence-whoami-input">Il tuo nome</label>
             <input type="text" id="quiz-presence-whoami-input" maxlength="40" autocomplete="nickname" placeholder="Facoltativo · lascia vuoto se preferisci">
             <div class="quiz-account-panel" id="quiz-account-panel">
-                <h5 id="quiz-account-title">Crea account</h5>
-                <p id="quiz-account-current" class="quiz-account-current">Account non collegato. Puoi creare un account o accedere se lo hai già creato.</p>
+                <h5 id="quiz-account-title">Crea account oppure accedi (disabilitato)</h5>
+                <p id="quiz-account-current" class="quiz-account-current">Account non collegato. Funzione account email/password al momento disabilitata: usa il nome provvisorio.</p>
                 <label for="quiz-account-name">Nome</label>
                 <input type="text" id="quiz-account-name" maxlength="40" autocomplete="name" placeholder="Nome account">
                 <label for="quiz-account-email">Email</label>
@@ -11362,9 +11492,9 @@ function dismissAppSplash() {
                 <input type="password" id="quiz-account-password2" autocomplete="new-password" placeholder="Ripeti password">
                 <p id="quiz-account-status" class="quiz-account-status" aria-live="polite"></p>
                 <div class="quiz-account-actions">
-                    <button type="button" class="btn-side btn-report" onclick="quizAccountCreate()">Crea account</button>
-                    <button type="button" class="btn-side btn-report" onclick="quizAccountSignIn()">Accedi</button>
-                    <button type="button" class="btn-side btn-reset" onclick="quizAccountSendPasswordReset()">Password smarrita</button>
+                    <button type="button" class="btn-side btn-report" onclick="quizAccountCreate()" disabled>Crea account (disabilitato)</button>
+                    <button type="button" class="btn-side btn-report" onclick="quizAccountSignIn()" disabled>Accedi (disabilitato)</button>
+                    <button type="button" class="btn-side btn-reset" onclick="quizAccountSendPasswordReset()" disabled>Password smarrita (disabilitato)</button>
                     <button type="button" id="quiz-account-logout-btn" class="btn-side btn-reset" onclick="quizAccountSignOut()" hidden>Esci dall'account</button>
                 </div>
             </div>
@@ -11469,7 +11599,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605285</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605289</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -11517,7 +11647,7 @@ function dismissAppSplash() {
                 <div class="quiz-gestione-test-head-start">
                     <h4 id="quiz-gestione-modal-title" class="quiz-lock-title quiz-gestione-test-title">Gestione test e verifiche</h4>
                     <div class="quiz-gestione-test-segments" role="tablist" aria-label="Sezioni gestione test">
-                        <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea</button>
+                        <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea test</button>
                         <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifica</button>
                     </div>
                     <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni">Torna</button>
@@ -11916,7 +12046,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605285';
+const APP_BUILD = '202605289';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -12699,12 +12829,12 @@ function quizAccountFillFieldsFromState() {
     var logoutBtn = document.getElementById('quiz-account-logout-btn');
     if (nameEl && !nameEl.value) nameEl.value = who || (user && user.displayName) || '';
     if (emailEl && user && !user.isAnonymous && user.email && !emailEl.value) emailEl.value = user.email;
-    if (titleEl) titleEl.textContent = user && !user.isAnonymous ? 'Account collegato' : 'Crea account oppure accedi';
+    if (titleEl) titleEl.textContent = user && !user.isAnonymous ? 'Account collegato' : 'Crea account oppure accedi (disabilitato)';
     if (currentEl) {
         if (user && !user.isAnonymous) {
             currentEl.textContent = 'Sei collegato come ' + (user.email || 'account registrato') + '. Resterai collegato anche chiudendo l\'app, finche non premi Esci dall\'account.';
         } else {
-            currentEl.textContent = 'Account non collegato. Crea un account per accedere con email e password, oppure accedi se lo hai gia creato.';
+            currentEl.textContent = 'Account non collegato. Funzione account email/password al momento disabilitata: usa il nome provvisorio.';
         }
     }
     if (logoutBtn) logoutBtn.hidden = !(user && !user.isAnonymous);
@@ -21530,21 +21660,53 @@ function gestioneVerificaFormatDateOnly(ms) {
 
 function gestioneVerificaExtractTopics(testResult) {
     var items = testResult && Array.isArray(testResult.items) ? testResult.items : [];
-    var seen = {};
     var topics = [];
-    for (var i = 0; i < items.length && topics.length < 6; i++) {
-        var raw = gestioneStripHtml(items[i] && items[i].q ? items[i].q : '');
-        raw = raw.replace(/\s+/g, ' ').trim();
-        if (!raw) continue;
-        var compact = raw.replace(/^(domanda|quesito)\s*\d*[:.)-]?\s*/i, '').trim();
-        compact = compact.split(/[?.!;]/)[0].trim() || compact;
-        if (compact.length > 92) compact = compact.slice(0, 89).trim() + '...';
-        var key = compact.toLowerCase();
-        if (!compact || seen[key]) continue;
-        seen[key] = true;
-        topics.push(compact);
+    var textParts = [];
+    for (var i = 0; i < items.length; i++) {
+        var it = items[i] || {};
+        textParts.push(gestioneStripHtml(it.q || ''));
+        if (Array.isArray(it.answers)) {
+            for (var a = 0; a < it.answers.length; a++) textParts.push(gestioneStripHtml(it.answers[a] || ''));
+        }
     }
-    if (!topics.length) topics.push('Argomenti non disponibili');
+    var hay = textParts.join(' ').replace(/\s+/g, ' ').toLowerCase();
+    function has(re) {
+        return re.test(hay);
+    }
+    function add(title) {
+        if (topics.indexOf(title) === -1) topics.push(title);
+    }
+
+    if (has(/chimico[\s-]?fisico|chiarificat|torbid|ntu|sediflott|daf|flottaz|saturator|microbol|raschiator|olio|oli\b|pac|pam|coagul|floccul|polielettrolit|ph|cod/)) {
+        add('Trattamento chimico-fisico e qualità del chiarificato');
+    }
+    if (has(/biologico|mbbr|biofilm|carrier|biomassa|fango|schium|ossigen|o2|soffiant|aereaz|aeraz|cono|urea|nutrient/)) {
+        add('Sistema biologico MBBR, biofilm e biomassa attiva');
+    }
+    if (has(/coagul|pac|sali di ferro|carica|colloid|miscelaz|mixer/)) {
+        add('Coagulazione, destabilizzazione colloidale e dosaggio PAC');
+    }
+    if (has(/polielettrolit|pam|floccul|floc|fiocc|ponte|diluiz|filante|viscos/)) {
+        add('Polielettrolita, flocculazione e formazione del fiocco');
+    }
+    if (has(/flottaz|daf|sediflott|saturator|microbol|acqua bianca|raschiator|ricircolo|pressione/)) {
+        add('Flottazione DAF, saturazione aria e separazione fanghi');
+    }
+    if (has(/controll|azione|verific|regol|taratur|setpoint|dcs|pompa|valvol|manutenz|dosagg|procedere|incrementare|ridurre/)) {
+        add('Gestione operativa: controlli, regolazioni e azioni correttive');
+    }
+    if (has(/process|impianto|correlaz|a valle|in serie|carico|shock|instabil|efficienza|rendimento|scarico/)) {
+        add('Processi di impianto, correlazioni a valle e stabilità di esercizio');
+    }
+    if (has(/ph|cod|bod|ntu|torbid|temperatur|ossigen|o2|cono|solidi sospesi|parametr/)) {
+        add('Parametri di processo e indicatori di controllo impianto');
+    }
+    if (has(/olio|oli|schium|fango nero|settic|anoss|h2s|odore|shock tossico/)) {
+        add('Anomalie operative: oli, schiume, setticità e shock biologico');
+    }
+
+    if (!topics.length) topics.push('Verifica operativa su controlli, azioni e processo di impianto');
+    if (topics.length > 6) topics = topics.slice(0, 6);
     return topics;
 }
 
@@ -24275,7 +24437,7 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
     var tabC = document.getElementById('quiz-gestione-tab-crea');
     var tabV = document.getElementById('quiz-gestione-tab-verifica');
     if (tabC) {
-        tabC.textContent = editorCompleto ? 'Crea' : 'Test';
+        tabC.textContent = editorCompleto ? 'Crea test' : 'Test';
         tabC.setAttribute('aria-label', editorCompleto ? 'Crea test' : 'Visualizza test di verifica');
     }
     if (tabV) {
