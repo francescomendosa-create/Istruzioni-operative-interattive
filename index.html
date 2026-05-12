@@ -7317,7 +7317,7 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-top: -8px;
+    margin-top: -10px;
     padding: 15px 16px;
     border-radius: 8px 16px 16px 8px;
     transform-origin: left center;
@@ -7342,24 +7342,33 @@
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(1) {
     z-index: 8;
+    transform: perspective(1300px) rotateY(-1.4deg) rotateX(0.8deg) translateX(0) translateY(0) translateZ(14px);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(2) {
     z-index: 7;
+    transform: perspective(1300px) rotateY(-1.8deg) rotateX(0.9deg) translateX(3px) translateY(-1px) translateZ(8px);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(3) {
     z-index: 6;
+    transform: perspective(1300px) rotateY(-2.1deg) rotateX(1deg) translateX(6px) translateY(-2px) translateZ(2px);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(4) {
     z-index: 5;
+    transform: perspective(1300px) rotateY(-2.4deg) rotateX(1deg) translateX(9px) translateY(-3px) translateZ(-4px);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:nth-child(n+5) {
     z-index: 4;
+    transform: perspective(1300px) rotateY(-2.6deg) rotateX(1deg) translateX(12px) translateY(-4px) translateZ(-8px);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]) {
-    transform: perspective(1300px) rotateY(-2deg) rotateX(1.2deg) translateX(0) translateY(0) translateZ(0);
+    box-shadow:
+        0 10px 22px rgba(49, 27, 96, 0.12),
+        -5px 0 0 rgba(94, 53, 177, 0.2),
+        inset 0 1px 0 rgba(255,255,255,0.95),
+        0 -1px 0 rgba(255,255,255,0.7);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card:not([open]):hover {
-    transform: perspective(1300px) rotateY(-1deg) rotateX(0deg) translateX(0) translateY(-4px) translateZ(18px);
+    transform: perspective(1300px) rotateY(-0.8deg) rotateX(0deg) translateX(0) translateY(-2px) translateZ(12px);
     border-color: rgba(94, 53, 177, 0.28);
     box-shadow:
         0 16px 30px rgba(49, 27, 96, 0.16),
@@ -7371,7 +7380,7 @@
     margin-top: 8px;
     margin-bottom: 14px;
     border-radius: 6px 18px 18px 6px;
-    transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(0) translateY(-8px) translateZ(42px) scale(1.006);
+    transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(0) translateY(-5px) translateZ(24px) scale(1.002);
     border-color: rgba(94, 53, 177, 0.30);
     background:
         linear-gradient(90deg, rgba(94, 53, 177, 0.22) 0 10px, rgba(255,255,255,0.96) 10px 16px, transparent 16px),
@@ -7381,10 +7390,85 @@
         0 24px 46px rgba(49, 27, 96, 0.23),
         -7px 0 0 rgba(94, 53, 177, 0.25),
         inset 0 1px 0 rgba(255,255,255,0.98);
-    animation: quizGestionePaperOut 0.74s cubic-bezier(0.16, 0.9, 0.18, 1);
+    animation: quizGestionePaperOut 0.42s cubic-bezier(0.2, 0.82, 0.22, 1);
 }
 .quiz-gestione-verifica-folder-docs .quiz-gestione-verifica-card[open] .quiz-gestione-verifica-card-body {
     animation: quizGestioneFascicoloBodyOpen 0.28s ease-out;
+}
+.quiz-gestione-verifica-card--fascicolo {
+    cursor: pointer;
+}
+.quiz-gestione-verifica-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10120;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
+    background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.16), transparent 28%),
+        rgba(20, 24, 38, 0.56);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-sizing: border-box;
+    animation: quizGestioneSheetBackdropIn 0.18s ease-out;
+}
+.quiz-gestione-verifica-sheet {
+    position: relative;
+    width: min(900px, calc(100vw - 32px));
+    max-height: min(88dvh, calc(100dvh - 32px));
+    overflow: auto;
+    border-radius: 22px;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #fffdf8 100%),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(66, 165, 245, 0.055) 31px 32px);
+    box-shadow:
+        0 34px 80px rgba(0, 0, 0, 0.34),
+        0 12px 0 rgba(49, 27, 96, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.96);
+    padding: 16px;
+    box-sizing: border-box;
+    transform-origin: center center;
+    animation: quizGestioneSheetExtract 0.46s cubic-bezier(0.16, 0.9, 0.18, 1);
+}
+.quiz-gestione-verifica-sheet-close {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-left: auto;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(69, 39, 160, 0.2);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffffff 0%, #ede7f6 100%);
+    color: #4527a0;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(49, 27, 96, 0.14);
+}
+.quiz-gestione-verifica-sheet .quiz-gestione-verifica-card {
+    width: 100%;
+    box-shadow: none;
+    border-color: rgba(94, 53, 177, 0.20);
+    transform: none;
+}
+.quiz-gestione-verifica-sheet .quiz-gestione-verifica-card::before {
+    width: 8px;
+}
+@keyframes quizGestioneSheetBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes quizGestioneSheetExtract {
+    0% { opacity: 0; transform: perspective(1300px) translateY(28px) translateZ(-80px) rotateX(8deg) scale(0.86); }
+    58% { opacity: 1; transform: perspective(1300px) translateY(-6px) translateZ(24px) rotateX(-1deg) scale(1.018); }
+    100% { opacity: 1; transform: perspective(1300px) translateY(0) translateZ(0) rotateX(0deg) scale(1); }
 }
 @keyframes quizGestioneDrawerOpen {
     0% { transform: perspective(1400px) rotateX(-7deg) translateY(-4px) scale(0.994); opacity: 0.94; }
@@ -7406,9 +7490,8 @@
     100% { opacity: 1; transform: perspective(1200px) rotateX(0deg) translateY(0) translateZ(0); }
 }
 @keyframes quizGestionePaperOut {
-    0% { transform: perspective(1300px) rotateY(-12deg) rotateX(2deg) translateX(-6px) translateY(2px) translateZ(-18px) scale(0.985); }
-    54% { transform: perspective(1300px) rotateY(2deg) rotateX(-1deg) translateX(0) translateY(-11px) translateZ(58px) scale(1.014); }
-    100% { transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(0) translateY(-8px) translateZ(42px) scale(1.006); }
+    0% { transform: perspective(1300px) rotateY(-5deg) rotateX(1deg) translateX(0) translateY(0) translateZ(0) scale(0.992); }
+    100% { transform: perspective(1300px) rotateY(0deg) rotateX(0deg) translateX(0) translateY(-5px) translateZ(24px) scale(1.002); }
 }
 @keyframes quizGestioneFascicoloBodyOpen {
     from { opacity: 0; transform: translateX(-14px) scaleX(0.98); }
@@ -12645,7 +12728,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605312';
+const APP_BUILD = '202605314';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22348,6 +22431,10 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     summary.addEventListener('click', function (ev) {
         ev.preventDefault();
         ev.stopPropagation();
+        if (card.classList.contains('quiz-gestione-verifica-card--fascicolo')) {
+            gestioneVerificaOpenResultSheet(userId, packId, testResult);
+            return;
+        }
         card.open = !card.open;
     });
 
@@ -22438,6 +22525,50 @@ function gestioneVerificaBuildResultCard(userId, packId, testResult) {
     return card;
 }
 
+function gestioneVerificaCloseResultSheet() {
+    var old = document.getElementById('quiz-gestione-verifica-sheet-overlay');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+}
+
+function gestioneVerificaOpenResultSheet(userId, packId, testResult) {
+    gestioneVerificaCloseResultSheet();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'quiz-gestione-verifica-sheet-overlay';
+    overlay.className = 'quiz-gestione-verifica-sheet-overlay';
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.onclick = function (ev) {
+        if (ev.target === overlay) gestioneVerificaCloseResultSheet();
+    };
+
+    var sheet = document.createElement('div');
+    sheet.className = 'quiz-gestione-verifica-sheet';
+    sheet.setAttribute('role', 'dialog');
+    sheet.setAttribute('aria-modal', 'true');
+    sheet.setAttribute('aria-label', 'Documento risultato test');
+    sheet.onclick = function (ev) { ev.stopPropagation(); };
+
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'quiz-gestione-verifica-sheet-close';
+    close.setAttribute('aria-label', 'Chiudi documento');
+    close.title = 'Chiudi documento';
+    close.textContent = '×';
+    close.onclick = gestioneVerificaCloseResultSheet;
+    sheet.appendChild(close);
+
+    var card = gestioneVerificaBuildResultCard(userId, packId, testResult);
+    card.open = true;
+    card.classList.add('quiz-gestione-verifica-card--sheet');
+    sheet.appendChild(card);
+
+    overlay.appendChild(sheet);
+    document.body.appendChild(overlay);
+    try {
+        close.focus();
+    } catch (eFocus) { /* ignore */ }
+}
+
 function gestioneVerificaBuildUserFolder(userId, records) {
     records = Array.isArray(records) ? records.slice() : [];
     records.sort(function (a, b) {
@@ -22477,7 +22608,9 @@ function gestioneVerificaBuildUserFolder(userId, records) {
     var docs = document.createElement('div');
     docs.className = 'quiz-gestione-verifica-folder-docs';
     records.forEach(function (record) {
-        docs.appendChild(gestioneVerificaBuildResultCard(userId, record.packId, record.testResult));
+        var docCard = gestioneVerificaBuildResultCard(userId, record.packId, record.testResult);
+        docCard.classList.add('quiz-gestione-verifica-card--fascicolo');
+        docs.appendChild(docCard);
     });
     body.appendChild(docs);
     folder.appendChild(body);
@@ -25700,6 +25833,14 @@ function setupQuizTitleToggle() {
         const modifyDev = document.getElementById('quiz-modify-dev-overlay');
         const settings = document.getElementById('quiz-settings-overlay');
         const supporto = document.getElementById('supporto-overlay');
+        const verificaSheet = document.getElementById('quiz-gestione-verifica-sheet-overlay');
+        if (verificaSheet) {
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                gestioneVerificaCloseResultSheet();
+            }
+            return;
+        }
         if (modifyAuth && modifyAuth.classList.contains('visible')) {
             if (ev.key === 'Escape') {
                 ev.preventDefault();
