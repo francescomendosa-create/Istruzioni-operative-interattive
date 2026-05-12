@@ -8125,7 +8125,7 @@
             accent-color: #f9a825;
         }
         .quiz-gestione-destinatari-pref-inline {
-            font-size: 0.58rem;
+            font-size: 0.68rem;
             font-weight: 700;
             letter-spacing: 0.03em;
             color: #795548;
@@ -8139,15 +8139,15 @@
             align-items: center;
         }
         .quiz-gestione-destinatari-empty {
-            font-size: 0.62rem;
+            font-size: 0.72rem;
             color: #78909c;
             line-height: 1.35;
         }
         .quiz-gestione-destinatari-badge {
             font-family: inherit;
-            font-size: 0.62rem;
-            font-weight: 700;
-            padding: 4px 9px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            padding: 5px 10px;
             border-radius: 999px;
             border: 1px solid rgba(84, 110, 122, 0.35);
             background: #fff;
@@ -8453,8 +8453,8 @@
             gap: 4px 6px;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) .quiz-gestione-destinatari-badge {
-            padding: 3px 7px;
-            font-size: 0.58rem;
+            padding: 4px 9px;
+            font-size: 0.72rem;
         }
         #quiz-gestione-test-overlay:not(.quiz-gestione--solo-utente) #quiz-gestione-test-list {
             padding: 2px 5px 0 1px;
@@ -11675,7 +11675,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605296</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605297</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -11826,7 +11826,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605296</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">1.2</strong> · build <strong id="quiz-info-build-label">202605297</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -12274,7 +12274,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '1.2';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605296';
+const APP_BUILD = '202605297';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20895,6 +20895,7 @@ var GESTIONE_TEST_DONE_LS = 'io-gestione-test-consegnati-v1';
 var GESTIONE_TEST_RESET_AT_MS = 1778534462558;
 /** Preferenza: alla Genera, copia lo stesso pacchetto su tutti i destinatari elencati. */
 var GESTIONE_GENERA_UGUALE_TUTTI_LS = 'io-gestione-genera-uguali-tutti-v1';
+var gestioneGeneraUgualiTuttiPreviousRecipientKey = '';
 /** Numero domande / opzioni per domanda (persistente). */
 var GESTIONE_CONFIG_LS = 'io-gestione-test-config-v1';
 /** Cache offline risposte errate Gemini (chiave stem+corretta+numWrong), riuso senza rete. */
@@ -21647,6 +21648,7 @@ function gestioneRenderDestinatariBadges() {
     if (!quizGestioneDomandeEditorCompleto) return;
     var raw = gestioneDomandeLoadRaw();
     var sel = String(raw.recipientKey || '').trim();
+    var allMode = gestioneGeneraUgualiTuttiLoad();
     var rows = gestioneCollectRecipientLabels();
     if (!rows.length) {
         var hint = document.createElement('span');
@@ -21663,8 +21665,8 @@ function gestioneRenderDestinatariBadges() {
         btn.className = 'quiz-gestione-destinatari-badge';
         if (r.online) btn.classList.add('quiz-gestione-destinatari-badge--online');
         else btn.classList.add('quiz-gestione-destinatari-badge--offline');
-        if (sel === r.key) btn.classList.add('quiz-gestione-destinatari-badge--selected');
-        btn.setAttribute('aria-pressed', sel === r.key ? 'true' : 'false');
+        if (allMode || sel === r.key) btn.classList.add('quiz-gestione-destinatari-badge--selected');
+        btn.setAttribute('aria-pressed', allMode || sel === r.key ? 'true' : 'false');
         btn.textContent = r.label;
         btn.title = r.online
             ? 'Collegato · modifica il test da inviare a questo nome'
@@ -22497,12 +22499,28 @@ function gestioneGeneraUgualiTuttiSave(enabled) {
 }
 
 function gestioneGeneraUgualiTuttiSetFromCheckbox(el) {
-    gestioneGeneraUgualiTuttiSave(!!(el && el.checked));
+    var enabled = !!(el && el.checked);
+    var raw = gestioneDomandeLoadRaw();
+    if (enabled) {
+        gestioneGeneraUgualiTuttiPreviousRecipientKey = String(raw.recipientKey || '').trim();
+    } else if (gestioneGeneraUgualiTuttiPreviousRecipientKey) {
+        raw.recipientKey = gestioneGeneraUgualiTuttiPreviousRecipientKey;
+        gestioneDomandeSaveRaw(raw);
+    }
+    gestioneGeneraUgualiTuttiSave(enabled);
+    gestioneRenderDestinatariBadges();
 }
 
 function gestioneGeneraUgualiTuttiRefreshCheckbox() {
     var cb = document.getElementById('gestione-genera-uguali-tutti');
-    if (cb) cb.checked = gestioneGeneraUgualiTuttiLoad();
+    if (cb) {
+        cb.checked = gestioneGeneraUgualiTuttiLoad();
+        if (cb.checked && !gestioneGeneraUgualiTuttiPreviousRecipientKey) {
+            try {
+                gestioneGeneraUgualiTuttiPreviousRecipientKey = String(gestioneDomandeLoadRaw().recipientKey || '').trim();
+            } catch (e) { /* ignore */ }
+        }
+    }
 }
 
 /** Invio verso tutti i destinatari noti (stesso elenco dei badge): stesso test per ciascun profilo, poi push Firestore. */
