@@ -873,7 +873,7 @@
             min-height: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 20px max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+            padding: 14px max(12px, env(safe-area-inset-right)) 18px max(12px, env(safe-area-inset-left));
             background: #e8f4fc;
         }
         .checklist-editor__content {
@@ -882,16 +882,16 @@
             max-width: 42rem;
             margin: 0 auto;
             min-height: min(70vh, 520px);
-            padding: 16px 18px;
+            padding: 12px 14px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             resize: none;
             background: #e8f4fc;
             font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, 'Times New Roman', serif;
-            font-size: clamp(1.08rem, 2.6vw, 1.38rem);
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
             font-weight: 400;
-            line-height: 1.78;
-            letter-spacing: 0.01em;
+            line-height: 1.42;
+            letter-spacing: 0;
             color: #0d1b2a;
             box-sizing: border-box;
             -webkit-text-fill-color: #0d1b2a;
@@ -943,7 +943,7 @@
             .checklist-editor__scroll {
                 flex: 1 0 auto;
                 overflow: visible;
-                padding: 28px clamp(24px, 4vw, 56px) 48px;
+                padding: 18px clamp(20px, 3vw, 40px) 28px;
                 background: #e8f4fc;
             }
             .checklist-editor__content {
@@ -955,12 +955,12 @@
                 overflow: hidden;
                 resize: none;
                 field-sizing: content;
-                font-size: clamp(1.38rem, 1.45vw, 1.78rem);
-                line-height: 1.82;
+                font-size: clamp(1.18rem, 1.2vw, 1.45rem);
+                line-height: 1.38;
                 color: #0d1b2a;
                 background: #e8f4fc;
                 -webkit-text-fill-color: #0d1b2a;
-                padding: 20px 24px;
+                padding: 14px 18px;
             }
         }
 
@@ -13301,7 +13301,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605405</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605406</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13458,7 +13458,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605405</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605406</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13949,7 +13949,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605405';
+const APP_BUILD = '202605406';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
