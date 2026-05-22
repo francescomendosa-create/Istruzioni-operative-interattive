@@ -7560,6 +7560,15 @@
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
+        .quiz-modify-actions-si-no-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .quiz-modify-actions-si-no-head .quiz-modify-block-title {
+            margin: 0;
+        }
         .quiz-modify-actions-si-no-row {
             display: flex;
             flex-wrap: wrap;
@@ -7584,14 +7593,6 @@
         .quiz-modify-actions-si-no-label {
             min-width: 1.6rem;
             letter-spacing: 0.04em;
-        }
-        .quiz-modify-actions-si-no-hint {
-            flex: 1 1 100%;
-            margin: 0;
-            font-size: 0.68rem;
-            font-weight: 500;
-            color: #78909c;
-            line-height: 1.35;
         }
         .quiz-modify-html-block {
             font-size: 0.88rem;
@@ -13336,7 +13337,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605408</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605411</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13493,7 +13494,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605408</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605411</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13872,7 +13873,15 @@ function dismissAppSplash() {
                         <textarea id="quiz-modify-edit-no" class="quiz-modify-field-edit" hidden rows="8" spellcheck="true" aria-label="Modifica testo se no"></textarea>
                     </section>
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-actions">
-                        <h5 id="quiz-modify-lbl-actions" class="quiz-modify-block-title">Controllo e azioni</h5>
+                        <div class="quiz-modify-actions-si-no-head">
+                            <h5 id="quiz-modify-lbl-actions" class="quiz-modify-block-title">Controllo e azioni</h5>
+                            <details class="quiz-modify-title-info">
+                                <summary aria-label="Informazioni su modifica e salvataggio" title="Informazioni">i</summary>
+                                <div class="quiz-modify-title-info__box">
+                                    Clicca su <strong>Modifica</strong> per modificare il testo delle domande, poi <strong>Salva</strong> il contenuto.
+                                </div>
+                            </details>
+                        </div>
                         <div class="quiz-modify-actions-si-no-row" role="group" aria-label="Mostra tabella controlli e azioni per risposta Sì o No">
                             <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-actions-on-si">
                                 <span class="quiz-modify-actions-si-no-label">SÌ</span>
@@ -13888,7 +13897,6 @@ function dismissAppSplash() {
                                     <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
                                 </span>
                             </label>
-                            <p class="quiz-modify-actions-si-no-hint">Attivi = la tabella compare nella scheda operativa solo quando l’operatore risponde Sì o No (in caso di anomalia).</p>
                         </div>
                         <div class="quiz-modify-block-head">
                             <div class="quiz-modify-block-actions">
@@ -13984,7 +13992,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605408';
+const APP_BUILD = '202605411';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21406,7 +21414,9 @@ function quizModifyGetActionsSiNoFlags(item) {
         if (it.control === true) return { si: true, no: false };
         return { si: false, no: true };
     }
-    return { si: si === true, no: no === true };
+    var out = { si: si === true, no: no === true };
+    if (out.si && out.no) out.no = false;
+    return out;
 }
 
 function checklistBuildActionsTableHtml(actions) {
@@ -21422,7 +21432,15 @@ function checklistBuildActionsTableHtml(actions) {
 function checklistShouldShowActionsTable(item, answerIsSi) {
     if (!item || !Array.isArray(item.actions) || !item.actions.length) return false;
     var flags = quizModifyGetActionsSiNoFlags(item);
-    return answerIsSi === true ? flags.si : flags.no;
+    if (answerIsSi === true) return !!flags.si;
+    if (answerIsSi === false) return !!flags.no;
+    return false;
+}
+
+/** SÌ e NO mutuamente esclusivi nella copia di lavoro Modifica. */
+function quizModifyNormalizeActionsSiNoExclusive(w) {
+    if (!w) return;
+    if (w.actions_on_si && w.actions_on_no) w.actions_on_no = false;
 }
 
 function quizModifyDeepCloneFields(f) {
@@ -21481,6 +21499,7 @@ function quizModifyMergeFields(base, patch) {
     }
     if (patch.actions_on_si != null) out.actions_on_si = !!patch.actions_on_si;
     if (patch.actions_on_no != null) out.actions_on_no = !!patch.actions_on_no;
+    quizModifyNormalizeActionsSiNoExclusive(out);
     return out;
 }
 
@@ -21618,16 +21637,25 @@ function quizModifySyncActionsSiNoToggles() {
         if (noEl) noEl.checked = true;
         return;
     }
+    quizModifyNormalizeActionsSiNoExclusive(w);
     if (siEl) siEl.checked = !!w.actions_on_si;
     if (noEl) noEl.checked = !!w.actions_on_no;
 }
 
 function quizModifyOnActionsSiNoToggle(which, checked) {
     if (!quizModifyDetailWorking) return;
-    if (which === 'si') quizModifyDetailWorking.actions_on_si = !!checked;
-    else quizModifyDetailWorking.actions_on_no = !!checked;
+    var on = !!checked;
+    if (which === 'si') {
+        quizModifyDetailWorking.actions_on_si = on;
+        if (on) quizModifyDetailWorking.actions_on_no = false;
+    } else {
+        quizModifyDetailWorking.actions_on_no = on;
+        if (on) quizModifyDetailWorking.actions_on_si = false;
+    }
+    quizModifyNormalizeActionsSiNoExclusive(quizModifyDetailWorking);
     quizModifySyncActionsSiNoToggles();
     quizModifyPersistWorkingToStorage();
+    checklistTouchDomAfterModifyPersist();
 }
 
 function quizModifyFillViewsFromWorking() {
