@@ -7680,6 +7680,135 @@
             flex: 1;
             min-width: min(160px, 100%);
         }
+        .quiz-modify-actions-control-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .quiz-modify-actions-control-head .quiz-modify-edit-label {
+            margin: 0;
+        }
+        .quiz-modify-actions-cl-pick-plus {
+            flex: 0 0 auto;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid rgba(21, 101, 192, 0.4);
+            background: linear-gradient(180deg, #ffffff 0%, #e3f2fd 100%);
+            color: #1565c0;
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(21, 101, 192, 0.14);
+        }
+        .quiz-modify-actions-cl-pick-plus:hover {
+            background: #bbdefb;
+        }
+        .quiz-modify-actions-cl-link-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 0 0 6px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: #e8f4fc;
+            border: 1px solid #90caf9;
+            font-size: 0.72rem;
+            color: #1565c0;
+        }
+        .quiz-modify-actions-cl-link-badge[hidden] {
+            display: none !important;
+        }
+        .quiz-modify-actions-cl-link-clear {
+            flex: 0 0 auto;
+            width: 22px;
+            height: 22px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: rgba(21, 101, 192, 0.12);
+            color: #1565c0;
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .quiz-modify-checklist-pick-overlay {
+            z-index: 10048;
+        }
+        .quiz-modify-checklist-pick-box {
+            width: min(94vw, 420px);
+            max-height: min(78vh, 520px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+        .quiz-modify-checklist-pick-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .quiz-modify-checklist-pick-title {
+            margin: 0;
+            font-size: 1rem;
+            color: #1a237e;
+        }
+        .quiz-modify-checklist-pick-list {
+            flex: 1;
+            min-height: 80px;
+            max-height: min(52vh, 360px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .quiz-modify-checklist-pick-item {
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #cfd8dc;
+            background: #f8fafc;
+            color: #37474f;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            line-height: 1.35;
+        }
+        .quiz-modify-checklist-pick-item:hover {
+            background: #e3f2fd;
+            border-color: #90caf9;
+            color: #0d47a1;
+        }
+        .quiz-modify-checklist-pick-empty {
+            margin: 0;
+            font-size: 0.82rem;
+            color: #78909c;
+            line-height: 1.45;
+        }
+        .btn-checklist-op-link {
+            display: inline-block;
+            margin: 0 0 6px 0;
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid #1565c0;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0d47a1;
+            cursor: pointer;
+            line-height: 1.3;
+        }
+        .btn-checklist-op-link:hover {
+            background: #90caf9;
+        }
         .quiz-modify-actions-row-remove {
             flex: 0 0 auto;
             margin-top: 1.4rem;
@@ -12760,9 +12889,9 @@ function dismissAppSplash() {
         <div class="supporto-heading-row">
             <div class="supporto-title-wrap">
                 <h4 id="supporto-title">CERCA SUPPORTO</h4>
-                <details class="supporto-info">
+                <details class="supporto-info quiz-panel-info-details">
                     <summary aria-label="Informazioni sulla ricerca embeddings">i</summary>
-                    <div class="supporto-info__box" onclick="supportoCloseInfoBox(event)">
+                    <div class="supporto-info__box">
                         <span class="supporto-info__box-icon" aria-hidden="true">i</span>Ricerca avanzata basata su embeddings: il sistema trasforma i contenuti tecnici in rappresentazioni numeriche salvate offline nell’app. Questo permette di trovare informazioni collegate al significato dei concetti, non solo alla semplice uguaglianza delle parole. In sintesi, aiuta il software a passare dalla lettura del testo alla comprensione del contesto operativo.
                     </div>
                 </details>
@@ -13337,7 +13466,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605413</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605415</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13494,7 +13623,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605413</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605415</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13750,7 +13879,7 @@ function dismissAppSplash() {
             <div class="quiz-modify-shell-header">
                 <div class="quiz-modify-title-wrap">
                     <h4 id="quiz-modify-dev-title" class="quiz-lock-title quiz-modify-shell-header__title">Modifica contenuti</h4>
-                    <details class="quiz-modify-title-info">
+                    <details class="quiz-modify-title-info quiz-panel-info-details">
                         <summary aria-label="Informazioni su Modifica contenuti" title="Informazioni">i</summary>
                         <div class="quiz-modify-title-info__box">
                             Scegli una scheda: <strong>Chimico-fisico</strong>, <strong>Biologico MBBR</strong> o una scheda creata con «Crea nuova scheda» (struttura vuota pronta per nuove domande). Con Firebase configurato, le schede create si sincronizzano su <strong>tutti i dispositivi</strong> del progetto.
@@ -13875,7 +14004,7 @@ function dismissAppSplash() {
                     <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-actions">
                         <div class="quiz-modify-actions-si-no-head">
                             <h5 id="quiz-modify-lbl-actions" class="quiz-modify-block-title">Controllo e azioni</h5>
-                            <details class="quiz-modify-title-info">
+                            <details class="quiz-modify-title-info quiz-panel-info-details">
                                 <summary aria-label="Informazioni su controlli e azioni Sì o No" title="Informazioni">i</summary>
                                 <div class="quiz-modify-title-info__box">
                                     Selezione dove appariranno i controlli e le azioni in istruzioni operative: <strong>SÌ</strong> o <strong>NO</strong>.
@@ -13936,6 +14065,17 @@ function dismissAppSplash() {
         </div>
     </div>
 
+    <div id="quiz-modify-checklist-pick-overlay" class="quiz-lock-overlay quiz-modify-checklist-pick-overlay" aria-hidden="true" onclick="quizModifyChecklistPickBackdrop(event)">
+        <div class="quiz-lock-box quiz-modify-checklist-pick-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-checklist-pick-title" onclick="event.stopPropagation()">
+            <div class="quiz-modify-checklist-pick-head">
+                <h4 id="quiz-modify-checklist-pick-title" class="quiz-modify-checklist-pick-title">Scegli Check list</h4>
+                <button type="button" class="btn-side btn-reset" onclick="quizModifyChecklistPickClose()">Annulla</button>
+            </div>
+            <p class="quiz-modify-edit-hint">Tocca un titolo per collegarlo al controllo e aprirlo dalle istruzioni operative.</p>
+            <div id="quiz-modify-checklist-pick-list" class="quiz-modify-checklist-pick-list" role="listbox" aria-label="Elenco Check list"></div>
+        </div>
+    </div>
+
     <div id="quiz-producer-overlay" class="quiz-lock-overlay" aria-hidden="true" onclick="quizProducerModalBackdrop(event)">
         <div class="quiz-lock-box quiz-producer-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-producer-modal-title" onclick="event.stopPropagation()">
             <h4 id="quiz-producer-modal-title" class="quiz-lock-title">Classifica</h4>
@@ -13992,7 +14132,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605413';
+const APP_BUILD = '202605415';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21157,6 +21297,7 @@ function hideQuizModifyInDevelopmentPopup() {
 }
 
 function quizModifyDevModalBackdrop(ev) {
+    quizCloseAllInfoDetails();
     if (ev && ev.target && ev.target.id === 'quiz-modify-dev-overlay') quizModifyDevBackClick();
 }
 
@@ -21398,11 +21539,33 @@ function quizModifyCloneActionsArray(arr) {
     if (!Array.isArray(arr)) return [];
     return arr.map(function (row) {
         var r = row || {};
-        return {
+        var out = {
             c: r.c != null ? String(r.c) : '',
             a: r.a != null ? String(r.a) : ''
         };
+        if (r.checklist_id != null && String(r.checklist_id).trim() !== '') {
+            out.checklist_id = String(r.checklist_id).trim();
+        }
+        return out;
     });
+}
+
+function checklistFormatActionControlHtml(row) {
+    var r = row || {};
+    var cHtml = r.c != null ? String(r.c) : '';
+    var clId = r.checklist_id != null ? String(r.checklist_id).trim() : '';
+    if (!clId) return cHtml;
+    var item = checklistFindItem(checklistLoadStore(), clId);
+    var title = item && item.title ? String(item.title).trim() : 'Check list';
+    if (!title) title = 'Check list';
+    var link =
+        '<button type="button" class="btn-checklist-op-link" data-checklist-id="' +
+        checklistEscapeHtml(clId) +
+        '" onclick="checklistOpenFromInstruction(this.getAttribute(\'data-checklist-id\'))">📋 ' +
+        checklistEscapeHtml(title) +
+        '</button>';
+    if (String(cHtml).trim()) return link + '<br>' + cHtml;
+    return link;
 }
 
 /** Default visibilità tabella controlli/azioni: da flag espliciti o da `control` (legacy). */
@@ -21424,7 +21587,12 @@ function checklistBuildActionsTableHtml(actions) {
     var html = '<table class="table"><tr><th>Controllo</th><th>Azione</th></tr>';
     actions.forEach(function (a) {
         var row = a || {};
-        html += '<tr><td>' + (row.c != null ? row.c : '') + '</td><td>' + (row.a != null ? row.a : '') + '</td></tr>';
+        html +=
+            '<tr><td>' +
+            checklistFormatActionControlHtml(row) +
+            '</td><td>' +
+            (row.a != null ? row.a : '') +
+            '</td></tr>';
     });
     return html + '</table>';
 }
@@ -21698,13 +21866,88 @@ function quizModifyFillActionsTable(el, actions) {
         var r = rows[i] || {};
         h +=
             '<tr><td>' +
-            quizModifyEscapeForInnerHtml(String(r.c || '')) +
+            checklistFormatActionControlHtml(r) +
             '</td><td>' +
             quizModifyEscapeForInnerHtml(String(r.a || '')) +
             '</td></tr>';
     }
     h += '</tbody></table>';
     el.innerHTML = h;
+}
+
+var quizModifyChecklistPickRow = null;
+
+function quizModifyActionsSyncLinkBadge(rowEl) {
+    if (!rowEl) return;
+    var badge = rowEl.querySelector('.quiz-modify-actions-cl-link-badge');
+    if (!badge) return;
+    var clId = rowEl.getAttribute('data-checklist-id') || '';
+    if (!clId) {
+        badge.hidden = true;
+        badge.innerHTML = '';
+        return;
+    }
+    var item = checklistFindItem(checklistLoadStore(), clId);
+    var title = item && item.title ? String(item.title).trim() : 'Check list';
+    if (!title) title = 'Check list';
+    badge.hidden = false;
+    badge.innerHTML =
+        '<span>Collegata: <strong>' +
+        quizModifyEscapeForInnerHtml(title) +
+        '</strong></span>' +
+        '<button type="button" class="quiz-modify-actions-cl-link-clear" aria-label="Rimuovi collegamento Check list">×</button>';
+}
+
+function quizModifyActionsBindEditRow(rowEl, host) {
+    if (!rowEl) return;
+    var rm = rowEl.querySelector('.quiz-modify-actions-row-remove');
+    if (rm) {
+        rm.addEventListener('click', function () {
+            if (!host) return;
+            var n = host.querySelectorAll('.quiz-modify-actions-edit-row').length;
+            if (n <= 1) return;
+            rowEl.remove();
+        });
+    }
+    var clr = rowEl.querySelector('.quiz-modify-actions-cl-link-clear');
+    if (clr) {
+        clr.addEventListener('click', function (ev) {
+            try {
+                ev.preventDefault();
+                ev.stopPropagation();
+            } catch (eS) { /* ignore */ }
+            rowEl.removeAttribute('data-checklist-id');
+            quizModifyActionsSyncLinkBadge(rowEl);
+        });
+    }
+}
+
+function quizModifyActionsCreateEditRow(row, host) {
+    var data = row || { c: '', a: '' };
+    var wrap = document.createElement('div');
+    wrap.className = 'quiz-modify-actions-edit-row';
+    if (data.checklist_id) wrap.setAttribute('data-checklist-id', String(data.checklist_id));
+    wrap.innerHTML =
+        '<div class="quiz-modify-actions-pair quiz-modify-actions-pair--control">' +
+        '<div class="quiz-modify-actions-control-head">' +
+        '<label class="quiz-modify-edit-label">Controllo</label>' +
+        '<button type="button" class="quiz-modify-actions-cl-pick-plus" title="Collega una Check list" aria-label="Collega Check list">+</button>' +
+        '</div>' +
+        '<div class="quiz-modify-actions-cl-link-badge" hidden></div>' +
+        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true" aria-label="Testo controllo"></textarea>' +
+        '</div>' +
+        '<div class="quiz-modify-actions-pair">' +
+        '<label class="quiz-modify-edit-label">Azione</label>' +
+        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true" aria-label="Testo azione"></textarea>' +
+        '</div>' +
+        '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
+    var tc = wrap.querySelector('.quiz-modify-actions-ta-c');
+    var ta = wrap.querySelector('.quiz-modify-actions-ta-a');
+    if (tc) tc.value = data.c || '';
+    if (ta) ta.value = data.a || '';
+    quizModifyActionsBindEditRow(wrap, host);
+    quizModifyActionsSyncLinkBadge(wrap);
+    return wrap;
 }
 
 function quizModifyRenderActionsEditHost() {
@@ -21717,29 +21960,7 @@ function quizModifyRenderActionsEditHost() {
     var list = arr.length ? quizModifyCloneActionsArray(arr) : [{ c: '', a: '' }];
     host.innerHTML = '';
     for (var i = 0; i < list.length; i++) {
-        var row = list[i] || { c: '', a: '' };
-        var wrap = document.createElement('div');
-        wrap.className = 'quiz-modify-actions-edit-row';
-        wrap.innerHTML =
-            '<div class="quiz-modify-actions-pair">' +
-            '<label class="quiz-modify-edit-label">Controllo</label>' +
-            '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true"></textarea>' +
-            '</div>' +
-            '<div class="quiz-modify-actions-pair">' +
-            '<label class="quiz-modify-edit-label">Azione</label>' +
-            '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true"></textarea>' +
-            '</div>' +
-            '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
-        wrap.querySelector('.quiz-modify-actions-ta-c').value = row.c || '';
-        wrap.querySelector('.quiz-modify-actions-ta-a').value = row.a || '';
-        (function (rowEl) {
-            rowEl.querySelector('.quiz-modify-actions-row-remove').addEventListener('click', function () {
-                var n = host.querySelectorAll('.quiz-modify-actions-edit-row').length;
-                if (n <= 1) return;
-                rowEl.remove();
-            });
-        })(wrap);
-        host.appendChild(wrap);
+        host.appendChild(quizModifyActionsCreateEditRow(list[i], host));
     }
 }
 
@@ -21752,8 +21973,11 @@ function quizModifyCollectActionsFromEditHost() {
         var ta = rowEl.querySelector('.quiz-modify-actions-ta-a');
         var c = tc ? String(tc.value || '') : '';
         var a = ta ? String(ta.value || '') : '';
-        if (String(c).trim() === '' && String(a).trim() === '') return;
-        out.push({ c: c, a: a });
+        var clId = rowEl.getAttribute('data-checklist-id') || '';
+        if (String(c).trim() === '' && String(a).trim() === '' && !clId) return;
+        var row = { c: c, a: a };
+        if (clId) row.checklist_id = clId;
+        out.push(row);
     });
     return out;
 }
@@ -21761,28 +21985,83 @@ function quizModifyCollectActionsFromEditHost() {
 function quizModifyActionsAppendEmptyRow() {
     var host = document.getElementById('quiz-modify-actions-edit-host');
     if (!host) return;
-    var wrap = document.createElement('div');
-    wrap.className = 'quiz-modify-actions-edit-row';
-    wrap.innerHTML =
-        '<div class="quiz-modify-actions-pair">' +
-        '<label class="quiz-modify-edit-label">Controllo</label>' +
-        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true"></textarea>' +
-        '</div>' +
-        '<div class="quiz-modify-actions-pair">' +
-        '<label class="quiz-modify-edit-label">Azione</label>' +
-        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true"></textarea>' +
-        '</div>' +
-        '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
-    (function (rowEl) {
-        rowEl.querySelector('.quiz-modify-actions-row-remove').addEventListener('click', function () {
-            var n = host.querySelectorAll('.quiz-modify-actions-edit-row').length;
-            if (n <= 1) return;
-            rowEl.remove();
-        });
-    })(wrap);
+    var wrap = quizModifyActionsCreateEditRow({ c: '', a: '' }, host);
     host.appendChild(wrap);
     try {
         var ta = wrap.querySelector('.quiz-modify-actions-ta-c');
+        if (ta) ta.focus();
+    } catch (eF) { /* ignore */ }
+}
+
+function quizModifyChecklistPickRenderList() {
+    var host = document.getElementById('quiz-modify-checklist-pick-list');
+    if (!host) return;
+    var store = checklistLoadStore();
+    var items = checklistItemsInDisplayOrder(store.items);
+    if (!items.length) {
+        host.innerHTML =
+            '<p class="quiz-modify-checklist-pick-empty">Nessuna Check list disponibile.<br>Creane una dal pulsante <strong>Check list</strong> in Home, poi riprova.</p>';
+        return;
+    }
+    host.innerHTML = items
+        .map(function (it) {
+            var title = (it.title || '').trim() || 'Senza titolo';
+            return (
+                '<button type="button" class="quiz-modify-checklist-pick-item" role="option" data-checklist-pick-id="' +
+                checklistEscapeHtml(it.id) +
+                '">' +
+                checklistEscapeHtml(title) +
+                '</button>'
+            );
+        })
+        .join('');
+}
+
+function quizModifyChecklistPickOpen(rowEl) {
+    if (!rowEl) return;
+    quizModifyChecklistPickRow = rowEl;
+    var overlay = document.getElementById('quiz-modify-checklist-pick-overlay');
+    if (!overlay) return;
+    quizModifyChecklistPickRenderList();
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function quizModifyChecklistPickClose() {
+    quizModifyChecklistPickRow = null;
+    var overlay = document.getElementById('quiz-modify-checklist-pick-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (
+        !document.getElementById('checklist-editor-overlay') ||
+        !document.getElementById('checklist-editor-overlay').classList.contains('visible')
+    ) {
+        var modifyOv = document.getElementById('quiz-modify-dev-overlay');
+        if (!modifyOv || !modifyOv.classList.contains('visible')) {
+            document.body.classList.remove('quiz-info-open');
+        }
+    }
+}
+
+function quizModifyChecklistPickBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-modify-checklist-pick-overlay') quizModifyChecklistPickClose();
+}
+
+function quizModifyChecklistPickApply(id) {
+    var row = quizModifyChecklistPickRow;
+    if (!row || !id) return;
+    var store = checklistLoadStore();
+    var item = checklistFindItem(store, id);
+    if (!item) return;
+    var title = (item.title || '').trim() || 'Check list';
+    row.setAttribute('data-checklist-id', id);
+    var ta = row.querySelector('.quiz-modify-actions-ta-c');
+    if (ta && !String(ta.value || '').trim()) ta.value = title;
+    quizModifyActionsSyncLinkBadge(row);
+    quizModifyChecklistPickClose();
+    try {
         if (ta) ta.focus();
     } catch (eF) { /* ignore */ }
 }
@@ -21983,6 +22262,15 @@ function quizModifyDetailBindOnce() {
             });
             return;
         }
+        var clPlus = t && t.closest ? t.closest('.quiz-modify-actions-cl-pick-plus') : null;
+        if (clPlus && det.contains(clPlus)) {
+            ev.preventDefault();
+            quizModifyRequireWriteAuth(function () {
+                var rowEl = clPlus.closest('.quiz-modify-actions-edit-row');
+                quizModifyChecklistPickOpen(rowEl);
+            });
+            return;
+        }
         var btn = t && t.closest ? t.closest('[data-quiz-mod-act]') : null;
         if (!btn || !det.contains(btn)) return;
         var act = btn.getAttribute('data-quiz-mod-act');
@@ -22012,6 +22300,18 @@ function quizModifyDetailBindOnce() {
         noToggle.addEventListener('change', function () {
             quizModifyRequireWriteAuth(function () {
                 quizModifyOnActionsSiNoToggle('no', noToggle.checked);
+            });
+        });
+    }
+    var pickOverlay = document.getElementById('quiz-modify-checklist-pick-overlay');
+    if (pickOverlay && !pickOverlay.getAttribute('data-pick-bound')) {
+        pickOverlay.setAttribute('data-pick-bound', '1');
+        pickOverlay.addEventListener('click', function (ev) {
+            var pickBtn = ev.target && ev.target.closest ? ev.target.closest('[data-checklist-pick-id]') : null;
+            if (!pickBtn) return;
+            ev.preventDefault();
+            quizModifyRequireWriteAuth(function () {
+                quizModifyChecklistPickApply(pickBtn.getAttribute('data-checklist-pick-id'));
             });
         });
     }
@@ -30004,11 +30304,12 @@ function hideSupportoModal() {
 }
 
 function supportoModalBackdrop(ev) {
+    quizCloseAllInfoDetails();
     if (ev && ev.target && ev.target.id === 'supporto-overlay') hideSupportoModal();
 }
 
-/** Popup «i» (details): supporto, Modifica domande, ecc. */
-var QUIZ_INFO_DETAILS_SELECTOR = '.supporto-info, .quiz-modify-title-info';
+/** Popup «i» (details): Cerca supporto, Modifica domande, ecc. — chiusura con tap/click fuori. */
+var QUIZ_INFO_DETAILS_SELECTOR = '.quiz-panel-info-details';
 
 function quizCloseAllInfoDetails(ev) {
     if (ev) {
@@ -30022,12 +30323,19 @@ function quizCloseAllInfoDetails(ev) {
     });
 }
 
+function quizIsPointerInsideOpenInfoDetails(target) {
+    if (!target || typeof document.querySelectorAll !== 'function') return false;
+    var openList = document.querySelectorAll(QUIZ_INFO_DETAILS_SELECTOR + '[open]');
+    for (var i = 0; i < openList.length; i++) {
+        if (openList[i].contains(target)) return true;
+    }
+    return false;
+}
+
 function quizInfoDetailsOutsidePointer(ev) {
     if (!document.querySelector(QUIZ_INFO_DETAILS_SELECTOR + '[open]')) return;
     var t = ev && ev.target;
-    if (t && t.closest) {
-        if (t.closest(QUIZ_INFO_DETAILS_SELECTOR + '[open]')) return;
-    }
+    if (quizIsPointerInsideOpenInfoDetails(t)) return;
     quizCloseAllInfoDetails();
 }
 
@@ -30035,7 +30343,21 @@ function supportoCloseInfoBox(ev) {
     quizCloseAllInfoDetails(ev);
 }
 
-document.addEventListener('pointerdown', quizInfoDetailsOutsidePointer, true);
+function quizBindInfoOutsideCloseOnce() {
+    if (quizBindInfoOutsideCloseOnce.done) return;
+    quizBindInfoOutsideCloseOnce.done = true;
+    document.addEventListener('pointerdown', quizInfoDetailsOutsidePointer, true);
+    document.addEventListener('click', quizInfoDetailsOutsidePointer, true);
+    document.addEventListener(
+        'keydown',
+        function (ev) {
+            if (!ev || (ev.key !== 'Escape' && ev.key !== 'Esc')) return;
+            quizCloseAllInfoDetails();
+        },
+        true
+    );
+}
+quizBindInfoOutsideCloseOnce();
 
 var quizOverlayTouchStartY = 0;
 
@@ -30050,6 +30372,7 @@ function quizVisibleTouchOverlay() {
         '#quiz-gestione-test-overlay.visible',
         '#checklist-editor-overlay.visible',
         '#checklist-modal-overlay.visible',
+        '#quiz-modify-checklist-pick-overlay.visible',
         '#supporto-overlay.visible',
         '#quiz-developer-menu-overlay.visible',
         '#quiz-modify-dev-overlay.visible',
@@ -35381,7 +35704,14 @@ document.addEventListener('keydown', function checklistModalEscape(ev) {
     });
 })();
 
+function checklistOpenFromInstruction(id) {
+    if (!id) return;
+    checklistOpenEditor(id);
+    document.body.classList.add('quiz-info-open');
+}
+
 window.checklistOpenEditor = checklistOpenEditor;
+window.checklistOpenFromInstruction = checklistOpenFromInstruction;
 window.checklistDeleteAsk = checklistDeleteAsk;
 
 function scrollToReport() {
