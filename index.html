@@ -19777,6 +19777,15 @@ async function quizCheckUpdateAvailableSilently() {
          * build JS di questa scheda/cache → prima cmpSeen nascondeva l’icona e il lampeggio pur essendoci aggiornamento). */
         if (!remoteBuild || !localBuild || cmpLocal <= 0) {
             quizSetUpdateAvailable('');
+            /* Build allineati: spegni lampeggio/verde residuo (flag da un «Aggiorna» precedente). */
+            if (remoteBuild && localBuild && cmpLocal === 0) {
+                quizSettingsBuildHighlightSet(false);
+                quizRememberHighestBuildSeen(localBuild);
+                try {
+                    quizSettingsRefreshLineReset();
+                    quizApplyUpdateAvailabilityUi();
+                } catch (eUi) { /* ignore */ }
+            }
             return;
         }
         quizSetUpdateAvailable(remoteBuild);
