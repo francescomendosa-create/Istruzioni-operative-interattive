@@ -730,6 +730,15 @@
             border-color: #00acc1;
             box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.22);
         }
+        .checklist-reorder-hint {
+            margin: 0;
+            padding: 0 18px 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #607d8b;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
         .checklist-list {
             flex: 1 1 auto;
             min-height: 120px;
@@ -739,6 +748,11 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            touch-action: pan-y;
+        }
+        .checklist-list.checklist-list--reorder-active {
+            touch-action: none;
+            user-select: none;
         }
         .checklist-empty {
             margin: 24px 8px;
@@ -757,6 +771,26 @@
             background: linear-gradient(135deg, #ffffff 0%, #e0f2f1 100%);
             box-shadow: 0 6px 18px rgba(0, 96, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95);
             overflow: hidden;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.18s ease;
+            will-change: transform;
+        }
+        .checklist-card.checklist-card--dragging {
+            opacity: 0.28;
+            box-shadow: 0 2px 8px rgba(0, 96, 100, 0.12);
+        }
+        .checklist-card.checklist-card--float {
+            position: fixed;
+            z-index: 10055;
+            margin: 0;
+            opacity: 1;
+            transform: scale(1.03) rotate(-0.6deg);
+            box-shadow: 0 16px 36px rgba(0, 77, 88, 0.28), 0 0 0 2px rgba(0, 172, 193, 0.35);
+            pointer-events: none;
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+        }
+        .checklist-card__title.checklist-card__title--hold-prep {
+            color: #00838f;
+            transition: color 0.15s ease;
         }
         .checklist-card__open {
             flex: 1 1 auto;
@@ -12760,6 +12794,7 @@ function dismissAppSplash() {
             <button type="button" class="btn-side btn-report" onclick="checklistConfirmNewTitle()">OK</button>
             <button type="button" class="btn-side btn-reset" onclick="checklistHideNewTitleInput()">Annulla</button>
         </div>
+        <p class="checklist-reorder-hint">Tieni premuto sul titolo per spostare l’ordine</p>
         <div id="checklist-list" class="checklist-list" role="list" aria-live="polite"></div>
     </div>
 </div>
@@ -13301,7 +13336,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605407</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605408</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13458,7 +13493,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605407</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605408</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13949,7 +13984,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605407';
+const APP_BUILD = '202605408';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -16303,10 +16338,36 @@ function checklistNormalizeStore(data) {
                     id: String(x.id),
                     title: x.title != null ? String(x.title) : '',
                     body: x.body != null ? String(x.body) : '',
-                    updatedAt: x.updatedAt != null ? Number(x.updatedAt) : 0
+                    updatedAt: x.updatedAt != null ? Number(x.updatedAt) : 0,
+                    order: x.order != null && !isNaN(Number(x.order)) ? Number(x.order) : null
                 };
             })
     };
+}
+
+function checklistItemsInDisplayOrder(items) {
+    var list = (items || []).slice();
+    if (!list.length) return list;
+    var allHaveOrder = true;
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].order == null || isNaN(list[i].order)) {
+            allHaveOrder = false;
+            break;
+        }
+    }
+    if (!allHaveOrder) {
+        list.sort(function (a, b) {
+            return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+        list.forEach(function (it, idx) {
+            it.order = idx;
+        });
+        return list;
+    }
+    list.sort(function (a, b) {
+        return (a.order || 0) - (b.order || 0);
+    });
+    return list;
 }
 
 function checklistHasActiveEdit() {
@@ -16380,7 +16441,8 @@ function checklistApplyRemote(itemsOrStore) {
     if (checklistHasActiveEdit()) return;
     checklistRemoteApply = true;
     try {
-        checklistPersistLocal(norm);
+        norm.items = checklistItemsInDisplayOrder(norm.items);
+        checklistPersistLocal({ items: norm.items });
         var listOv = document.getElementById('checklist-modal-overlay');
         if (listOv && listOv.classList.contains('visible')) {
             checklistRenderList();
@@ -34749,6 +34811,16 @@ document.addEventListener("keydown", function quizFullscreenEscape(ev) {
 
 var checklistActiveId = null;
 var checklistDeletePendingId = null;
+var checklistDragState = {
+    holdTimer: null,
+    dragging: false,
+    moved: false,
+    suppressClick: false,
+    card: null,
+    floatEl: null,
+    pointerId: null,
+    offsetY: 0
+};
 
 function checklistLoadStore() {
     try {
@@ -34806,9 +34878,7 @@ function checklistRenderList() {
     var host = document.getElementById('checklist-list');
     if (!host) return;
     var store = checklistLoadStore();
-    var items = store.items.slice().sort(function (a, b) {
-        return (b.updatedAt || 0) - (a.updatedAt || 0);
-    });
+    var items = checklistItemsInDisplayOrder(store.items);
     if (!items.length) {
         host.innerHTML = '<p class="checklist-empty">Nessuna checklist ancora.<br>Tocca <strong>+</strong> accanto ad Aggiungi per crearne una.</p>';
         return;
@@ -34838,11 +34908,183 @@ function checklistRenderList() {
         .join('');
 }
 
+function checklistClearHoldTimer() {
+    if (checklistDragState.holdTimer) {
+        clearTimeout(checklistDragState.holdTimer);
+        checklistDragState.holdTimer = null;
+    }
+}
+
+function checklistDragCleanupDoc() {
+    document.removeEventListener('pointermove', checklistDragOnMove);
+    document.removeEventListener('pointerup', checklistDragOnEnd);
+    document.removeEventListener('pointercancel', checklistDragOnEnd);
+}
+
+function checklistDragOnMove(ev) {
+    if (!checklistDragState.dragging || ev.pointerId !== checklistDragState.pointerId) return;
+    ev.preventDefault();
+    checklistDragMoveAt(ev.clientY);
+}
+
+function checklistDragOnEnd(ev) {
+    if (ev.pointerId !== checklistDragState.pointerId) return;
+    checklistDragFinish();
+}
+
+function checklistDragMoveAt(clientY) {
+    var host = document.getElementById('checklist-list');
+    var card = checklistDragState.card;
+    var floatEl = checklistDragState.floatEl;
+    if (!host || !card || !floatEl) return;
+    checklistDragState.moved = true;
+    floatEl.style.top = clientY - checklistDragState.offsetY + 'px';
+    var cards = Array.prototype.slice.call(host.querySelectorAll('.checklist-card'));
+    var insertRef = null;
+    for (var i = 0; i < cards.length; i++) {
+        if (cards[i] === card) continue;
+        var r = cards[i].getBoundingClientRect();
+        if (clientY < r.top + r.height * 0.5) {
+            insertRef = cards[i];
+            break;
+        }
+    }
+    if (insertRef) {
+        if (card.nextElementSibling !== insertRef) host.insertBefore(card, insertRef);
+    } else if (card.parentNode === host) {
+        host.appendChild(card);
+    }
+}
+
+function checklistDragStart(card, pointerId, clientY) {
+    var host = document.getElementById('checklist-list');
+    if (!host || !card) return;
+    var rect = card.getBoundingClientRect();
+    var floatEl = card.cloneNode(true);
+    floatEl.classList.add('checklist-card--float');
+    floatEl.classList.remove('checklist-card--dragging');
+    floatEl.style.width = rect.width + 'px';
+    floatEl.style.left = rect.left + 'px';
+    floatEl.style.top = rect.top + 'px';
+    document.body.appendChild(floatEl);
+    checklistDragState.dragging = true;
+    checklistDragState.moved = false;
+    checklistDragState.card = card;
+    checklistDragState.floatEl = floatEl;
+    checklistDragState.pointerId = pointerId;
+    checklistDragState.offsetY = clientY - rect.top;
+    host.classList.add('checklist-list--reorder-active');
+    card.classList.add('checklist-card--dragging');
+    try {
+        if (navigator.vibrate) navigator.vibrate(18);
+    } catch (vB) { /* ignore */ }
+    checklistDragCleanupDoc();
+    document.addEventListener('pointermove', checklistDragOnMove, { passive: false });
+    document.addEventListener('pointerup', checklistDragOnEnd);
+    document.addEventListener('pointercancel', checklistDragOnEnd);
+}
+
+function checklistDragFinish() {
+    var host = document.getElementById('checklist-list');
+    var card = checklistDragState.card;
+    var floatEl = checklistDragState.floatEl;
+    var didMove = checklistDragState.moved;
+    checklistClearHoldTimer();
+    checklistDragCleanupDoc();
+    if (floatEl && floatEl.parentNode) floatEl.parentNode.removeChild(floatEl);
+    if (card) card.classList.remove('checklist-card--dragging');
+    if (host) host.classList.remove('checklist-list--reorder-active');
+    host.querySelectorAll('.checklist-card__title--hold-prep').forEach(function (el) {
+        el.classList.remove('checklist-card__title--hold-prep');
+    });
+    checklistDragState.dragging = false;
+    checklistDragState.card = null;
+    checklistDragState.floatEl = null;
+    checklistDragState.pointerId = null;
+    if (didMove) {
+        checklistSaveOrderFromDom();
+        checklistDragState.suppressClick = true;
+        window.setTimeout(function () {
+            checklistDragState.suppressClick = false;
+        }, 380);
+    }
+}
+
+function checklistSaveOrderFromDom() {
+    var host = document.getElementById('checklist-list');
+    if (!host) return;
+    var store = checklistLoadStore();
+    var byId = {};
+    store.items.forEach(function (it) {
+        byId[it.id] = it;
+    });
+    var ordered = [];
+    host.querySelectorAll('.checklist-card').forEach(function (card, idx) {
+        var id = card.getAttribute('data-checklist-id');
+        if (!id || !byId[id]) return;
+        byId[id].order = idx;
+        ordered.push(byId[id]);
+    });
+    if (ordered.length) checklistSaveStore({ items: ordered });
+}
+
+function checklistBindListDragReorder() {
+    var host = document.getElementById('checklist-list');
+    if (!host || host.getAttribute('data-checklist-drag-bound') === '1') return;
+    host.setAttribute('data-checklist-drag-bound', '1');
+    host.addEventListener('pointerdown', function (ev) {
+        if (checklistDragState.dragging) return;
+        var title = ev.target && ev.target.closest ? ev.target.closest('.checklist-card__title') : null;
+        if (!title || !host.contains(title)) return;
+        var card = title.closest('.checklist-card');
+        if (!card) return;
+        if (ev.button != null && ev.button !== 0) return;
+        var pid = ev.pointerId;
+        var startY = ev.clientY;
+        var startX = ev.clientX;
+        title.classList.add('checklist-card__title--hold-prep');
+        checklistClearHoldTimer();
+        checklistDragState.holdTimer = window.setTimeout(function () {
+            checklistDragState.holdTimer = null;
+            try {
+                title.setPointerCapture(pid);
+            } catch (eCap) { /* ignore */ }
+            checklistDragStart(card, pid, startY);
+        }, 520);
+        function cancelHold(e) {
+            if (e.pointerId !== pid) return;
+            checklistClearHoldTimer();
+            title.classList.remove('checklist-card__title--hold-prep');
+            cleanup();
+        }
+        function moveCancel(e) {
+            if (e.pointerId !== pid) return;
+            if (Math.abs(e.clientY - startY) > 10 || Math.abs(e.clientX - startX) > 10) {
+                checklistClearHoldTimer();
+                title.classList.remove('checklist-card__title--hold-prep');
+            }
+        }
+        function cleanup() {
+            document.removeEventListener('pointerup', cancelHold);
+            document.removeEventListener('pointercancel', cancelHold);
+            document.removeEventListener('pointermove', moveCancel);
+        }
+        document.addEventListener('pointerup', cancelHold);
+        document.addEventListener('pointercancel', cancelHold);
+        document.addEventListener('pointermove', moveCancel);
+    });
+}
+
 function checklistBindListClicks() {
     var host = document.getElementById('checklist-list');
     if (!host || host.getAttribute('data-checklist-click-bound') === '1') return;
     host.setAttribute('data-checklist-click-bound', '1');
+    checklistBindListDragReorder();
     host.addEventListener('click', function (ev) {
+        if (checklistDragState.suppressClick || checklistDragState.dragging) {
+            ev.preventDefault();
+            return;
+        }
         var delBtn = ev.target && ev.target.closest ? ev.target.closest('.checklist-card__del') : null;
         if (delBtn) {
             ev.preventDefault();
@@ -34873,6 +35115,7 @@ function openCategoriaChecklist() {
 function hideChecklistModal() {
     var overlay = document.getElementById('checklist-modal-overlay');
     if (!overlay) return;
+    if (checklistDragState.dragging) checklistDragFinish();
     checklistHideNewTitleInput();
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
@@ -34912,7 +35155,11 @@ function checklistConfirmNewTitle() {
     }
     var store = checklistLoadStore();
     var now = Date.now();
-    var item = { id: checklistNewId(), title: title, body: '', updatedAt: now };
+    var maxOrder = -1;
+    store.items.forEach(function (it) {
+        if (it.order != null && it.order > maxOrder) maxOrder = it.order;
+    });
+    var item = { id: checklistNewId(), title: title, body: '', updatedAt: now, order: maxOrder + 1 };
     store.items.push(item);
     checklistSaveStore(store);
     checklistHideNewTitleInput();
