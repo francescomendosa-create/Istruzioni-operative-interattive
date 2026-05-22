@@ -342,19 +342,15 @@
             max-width: var(--app-desktop-max);
             margin-left: auto;
             margin-right: auto;
-            overflow: visible;
         }
         .header-quiz-actions {
             position: relative;
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr)) 42px;
+            grid-template-columns: minmax(132px, auto) minmax(132px, auto) minmax(132px, auto) minmax(132px, auto);
             align-items: center;
-            justify-items: stretch;
+            justify-items: center;
             justify-content: center;
-            gap: 8px 8px;
-            width: min(100%, calc(var(--app-desktop-max) - 20px));
-            max-width: 100%;
-            overflow: visible;
+            gap: 8px 10px;
         }
         .header-quiz-actions .btn-quiz {
             grid-column: 1;
@@ -373,30 +369,19 @@
             grid-row: 1;
         }
         .header-quiz-actions .btn-supporto {
-            grid-column: 5;
-            grid-row: 1;
-            position: relative;
-            left: auto;
-            top: auto;
-            transform: none;
-            justify-self: center;
+            position: absolute;
+            left: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
             z-index: 3;
-        }
-        .header-quiz-actions .btn-quiz,
-        .header-quiz-actions .btn-test-gestione,
-        .header-quiz-actions .btn-categoria-checklist,
-        .header-quiz-actions .btn-diagnostica {
-            width: 100%;
-            min-width: 0;
-            max-width: none;
         }
         .header-quiz-actions.header-quiz-actions--quiz-disabled {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) 42px;
+            grid-template-columns: minmax(132px, auto) minmax(132px, auto) minmax(132px, auto);
             justify-content: center;
-            justify-items: stretch;
+            justify-items: center;
             align-items: center;
-            gap: 8px 8px;
+            gap: 8px 10px;
         }
         .header-quiz-actions--quiz-disabled .btn-test-gestione {
             grid-column: 1;
@@ -411,13 +396,13 @@
             grid-row: 1;
         }
         .header-quiz-actions--quiz-disabled .btn-supporto {
-            grid-column: 4;
-            grid-row: 1;
-            position: relative;
-            left: auto;
-            top: auto;
-            transform: none;
-            justify-self: center;
+            grid-column: auto;
+            grid-row: auto;
+            justify-self: auto;
+            position: absolute;
+            left: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
         }
         /* Schermi stretti: supporto in barra titolo (evita pulsante fuori viewport). */
         @media (max-width: 900px) {
@@ -823,9 +808,10 @@
             justify-content: stretch;
             padding: 0;
             background: #0a1929;
+            display: none;
         }
         .checklist-editor-overlay.visible {
-            display: flex;
+            display: flex !important;
             flex-direction: column;
         }
         .checklist-editor {
@@ -910,6 +896,17 @@
         .checklist-editor__content::placeholder {
             color: #90a4ae;
             font-style: italic;
+        }
+        /* Solo PC (mouse): testo checklist a schermo intero più grande — i pulsanti header restano invariati */
+        @media (min-width: 901px) and (hover: hover) {
+            .checklist-editor__content {
+                font-size: clamp(1.42rem, 1.65vw, 1.75rem);
+                line-height: 1.85;
+                max-width: 50rem;
+            }
+            .checklist-editor__title-input {
+                font-size: 1.12rem;
+            }
         }
 
         #quiz-gestione-btn-invia-test[hidden] {
@@ -13249,7 +13246,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605402</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605403</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13406,7 +13403,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605402</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605403</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13897,7 +13894,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605402';
+const APP_BUILD = '202605403';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -34765,16 +34762,16 @@ function checklistRenderList() {
     host.innerHTML = items
         .map(function (it) {
             var title = it.title.trim() || 'Senza titolo';
-            var idJs = JSON.stringify(it.id);
+            var idAttr = checklistEscapeHtml(it.id);
             var preview =
                 it.body && it.body.trim()
                     ? it.body.trim().slice(0, 72) + (it.body.trim().length > 72 ? '…' : '')
                     : 'Tocca per scrivere o incollare il testo';
             return (
-                '<article class="checklist-card" role="listitem">' +
-                '<button type="button" class="checklist-card__open" onclick="checklistOpenEditor(' +
-                idJs +
-                ')" aria-label="Apri ' +
+                '<article class="checklist-card" role="listitem" data-checklist-id="' +
+                idAttr +
+                '">' +
+                '<button type="button" class="checklist-card__open" aria-label="Apri ' +
                 checklistEscapeHtml(title) +
                 '">' +
                 '<span class="checklist-card__title">' +
@@ -34786,18 +34783,38 @@ function checklistRenderList() {
                 checklistEscapeHtml(preview) +
                 '</span>' +
                 '</button>' +
-                '<button type="button" class="checklist-card__del" onclick="event.stopPropagation(); checklistDeleteAsk(' +
-                idJs +
-                ')" title="Elimina checklist" aria-label="Elimina checklist">×</button>' +
+                '<button type="button" class="checklist-card__del" title="Elimina checklist" aria-label="Elimina checklist">×</button>' +
                 '</article>'
             );
         })
         .join('');
 }
 
+function checklistBindListClicks() {
+    var host = document.getElementById('checklist-list');
+    if (!host || host.getAttribute('data-checklist-click-bound') === '1') return;
+    host.setAttribute('data-checklist-click-bound', '1');
+    host.addEventListener('click', function (ev) {
+        var delBtn = ev.target && ev.target.closest ? ev.target.closest('.checklist-card__del') : null;
+        if (delBtn) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var cardDel = delBtn.closest('[data-checklist-id]');
+            if (cardDel) checklistDeleteAsk(cardDel.getAttribute('data-checklist-id'));
+            return;
+        }
+        var openBtn = ev.target && ev.target.closest ? ev.target.closest('.checklist-card__open') : null;
+        if (!openBtn) return;
+        ev.preventDefault();
+        var card = openBtn.closest('[data-checklist-id]');
+        if (card) checklistOpenEditor(card.getAttribute('data-checklist-id'));
+    });
+}
+
 function openCategoriaChecklist() {
     var overlay = document.getElementById('checklist-modal-overlay');
     if (!overlay) return;
+    checklistBindListClicks();
     checklistHideNewTitleInput();
     checklistRenderList();
     overlay.classList.add('visible');
@@ -34986,6 +35003,7 @@ document.addEventListener('keydown', function checklistModalEscape(ev) {
 });
 
 (function checklistBindInputs() {
+    checklistBindListClicks();
     var newIn = document.getElementById('checklist-new-title-input');
     if (newIn) {
         newIn.addEventListener('keydown', function (ev) {
@@ -35003,6 +35021,9 @@ document.addEventListener('keydown', function checklistModalEscape(ev) {
     if (titleIn) titleIn.addEventListener('change', saveDraft);
     if (bodyIn) bodyIn.addEventListener('input', saveDraft);
 })();
+
+window.checklistOpenEditor = checklistOpenEditor;
+window.checklistDeleteAsk = checklistDeleteAsk;
 
 function scrollToReport() {
     document.getElementById("report-area").scrollIntoView({ behavior: "smooth" });
