@@ -12724,6 +12724,20 @@ function dismissAppSplash() {
     </div>
 </div>
 
+<div id="checklist-delete-confirm-modal" class="quiz-exit-confirm-modal" aria-hidden="true" aria-labelledby="checklist-delete-confirm-title" onclick="checklistDeleteConfirmBackdrop(event)">
+    <div class="quiz-exit-confirm-modal__box" role="alertdialog" aria-modal="true" onclick="event.stopPropagation()">
+        <div class="quiz-exit-confirm-modal__icon" aria-hidden="true">🗑️</div>
+        <h3 id="checklist-delete-confirm-title">Eliminare checklist?</h3>
+        <p class="quiz-exit-confirm-modal__lead">
+            Vuoi eliminare <strong id="checklist-delete-confirm-name"></strong>? Il testo verrà rimosso su tutti i dispositivi collegati al cloud.
+        </p>
+        <div class="quiz-exit-confirm-modal__actions">
+            <button type="button" class="btn-side btn-quiz-exit-cancel" onclick="checklistDeleteConfirmCancel()">Annulla</button>
+            <button type="button" class="btn-side btn-quiz-exit-confirm" onclick="checklistDeleteConfirmOk()">Elimina</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <div id="cf-content" class="section-content"></div>
     <div id="mbr-content" class="section-content"></div>
@@ -13235,7 +13249,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605401</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605402</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13392,7 +13406,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605401</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605402</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13883,7 +13897,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605401';
+const APP_BUILD = '202605402';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -34682,6 +34696,7 @@ document.addEventListener("keydown", function quizFullscreenEscape(ev) {
 });
 
 var checklistActiveId = null;
+var checklistDeletePendingId = null;
 
 function checklistLoadStore() {
     try {
@@ -34771,9 +34786,9 @@ function checklistRenderList() {
                 checklistEscapeHtml(preview) +
                 '</span>' +
                 '</button>' +
-                '<button type="button" class="checklist-card__del" onclick="checklistDeleteItem(' +
+                '<button type="button" class="checklist-card__del" onclick="event.stopPropagation(); checklistDeleteAsk(' +
                 idJs +
-                ')" title="Elimina checklist" aria-label="Elimina">×</button>' +
+                ')" title="Elimina checklist" aria-label="Elimina checklist">×</button>' +
                 '</article>'
             );
         })
@@ -34903,13 +34918,44 @@ function checklistCloseEditor(save, reopenList) {
     }
 }
 
-function checklistDeleteItem(id) {
+function checklistDeleteConfirmHide() {
+    var modal = document.getElementById('checklist-delete-confirm-modal');
+    if (!modal) return;
+    modal.classList.remove('quiz-exit-confirm-modal--open');
+    modal.setAttribute('aria-hidden', 'true');
+    checklistDeletePendingId = null;
+}
+
+function checklistDeleteAsk(id) {
     if (!id) return;
     var store = checklistLoadStore();
     var item = checklistFindItem(store, id);
     if (!item) return;
+    var modal = document.getElementById('checklist-delete-confirm-modal');
+    var nameEl = document.getElementById('checklist-delete-confirm-name');
+    if (!modal) return;
+    checklistDeletePendingId = id;
     var label = item.title.trim() || 'questa checklist';
-    if (!window.confirm('Eliminare «' + label + '»?')) return;
+    if (nameEl) nameEl.textContent = '«' + label + '»';
+    modal.classList.add('quiz-exit-confirm-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function checklistDeleteConfirmCancel() {
+    checklistDeleteConfirmHide();
+}
+
+function checklistDeleteConfirmBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'checklist-delete-confirm-modal') checklistDeleteConfirmCancel();
+}
+
+function checklistDeleteConfirmOk() {
+    var id = checklistDeletePendingId;
+    checklistDeleteConfirmHide();
+    if (!id) return;
+    var store = checklistLoadStore();
+    var item = checklistFindItem(store, id);
+    if (!item) return;
     store.items = store.items.filter(function (x) {
         return x.id !== id;
     });
@@ -34920,6 +34966,12 @@ function checklistDeleteItem(id) {
 
 document.addEventListener('keydown', function checklistModalEscape(ev) {
     if (ev.key !== 'Escape') return;
+    var delModal = document.getElementById('checklist-delete-confirm-modal');
+    if (delModal && delModal.classList.contains('quiz-exit-confirm-modal--open')) {
+        ev.preventDefault();
+        checklistDeleteConfirmCancel();
+        return;
+    }
     var ed = document.getElementById('checklist-editor-overlay');
     if (ed && ed.classList.contains('visible')) {
         ev.preventDefault();
