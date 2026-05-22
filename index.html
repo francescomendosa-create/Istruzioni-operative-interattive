@@ -902,6 +902,44 @@
             border-color: #42a5f5;
             background: #ffffff;
         }
+        .checklist-editor__title-input:read-only {
+            cursor: default;
+            background: #f5fafd;
+            border-color: #cfd8dc;
+            box-shadow: none;
+        }
+        .checklist-editor__actions {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .checklist-editor__action-btn {
+            padding: 7px 12px;
+            border-radius: 999px;
+            border: 1px solid #90caf9;
+            background: #ffffff;
+            color: #1a237e;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .checklist-editor__action-btn:hover {
+            background: #e3f2fd;
+        }
+        .checklist-editor__action-btn--primary {
+            border-color: #1565c0;
+            background: linear-gradient(180deg, #42a5f5 0%, #1e88e5 100%);
+            color: #fff;
+        }
+        .checklist-editor__action-btn--primary:hover {
+            filter: brightness(1.05);
+        }
+        .checklist-editor__action-btn[hidden] {
+            display: none !important;
+        }
         .checklist-editor__scroll {
             flex: 1 1 auto;
             min-height: 0;
@@ -915,11 +953,12 @@
             width: 100%;
             max-width: 42rem;
             margin: 0 auto;
-            min-height: min(70vh, 520px);
+            min-height: 3.5rem;
             padding: 12px 14px;
             border: none;
             border-radius: 10px;
             resize: none;
+            overflow: hidden;
             background: #e8f4fc;
             font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, 'Times New Roman', serif;
             font-size: clamp(1rem, 2.2vw, 1.2rem);
@@ -933,6 +972,20 @@
         .checklist-editor__content:focus {
             outline: none;
         }
+        .checklist-editor__content:read-only {
+            cursor: default;
+            background: #e8f4fc;
+        }
+        .checklist-editor--readonly .checklist-editor__scroll {
+            flex: 0 0 auto;
+            overflow-y: visible;
+            min-height: 0;
+        }
+        .checklist-editor.checklist-editor--readonly {
+            flex: 0 1 auto;
+            min-height: 0;
+            max-height: 100dvh;
+        }
         .checklist-editor__content::placeholder {
             color: #90a4ae;
             font-style: italic;
@@ -944,7 +997,8 @@
                 -webkit-overflow-scrolling: touch;
             }
             .checklist-editor {
-                min-height: 100dvh;
+                min-height: 0;
+                max-height: 100dvh;
                 background: #e8f4fc;
             }
             .checklist-editor__bar {
@@ -985,7 +1039,7 @@
                 width: 100%;
                 max-width: min(96vw, 1180px);
                 margin: 0 auto;
-                min-height: calc(100dvh - 108px);
+                min-height: 3.5rem;
                 overflow: hidden;
                 resize: none;
                 field-sizing: content;
@@ -10430,6 +10484,9 @@
         .quiz-lock-overlay--modify-auth {
             z-index: 10035;
         }
+        .quiz-lock-overlay--modify-auth.quiz-lock-overlay--above-checklist {
+            z-index: 10055;
+        }
         .quiz-lock-box {
             width: min(92vw, 360px);
             border-radius: 14px;
@@ -12967,7 +13024,11 @@ function dismissAppSplash() {
     <div class="checklist-editor" role="dialog" aria-modal="true" aria-labelledby="checklist-editor-title-input">
         <div class="checklist-editor__bar">
             <button type="button" class="checklist-editor__back" onclick="checklistCloseEditor(true)">← Indietro</button>
-            <input type="text" id="checklist-editor-title-input" class="checklist-editor__title-input" maxlength="200" placeholder="Titolo checklist" aria-label="Titolo checklist" />
+            <input type="text" id="checklist-editor-title-input" class="checklist-editor__title-input" maxlength="200" placeholder="Titolo checklist" aria-label="Titolo checklist" readonly />
+            <div class="checklist-editor__actions">
+                <button type="button" id="checklist-editor-btn-edit" class="checklist-editor__action-btn" onclick="checklistEditorOnEditClick()">Modifica</button>
+                <button type="button" id="checklist-editor-btn-save" class="checklist-editor__action-btn checklist-editor__action-btn--primary" hidden onclick="checklistEditorOnSaveClick()">Salva</button>
+            </div>
         </div>
         <div class="checklist-editor__scroll">
             <textarea id="checklist-editor-content" class="checklist-editor__content" placeholder="Scrivi o incolla qui il testo della checklist…" spellcheck="true" aria-label="Contenuto checklist"></textarea>
@@ -13500,7 +13561,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605416</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605418</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13657,7 +13718,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605416</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605418</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14166,7 +14227,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605416';
+const APP_BUILD = '202605418';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21387,10 +21448,24 @@ function showQuizModifyAuthModal() {
     });
 }
 
+function quizModifyAuthModalResetChecklistOverride() {
+    var authOv = document.getElementById('quiz-modify-auth-overlay');
+    if (!authOv || !authOv.classList.contains('quiz-lock-overlay--above-checklist')) return;
+    authOv.classList.remove('quiz-lock-overlay--above-checklist');
+    var titleEl = document.getElementById('quiz-modify-auth-title');
+    var hintEl = authOv.querySelector('.quiz-lock-hint');
+    if (titleEl) titleEl.textContent = 'Autorizzazione Modifica';
+    if (hintEl) {
+        hintEl.innerHTML =
+            'Inserisci la password per <strong>applicare</strong> modifiche (salva, modifica testi, ripristina, ecc.). Resta valida finché non chiudi il browser o la scheda.';
+    }
+}
+
 function hideQuizModifyAuthModal() {
     var overlay = document.getElementById('quiz-modify-auth-overlay');
     var err = document.getElementById('quiz-modify-auth-error');
     if (!overlay) return;
+    quizModifyAuthModalResetChecklistOverride();
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('quiz-password-open');
@@ -35261,6 +35336,7 @@ document.addEventListener("keydown", function quizFullscreenEscape(ev) {
 });
 
 var checklistActiveId = null;
+var checklistEditorEditing = false;
 var checklistDeletePendingId = null;
 var checklistDragState = {
     holdTimer: null,
@@ -35633,13 +35709,102 @@ function checklistEditorIsDesktopLayout() {
     }
 }
 
-/** Su PC il textarea cresce con il testo (niente scroll interno stretto). */
+/** Altezza textarea = solo testo presente (niente area vuota sotto). */
 function checklistEditorFitContentHeight() {
     var bodyIn = document.getElementById('checklist-editor-content');
-    if (!bodyIn || !checklistEditorIsDesktopLayout()) return;
+    if (!bodyIn) return;
     bodyIn.style.height = 'auto';
-    var minH = Math.max(320, window.innerHeight - 120);
-    bodyIn.style.height = Math.max(bodyIn.scrollHeight, minH) + 'px';
+    var h = bodyIn.scrollHeight;
+    bodyIn.style.height = Math.max(h, 56) + 'px';
+}
+
+/** All’apertura: vista sempre dall’alto (titolo in barra, poi testo). */
+function checklistEditorScrollToTop() {
+    var scrollEl = document.querySelector('#checklist-editor-overlay .checklist-editor__scroll');
+    if (scrollEl) scrollEl.scrollTop = 0;
+    var edOverlay = document.getElementById('checklist-editor-overlay');
+    if (edOverlay) edOverlay.scrollTop = 0;
+    var ed = document.querySelector('#checklist-editor-overlay .checklist-editor');
+    if (ed) ed.scrollTop = 0;
+    var bodyIn = document.getElementById('checklist-editor-content');
+    if (bodyIn) bodyIn.scrollTop = 0;
+    try {
+        window.scrollTo(0, 0);
+    } catch (eW) { /* ignore */ }
+    var titleIn = document.getElementById('checklist-editor-title-input');
+    if (titleIn) {
+        try {
+            titleIn.scrollIntoView({ block: 'start', behavior: 'instant' });
+        } catch (eS) {
+            try {
+                titleIn.scrollIntoView(true);
+            } catch (eS2) { /* ignore */ }
+        }
+    }
+}
+
+function checklistEditorSetEditingMode(editing) {
+    checklistEditorEditing = !!editing;
+    var ed = document.querySelector('#checklist-editor-overlay .checklist-editor');
+    var titleIn = document.getElementById('checklist-editor-title-input');
+    var bodyIn = document.getElementById('checklist-editor-content');
+    var btnEdit = document.getElementById('checklist-editor-btn-edit');
+    var btnSave = document.getElementById('checklist-editor-btn-save');
+    if (ed) {
+        if (checklistEditorEditing) ed.classList.remove('checklist-editor--readonly');
+        else ed.classList.add('checklist-editor--readonly');
+    }
+    if (titleIn) titleIn.readOnly = !checklistEditorEditing;
+    if (bodyIn) bodyIn.readOnly = !checklistEditorEditing;
+    if (btnEdit) btnEdit.hidden = checklistEditorEditing;
+    if (btnSave) btnSave.hidden = !checklistEditorEditing;
+}
+
+function checklistEditorRequireEditAuth(doneFn) {
+    var authOv = document.getElementById('quiz-modify-auth-overlay');
+    var titleEl = document.getElementById('quiz-modify-auth-title');
+    var hintEl = authOv ? authOv.querySelector('.quiz-lock-hint') : null;
+    var prevTitle = titleEl ? titleEl.textContent : '';
+    var prevHint = hintEl ? hintEl.innerHTML : '';
+    if (authOv) authOv.classList.add('quiz-lock-overlay--above-checklist');
+    if (titleEl) titleEl.textContent = 'Autorizzazione modifica Check list';
+    if (hintEl) {
+        hintEl.innerHTML =
+            'Inserisci la password per <strong>modificare</strong> titolo e testo della checklist, poi usa <strong>Salva</strong>.';
+    }
+    function restoreAuthUi() {
+        if (authOv) authOv.classList.remove('quiz-lock-overlay--above-checklist');
+        if (titleEl) titleEl.textContent = prevTitle || 'Autorizzazione Modifica';
+        if (hintEl) hintEl.innerHTML = prevHint;
+    }
+    quizModifyRequireWriteAuth(function () {
+        restoreAuthUi();
+        if (typeof doneFn === 'function') doneFn();
+    });
+}
+
+function checklistEditorOnEditClick() {
+    checklistEditorRequireEditAuth(function () {
+        checklistEditorSetEditingMode(true);
+        checklistEditorFitContentHeight();
+        checklistEditorScrollToTop();
+        var bodyIn = document.getElementById('checklist-editor-content');
+        try {
+            if (bodyIn) bodyIn.focus({ preventScroll: true });
+        } catch (eF) {
+            try {
+                if (bodyIn) bodyIn.focus();
+            } catch (eF2) { /* ignore */ }
+        }
+    });
+}
+
+function checklistEditorOnSaveClick() {
+    if (!checklistEditorEditing) return;
+    checklistPersistEditor();
+    checklistEditorSetEditingMode(false);
+    checklistEditorFitContentHeight();
+    checklistEditorScrollToTop();
 }
 
 function checklistOpenEditor(id) {
@@ -35659,14 +35824,20 @@ function checklistOpenEditor(id) {
     titleIn.value = item.title;
     bodyIn.value = item.body;
     bodyIn.style.height = '';
+    checklistEditorSetEditingMode(false);
     edOverlay.classList.add('visible');
     edOverlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
+    checklistEditorScrollToTop();
     checklistEditorFitContentHeight();
     setTimeout(function () {
         checklistEditorFitContentHeight();
-        bodyIn.focus();
+        checklistEditorScrollToTop();
     }, 80);
+    requestAnimationFrame(function () {
+        checklistEditorFitContentHeight();
+        checklistEditorScrollToTop();
+    });
 }
 
 function checklistPersistEditor() {
@@ -35683,7 +35854,8 @@ function checklistPersistEditor() {
 }
 
 function checklistCloseEditor(save, reopenList) {
-    if (save) checklistPersistEditor();
+    if (save && checklistEditorEditing) checklistPersistEditor();
+    checklistEditorSetEditingMode(false);
     var edOverlay = document.getElementById('checklist-editor-overlay');
     if (edOverlay) {
         edOverlay.classList.remove('visible');
@@ -35782,12 +35954,12 @@ document.addEventListener('keydown', function checklistModalEscape(ev) {
     var titleIn = document.getElementById('checklist-editor-title-input');
     var bodyIn = document.getElementById('checklist-editor-content');
     var saveDraft = function () {
-        if (checklistActiveId) checklistPersistEditor();
+        if (checklistActiveId && checklistEditorEditing) checklistPersistEditor();
     };
     if (titleIn) titleIn.addEventListener('change', saveDraft);
     if (bodyIn) {
         bodyIn.addEventListener('input', function () {
-            saveDraft();
+            if (checklistEditorEditing) saveDraft();
             checklistEditorFitContentHeight();
         });
     }
@@ -35804,6 +35976,8 @@ function checklistOpenFromInstruction(id) {
 
 window.checklistOpenEditor = checklistOpenEditor;
 window.checklistOpenFromInstruction = checklistOpenFromInstruction;
+window.checklistEditorOnEditClick = checklistEditorOnEditClick;
+window.checklistEditorOnSaveClick = checklistEditorOnSaveClick;
 window.quizModifyChecklistPickSelect = quizModifyChecklistPickSelect;
 window.checklistDeleteAsk = checklistDeleteAsk;
 
