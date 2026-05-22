@@ -13561,7 +13561,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605418</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605419</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13718,7 +13718,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605418</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605419</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14166,7 +14166,7 @@ function dismissAppSplash() {
                 <h4 id="quiz-modify-checklist-pick-title" class="quiz-modify-checklist-pick-title">Scegli Check list</h4>
                 <button type="button" class="btn-side btn-reset" onclick="quizModifyChecklistPickClose()">Annulla</button>
             </div>
-            <p class="quiz-modify-edit-hint">Tocca un titolo per collegarlo al controllo e aprirlo dalle istruzioni operative.</p>
+            <p class="quiz-modify-edit-hint">Tocca un titolo per collegarlo a <strong>Controllo</strong> o <strong>Azione</strong> e aprirlo dalle istruzioni operative.</p>
             <div id="quiz-modify-checklist-pick-list" class="quiz-modify-checklist-pick-list" role="listbox" aria-label="Elenco Check list"></div>
         </div>
     </div>
@@ -14227,7 +14227,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605418';
+const APP_BUILD = '202605419';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21655,15 +21655,24 @@ function quizModifyCloneActionsArray(arr) {
         if (r.checklist_id != null && String(r.checklist_id).trim() !== '') {
             out.checklist_id = String(r.checklist_id).trim();
         }
+        if (r.checklist_id_a != null && String(r.checklist_id_a).trim() !== '') {
+            out.checklist_id_a = String(r.checklist_id_a).trim();
+        }
         return out;
     });
 }
 
-function checklistFormatActionControlHtml(row) {
+var QUIZ_MODIFY_ACTION_CL_FIELDS = {
+    c: { boxSel: '.quiz-modify-actions-ta-c', rowAttr: 'data-checklist-id', dataKey: 'checklist_id', textKey: 'c' },
+    a: { boxSel: '.quiz-modify-actions-ta-a', rowAttr: 'data-checklist-id-a', dataKey: 'checklist_id_a', textKey: 'a' }
+};
+
+function checklistFormatActionFieldHtml(row, fieldKey) {
     var r = row || {};
-    var cHtml = r.c != null ? String(r.c) : '';
-    var clId = r.checklist_id != null ? String(r.checklist_id).trim() : '';
-    if (!clId) return cHtml;
+    var cfg = QUIZ_MODIFY_ACTION_CL_FIELDS[fieldKey] || QUIZ_MODIFY_ACTION_CL_FIELDS.c;
+    var textHtml = r[cfg.textKey] != null ? String(r[cfg.textKey]) : '';
+    var clId = r[cfg.dataKey] != null ? String(r[cfg.dataKey]).trim() : '';
+    if (!clId) return textHtml;
     var item = checklistFindItem(checklistLoadStore(), clId);
     var title = item && item.title ? String(item.title).trim() : 'Check list';
     if (!title) title = 'Check list';
@@ -21673,8 +21682,12 @@ function checklistFormatActionControlHtml(row) {
         '" onclick="checklistOpenFromInstruction(this.getAttribute(\'data-checklist-id\'))">📋 ' +
         checklistEscapeHtml(title) +
         '</button>';
-    if (String(cHtml).trim()) return link + ' ' + cHtml;
+    if (String(textHtml).trim()) return link + ' ' + textHtml;
     return link;
+}
+
+function checklistFormatActionControlHtml(row) {
+    return checklistFormatActionFieldHtml(row, 'c');
 }
 
 /** Default visibilità tabella controlli/azioni: da flag espliciti o da `control` (legacy). */
@@ -21700,7 +21713,7 @@ function checklistBuildActionsTableHtml(actions) {
             '<tr><td>' +
             checklistFormatActionControlHtml(row) +
             '</td><td>' +
-            (row.a != null ? row.a : '') +
+            checklistFormatActionFieldHtml(row, 'a') +
             '</td></tr>';
     });
     return html + '</table>';
@@ -21977,7 +21990,7 @@ function quizModifyFillActionsTable(el, actions) {
             '<tr><td>' +
             checklistFormatActionControlHtml(r) +
             '</td><td>' +
-            quizModifyEscapeForInnerHtml(String(r.a || '')) +
+            checklistFormatActionFieldHtml(r, 'a') +
             '</td></tr>';
     }
     h += '</tbody></table>';
@@ -21985,6 +21998,7 @@ function quizModifyFillActionsTable(el, actions) {
 }
 
 var quizModifyChecklistPickRow = null;
+var quizModifyChecklistPickTargetField = 'c';
 
 function quizModifyChecklistTitleById(id) {
     if (!id) return 'Check list';
@@ -21993,11 +22007,14 @@ function quizModifyChecklistTitleById(id) {
     return title || 'Check list';
 }
 
-function quizModifyControlReadField(rowEl) {
-    var box = rowEl ? rowEl.querySelector('.quiz-modify-actions-ta-c') : null;
-    if (!box) return { c: '', checklist_id: '' };
+function quizModifyActionFieldRead(rowEl, fieldKey) {
+    var cfg = QUIZ_MODIFY_ACTION_CL_FIELDS[fieldKey] || QUIZ_MODIFY_ACTION_CL_FIELDS.c;
+    var box = rowEl ? rowEl.querySelector(cfg.boxSel) : null;
+    if (!box) return { text: '', checklist_id: '' };
     var chip = box.querySelector('.quiz-modify-cl-inline-link');
-    var clId = chip ? chip.getAttribute('data-checklist-id') || '' : rowEl.getAttribute('data-checklist-id') || '';
+    var clId = chip
+        ? chip.getAttribute('data-checklist-id') || ''
+        : rowEl.getAttribute(cfg.rowAttr) || '';
     var clone = box.cloneNode(true);
     var ch = clone.querySelector('.quiz-modify-cl-inline-link');
     if (ch) ch.remove();
@@ -22005,23 +22022,25 @@ function quizModifyControlReadField(rowEl) {
         .replace(/\u00a0/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-    return { c: extra, checklist_id: clId ? String(clId) : '' };
+    return { text: extra, checklist_id: clId ? String(clId) : '' };
 }
 
-function quizModifyControlRemoveInlineLink(rowEl) {
+function quizModifyActionFieldRemoveInlineLink(rowEl, fieldKey) {
     if (!rowEl) return;
-    var box = rowEl.querySelector('.quiz-modify-actions-ta-c');
+    var cfg = QUIZ_MODIFY_ACTION_CL_FIELDS[fieldKey] || QUIZ_MODIFY_ACTION_CL_FIELDS.c;
+    var box = rowEl.querySelector(cfg.boxSel);
     if (box) {
         var chip = box.querySelector('.quiz-modify-cl-inline-link');
         if (chip) chip.remove();
     }
-    rowEl.removeAttribute('data-checklist-id');
+    rowEl.removeAttribute(cfg.rowAttr);
 }
 
-function quizModifyControlCreateInlineLinkChip(id, title) {
+function quizModifyActionFieldCreateInlineLinkChip(id, title, fieldKey) {
     var chip = document.createElement('span');
     chip.className = 'quiz-modify-cl-inline-link';
     chip.setAttribute('data-checklist-id', id);
+    chip.setAttribute('data-pick-field', fieldKey);
     chip.setAttribute('contenteditable', 'false');
     var open = document.createElement('button');
     open.type = 'button';
@@ -22057,40 +22076,45 @@ function quizModifyControlCreateInlineLinkChip(id, title) {
             ev.stopPropagation();
         } catch (eC) { /* ignore */ }
         var row = chip.closest('.quiz-modify-actions-edit-row');
-        if (row) quizModifyControlRemoveInlineLink(row);
+        if (row) quizModifyActionFieldRemoveInlineLink(row, fieldKey);
     });
     chip.appendChild(open);
     chip.appendChild(rm);
     return chip;
 }
 
-function quizModifyControlBuildContent(rowEl, data) {
-    var box = rowEl ? rowEl.querySelector('.quiz-modify-actions-ta-c') : null;
+function quizModifyActionFieldBuildContent(rowEl, data, fieldKey) {
+    var cfg = QUIZ_MODIFY_ACTION_CL_FIELDS[fieldKey] || QUIZ_MODIFY_ACTION_CL_FIELDS.c;
+    var box = rowEl ? rowEl.querySelector(cfg.boxSel) : null;
     if (!box) return;
     var d = data || {};
     box.innerHTML = '';
-    var clId = d.checklist_id != null ? String(d.checklist_id).trim() : '';
-    var extra = d.c != null ? String(d.c) : '';
+    var clId = d[cfg.dataKey] != null ? String(d[cfg.dataKey]).trim() : '';
+    var extra = d[cfg.textKey] != null ? String(d[cfg.textKey]) : '';
     if (clId) {
-        rowEl.setAttribute('data-checklist-id', clId);
+        rowEl.setAttribute(cfg.rowAttr, clId);
         var title = quizModifyChecklistTitleById(clId);
         if (extra.trim() === title.trim()) extra = '';
-        box.appendChild(quizModifyControlCreateInlineLinkChip(clId, title));
+        box.appendChild(quizModifyActionFieldCreateInlineLinkChip(clId, title, fieldKey));
         if (extra.trim()) {
             box.appendChild(document.createTextNode(' ' + extra.trim()));
         }
     } else {
-        rowEl.removeAttribute('data-checklist-id');
+        rowEl.removeAttribute(cfg.rowAttr);
         if (extra.trim()) box.appendChild(document.createTextNode(extra.trim()));
     }
 }
 
-function quizModifyControlInsertChecklistLink(rowEl, id) {
+function quizModifyActionFieldInsertChecklistLink(rowEl, id, fieldKey) {
     if (!rowEl || !id) return;
-    var ctrl = quizModifyControlReadField(rowEl);
-    ctrl.checklist_id = id;
-    quizModifyControlBuildContent(rowEl, ctrl);
-    var box = rowEl.querySelector('.quiz-modify-actions-ta-c');
+    var fk = fieldKey || 'c';
+    var cfg = QUIZ_MODIFY_ACTION_CL_FIELDS[fk];
+    var read = quizModifyActionFieldRead(rowEl, fk);
+    var patch = {};
+    patch[cfg.dataKey] = id;
+    patch[cfg.textKey] = read.text;
+    quizModifyActionFieldBuildContent(rowEl, patch, fk);
+    var box = rowEl.querySelector(cfg.boxSel);
     try {
         if (box) box.focus();
     } catch (eF) { /* ignore */ }
@@ -22114,22 +22138,25 @@ function quizModifyActionsCreateEditRow(row, host) {
     var wrap = document.createElement('div');
     wrap.className = 'quiz-modify-actions-edit-row';
     if (data.checklist_id) wrap.setAttribute('data-checklist-id', String(data.checklist_id));
+    if (data.checklist_id_a) wrap.setAttribute('data-checklist-id-a', String(data.checklist_id_a));
     wrap.innerHTML =
         '<div class="quiz-modify-actions-pair quiz-modify-actions-pair--control">' +
         '<label class="quiz-modify-edit-label">Controllo</label>' +
         '<div class="quiz-modify-actions-control-box">' +
         '<div class="quiz-modify-actions-ta-c quiz-modify-field-edit" contenteditable="true" role="textbox" spellcheck="true" aria-label="Testo controllo" data-placeholder="Testo controllo…"></div>' +
-        '<button type="button" class="quiz-modify-actions-cl-pick-plus" title="Collega Check list" aria-label="Collega Check list">+</button>' +
+        '<button type="button" class="quiz-modify-actions-cl-pick-plus" data-pick-field="c" title="Collega Check list al controllo" aria-label="Collega Check list al controllo">+</button>' +
         '</div>' +
         '</div>' +
-        '<div class="quiz-modify-actions-pair">' +
+        '<div class="quiz-modify-actions-pair quiz-modify-actions-pair--action">' +
         '<label class="quiz-modify-edit-label">Azione</label>' +
-        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true" aria-label="Testo azione"></textarea>' +
+        '<div class="quiz-modify-actions-control-box">' +
+        '<div class="quiz-modify-actions-ta-a quiz-modify-field-edit" contenteditable="true" role="textbox" spellcheck="true" aria-label="Testo azione" data-placeholder="Testo azione…"></div>' +
+        '<button type="button" class="quiz-modify-actions-cl-pick-plus" data-pick-field="a" title="Collega Check list all’azione" aria-label="Collega Check list all’azione">+</button>' +
+        '</div>' +
         '</div>' +
         '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
-    var ta = wrap.querySelector('.quiz-modify-actions-ta-a');
-    if (ta) ta.value = data.a || '';
-    quizModifyControlBuildContent(wrap, data);
+    quizModifyActionFieldBuildContent(wrap, data, 'c');
+    quizModifyActionFieldBuildContent(wrap, data, 'a');
     quizModifyActionsBindEditRow(wrap, host);
     return wrap;
 }
@@ -22153,12 +22180,19 @@ function quizModifyCollectActionsFromEditHost() {
     if (!host) return [];
     var out = [];
     host.querySelectorAll('.quiz-modify-actions-edit-row').forEach(function (rowEl) {
-        var ctrl = quizModifyControlReadField(rowEl);
-        var ta = rowEl.querySelector('.quiz-modify-actions-ta-a');
-        var a = ta ? String(ta.value || '') : '';
-        if (String(ctrl.c).trim() === '' && String(a).trim() === '' && !ctrl.checklist_id) return;
-        var row = { c: ctrl.c, a: a };
-        if (ctrl.checklist_id) row.checklist_id = ctrl.checklist_id;
+        var fldC = quizModifyActionFieldRead(rowEl, 'c');
+        var fldA = quizModifyActionFieldRead(rowEl, 'a');
+        if (
+            String(fldC.text).trim() === '' &&
+            String(fldA.text).trim() === '' &&
+            !fldC.checklist_id &&
+            !fldA.checklist_id
+        ) {
+            return;
+        }
+        var row = { c: fldC.text, a: fldA.text };
+        if (fldC.checklist_id) row.checklist_id = fldC.checklist_id;
+        if (fldA.checklist_id) row.checklist_id_a = fldA.checklist_id;
         out.push(row);
     });
     return out;
@@ -22206,9 +22240,10 @@ function quizModifyChecklistPickSelect(id) {
     });
 }
 
-function quizModifyChecklistPickOpen(rowEl) {
+function quizModifyChecklistPickOpen(rowEl, fieldKey) {
     if (!rowEl) return;
     quizModifyChecklistPickRow = rowEl;
+    quizModifyChecklistPickTargetField = fieldKey === 'a' ? 'a' : 'c';
     var overlay = document.getElementById('quiz-modify-checklist-pick-overlay');
     if (!overlay) return;
     quizModifyChecklistPickRenderList();
@@ -22219,6 +22254,7 @@ function quizModifyChecklistPickOpen(rowEl) {
 
 function quizModifyChecklistPickClose() {
     quizModifyChecklistPickRow = null;
+    quizModifyChecklistPickTargetField = 'c';
     var overlay = document.getElementById('quiz-modify-checklist-pick-overlay');
     if (!overlay) return;
     overlay.classList.remove('visible');
@@ -22241,7 +22277,7 @@ function quizModifyChecklistPickBackdrop(ev) {
 function quizModifyChecklistPickApply(id) {
     var row = quizModifyChecklistPickRow;
     if (!row || !id) return;
-    quizModifyControlInsertChecklistLink(row, id);
+    quizModifyActionFieldInsertChecklistLink(row, id, quizModifyChecklistPickTargetField);
     quizModifyChecklistPickClose();
 }
 
@@ -22446,7 +22482,8 @@ function quizModifyDetailBindOnce() {
             ev.preventDefault();
             quizModifyRequireWriteAuth(function () {
                 var rowEl = clPlus.closest('.quiz-modify-actions-edit-row');
-                quizModifyChecklistPickOpen(rowEl);
+                var pickField = clPlus.getAttribute('data-pick-field') === 'a' ? 'a' : 'c';
+                quizModifyChecklistPickOpen(rowEl, pickField);
             });
             return;
         }
