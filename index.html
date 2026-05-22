@@ -7680,18 +7680,38 @@
             flex: 1;
             min-width: min(160px, 100%);
         }
-        .quiz-modify-actions-control-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 4px;
+        .quiz-modify-actions-control-box {
+            position: relative;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            background: #fafcff;
         }
-        .quiz-modify-actions-control-head .quiz-modify-edit-label {
-            margin: 0;
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 88px;
+            padding: 8px 40px 8px 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            outline: none;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            font-family: inherit;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c:empty::before {
+            content: attr(data-placeholder);
+            color: #90a4ae;
+            pointer-events: none;
         }
         .quiz-modify-actions-cl-pick-plus {
-            flex: 0 0 auto;
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            z-index: 2;
             width: 28px;
             height: 28px;
             padding: 0;
@@ -7708,34 +7728,48 @@
         .quiz-modify-actions-cl-pick-plus:hover {
             background: #bbdefb;
         }
-        .quiz-modify-actions-cl-link-badge {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin: 0 0 6px;
-            padding: 5px 8px;
-            border-radius: 8px;
-            background: #e8f4fc;
-            border: 1px solid #90caf9;
-            font-size: 0.72rem;
-            color: #1565c0;
-        }
-        .quiz-modify-actions-cl-link-badge[hidden] {
-            display: none !important;
-        }
-        .quiz-modify-actions-cl-link-clear {
-            flex: 0 0 auto;
-            width: 22px;
-            height: 22px;
+        .quiz-modify-cl-inline-link {
+            display: inline;
+            margin: 0 4px 2px 0;
             padding: 0;
             border: none;
-            border-radius: 50%;
-            background: rgba(21, 101, 192, 0.12);
-            color: #1565c0;
-            font-size: 1rem;
-            line-height: 1;
+            background: transparent;
+            vertical-align: baseline;
+            white-space: nowrap;
+        }
+        .quiz-modify-cl-inline-link-open {
+            display: inline;
+            margin: 0;
+            padding: 1px 6px;
+            border: 1px solid #1565c0;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0d47a1;
+            font-weight: 700;
+            font-size: inherit;
+            font-family: inherit;
+            line-height: 1.35;
             cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .quiz-modify-cl-inline-link-open:hover {
+            background: #90caf9;
+        }
+        .quiz-modify-cl-inline-link-rm {
+            display: inline;
+            margin: 0 0 0 2px;
+            padding: 0 4px;
+            border: none;
+            background: transparent;
+            color: #546e7a;
+            font-weight: 800;
+            font-size: 0.9em;
+            cursor: pointer;
+            vertical-align: baseline;
+        }
+        .quiz-modify-cl-inline-link-rm:hover {
+            color: #c62828;
         }
         .quiz-modify-checklist-pick-overlay {
             z-index: 10048;
@@ -13466,7 +13500,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605415</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605416</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13623,7 +13657,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605415</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605416</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14132,7 +14166,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605415';
+const APP_BUILD = '202605416';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21564,7 +21598,7 @@ function checklistFormatActionControlHtml(row) {
         '" onclick="checklistOpenFromInstruction(this.getAttribute(\'data-checklist-id\'))">📋 ' +
         checklistEscapeHtml(title) +
         '</button>';
-    if (String(cHtml).trim()) return link + '<br>' + cHtml;
+    if (String(cHtml).trim()) return link + ' ' + cHtml;
     return link;
 }
 
@@ -21877,25 +21911,114 @@ function quizModifyFillActionsTable(el, actions) {
 
 var quizModifyChecklistPickRow = null;
 
-function quizModifyActionsSyncLinkBadge(rowEl) {
+function quizModifyChecklistTitleById(id) {
+    if (!id) return 'Check list';
+    var item = checklistFindItem(checklistLoadStore(), id);
+    var title = item && item.title ? String(item.title).trim() : '';
+    return title || 'Check list';
+}
+
+function quizModifyControlReadField(rowEl) {
+    var box = rowEl ? rowEl.querySelector('.quiz-modify-actions-ta-c') : null;
+    if (!box) return { c: '', checklist_id: '' };
+    var chip = box.querySelector('.quiz-modify-cl-inline-link');
+    var clId = chip ? chip.getAttribute('data-checklist-id') || '' : rowEl.getAttribute('data-checklist-id') || '';
+    var clone = box.cloneNode(true);
+    var ch = clone.querySelector('.quiz-modify-cl-inline-link');
+    if (ch) ch.remove();
+    var extra = String(clone.innerText || clone.textContent || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    return { c: extra, checklist_id: clId ? String(clId) : '' };
+}
+
+function quizModifyControlRemoveInlineLink(rowEl) {
     if (!rowEl) return;
-    var badge = rowEl.querySelector('.quiz-modify-actions-cl-link-badge');
-    if (!badge) return;
-    var clId = rowEl.getAttribute('data-checklist-id') || '';
-    if (!clId) {
-        badge.hidden = true;
-        badge.innerHTML = '';
-        return;
+    var box = rowEl.querySelector('.quiz-modify-actions-ta-c');
+    if (box) {
+        var chip = box.querySelector('.quiz-modify-cl-inline-link');
+        if (chip) chip.remove();
     }
-    var item = checklistFindItem(checklistLoadStore(), clId);
-    var title = item && item.title ? String(item.title).trim() : 'Check list';
-    if (!title) title = 'Check list';
-    badge.hidden = false;
-    badge.innerHTML =
-        '<span>Collegata: <strong>' +
-        quizModifyEscapeForInnerHtml(title) +
-        '</strong></span>' +
-        '<button type="button" class="quiz-modify-actions-cl-link-clear" aria-label="Rimuovi collegamento Check list">×</button>';
+    rowEl.removeAttribute('data-checklist-id');
+}
+
+function quizModifyControlCreateInlineLinkChip(id, title) {
+    var chip = document.createElement('span');
+    chip.className = 'quiz-modify-cl-inline-link';
+    chip.setAttribute('data-checklist-id', id);
+    chip.setAttribute('contenteditable', 'false');
+    var open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'quiz-modify-cl-inline-link-open';
+    open.setAttribute('title', 'Apri Check list: ' + title);
+    open.textContent = '📋 ' + title;
+    open.addEventListener('mousedown', function (ev) {
+        try {
+            ev.preventDefault();
+        } catch (eM) { /* ignore */ }
+    });
+    open.addEventListener('click', function (ev) {
+        try {
+            ev.preventDefault();
+            ev.stopPropagation();
+        } catch (eC) { /* ignore */ }
+        checklistOpenFromInstruction(id);
+    });
+    var rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 'quiz-modify-cl-inline-link-rm';
+    rm.setAttribute('aria-label', 'Rimuovi collegamento Check list');
+    rm.textContent = '×';
+    rm.addEventListener('mousedown', function (ev) {
+        try {
+            ev.preventDefault();
+            ev.stopPropagation();
+        } catch (eM) { /* ignore */ }
+    });
+    rm.addEventListener('click', function (ev) {
+        try {
+            ev.preventDefault();
+            ev.stopPropagation();
+        } catch (eC) { /* ignore */ }
+        var row = chip.closest('.quiz-modify-actions-edit-row');
+        if (row) quizModifyControlRemoveInlineLink(row);
+    });
+    chip.appendChild(open);
+    chip.appendChild(rm);
+    return chip;
+}
+
+function quizModifyControlBuildContent(rowEl, data) {
+    var box = rowEl ? rowEl.querySelector('.quiz-modify-actions-ta-c') : null;
+    if (!box) return;
+    var d = data || {};
+    box.innerHTML = '';
+    var clId = d.checklist_id != null ? String(d.checklist_id).trim() : '';
+    var extra = d.c != null ? String(d.c) : '';
+    if (clId) {
+        rowEl.setAttribute('data-checklist-id', clId);
+        var title = quizModifyChecklistTitleById(clId);
+        if (extra.trim() === title.trim()) extra = '';
+        box.appendChild(quizModifyControlCreateInlineLinkChip(clId, title));
+        if (extra.trim()) {
+            box.appendChild(document.createTextNode(' ' + extra.trim()));
+        }
+    } else {
+        rowEl.removeAttribute('data-checklist-id');
+        if (extra.trim()) box.appendChild(document.createTextNode(extra.trim()));
+    }
+}
+
+function quizModifyControlInsertChecklistLink(rowEl, id) {
+    if (!rowEl || !id) return;
+    var ctrl = quizModifyControlReadField(rowEl);
+    ctrl.checklist_id = id;
+    quizModifyControlBuildContent(rowEl, ctrl);
+    var box = rowEl.querySelector('.quiz-modify-actions-ta-c');
+    try {
+        if (box) box.focus();
+    } catch (eF) { /* ignore */ }
 }
 
 function quizModifyActionsBindEditRow(rowEl, host) {
@@ -21909,17 +22032,6 @@ function quizModifyActionsBindEditRow(rowEl, host) {
             rowEl.remove();
         });
     }
-    var clr = rowEl.querySelector('.quiz-modify-actions-cl-link-clear');
-    if (clr) {
-        clr.addEventListener('click', function (ev) {
-            try {
-                ev.preventDefault();
-                ev.stopPropagation();
-            } catch (eS) { /* ignore */ }
-            rowEl.removeAttribute('data-checklist-id');
-            quizModifyActionsSyncLinkBadge(rowEl);
-        });
-    }
 }
 
 function quizModifyActionsCreateEditRow(row, host) {
@@ -21929,24 +22041,21 @@ function quizModifyActionsCreateEditRow(row, host) {
     if (data.checklist_id) wrap.setAttribute('data-checklist-id', String(data.checklist_id));
     wrap.innerHTML =
         '<div class="quiz-modify-actions-pair quiz-modify-actions-pair--control">' +
-        '<div class="quiz-modify-actions-control-head">' +
         '<label class="quiz-modify-edit-label">Controllo</label>' +
-        '<button type="button" class="quiz-modify-actions-cl-pick-plus" title="Collega una Check list" aria-label="Collega Check list">+</button>' +
+        '<div class="quiz-modify-actions-control-box">' +
+        '<div class="quiz-modify-actions-ta-c quiz-modify-field-edit" contenteditable="true" role="textbox" spellcheck="true" aria-label="Testo controllo" data-placeholder="Testo controllo…"></div>' +
+        '<button type="button" class="quiz-modify-actions-cl-pick-plus" title="Collega Check list" aria-label="Collega Check list">+</button>' +
         '</div>' +
-        '<div class="quiz-modify-actions-cl-link-badge" hidden></div>' +
-        '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-c" rows="3" spellcheck="true" aria-label="Testo controllo"></textarea>' +
         '</div>' +
         '<div class="quiz-modify-actions-pair">' +
         '<label class="quiz-modify-edit-label">Azione</label>' +
         '<textarea class="quiz-modify-field-edit quiz-modify-actions-ta-a" rows="3" spellcheck="true" aria-label="Testo azione"></textarea>' +
         '</div>' +
         '<button type="button" class="quiz-modify-mini-btn quiz-modify-actions-row-remove" aria-label="Rimuovi riga">✕</button>';
-    var tc = wrap.querySelector('.quiz-modify-actions-ta-c');
     var ta = wrap.querySelector('.quiz-modify-actions-ta-a');
-    if (tc) tc.value = data.c || '';
     if (ta) ta.value = data.a || '';
+    quizModifyControlBuildContent(wrap, data);
     quizModifyActionsBindEditRow(wrap, host);
-    quizModifyActionsSyncLinkBadge(wrap);
     return wrap;
 }
 
@@ -21969,14 +22078,12 @@ function quizModifyCollectActionsFromEditHost() {
     if (!host) return [];
     var out = [];
     host.querySelectorAll('.quiz-modify-actions-edit-row').forEach(function (rowEl) {
-        var tc = rowEl.querySelector('.quiz-modify-actions-ta-c');
+        var ctrl = quizModifyControlReadField(rowEl);
         var ta = rowEl.querySelector('.quiz-modify-actions-ta-a');
-        var c = tc ? String(tc.value || '') : '';
         var a = ta ? String(ta.value || '') : '';
-        var clId = rowEl.getAttribute('data-checklist-id') || '';
-        if (String(c).trim() === '' && String(a).trim() === '' && !clId) return;
-        var row = { c: c, a: a };
-        if (clId) row.checklist_id = clId;
+        if (String(ctrl.c).trim() === '' && String(a).trim() === '' && !ctrl.checklist_id) return;
+        var row = { c: ctrl.c, a: a };
+        if (ctrl.checklist_id) row.checklist_id = ctrl.checklist_id;
         out.push(row);
     });
     return out;
@@ -22006,15 +22113,22 @@ function quizModifyChecklistPickRenderList() {
     host.innerHTML = items
         .map(function (it) {
             var title = (it.title || '').trim() || 'Senza titolo';
+            var idAttr = checklistEscapeHtml(it.id);
             return (
                 '<button type="button" class="quiz-modify-checklist-pick-item" role="option" data-checklist-pick-id="' +
-                checklistEscapeHtml(it.id) +
-                '">' +
+                idAttr +
+                '" onclick="quizModifyChecklistPickSelect(this.getAttribute(\'data-checklist-pick-id\'))">' +
                 checklistEscapeHtml(title) +
                 '</button>'
             );
         })
         .join('');
+}
+
+function quizModifyChecklistPickSelect(id) {
+    quizModifyRequireWriteAuth(function () {
+        quizModifyChecklistPickApply(id);
+    });
 }
 
 function quizModifyChecklistPickOpen(rowEl) {
@@ -22052,18 +22166,8 @@ function quizModifyChecklistPickBackdrop(ev) {
 function quizModifyChecklistPickApply(id) {
     var row = quizModifyChecklistPickRow;
     if (!row || !id) return;
-    var store = checklistLoadStore();
-    var item = checklistFindItem(store, id);
-    if (!item) return;
-    var title = (item.title || '').trim() || 'Check list';
-    row.setAttribute('data-checklist-id', id);
-    var ta = row.querySelector('.quiz-modify-actions-ta-c');
-    if (ta && !String(ta.value || '').trim()) ta.value = title;
-    quizModifyActionsSyncLinkBadge(row);
+    quizModifyControlInsertChecklistLink(row, id);
     quizModifyChecklistPickClose();
-    try {
-        if (ta) ta.focus();
-    } catch (eF) { /* ignore */ }
 }
 
 function quizModifyDetailLeaveEditForField(field) {
@@ -22300,18 +22404,6 @@ function quizModifyDetailBindOnce() {
         noToggle.addEventListener('change', function () {
             quizModifyRequireWriteAuth(function () {
                 quizModifyOnActionsSiNoToggle('no', noToggle.checked);
-            });
-        });
-    }
-    var pickOverlay = document.getElementById('quiz-modify-checklist-pick-overlay');
-    if (pickOverlay && !pickOverlay.getAttribute('data-pick-bound')) {
-        pickOverlay.setAttribute('data-pick-bound', '1');
-        pickOverlay.addEventListener('click', function (ev) {
-            var pickBtn = ev.target && ev.target.closest ? ev.target.closest('[data-checklist-pick-id]') : null;
-            if (!pickBtn) return;
-            ev.preventDefault();
-            quizModifyRequireWriteAuth(function () {
-                quizModifyChecklistPickApply(pickBtn.getAttribute('data-checklist-pick-id'));
             });
         });
     }
@@ -35712,6 +35804,7 @@ function checklistOpenFromInstruction(id) {
 
 window.checklistOpenEditor = checklistOpenEditor;
 window.checklistOpenFromInstruction = checklistOpenFromInstruction;
+window.quizModifyChecklistPickSelect = quizModifyChecklistPickSelect;
 window.checklistDeleteAsk = checklistDeleteAsk;
 
 function scrollToReport() {
