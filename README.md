@@ -23,6 +23,9 @@ match /quiz_custom_schedario/{docId} {
 match /quiz_modify_overrides/{docId} {
   allow read, create, update: if request.auth != null;
 }
+match /quiz_checklists/{docId} {
+  allow read, create, update: if request.auth != null;
+}
 ```
 
 Abilita anche **Authentication → Accesso anonimo**. Ogni client deve caricare `firebase-config.json` dalla stessa cartella di `index.html`.

@@ -342,15 +342,19 @@
             max-width: var(--app-desktop-max);
             margin-left: auto;
             margin-right: auto;
+            overflow: visible;
         }
         .header-quiz-actions {
             position: relative;
             display: grid;
-            grid-template-columns: repeat(4, minmax(132px, auto));
+            grid-template-columns: repeat(4, minmax(0, 1fr)) 42px;
             align-items: center;
-            justify-items: center;
+            justify-items: stretch;
             justify-content: center;
-            gap: 8px 10px;
+            gap: 8px 8px;
+            width: min(100%, calc(var(--app-desktop-max) - 20px));
+            max-width: 100%;
+            overflow: visible;
         }
         .header-quiz-actions .btn-quiz {
             grid-column: 1;
@@ -369,18 +373,30 @@
             grid-row: 1;
         }
         .header-quiz-actions .btn-supporto {
-            position: absolute;
-            left: calc(100% + 10px);
-            top: 50%;
-            transform: translateY(-50%);
+            grid-column: 5;
+            grid-row: 1;
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
+            justify-self: center;
+            z-index: 3;
+        }
+        .header-quiz-actions .btn-quiz,
+        .header-quiz-actions .btn-test-gestione,
+        .header-quiz-actions .btn-categoria-checklist,
+        .header-quiz-actions .btn-diagnostica {
+            width: 100%;
+            min-width: 0;
+            max-width: none;
         }
         .header-quiz-actions.header-quiz-actions--quiz-disabled {
             display: grid;
-            grid-template-columns: repeat(3, minmax(132px, auto));
+            grid-template-columns: repeat(3, minmax(0, 1fr)) 42px;
             justify-content: center;
-            justify-items: center;
+            justify-items: stretch;
             align-items: center;
-            gap: 8px 10px;
+            gap: 8px 8px;
         }
         .header-quiz-actions--quiz-disabled .btn-test-gestione {
             grid-column: 1;
@@ -395,13 +411,22 @@
             grid-row: 1;
         }
         .header-quiz-actions--quiz-disabled .btn-supporto {
-            grid-column: auto;
-            grid-row: auto;
-            justify-self: auto;
-            position: absolute;
-            left: calc(100% + 10px);
-            top: 50%;
-            transform: translateY(-50%);
+            grid-column: 4;
+            grid-row: 1;
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
+            justify-self: center;
+        }
+        /* Schermi stretti: supporto in barra titolo (evita pulsante fuori viewport). */
+        @media (max-width: 900px) {
+            .btn-supporto.btn-supporto--title {
+                display: inline-flex;
+            }
+            .header-quiz-actions .btn-supporto {
+                display: none;
+            }
         }
 
         .btn-side {
@@ -12616,7 +12641,7 @@ function dismissAppSplash() {
         </button>
         <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
         <div class="header-title-actions">
-            <button type="button" class="btn-supporto btn-supporto--title" onclick="showSupportoModal()" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
+            <button type="button" id="btn-supporto-title" class="btn-supporto btn-supporto--title" data-action="supporto" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
             <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
@@ -12638,7 +12663,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" id="btn-categoria-checklist" class="btn-categoria-checklist" onclick="openCategoriaChecklist()" title="Apri le tue Check list" aria-label="Apri Check list">Check list</button>
             <button type="button" class="btn-diagnostica" onclick="scrollToReport()" title="Vai alla sezione Diagnosi (report tecnico)">Diagnostica</button>
-            <button type="button" class="btn-supporto" onclick="showSupportoModal()" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
+            <button type="button" id="btn-supporto-row" class="btn-supporto" data-action="supporto" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
         </div>
     </div>
 </div>
@@ -13210,7 +13235,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605399</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605401</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13367,7 +13392,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605399</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605401</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13858,7 +13883,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605399';
+const APP_BUILD = '202605401';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14106,8 +14131,10 @@ const QUIZ_FS_MODIFY_OVERRIDES = 'quiz_modify_overrides';
 const QUIZ_FS_MODIFY_OVERRIDES_DOC = 'global';
 /** Debounce push cloud contenuti Modifica (ms): basso = sync quasi immediata tra dispositivi. */
 const QUIZ_MODIFY_CLOUD_PUSH_DEBOUNCE_MS = 120;
-/** Check list personali: elenco titoli + testo per voce (localStorage). */
+/** Check list personali: elenco titoli + testo per voce (localStorage + Firestore). */
 const CHECKLIST_LS = 'io-checklist-docs-v1';
+const QUIZ_FS_CHECKLISTS = 'quiz_checklists';
+const QUIZ_FS_CHECKLISTS_DOC = 'global';
 /** Domande gestione test e verifiche (10 MCQ): doc condiviso tra dispositivi. Regole su `quiz_gestione_domande`. */
 const QUIZ_FS_GESTIONE_DOMANDE = 'quiz_gestione_domande';
 const QUIZ_FS_GESTIONE_DOMANDE_DOC = 'global';
@@ -14159,6 +14186,12 @@ let quizModifyOverridesUnsub = null;
 let quizModifyOverridesPushTimer = null;
 let quizModifyOverridesFallbackUnsub = null;
 let quizModifyOverridesPrimarySnapshotReady = false;
+/** Cloud sync Check list (debounce push). */
+let checklistRemoteApply = false;
+let checklistUnsub = null;
+let checklistPushTimer = null;
+let checklistFallbackUnsub = null;
+let checklistPrimarySnapshotReady = false;
 /** Cloud sync domande «Gestione test e verifiche» (debounce push). */
 let gestioneDomandePushTimer = null;
 /** Durante applicazione snapshot Firestore: non riscrivere il doc dal client. */
@@ -16185,16 +16218,196 @@ function quizSubscribeModifyOverrides() {
         });
 }
 
-/** Flush immediato schedario + override (es. prima di chiudere scheda o uscire dalla pagina). */
+/*
+ * quiz_checklists/global — { items: [{ id, title, body, updatedAt }], updatedAt }
+ * Regole Firestore suggerite:
+ *   match /quiz_checklists/{docId} {
+ *     allow read, create, update: if request.auth != null;
+ *   }
+ */
+function checklistNormalizeStore(data) {
+    if (!data || !Array.isArray(data.items)) return { items: [] };
+    return {
+        items: data.items
+            .filter(function (x) {
+                return x && x.id;
+            })
+            .map(function (x) {
+                return {
+                    id: String(x.id),
+                    title: x.title != null ? String(x.title) : '',
+                    body: x.body != null ? String(x.body) : '',
+                    updatedAt: x.updatedAt != null ? Number(x.updatedAt) : 0
+                };
+            })
+    };
+}
+
+function checklistHasActiveEdit() {
+    if (!checklistActiveId) return false;
+    try {
+        var ed = document.getElementById('checklist-editor-overlay');
+        return !!(ed && ed.classList.contains('visible'));
+    } catch (eEd) {
+        return false;
+    }
+}
+
+function checklistSchedulePushDebounced() {
+    if (checklistRemoteApply || !quizFirestoreConfigured()) return;
+    try {
+        clearTimeout(checklistPushTimer);
+    } catch (eCl) { /* ignore */ }
+    checklistPushTimer = window.setTimeout(function () {
+        checklistPushTimer = null;
+        checklistPushToFirestoreNow();
+    }, QUIZ_MODIFY_CLOUD_PUSH_DEBOUNCE_MS);
+}
+
+function checklistMirrorToLeaderboard(store) {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    var payload = checklistNormalizeStore(store);
+    return firebase
+        .firestore()
+        .collection(QUIZ_FS_LEADERBOARD)
+        .doc(QUIZ_FS_LEADERBOARD_DOC)
+        .set(
+            {
+                checklists: gestioneFirestoreCleanValue(payload),
+                checklistsUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+        );
+}
+
+function checklistPushToFirestoreNow() {
+    if (!quizFirestoreConfigured() || checklistRemoteApply) return;
+    quizEnsureFirebase()
+        .then(function () {
+            var store = checklistLoadStore();
+            var body = {
+                items: store.items,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_CHECKLISTS)
+                .doc(QUIZ_FS_CHECKLISTS_DOC)
+                .set(body, { merge: true })
+                .then(function () {
+                    return checklistMirrorToLeaderboard(store);
+                })
+                .catch(function (ePrimary) {
+                    console.warn('[quiz_checklists push primary]', ePrimary);
+                    return checklistMirrorToLeaderboard(store);
+                });
+        })
+        .catch(function (e) {
+            console.warn('[quiz_checklists push]', e);
+        });
+}
+
+function checklistApplyRemote(itemsOrStore) {
+    var norm = checklistNormalizeStore(
+        itemsOrStore && Array.isArray(itemsOrStore.items) ? itemsOrStore : { items: itemsOrStore }
+    );
+    if (checklistHasActiveEdit()) return;
+    checklistRemoteApply = true;
+    try {
+        checklistPersistLocal(norm);
+        var listOv = document.getElementById('checklist-modal-overlay');
+        if (listOv && listOv.classList.contains('visible')) {
+            checklistRenderList();
+        }
+    } catch (eApp) {
+        console.warn('[quiz_checklists apply]', eApp);
+    }
+    checklistRemoteApply = false;
+}
+
+function checklistSubscribeFallback() {
+    if (!quizFirestoreConfigured()) return;
+    if (checklistFallbackUnsub) {
+        try {
+            checklistFallbackUnsub();
+        } catch (eU) { /* ignore */ }
+        checklistFallbackUnsub = null;
+    }
+    var ref = firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+    checklistFallbackUnsub = ref.onSnapshot(
+        function (snap) {
+            if (!snap.exists || checklistPrimarySnapshotReady) return;
+            var dat = snap.data() || {};
+            if (dat.checklists && typeof dat.checklists === 'object') {
+                checklistApplyRemote(dat.checklists);
+            }
+        },
+        function (err) {
+            console.warn('[quiz_checklists fallback snapshot]', err);
+        }
+    );
+}
+
+function quizSubscribeChecklists() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            if (checklistUnsub) {
+                try {
+                    checklistUnsub();
+                } catch (eU) { /* ignore */ }
+                checklistUnsub = null;
+            }
+            checklistSubscribeFallback();
+            var ref = firebase.firestore().collection(QUIZ_FS_CHECKLISTS).doc(QUIZ_FS_CHECKLISTS_DOC);
+            ref.get()
+                .then(function (gs) {
+                    if (gs.exists) return;
+                    var loc = checklistLoadStore();
+                    if (loc.items && loc.items.length) checklistPushToFirestoreNow();
+                })
+                .catch(function () {});
+            checklistUnsub = ref.onSnapshot(
+                function (snap) {
+                    if (!snap.exists) return;
+                    checklistPrimarySnapshotReady = true;
+                    var dat = snap.data() || {};
+                    if (Array.isArray(dat.items)) {
+                        checklistApplyRemote({ items: dat.items });
+                    }
+                },
+                function (err) {
+                    console.warn('[quiz_checklists snapshot]', err);
+                    checklistPrimarySnapshotReady = false;
+                    window.setTimeout(function () {
+                        try {
+                            quizSubscribeChecklists();
+                        } catch (eR) { /* ignore */ }
+                    }, 4000);
+                }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_checklists subscribe]', e);
+            try {
+                checklistSubscribeFallback();
+            } catch (eFb) { /* ignore */ }
+        });
+}
+
+/** Flush immediato schedario + override + check list (es. prima di chiudere scheda o uscire dalla pagina). */
 function quizFlushCloudContentSync() {
     try {
         clearTimeout(quizCustomSchedarioPushTimer);
         clearTimeout(quizModifyOverridesPushTimer);
+        clearTimeout(checklistPushTimer);
     } catch (eCl) { /* ignore */ }
     quizCustomSchedarioPushTimer = null;
     quizModifyOverridesPushTimer = null;
+    checklistPushTimer = null;
     quizPushCustomSchedarioToFirestoreNow();
     quizPushModifyOverridesToFirestoreNow();
+    checklistPushToFirestoreNow();
 }
 
 function quizSubscribeCustomSchedario() {
@@ -29582,18 +29795,48 @@ function supportoSearchChanged() {
 }
 
 function showSupportoModal() {
+    try {
+        var edOv = document.getElementById('checklist-editor-overlay');
+        if (edOv && edOv.classList.contains('visible') && typeof checklistCloseEditor === 'function') {
+            checklistCloseEditor(true, false);
+        }
+    } catch (eCl) { /* ignore */ }
+    try {
+        if (typeof hideChecklistModal === 'function') hideChecklistModal();
+    } catch (eHm) { /* ignore */ }
     supportoSearchCache = null;
     var overlay = document.getElementById('supporto-overlay');
     if (!overlay) return;
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('quiz-info-open');
-    supportoSearchChanged();
+    try {
+        supportoSearchChanged();
+    } catch (eS) {
+        try {
+            console.warn('[supporto]', eS);
+        } catch (eL) { /* ignore */ }
+    }
     setTimeout(function () {
         var input = document.getElementById('supporto-input');
         if (input) input.focus();
     }, 80);
 }
+
+function supportoHeaderButtonClick(ev) {
+    var btn = ev && ev.target && ev.target.closest ? ev.target.closest('[data-action="supporto"]') : null;
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    showSupportoModal();
+}
+
+(function supportoBindHeaderClicks() {
+    var hdr = document.querySelector('.fixed-header');
+    if (!hdr || hdr.getAttribute('data-supporto-bound') === '1') return;
+    hdr.setAttribute('data-supporto-bound', '1');
+    hdr.addEventListener('click', supportoHeaderButtonClick);
+})();
 
 function hideSupportoModal() {
     var overlay = document.getElementById('supporto-overlay');
@@ -34444,35 +34687,25 @@ function checklistLoadStore() {
     try {
         var raw = localStorage.getItem(CHECKLIST_LS);
         if (!raw) return { items: [] };
-        var data = JSON.parse(raw);
-        if (!data || !Array.isArray(data.items)) return { items: [] };
-        return {
-            items: data.items
-                .filter(function (x) {
-                    return x && x.id;
-                })
-                .map(function (x) {
-                    return {
-                        id: String(x.id),
-                        title: x.title != null ? String(x.title) : '',
-                        body: x.body != null ? String(x.body) : '',
-                        updatedAt: x.updatedAt != null ? Number(x.updatedAt) : 0
-                    };
-                })
-        };
+        return checklistNormalizeStore(JSON.parse(raw));
     } catch (eL) {
         return { items: [] };
     }
 }
 
-function checklistSaveStore(data) {
+function checklistPersistLocal(data) {
     try {
-        localStorage.setItem(CHECKLIST_LS, JSON.stringify(data || { items: [] }));
+        localStorage.setItem(CHECKLIST_LS, JSON.stringify(checklistNormalizeStore(data)));
     } catch (eS) {
         try {
-            console.warn('[Check list] salvataggio', eS);
+            console.warn('[Check list] salvataggio locale', eS);
         } catch (eC) { /* ignore */ }
     }
+}
+
+function checklistSaveStore(data) {
+    checklistPersistLocal(data);
+    checklistSchedulePushDebounced();
 }
 
 function checklistNewId() {
@@ -34651,7 +34884,7 @@ function checklistPersistEditor() {
     checklistSaveStore(store);
 }
 
-function checklistCloseEditor(save) {
+function checklistCloseEditor(save, reopenList) {
     if (save) checklistPersistEditor();
     var edOverlay = document.getElementById('checklist-editor-overlay');
     if (edOverlay) {
@@ -34660,12 +34893,12 @@ function checklistCloseEditor(save) {
     }
     checklistActiveId = null;
     var listOverlay = document.getElementById('checklist-modal-overlay');
-    if (listOverlay) {
+    if (reopenList !== false && listOverlay) {
         checklistRenderList();
         listOverlay.classList.add('visible');
         listOverlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('quiz-info-open');
-    } else {
+    } else if (!listOverlay || !listOverlay.classList.contains('visible')) {
         document.body.classList.remove('quiz-info-open');
     }
 }
@@ -34824,6 +35057,9 @@ window.addEventListener('load', function initQuizProtection() {
             try {
                 quizSubscribeModifyOverrides();
             } catch (eOv) { /* ignore */ }
+            try {
+                quizSubscribeChecklists();
+            } catch (eCl) { /* ignore */ }
             try {
                 quizSubscribeGestioneDomande();
             } catch (eGd) { /* ignore */ }
