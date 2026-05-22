@@ -13709,6 +13709,11 @@ const QUIZ_FS_APP_FLAGS_DOC = 'ui';
 /** Schede create in Modifica contenuti: doc condiviso (ordine, nomi, domande). Regole Firestore su `quiz_custom_schedario`. */
 const QUIZ_FS_CUSTOM_SCHEDARIO = 'quiz_custom_schedario';
 const QUIZ_FS_CUSTOM_SCHEDARIO_DOC = 'global';
+/** Override testi istruzioni (cf/mbr) da Modifica contenuti — doc condiviso tra dispositivi. */
+const QUIZ_FS_MODIFY_OVERRIDES = 'quiz_modify_overrides';
+const QUIZ_FS_MODIFY_OVERRIDES_DOC = 'global';
+/** Debounce push cloud contenuti Modifica (ms): basso = sync quasi immediata tra dispositivi. */
+const QUIZ_MODIFY_CLOUD_PUSH_DEBOUNCE_MS = 120;
 /** Domande gestione test e verifiche (10 MCQ): doc condiviso tra dispositivi. Regole su `quiz_gestione_domande`. */
 const QUIZ_FS_GESTIONE_DOMANDE = 'quiz_gestione_domande';
 const QUIZ_FS_GESTIONE_DOMANDE_DOC = 'global';
@@ -13751,6 +13756,15 @@ let quizModifyFeaturesPollId = null;
 let quizCustomSchedarioRemoteApply = false;
 let quizCustomSchedarioUnsub = null;
 let quizCustomSchedarioPushTimer = null;
+/** Fallback schedario su quiz_leaderboard/global se le regole non consentono quiz_custom_schedario. */
+let quizCustomSchedarioFallbackUnsub = null;
+let quizCustomSchedarioPrimarySnapshotReady = false;
+/** Durante snapshot Firestore override: non riscrivere il doc dal client. */
+let quizModifyOverridesRemoteApply = false;
+let quizModifyOverridesUnsub = null;
+let quizModifyOverridesPushTimer = null;
+let quizModifyOverridesFallbackUnsub = null;
+let quizModifyOverridesPrimarySnapshotReady = false;
 /** Cloud sync domande «Gestione test e verifiche» (debounce push). */
 let gestioneDomandePushTimer = null;
 /** Durante applicazione snapshot Firestore: non riscrivere il doc dal client. */
@@ -15518,7 +15532,22 @@ function quizSchedulePushCustomSchedarioDebounced() {
     quizCustomSchedarioPushTimer = window.setTimeout(function () {
         quizCustomSchedarioPushTimer = null;
         quizPushCustomSchedarioToFirestoreNow();
-    }, 450);
+    }, QUIZ_MODIFY_CLOUD_PUSH_DEBOUNCE_MS);
+}
+
+function quizMirrorCustomSchedarioToLeaderboard(payload) {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    return firebase
+        .firestore()
+        .collection(QUIZ_FS_LEADERBOARD)
+        .doc(QUIZ_FS_LEADERBOARD_DOC)
+        .set(
+            {
+                customSchedario: gestioneFirestoreCleanValue(payload),
+                customSchedarioUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+        );
 }
 
 function quizPushCustomSchedarioToFirestoreNow() {
@@ -15526,21 +15555,252 @@ function quizPushCustomSchedarioToFirestoreNow() {
     quizEnsureFirebase()
         .then(function () {
             var payload = quizNormalizeSchedarioObject(quizModifyLoadCustomSchedario());
+            var body = {
+                schedario: payload,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
             return firebase
                 .firestore()
                 .collection(QUIZ_FS_CUSTOM_SCHEDARIO)
                 .doc(QUIZ_FS_CUSTOM_SCHEDARIO_DOC)
-                .set(
-                    {
-                        schedario: payload,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    },
-                    { merge: true }
-                );
+                .set(body, { merge: true })
+                .then(function () {
+                    return quizMirrorCustomSchedarioToLeaderboard(payload);
+                })
+                .catch(function (ePrimary) {
+                    console.warn('[quiz_custom_schedario push primary]', ePrimary);
+                    return quizMirrorCustomSchedarioToLeaderboard(payload);
+                });
         })
         .catch(function (e) {
             console.warn('[quiz_custom_schedario push]', e);
         });
+}
+
+function quizApplyRemoteCustomSchedario(sch) {
+    if (!sch || typeof sch !== 'object') return;
+    var norm = quizNormalizeSchedarioObject(sch);
+    quizCustomSchedarioRemoteApply = true;
+    try {
+        quizCustomSchedarioCache = norm;
+        quizModifyPersistSchedarioLocal(norm);
+        quizRebuildHeaderSectionNav();
+        render();
+        quizModifyRefreshShellAfterRemoteSchedario();
+    } catch (eApp) {
+        console.warn('[quiz_custom_schedario apply]', eApp);
+    }
+    quizCustomSchedarioRemoteApply = false;
+}
+
+function quizSubscribeCustomSchedarioFallback() {
+    if (!quizFirestoreConfigured()) return;
+    if (quizCustomSchedarioFallbackUnsub) {
+        try {
+            quizCustomSchedarioFallbackUnsub();
+        } catch (eU) { /* ignore */ }
+        quizCustomSchedarioFallbackUnsub = null;
+    }
+    var ref = firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+    quizCustomSchedarioFallbackUnsub = ref.onSnapshot(
+        function (snap) {
+            if (!snap.exists || quizCustomSchedarioPrimarySnapshotReady) return;
+            var dat = snap.data() || {};
+            if (dat.customSchedario && typeof dat.customSchedario === 'object') {
+                quizApplyRemoteCustomSchedario(dat.customSchedario);
+            }
+        },
+        function (err) {
+            console.warn('[quiz_custom_schedario fallback snapshot]', err);
+        }
+    );
+}
+
+/*
+ * quiz_modify_overrides/global — { overrides: { cf|mbr|cs-*: { index: patch } }, updatedAt }
+ * Regole Firestore suggerite:
+ *   match /quiz_modify_overrides/{docId} {
+ *     allow read: if request.auth != null;
+ *     allow create, update: if request.auth != null;
+ *   }
+ */
+function quizModifyLoadOverridesObject() {
+    try {
+        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
+        var parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (eL) {
+        return {};
+    }
+}
+
+function quizModifyPersistOverridesLocal(all) {
+    try {
+        localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all && typeof all === 'object' ? all : {}));
+    } catch (eS) { /* ignore */ }
+}
+
+function quizModifyHasActiveFieldEdit() {
+    try {
+        if (!quizModifyDetailEditing || typeof quizModifyDetailEditing !== 'object') return false;
+        var keys = Object.keys(quizModifyDetailEditing);
+        for (var i = 0; i < keys.length; i++) {
+            if (quizModifyDetailEditing[keys[i]]) return true;
+        }
+    } catch (eCh) { /* ignore */ }
+    return false;
+}
+
+function quizSchedulePushModifyOverridesDebounced() {
+    if (quizModifyOverridesRemoteApply || !quizFirestoreConfigured()) return;
+    try {
+        clearTimeout(quizModifyOverridesPushTimer);
+    } catch (eCl) { /* ignore */ }
+    quizModifyOverridesPushTimer = window.setTimeout(function () {
+        quizModifyOverridesPushTimer = null;
+        quizPushModifyOverridesToFirestoreNow();
+    }, QUIZ_MODIFY_CLOUD_PUSH_DEBOUNCE_MS);
+}
+
+function quizMirrorModifyOverridesToLeaderboard(overrides) {
+    if (!quizFirestoreConfigured()) return Promise.resolve();
+    return firebase
+        .firestore()
+        .collection(QUIZ_FS_LEADERBOARD)
+        .doc(QUIZ_FS_LEADERBOARD_DOC)
+        .set(
+            {
+                modifyOverrides: gestioneFirestoreCleanValue(overrides),
+                modifyOverridesUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+        );
+}
+
+function quizPushModifyOverridesToFirestoreNow() {
+    if (!quizFirestoreConfigured() || quizModifyOverridesRemoteApply) return;
+    quizEnsureFirebase()
+        .then(function () {
+            var overrides = quizModifyLoadOverridesObject();
+            var body = {
+                overrides: overrides,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            return firebase
+                .firestore()
+                .collection(QUIZ_FS_MODIFY_OVERRIDES)
+                .doc(QUIZ_FS_MODIFY_OVERRIDES_DOC)
+                .set(body, { merge: true })
+                .then(function () {
+                    return quizMirrorModifyOverridesToLeaderboard(overrides);
+                })
+                .catch(function (ePrimary) {
+                    console.warn('[quiz_modify_overrides push primary]', ePrimary);
+                    return quizMirrorModifyOverridesToLeaderboard(overrides);
+                });
+        })
+        .catch(function (e) {
+            console.warn('[quiz_modify_overrides push]', e);
+        });
+}
+
+function quizApplyRemoteModifyOverrides(overrides) {
+    if (!overrides || typeof overrides !== 'object') return;
+    if (quizModifyHasActiveFieldEdit()) return;
+    quizModifyOverridesRemoteApply = true;
+    try {
+        quizModifyPersistOverridesLocal(overrides);
+        render();
+        quizModifyRefreshShellAfterRemoteSchedario();
+        try {
+            updateRealTimeReport();
+        } catch (eRep) { /* ignore */ }
+    } catch (eApp) {
+        console.warn('[quiz_modify_overrides apply]', eApp);
+    }
+    quizModifyOverridesRemoteApply = false;
+}
+
+function quizSubscribeModifyOverridesFallback() {
+    if (!quizFirestoreConfigured()) return;
+    if (quizModifyOverridesFallbackUnsub) {
+        try {
+            quizModifyOverridesFallbackUnsub();
+        } catch (eU) { /* ignore */ }
+        quizModifyOverridesFallbackUnsub = null;
+    }
+    var ref = firebase.firestore().collection(QUIZ_FS_LEADERBOARD).doc(QUIZ_FS_LEADERBOARD_DOC);
+    quizModifyOverridesFallbackUnsub = ref.onSnapshot(
+        function (snap) {
+            if (!snap.exists || quizModifyOverridesPrimarySnapshotReady) return;
+            var dat = snap.data() || {};
+            if (dat.modifyOverrides && typeof dat.modifyOverrides === 'object') {
+                quizApplyRemoteModifyOverrides(dat.modifyOverrides);
+            }
+        },
+        function (err) {
+            console.warn('[quiz_modify_overrides fallback snapshot]', err);
+        }
+    );
+}
+
+function quizSubscribeModifyOverrides() {
+    if (!quizFirestoreConfigured()) return;
+    quizEnsureFirebase()
+        .then(function () {
+            if (quizModifyOverridesUnsub) {
+                try {
+                    quizModifyOverridesUnsub();
+                } catch (eU) { /* ignore */ }
+                quizModifyOverridesUnsub = null;
+            }
+            quizSubscribeModifyOverridesFallback();
+            var ref = firebase.firestore().collection(QUIZ_FS_MODIFY_OVERRIDES).doc(QUIZ_FS_MODIFY_OVERRIDES_DOC);
+            ref.get()
+                .then(function (gs) {
+                    if (gs.exists) return;
+                    var loc = quizModifyLoadOverridesObject();
+                    if (loc && Object.keys(loc).length) quizPushModifyOverridesToFirestoreNow();
+                })
+                .catch(function () {});
+            quizModifyOverridesUnsub = ref.onSnapshot(
+                function (snap) {
+                    if (!snap.exists) return;
+                    quizModifyOverridesPrimarySnapshotReady = true;
+                    var dat = snap.data() || {};
+                    if (dat.overrides && typeof dat.overrides === 'object') {
+                        quizApplyRemoteModifyOverrides(dat.overrides);
+                    }
+                },
+                function (err) {
+                    console.warn('[quiz_modify_overrides snapshot]', err);
+                    quizModifyOverridesPrimarySnapshotReady = false;
+                    window.setTimeout(function () {
+                        try {
+                            quizSubscribeModifyOverrides();
+                        } catch (eR) { /* ignore */ }
+                    }, 4000);
+                }
+            );
+        })
+        .catch(function (e) {
+            console.warn('[quiz_modify_overrides subscribe]', e);
+            try {
+                quizSubscribeModifyOverridesFallback();
+            } catch (eFb) { /* ignore */ }
+        });
+}
+
+/** Flush immediato schedario + override (es. prima di chiudere scheda o uscire dalla pagina). */
+function quizFlushCloudContentSync() {
+    try {
+        clearTimeout(quizCustomSchedarioPushTimer);
+        clearTimeout(quizModifyOverridesPushTimer);
+    } catch (eCl) { /* ignore */ }
+    quizCustomSchedarioPushTimer = null;
+    quizModifyOverridesPushTimer = null;
+    quizPushCustomSchedarioToFirestoreNow();
+    quizPushModifyOverridesToFirestoreNow();
 }
 
 function quizSubscribeCustomSchedario() {
@@ -15553,6 +15813,7 @@ function quizSubscribeCustomSchedario() {
                 } catch (eU) { /* ignore */ }
                 quizCustomSchedarioUnsub = null;
             }
+            quizSubscribeCustomSchedarioFallback();
             var ref = firebase.firestore().collection(QUIZ_FS_CUSTOM_SCHEDARIO).doc(QUIZ_FS_CUSTOM_SCHEDARIO_DOC);
             ref.get()
                 .then(function (gs) {
@@ -15565,24 +15826,15 @@ function quizSubscribeCustomSchedario() {
             quizCustomSchedarioUnsub = ref.onSnapshot(
                 function (snap) {
                     if (!snap.exists) return;
+                    quizCustomSchedarioPrimarySnapshotReady = true;
                     var dat = snap.data() || {};
                     var sch = dat.schedario;
                     if (!sch || typeof sch !== 'object') return;
-                    var norm = quizNormalizeSchedarioObject(sch);
-                    quizCustomSchedarioRemoteApply = true;
-                    try {
-                        quizCustomSchedarioCache = norm;
-                        quizModifyPersistSchedarioLocal(norm);
-                        quizRebuildHeaderSectionNav();
-                        render();
-                        quizModifyRefreshShellAfterRemoteSchedario();
-                    } catch (eApp) {
-                        console.warn('[quiz_custom_schedario apply]', eApp);
-                    }
-                    quizCustomSchedarioRemoteApply = false;
+                    quizApplyRemoteCustomSchedario(sch);
                 },
                 function (err) {
                     console.warn('[quiz_custom_schedario snapshot]', err);
+                    quizCustomSchedarioPrimarySnapshotReady = false;
                     window.setTimeout(function () {
                         try {
                             quizSubscribeCustomSchedario();
@@ -15593,6 +15845,9 @@ function quizSubscribeCustomSchedario() {
         })
         .catch(function (e) {
             console.warn('[quiz_custom_schedario subscribe]', e);
+            try {
+                quizSubscribeCustomSchedarioFallback();
+            } catch (eFb) { /* ignore */ }
         });
 }
 
@@ -20306,6 +20561,7 @@ function quizModifyStripOverridesForSection(sectionKey) {
         if (!all || typeof all !== 'object') return;
         delete all[sectionKey];
         localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+        quizSchedulePushModifyOverridesDebounced();
     } catch (eStr) { /* ignore */ }
 }
 
@@ -20465,6 +20721,7 @@ function quizModifyPersistWorkingToStorage() {
         if (!all[sk]) all[sk] = {};
         all[sk][ix] = quizModifyDeepCloneFields(quizModifyDetailWorking);
         localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+        quizSchedulePushModifyOverridesDebounced();
     } catch (eS) {
         try {
             console.warn('[Modifica] salvataggio locale', eS);
@@ -21463,6 +21720,7 @@ function quizModifyShiftOverridesAfterQuestionDelete(sectionKey, deletedIndex) {
         }
         all[sectionKey] = next;
         localStorage.setItem(MODIFY_LS_OVERRIDES, JSON.stringify(all));
+        quizSchedulePushModifyOverridesDebounced();
     } catch (eSh) { /* ignore */ }
 }
 
@@ -22093,15 +22351,23 @@ function quizModifyShellBindOnce() {
 function quizModifyOnSaveClick() {
     if (!quizModifyShellDirty) return;
     quizModifyRequireWriteAuth(function () {
-        var ok = window.confirm(
-            'Salvare le modifiche ai contenuti delle istruzioni?\n\n' +
-                'In questa versione il salvataggio persistente (Firebase / memoria locale) è il passo successivo: ' +
-                'per ora confermi solo l’intenzione di workflow.'
-        );
-        if (!ok) return;
+        if (
+            !window.confirm(
+                'Salvare le modifiche ai contenuti delle istruzioni?\n\n' +
+                    'I dati verranno sincronizzati su cloud e saranno visibili sugli altri dispositivi collegati.'
+            )
+        ) {
+            return;
+        }
+        if (quizModifyDetailWorking && quizModifyDetailCtx) {
+            quizModifyPersistWorkingToStorage();
+        }
+        quizFlushCloudContentSync();
+        quizModifyShellDirty = false;
+        quizModifyUpdateActionButtons();
         try {
-            console.info('[Modifica] Salvataggio persistente: da collegare a Firestore / override locale (`' + MODIFY_LS_OVERRIDES + '`).');
-        } catch (eL) { /* ignore */ }
+            if (typeof render === 'function') render();
+        } catch (eRen) { /* ignore */ }
     });
 }
 
@@ -33784,6 +34050,9 @@ window.addEventListener('load', function initQuizProtection() {
                 quizSubscribeCustomSchedario();
             } catch (eCs) { /* ignore */ }
             try {
+                quizSubscribeModifyOverrides();
+            } catch (eOv) { /* ignore */ }
+            try {
                 quizSubscribeGestioneDomande();
             } catch (eGd) { /* ignore */ }
             try {
@@ -33924,6 +34193,11 @@ document.addEventListener('toggle', function (ev) {
     window.addEventListener('resize', quizSaveWindowState);
     window.addEventListener('beforeunload', quizSaveWindowState);
     window.addEventListener('pagehide', quizSaveWindowState);
+    window.addEventListener('pagehide', function () {
+        try {
+            quizFlushCloudContentSync();
+        } catch (eFl) { /* ignore */ }
+    });
     document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'hidden') quizSaveWindowState();
     });

@@ -12,6 +12,21 @@ Il progetto include funzioni per:
 - cercare supporto operativo tramite ricerca locale intelligente;
 - sincronizzare dati e impostazioni tramite Firebase/Firestore.
 
+### Firestore (sync multi-dispositivo)
+
+Per schede personalizzate e testi modificati in **Modifica contenuti**, in Console Firebase → Firestore → Regole aggiungi (oltre alle collezioni già usate dal quiz):
+
+```
+match /quiz_custom_schedario/{docId} {
+  allow read, create, update: if request.auth != null;
+}
+match /quiz_modify_overrides/{docId} {
+  allow read, create, update: if request.auth != null;
+}
+```
+
+Abilita anche **Authentication → Accesso anonimo**. Ogni client deve caricare `firebase-config.json` dalla stessa cartella di `index.html`.
+
 ## Versione
 
 Versione applicazione: 2.1
