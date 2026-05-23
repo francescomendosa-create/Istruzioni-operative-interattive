@@ -14712,7 +14712,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605440';
+const APP_BUILD = '202605441';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23533,6 +23533,7 @@ function quizModifyActionFieldInsertChecklistLink(rowEl, id, fieldKey) {
     try {
         if (box) box.focus();
     } catch (eF) { /* ignore */ }
+    quizModifyDetailMarkFieldDirty('actions');
 }
 
 function quizModifyActionsBindEditRow(rowEl, host) {
@@ -23886,6 +23887,7 @@ function quizModifyDetailActionRestore(field) {
         quizModifyFillViewsFromWorking();
         quizModifyPersistWorkingToStorage();
         checklistTouchDomAfterModifyPersist();
+        quizModifyDetailClearAllFieldDirty();
         quizModifyDetailUpdateSaveButtons();
         return;
     }
@@ -23894,6 +23896,7 @@ function quizModifyDetailActionRestore(field) {
     quizModifyFillViewsFromWorking();
     quizModifyPersistWorkingToStorage();
     checklistTouchDomAfterModifyPersist();
+    quizModifyDetailClearAllFieldDirty();
     quizModifyDetailUpdateSaveButtons();
 }
 
@@ -24150,6 +24153,7 @@ function quizModifyDetailBindOnce() {
                 quizModifyCorrBodyPersistDebounced();
             }
             quizModifyCorrStatoPreviewRefresh();
+            if (id !== 'quiz-modify-corr-body') quizModifyDetailMarkFieldDirty('correlation');
         });
         if (id === 'quiz-modify-corr-impatto-suffix') {
             el.addEventListener('keydown', function (evKey) {
@@ -24158,6 +24162,33 @@ function quizModifyDetailBindOnce() {
                     quizModifyRequireWriteAuth(quizModifyCorrImpattoConfirmClick);
                 }
             });
+        }
+    });
+    det.addEventListener('input', function (evIn) {
+        var tgt = evIn.target;
+        if (!tgt || !det.contains(tgt)) return;
+        if (tgt.id === 'quiz-modify-edit-q') {
+            quizModifyDetailMarkFieldDirty('q');
+            return;
+        }
+        if (tgt.id === 'quiz-modify-edit-si') {
+            quizModifyDetailMarkFieldDirty('si');
+            return;
+        }
+        if (tgt.id === 'quiz-modify-edit-no') {
+            quizModifyDetailMarkFieldDirty('no');
+            return;
+        }
+        if (tgt.id === 'quiz-modify-edit-risk-lines') {
+            quizModifyDetailMarkFieldDirty('risk');
+            return;
+        }
+        if (
+            tgt.classList &&
+            (tgt.classList.contains('quiz-modify-actions-ta-c') || tgt.classList.contains('quiz-modify-actions-ta-a'))
+        ) {
+            var actHost = document.getElementById('quiz-modify-actions-edit-host');
+            if (actHost && actHost.contains(tgt)) quizModifyDetailMarkFieldDirty('actions');
         }
     });
 }
@@ -24275,6 +24306,7 @@ function quizModifyCloseQuestionDetail() {
     try {
         quizModifyDetailLeaveAllEdits();
     } catch (eL) { /* ignore */ }
+    quizModifyDetailClearAllFieldDirty();
     quizModifyDetailCtx = null;
     quizModifyDetailWorking = null;
     quizModifyDetailBaseline = null;
