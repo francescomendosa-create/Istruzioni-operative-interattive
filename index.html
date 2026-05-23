@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605447';
+const APP_BUILD = '202605448';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22475,6 +22475,27 @@ function checklistIsCf2Mbr4BuiltinPair(srcS, srcP, toS, toP) {
     return srcS === 'cf' && srcP === 2 && toS === 'mbr' && toP === 4;
 }
 
+/** Correlazione integrata MBBR p.3 (schiuma) → CF p.1: pulsante rosso su NO; ritorno giallo su CF solo se NO. */
+function checklistIsCf1Mbr3BuiltinPair(srcS, srcP, toS, toP) {
+    return srcS === 'mbr' && srcP === 3 && toS === 'cf' && toP === 1;
+}
+
+function checklistScrollToMbr3FromCf1Relation() {
+    checklistDismissReturnRelationUi();
+    scrollToPoint('mbr', 3, true);
+}
+
+/** Su CF p.1 dopo correlazione schiuma MBBR p.3: SÌ = niente ritorno; NO = Continua relazione giallo verso MBBR. */
+function checklistBuildCf1Mbr3FollowupButtonsHtml(cf1AnswerIsSi) {
+    if (!('mbr-3' in correlationYes) || !('cf-1' in correlationYes)) return '';
+    if (cf1AnswerIsSi === false) {
+        return (
+            '<div class="correlation-action-row"><button type="button" class="btn-jump btn-jump--corr-return-yellow" onclick="checklistScrollToMbr3FromCf1Relation()">Continua relazione · BIOLOGICO MBBR punto 3</button></div>'
+        );
+    }
+    return '';
+}
+
 function checklistDismissReturnRelationUi() {
     returnPoint = null;
     try {
@@ -22521,6 +22542,7 @@ function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
     var html = '';
     sources.forEach(function (src) {
         if (checklistIsCf2Mbr4BuiltinPair(src.s, src.p, toS, toP)) return;
+        if (checklistIsCf1Mbr3BuiltinPair(src.s, src.p, toS, toP)) return;
         var trig = quizModifyGetCorrelationGotoTriggerFlags(src.item);
         if (!checklistCorrelationAnswerMatches(dstVal, trig.si, trig.no)) return;
         var sec = quizModifySectionDisplayLabel(src.s);
@@ -31572,6 +31594,10 @@ const db = {
           ],
           goto: { s: "cf", p: 1 },
           gotoLabel: "valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
+          correlation_on_si: false,
+          correlation_on_no: true,
+          correlation_goto_trigger_si: false,
+          correlation_goto_trigger_no: true,
           tag: "Schiuma" 
         },
         { p: 4, q: "Presenza di schiuma nera?",
@@ -36187,7 +36213,7 @@ function syncCf1CorrelationUpdate() {
 
     cf1ResDiv.querySelectorAll('.correlation-cf1-mbbr-foam').forEach((el) => el.remove());
 
-    const foamCorr = correlationYes['mbr-3'] === true;
+    const foamCorr = correlationYes['mbr-3'] === false;
     if (!foamCorr) {
         if (correlationYes['cf-1'] !== true && correlationYes['cf-1'] !== false && !cf1ResDiv.textContent.trim()) {
             cf1ResDiv.style.display = 'none';
@@ -36251,7 +36277,7 @@ function syncCf1CorrelationUpdate() {
 }
 
 function forceCf1NoForMbrFoamCorrelation() {
-    if (correlationYes['mbr-3'] !== true || correlationYes['cf-1'] !== true) return false;
+    if (correlationYes['mbr-3'] !== false || correlationYes['cf-1'] !== true) return false;
     const btnNo = document.getElementById('btn-cf-1-no');
     if (!btnNo) {
         correlationYes['cf-1'] = false;
@@ -36414,11 +36440,13 @@ function check(s, p, val, btn) {
     correlationYes[`${s}-${p}`] = val;
 
     // Se la schiuma MBBR e confermata, il chiarificato CF punto 1 non puo restare su "Si".
-    if (s === 'cf' && p === 1 && val === true && correlationYes['mbr-3'] === true) {
+    if (s === 'cf' && p === 1 && val === true && correlationYes['mbr-3'] === false) {
         if (forceCf1NoForMbrFoamCorrelation()) return;
     }
-    if (s === 'mbr' && p === 3 && val === true) {
-        forceCf1NoForMbrFoamCorrelation();
+    if (s === 'mbr' && p === 3) {
+        if (val === true) {
+            forceCf1NoForMbrFoamCorrelation();
+        }
         syncCf1CorrelationUpdate();
     }
 
@@ -36628,6 +36656,9 @@ function check(s, p, val, btn) {
         }
 
         html += checklistBuildCorrelationReturnLinksHtml(s, p);
+        if (s === 'cf' && p === 1) {
+            html += checklistBuildCf1Mbr3FollowupButtonsHtml(val);
+        }
         if (s === 'mbr' && p === 4) {
             html += checklistBuildCf2Mbr4FollowupButtonsHtml(val);
         }
@@ -36656,6 +36687,9 @@ function check(s, p, val, btn) {
             okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
         }
         okHtml += checklistBuildCorrelationReturnLinksHtml(s, p);
+        if (s === 'cf' && p === 1) {
+            okHtml += checklistBuildCf1Mbr3FollowupButtonsHtml(val);
+        }
         if (!item.ph_consequences && !item.temp_consequences && !item.o2_consequences && checklistShouldShowActionsTable(item, val)) {
             okHtml += checklistBuildActionsTableHtml(item.actions);
         }
