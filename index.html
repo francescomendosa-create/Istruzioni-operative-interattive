@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605453';
+const APP_BUILD = '202605454';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -25102,6 +25102,53 @@ function quizModifyIsValidSectionKey(sectionKey) {
     return quizModifyIsCustomSectionKey(sectionKey);
 }
 
+/** Testo scheda senza accenti, per riconoscere osmosi / UF / carbone / membrane nel titolo. */
+function quizSectionNavIconNormalizeText(s) {
+    var t = String(s || '').toLowerCase();
+    if (typeof t.normalize === 'function') {
+        t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    return t;
+}
+
+/** Chiave icona scheda (emoji in quizSectionNavIcon). */
+function quizSectionNavIconKey(sectionKey, displayLabel) {
+    var sk = quizSectionNavIconNormalizeText(sectionKey);
+    if (sk === 'cf') return 'cf';
+    if (sk === 'mbr') return 'mbr_bio';
+    var t = quizSectionNavIconNormalizeText(displayLabel);
+    var blob = (t + ' ' + sk).trim();
+    var isBioMbbr = /\bmbbr\b|\bbiolog|\bbiofilm\b|\bcarrier\b/.test(blob);
+    if (/\bosmosi\b|reverse\s*osmos|\bosmosi\s+inversa\b|(?:^|[^a-z])ro(?:[^a-z]|$)/.test(blob)) return 'osmosis';
+    if (/\bultrafiltr|\b(?:^|[^a-z])uf(?:[^a-z]|$)/.test(blob)) return 'uf';
+    if (/\bcarbone\b|\bcarbon\b|\bgac\b|carbone\s*attivo|filtro.*carbone|granular\s*activated/.test(blob)) return 'carbon';
+    if ((/\bmembran|\bmbr\b|microfiltr|nanofiltr/.test(blob)) && !isBioMbbr) return 'mbr_membrane';
+    return 'custom';
+}
+
+/** Emoji in testata (come 🧪 / 🧬); vuoto se scheda custom senza match. */
+function quizSectionNavIcon(sectionKey, displayLabel) {
+    var map = {
+        cf: '\uD83E\uDDEA',
+        mbr_bio: '\uD83E\uDDEC',
+        osmosis: '\uD83D\uDCA7',
+        uf: '\uD83D\uDD2C',
+        carbon: '\u26AB',
+        mbr_membrane: '\uD83D\uDD37'
+    };
+    return map[quizSectionNavIconKey(sectionKey, displayLabel)] || '';
+}
+
+/** Titolo scheda con icona opzionale (nav, titolo sezione, Modifica). */
+function quizSectionNavLabel(sectionKey, displayLabel) {
+    var lab = String(displayLabel || '').trim();
+    if (!lab && typeof quizModifySectionDisplayLabel === 'function') {
+        lab = quizModifySectionDisplayLabel(sectionKey);
+    }
+    var icon = quizSectionNavIcon(sectionKey, lab);
+    return icon ? icon + ' ' + lab : lab;
+}
+
 function quizModifySectionDisplayLabel(sectionKey) {
     if (sectionKey === 'cf') return 'Chimico-fisico';
     if (sectionKey === 'mbr') return 'Biologico MBBR';
@@ -25482,14 +25529,14 @@ function quizModifyRebuildTablist() {
         b.title = label;
         host.appendChild(b);
     }
-    addTab('cf', 'Chimico-fisico');
-    addTab('mbr', 'Biologico MBBR');
+    addTab('cf', quizSectionNavLabel('cf', ''));
+    addTab('mbr', quizSectionNavLabel('mbr', ''));
     var d = quizModifyLoadCustomSchedario();
     var ord = d.order || [];
     for (var i = 0; i < ord.length; i++) {
         var cid = ord[i];
         var lab = (d.labels && d.labels[cid]) ? String(d.labels[cid]) : cid;
-        addTab(cid, lab);
+        addTab(cid, quizSectionNavLabel(cid, lab));
     }
     host.querySelectorAll('[data-quiz-modify-section]').forEach(function (tb) {
         var k = tb.getAttribute('data-quiz-modify-section');
@@ -25534,7 +25581,7 @@ function quizRebuildHeaderSectionNav() {
                 btn.id = 'btn-sec-' + quizDomSafeSectionBtnId(sid);
                 btn.setAttribute('data-quiz-section', sid);
                 btn.setAttribute('aria-label', lab);
-                btn.textContent = lab;
+                btn.textContent = quizSectionNavLabel(sid, lab);
                 btn.addEventListener('click', function () {
                     scrollToSec(sid);
                 });
@@ -36179,17 +36226,20 @@ function render() {
         const cont = document.getElementById(`${sid}-content`);
         if (!cont) return;
         const secLab = quizModifySectionDisplayLabel(sid);
+        const secTitle = quizSectionNavLabel(sid, secLab);
         const badge = String(secLab).toUpperCase();
+        const secIcon = quizSectionNavIcon(sid, secLab);
+        const badgeLine = secIcon ? secIcon + ' ' + badge : badge;
         cont.innerHTML = '';
         cont.innerHTML += `
             <div class="section-title-box">
-                <h2>${secLab}</h2>
+                <h2>${secTitle}</h2>
             </div>`;
         quizModifyGetSectionRows(sid).forEach(function (item) {
             const mergedRow = checklistGetMergedItem(sid, item.p) || item;
             cont.innerHTML += `
                 <div class="card" id="card-${sid}-${item.p}">
-                    <div style="color:var(--accent); font-size:0.8rem; font-weight:bold;">${badge} - PUNTO ${item.p}</div>
+                    <div style="color:var(--accent); font-size:0.8rem; font-weight:bold;">${badgeLine} - PUNTO ${item.p}</div>
                     <div class="question-header">
                         <div class="question">${mergedRow.q}</div>
                         <div class="return-relation-wrap">
