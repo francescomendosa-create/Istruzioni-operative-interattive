@@ -1874,6 +1874,12 @@
             border: 2px solid transparent;
             box-sizing: border-box;
         }
+        .correlation-action-row .btn-jump.btn-jump--corr-return-yellow {
+            background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%) !important;
+            border: 2px solid #d97706 !important;
+            color: #92400e !important;
+            font-weight: 700;
+        }
         .correlation-action-row.correlation-cf2-goto-wrap {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -7903,6 +7909,23 @@
         }
         .quiz-modify-corr-anteprima-wrap[hidden] {
             display: none !important;
+        }
+        .quiz-modify-corr-goto-trigger-wrap {
+            position: relative;
+            margin: 12px 0 14px;
+            padding: 18px 12px 14px;
+            border: 2px dashed #90a4ae;
+            border-radius: 12px;
+            background: rgba(236, 239, 241, 0.35);
+        }
+        .quiz-modify-corr-goto-trigger-hint {
+            margin: 0 0 12px;
+            font-size: 0.86rem;
+            color: #455a64;
+            line-height: 1.45;
+        }
+        .quiz-modify-corr-goto-trigger-wrap .quiz-modify-actions-si-no-row {
+            margin: 0;
         }
         .quiz-modify-corr-anteprima-badge {
             position: absolute;
@@ -14698,22 +14721,25 @@ function dismissAppSplash() {
                                 <div id="quiz-modify-corr-target-label" class="quiz-modify-corr-target-label-host" hidden aria-live="polite"></div>
                             </div>
                             <div id="quiz-modify-corr-phase-goto-trigger" class="quiz-modify-corr-phase" hidden>
-                                <p class="quiz-modify-edit-hint">Stato giallo «aggiornato» su <strong>questa domanda</strong> quando sulla destinazione rispondi:</p>
-                                <div class="quiz-modify-actions-si-no-row" role="group" aria-label="Attiva stato giallo quando sulla destinazione rispondi Sì o No">
-                                    <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-si">
-                                        <span class="quiz-modify-actions-si-no-label">SÌ</span>
-                                        <span class="quiz-dev-ios-switch">
-                                            <input type="checkbox" id="quiz-modify-correlation-goto-trigger-si" class="quiz-dev-ios-switch-input" role="switch" aria-label="Stato giallo se sulla destinazione rispondi Sì">
-                                            <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
-                                        </span>
-                                    </label>
-                                    <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-no">
-                                        <span class="quiz-modify-actions-si-no-label">NO</span>
-                                        <span class="quiz-dev-ios-switch">
-                                            <input type="checkbox" id="quiz-modify-correlation-goto-trigger-no" class="quiz-dev-ios-switch-input" role="switch" aria-label="Stato giallo se sulla destinazione rispondi No">
-                                            <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
-                                        </span>
-                                    </label>
+                                <div class="quiz-modify-corr-goto-trigger-wrap">
+                                    <span class="quiz-modify-corr-anteprima-badge">Avviso giallo a monte</span>
+                                    <p class="quiz-modify-corr-goto-trigger-hint">Scegli la risposta da dare a questa domanda a valle per applicare avviso giallo a monte.</p>
+                                    <div class="quiz-modify-actions-si-no-row quiz-modify-actions-si-no-row--corr" role="group" aria-label="Risposta sulla destinazione che attiva l’avviso giallo su questa domanda">
+                                        <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-si">
+                                            <span class="quiz-modify-actions-si-no-label">SÌ</span>
+                                            <span class="quiz-dev-ios-switch">
+                                                <input type="checkbox" id="quiz-modify-correlation-goto-trigger-si" class="quiz-dev-ios-switch-input" role="switch" aria-label="Avviso giallo a monte se sulla destinazione rispondi Sì">
+                                                <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                                            </span>
+                                        </label>
+                                        <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-no">
+                                            <span class="quiz-modify-actions-si-no-label">NO</span>
+                                            <span class="quiz-dev-ios-switch">
+                                                <input type="checkbox" id="quiz-modify-correlation-goto-trigger-no" class="quiz-dev-ios-switch-input" role="switch" aria-label="Avviso giallo a monte se sulla destinazione rispondi No">
+                                                <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div id="quiz-modify-corr-phase-content" class="quiz-modify-corr-phase" hidden>
@@ -14830,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605445';
+const APP_BUILD = '202605447';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22444,6 +22470,49 @@ function checklistFindCorrelationSourcesForTarget(toS, toP) {
     return out;
 }
 
+/** Correlazione integrata CF p.2 → MBBR p.4 (oli): gestione pulsanti dedicata in check(). */
+function checklistIsCf2Mbr4BuiltinPair(srcS, srcP, toS, toP) {
+    return srcS === 'cf' && srcP === 2 && toS === 'mbr' && toP === 4;
+}
+
+function checklistDismissReturnRelationUi() {
+    returnPoint = null;
+    try {
+        document.querySelectorAll('.btn-return-inline').forEach(function (b) {
+            b.style.display = 'none';
+        });
+        document.querySelectorAll('.return-relation-hand').forEach(function (h) {
+            h.style.display = 'none';
+        });
+    } catch (eD) { /* ignore */ }
+}
+
+function checklistScrollToCf2FromMbr4Relation() {
+    checklistDismissReturnRelationUi();
+    scrollToPoint('cf', 2, true);
+}
+
+function checklistScrollToCf2IntensifyFromMbr4() {
+    checklistDismissReturnRelationUi();
+    scrollToPoint('cf', 2, true);
+}
+
+/** Pulsanti sotto MBBR p.4 dopo correlazione da CF p.2: SÌ = solo intensifica; NO = ritorno giallo. */
+function checklistBuildCf2Mbr4FollowupButtonsHtml(mbr4AnswerIsSi) {
+    if (correlationYes['cf-2'] !== true || !('mbr-4' in correlationYes)) return '';
+    if (mbr4AnswerIsSi === true) {
+        return (
+            '<div class="correlation-action-row"><button type="button" class="btn-jump" style="background:#dc2626;border-color:#dc2626;" onclick="checklistScrollToCf2IntensifyFromMbr4()">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>'
+        );
+    }
+    if (mbr4AnswerIsSi === false) {
+        return (
+            '<div class="correlation-action-row"><button type="button" class="btn-jump btn-jump--corr-return-yellow" onclick="checklistScrollToCf2FromMbr4Relation()">Continua relazione · CHIMICO-FISICO punto 2</button></div>'
+        );
+    }
+    return '';
+}
+
 function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
     var dstKey = String(toS) + '-' + String(toP);
     if (!(dstKey in correlationYes)) return '';
@@ -22451,6 +22520,7 @@ function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
     var sources = checklistFindCorrelationSourcesForTarget(toS, toP);
     var html = '';
     sources.forEach(function (src) {
+        if (checklistIsCf2Mbr4BuiltinPair(src.s, src.p, toS, toP)) return;
         var trig = quizModifyGetCorrelationGotoTriggerFlags(src.item);
         if (!checklistCorrelationAnswerMatches(dstVal, trig.si, trig.no)) return;
         var sec = quizModifySectionDisplayLabel(src.s);
@@ -23319,7 +23389,7 @@ function quizModifyFillCorrelationBlock(el, w) {
         var tflags = quizModifyGetCorrelationGotoTriggerFlags(data);
         chunks.push(quizModifyCorrBuildTargetPreviewHtml(data.goto));
         chunks.push(
-            '<p class="quiz-modify-edit-hint">Stato giallo su questa domanda se sulla destinazione rispondi: <strong>' +
+            '<p class="quiz-modify-edit-hint">Avviso giallo a monte se sulla destinazione rispondi: <strong>' +
                 (tflags.si ? 'SÌ' : '') +
                 (tflags.si && tflags.no ? ' / ' : '') +
                 (tflags.no ? 'NO' : '') +
@@ -36558,8 +36628,8 @@ function check(s, p, val, btn) {
         }
 
         html += checklistBuildCorrelationReturnLinksHtml(s, p);
-        if (s === 'mbr' && p === 4 && correlationYes['mbr-4'] === true) {
-            html += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>`;
+        if (s === 'mbr' && p === 4) {
+            html += checklistBuildCf2Mbr4FollowupButtonsHtml(val);
         }
         if (s === 'mbr' && p === 9 && correlationYes['mbr-9'] === true) {
             html += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
@@ -36579,9 +36649,8 @@ function check(s, p, val, btn) {
                 <div id="expand-${s}-${p}" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--accent);">${item.expand_content}</div>
             </div>`;
         }
-        // Aggiungi pulsante per tornare al punto cf.2 nel punto mbr.4 quando correlationYes['mbr-4'] === true
-        if (s === 'mbr' && p === 4 && correlationYes['mbr-4'] === true) {
-            okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>`;
+        if (s === 'mbr' && p === 4) {
+            okHtml += checklistBuildCf2Mbr4FollowupButtonsHtml(val);
         }
         if (s === 'mbr' && p === 9 && correlationYes['mbr-9'] === true) {
             okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
