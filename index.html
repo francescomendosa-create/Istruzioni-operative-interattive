@@ -236,7 +236,7 @@
             min-width: 1ch;
         }
 
-        /* Tab istruzioni: prima riga CF | MBBR; righe seguenti schede create (1 centrata o coppie); poi Quiz/Diagnostica */
+        /* Tab istruzioni: griglia 3 colonne (CF/MBBR + schede custom); poi Quiz/Diagnostica */
         .header-sec-row.header-sec-area {
             display: flex;
             flex-direction: column;
@@ -246,8 +246,8 @@
         }
         .header-sec-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
             align-items: stretch;
         }
         .header-custom-section-rows {
@@ -259,11 +259,11 @@
         }
         .header-custom-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
             align-items: stretch;
         }
-        /* Una sola scheda custom: stessa larghezza di un tab CF/MBR, centrata (non tutta la riga). */
+        /* Una sola scheda custom: larghezza di una colonna su tre, centrata. */
         .header-custom-row.header-custom-row--single {
             display: flex;
             justify-content: center;
@@ -271,27 +271,27 @@
             gap: 0;
         }
         .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
-            width: calc((100% - 10px) / 2);
-            max-width: calc((100% - 10px) / 2);
-            flex: 0 0 calc((100% - 10px) / 2);
+            width: calc((100% - 16px) / 3);
+            max-width: calc((100% - 16px) / 3);
+            flex: 0 0 calc((100% - 16px) / 3);
             box-sizing: border-box;
         }
 
         .header-sec-row .nav-sec-btn {
-            padding: 9px 12px;
+            padding: 7px 6px;
             border: 2px solid rgba(255, 255, 255, 0.98);
-            border-radius: 30px;
+            border-radius: 24px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.72rem;
-            line-height: 1.2;
+            font-size: 0.62rem;
+            line-height: 1.15;
             background: linear-gradient(180deg, #ffffff 0%, #e8ecf3 55%, #dce3ee 100%);
             color: var(--primary);
             /* Nessun translateY/scale: il tasto resta fisso nella griglia; solo le ombre simulano profondità */
             transition: box-shadow 0.2s ease, filter 0.18s ease, background 0.22s ease;
             min-width: 0;
             width: 100%;
-            min-height: 44px;
+            min-height: 38px;
             box-sizing: border-box;
             text-align: center;
             white-space: normal;
@@ -7005,8 +7005,8 @@
                 font-size: 0.93rem;
             }
             .quiz-modify-tab {
-                font-size: 0.95rem;
-                padding: 11px 14px;
+                font-size: 0.72rem;
+                padding: 8px 10px;
             }
         }
         .quiz-modify-shell-header {
@@ -7463,8 +7463,8 @@
         }
         .quiz-modify-tabs {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
             margin-bottom: 10px;
             width: 100%;
         }
@@ -7473,19 +7473,23 @@
             min-width: 0;
             max-width: 100%;
             box-sizing: border-box;
-            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 5px;
             border-radius: 10px;
             border: 1px solid #cfd8dc;
             background: #f5f7fa;
             font-weight: 600;
-            font-size: 0.9rem;
-            line-height: 1.25;
+            font-size: 0.65rem;
+            line-height: 1.15;
+            min-height: 36px;
             cursor: pointer;
             color: #37474f;
             text-align: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            hyphens: none;
         }
         .quiz-modify-tab[aria-selected="true"] {
             background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
@@ -11179,17 +11183,28 @@
                 gap: 8px;
             }
             .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
-                width: calc((100% - 8px) / 2);
-                max-width: calc((100% - 8px) / 2);
-                flex: 0 0 calc((100% - 8px) / 2);
+                width: calc((100% - 16px) / 3);
+                max-width: calc((100% - 16px) / 3);
+                flex: 0 0 calc((100% - 16px) / 3);
             }
             .header-sec-area {
                 margin-top: 8px;
             }
             .header-sec-row .nav-sec-btn {
-                font-size: 0.7rem;
-                padding: 9px 8px;
-                line-height: 1.18;
+                font-size: 0.58rem;
+                padding: 6px 4px;
+                line-height: 1.12;
+                min-height: 34px;
+                border-radius: 20px;
+            }
+            .quiz-modify-tabs {
+                gap: 5px;
+            }
+            .quiz-modify-tab {
+                font-size: 0.58rem;
+                padding: 5px 4px;
+                min-height: 32px;
+                line-height: 1.1;
             }
             .btn-header-icon--sm {
                 width: 32px;
@@ -14863,7 +14878,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605455';
+const APP_BUILD = '202605457';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22433,6 +22448,8 @@ var QUIZ_MODIFY_CORR_IMPATTO_PREFIX = 'CORRELAZIONE — Possibile impatto su ';
 var QUIZ_MODIFY_CORR_STATO_L1_DEFAULT = 'Stato aggiornato. Impatto confermato';
 var quizModifyCorrPickStep = 'section';
 var quizModifyCorrPickSectionKey = null;
+/** 0 = chiuso, 1 = prima conferma elimina correlazione, 2 = conferma definitiva. */
+var quizModifyCorrDeleteStep = 0;
 
 function quizModifyCloneGoto(g) {
     if (!g || g.s == null || g.p == null) return null;
@@ -23438,19 +23455,25 @@ function quizModifyCorrDeleteBtnSync() {
 }
 
 function quizModifyCorrDeleteLayerClose() {
+    quizModifyCorrDeleteStep = 0;
     var layer = document.getElementById('quiz-modify-corr-delete-layer');
+    var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
     if (layer) {
         layer.hidden = true;
         layer.setAttribute('aria-hidden', 'true');
     }
+    if (okBtn) okBtn.textContent = 'Continua';
 }
 
 function quizModifyCorrDeleteLayerOpen() {
+    quizModifyCorrDeleteStep = 1;
     var layer = document.getElementById('quiz-modify-corr-delete-layer');
     var txt = document.getElementById('quiz-modify-corr-delete-text');
+    var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
     if (!layer || !txt) return;
     txt.textContent =
         'Eliminare la correlazione di questa domanda? Verranno rimossi titolo, destinazione e testo del riquadro giallo.';
+    if (okBtn) okBtn.textContent = 'Continua';
     layer.hidden = false;
     layer.removeAttribute('aria-hidden');
 }
@@ -23461,6 +23484,18 @@ function quizModifyCorrDeleteCancel() {
 
 function quizModifyCorrDeleteConfirmClick() {
     if (!quizModifyDetailWorking) return;
+    if (quizModifyCorrDeleteStep === 1) {
+        quizModifyCorrDeleteStep = 2;
+        var txt = document.getElementById('quiz-modify-corr-delete-text');
+        var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
+        if (txt) {
+            txt.textContent =
+                'Conferma definitiva: la correlazione verrà rimossa. Questa operazione non si annulla dal solo «Ripristina» del blocco.';
+        }
+        if (okBtn) okBtn.textContent = 'Elimina correlazione';
+        return;
+    }
+    if (quizModifyCorrDeleteStep !== 2) return;
     quizModifyPushUndoSnapshotBeforeSave();
     quizModifyClearCorrelationData(quizModifyDetailWorking);
     quizModifyCorrDeleteLayerClose();
@@ -25574,7 +25609,8 @@ function quizRebuildHeaderSectionNav() {
     var idx = 0;
     while (idx < ord.length) {
         var rest = ord.length - idx;
-        var slice = rest === 1 ? ord.slice(idx, idx + 1) : ord.slice(idx, idx + 2);
+        var take = Math.min(3, rest);
+        var slice = ord.slice(idx, idx + take);
         idx += slice.length;
         var row = document.createElement('div');
         row.className = 'header-custom-row';
