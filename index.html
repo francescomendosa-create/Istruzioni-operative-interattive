@@ -7701,6 +7701,16 @@
             min-width: 1.6rem;
             letter-spacing: 0.04em;
         }
+        .quiz-modify-corr-si-no-hint {
+            flex: 1 1 10rem;
+            min-width: 0;
+            margin-left: auto;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #546e7a;
+            line-height: 1.35;
+            text-align: right;
+        }
         .quiz-modify-answer-tone-row {
             display: flex;
             flex-wrap: wrap;
@@ -7898,6 +7908,28 @@
         .quiz-modify-corr-add-target-sub {
             font-weight: 600;
             opacity: 0.9;
+        }
+        .quiz-modify-corr-target-pick-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+        }
+        .quiz-modify-corr-pick-target-btn {
+            padding: 9px 16px;
+            font-size: 0.84rem;
+            border-radius: 8px;
+        }
+        .quiz-modify-corr-target-pick-hint {
+            flex: 1 1 10rem;
+            min-width: 0;
+            margin: 0;
+            margin-left: auto;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #546e7a;
+            line-height: 1.35;
+            text-align: right;
         }
         .quiz-modify-corr-pick-back {
             margin-bottom: 8px;
@@ -14466,6 +14498,7 @@ function dismissAppSplash() {
                                     <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
                                 </span>
                             </label>
+                            <span class="quiz-modify-corr-si-no-hint">Immetti la risposta scelta per cui la correlazione comincia.</span>
                         </div>
                         <div class="quiz-modify-corr-head-actions">
                             <div class="quiz-modify-block-head">
@@ -14502,8 +14535,11 @@ function dismissAppSplash() {
                                 </div>
                             </div>
                             <div id="quiz-modify-corr-phase-target" class="quiz-modify-corr-phase" hidden>
-                                <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-corr-add-target">＋ Scegli domanda da abbinare</button>
-                                <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-corr-change-target" hidden>Modifica destinazione</button>
+                                <div class="quiz-modify-corr-target-pick-row">
+                                    <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-pick-target-btn" id="quiz-modify-corr-add-target">＋ Scegli domanda da abbinare</button>
+                                    <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-pick-target-btn" id="quiz-modify-corr-change-target" hidden>Modifica destinazione</button>
+                                    <p class="quiz-modify-corr-target-pick-hint">Crea il percorso dove ha effetto un eventuale ripercussione da anomalia a monte.</p>
+                                </div>
                                 <p id="quiz-modify-corr-target-label" class="quiz-modify-edit-hint"></p>
                             </div>
                             <div id="quiz-modify-corr-phase-goto-trigger" class="quiz-modify-corr-phase" hidden>
@@ -14635,7 +14671,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605433';
+const APP_BUILD = '202605435';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
