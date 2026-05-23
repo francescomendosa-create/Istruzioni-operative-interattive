@@ -236,7 +236,7 @@
             min-width: 1ch;
         }
 
-        /* Tab istruzioni: griglia 3 colonne (CF/MBBR + schede custom); poi Quiz/Diagnostica */
+        /* Moduli impianto: righe da 3 tab (CF, MBBR, schede custom); sotto Test / Check list / Diagnostica */
         .header-sec-row.header-sec-area {
             display: flex;
             flex-direction: column;
@@ -244,37 +244,17 @@
             max-width: var(--app-desktop-max);
             margin: 10px auto 0;
         }
-        .header-sec-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-            align-items: stretch;
-        }
-        .header-custom-section-rows {
+        .header-module-section-rows {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
             width: 100%;
         }
-        .header-custom-row {
+        .header-module-row {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
             align-items: stretch;
-        }
-        /* Una sola scheda custom: larghezza di una colonna su tre, centrata. */
-        .header-custom-row.header-custom-row--single {
-            display: flex;
-            justify-content: center;
-            align-items: stretch;
-            gap: 0;
-        }
-        .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
-            width: calc((100% - 16px) / 3);
-            max-width: calc((100% - 16px) / 3);
-            flex: 0 0 calc((100% - 16px) / 3);
-            box-sizing: border-box;
         }
 
         .header-sec-row .nav-sec-btn {
@@ -11178,14 +11158,8 @@
                 padding: 7px 10px;
                 font-size: 0.72rem;
             }
-            .header-sec-area .header-sec-grid,
-            .header-sec-area .header-custom-row {
+            .header-sec-area .header-module-row {
                 gap: 8px;
-            }
-            .header-sec-row.header-sec-area .header-custom-row--single .nav-sec-btn {
-                width: calc((100% - 16px) / 3);
-                max-width: calc((100% - 16px) / 3);
-                flex: 0 0 calc((100% - 16px) / 3);
             }
             .header-sec-area {
                 margin-top: 8px;
@@ -13447,11 +13421,7 @@ function dismissAppSplash() {
         </div>
     </div>
     <div class="header-sec-row header-sec-area">
-        <div class="header-sec-grid" id="header-sec-grid">
-            <button type="button" id="btn-sec-cf" class="nav-sec-btn active" data-quiz-section="cf" onclick="scrollToSec('cf')">🧪 CHIMICO-FISICO</button>
-            <button type="button" id="btn-sec-mbr" class="nav-sec-btn" data-quiz-section="mbr" onclick="scrollToSec('mbr')">🧬 BIOLOGICO MBBR</button>
-        </div>
-        <div id="header-custom-section-rows" class="header-custom-section-rows" aria-live="polite"></div>
+        <div id="header-module-section-rows" class="header-module-section-rows" aria-live="polite"></div>
     </div>
     <div class="header-quiz-row">
         <div class="header-quiz-actions">
@@ -14878,7 +14848,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605457';
+const APP_BUILD = '202605458';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -25600,30 +25570,36 @@ function quizGetOrderedSectionKeys() {
 }
 
 function quizRebuildHeaderSectionNav() {
-    var host = document.getElementById('header-custom-section-rows');
+    var host = document.getElementById('header-module-section-rows');
     if (!host) return;
-    host.innerHTML = '';
+    var keys = quizGetOrderedSectionKeys();
     var d = quizModifyLoadCustomSchedario();
-    var ord = d.order || [];
-    if (!ord.length) return;
+    var activeKey = 'cf';
+    host.querySelectorAll('.nav-sec-btn.active').forEach(function (b) {
+        var k = b.getAttribute('data-quiz-section');
+        if (k) activeKey = k;
+    });
+    host.innerHTML = '';
     var idx = 0;
-    while (idx < ord.length) {
-        var rest = ord.length - idx;
-        var take = Math.min(3, rest);
-        var slice = ord.slice(idx, idx + take);
+    while (idx < keys.length) {
+        var take = Math.min(3, keys.length - idx);
+        var slice = keys.slice(idx, idx + take);
         idx += slice.length;
         var row = document.createElement('div');
-        row.className = 'header-custom-row';
-        if (slice.length === 1) row.classList.add('header-custom-row--single');
+        row.className = 'header-module-row';
         for (var j = 0; j < slice.length; j++) {
             (function (sid) {
-                var lab = (d.labels && d.labels[sid]) ? String(d.labels[sid]) : sid;
+                var lab = '';
+                if (sid !== 'cf' && sid !== 'mbr') {
+                    lab = (d.labels && d.labels[sid]) ? String(d.labels[sid]) : sid;
+                }
                 var btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'nav-sec-btn';
+                if (sid === activeKey) btn.classList.add('active');
                 btn.id = 'btn-sec-' + quizDomSafeSectionBtnId(sid);
                 btn.setAttribute('data-quiz-section', sid);
-                btn.setAttribute('aria-label', lab);
+                btn.setAttribute('aria-label', lab || quizModifySectionDisplayLabel(sid));
                 btn.textContent = quizSectionNavLabel(sid, lab);
                 btn.addEventListener('click', function () {
                     scrollToSec(sid);
