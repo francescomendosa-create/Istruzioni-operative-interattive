@@ -11164,13 +11164,6 @@
             .header-sec-area {
                 margin-top: 8px;
             }
-            .header-sec-row .nav-sec-btn {
-                font-size: 0.58rem;
-                padding: 6px 4px;
-                line-height: 1.12;
-                min-height: 34px;
-                border-radius: 20px;
-            }
             .quiz-modify-tabs {
                 gap: 5px;
             }
@@ -11339,10 +11332,6 @@
                 padding: 7px 8px;
                 font-size: 0.68rem;
             }
-            .header-sec-area .nav-sec-btn {
-                font-size: 0.68rem;
-                padding: 8px 6px;
-            }
             .btn-quiz,
             .btn-diagnostica,
             .btn-test-gestione,
@@ -11388,6 +11377,36 @@
             }
             .quiz-podium-worm-svg {
                 max-height: 40px;
+            }
+        }
+
+        /* Solo smartphone: moduli impianto — stessa forma, testo su una riga, font ridotto. */
+        @media (max-width: 480px) and (hover: none) {
+            .header-sec-area .header-module-section-rows {
+                gap: 6px;
+            }
+            .header-sec-area .header-module-row {
+                gap: 5px;
+                grid-template-rows: 34px;
+                align-items: stretch;
+            }
+            .header-sec-row .nav-sec-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 34px;
+                min-height: 34px;
+                max-height: 34px;
+                padding: 0 3px;
+                border-radius: 14px;
+                border-width: 1.5px;
+                font-size: clamp(0.42rem, 2.55vw, 0.52rem);
+                line-height: 1;
+                letter-spacing: -0.02em;
+                white-space: nowrap;
+                overflow: hidden;
+                word-break: normal;
+                text-overflow: clip;
             }
         }
 
@@ -14848,7 +14867,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605458';
+const APP_BUILD = '202605459';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
