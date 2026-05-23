@@ -7893,23 +7893,95 @@
         .quiz-modify-corr-view-target strong {
             color: #37474f;
         }
-        .quiz-modify-corr-stato-preview-box {
-            margin: 8px 0 12px;
-            border: 2px solid #d97706;
-            border-radius: 8px;
-            overflow: hidden;
-            background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
-            text-align: center;
-            padding: 10px 12px;
-            color: #92400e;
-            font-size: 0.9rem;
-            font-weight: 700;
-            line-height: 1.4;
+        .quiz-modify-corr-anteprima-wrap {
+            position: relative;
+            margin: 14px 0 16px;
+            padding: 18px 12px 14px;
+            border: 2px dashed #90a4ae;
+            border-radius: 12px;
+            background: rgba(236, 239, 241, 0.35);
         }
-        .quiz-modify-corr-stato-preview-l2 {
+        .quiz-modify-corr-anteprima-wrap[hidden] {
+            display: none !important;
+        }
+        .quiz-modify-corr-anteprima-badge {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0 12px;
+            background: #fff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            color: #607d8b;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .quiz-modify-corr-anteprima-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-width: 100%;
+        }
+        .quiz-modify-corr-anteprima-red {
             display: block;
-            margin-top: 4px;
+            width: 100%;
+            margin: 0 0 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 2px solid #dc2626 !important;
+            background: #dc2626 !important;
+            color: #fff !important;
+            font-weight: 700;
             font-size: 0.82rem;
+            text-align: center;
+            line-height: 1.35;
+            cursor: default;
+            opacity: 1;
+            box-sizing: border-box;
+        }
+        .quiz-modify-corr-anteprima-wrap .correlation-mbbr-status-accordion {
+            margin-bottom: 0;
+        }
+        .quiz-modify-corr-anteprima-tap-hint {
+            margin: 8px 0 0;
+            text-align: center;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: #b45309;
+            line-height: 1.35;
+        }
+        .quiz-modify-corr-anteprima-tap-hint[hidden] {
+            display: none !important;
+        }
+        .quiz-modify-corr-anteprima-tap-arrow {
+            display: inline-block;
+            margin-right: 4px;
+            font-size: 0.95rem;
+            animation: quiz-modify-corr-tap-bounce 1.15s ease-in-out infinite;
+        }
+        @keyframes quiz-modify-corr-tap-bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+        .quiz-modify-corr-anteprima-body-empty {
+            margin: 0;
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            color: #78350f;
+            font-style: italic;
+            text-align: center;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-modify-corr-anteprima-tap-arrow {
+                animation: none;
+            }
         }
         .quiz-modify-corr-edit {
             display: flex;
@@ -14556,6 +14628,9 @@ function dismissAppSplash() {
                                 </label>
                             </div>
                         </div>
+                        <div id="quiz-modify-corr-live-preview" class="quiz-modify-corr-anteprima-wrap" hidden aria-label="Anteprima correlazione in istruzioni operative">
+                            <!-- popolato da quizModifyCorrLivePreviewRefresh -->
+                        </div>
                         <div id="quiz-modify-detail-correlation" class="quiz-modify-html-block quiz-modify-field-view"></div>
                         <div id="quiz-modify-correlation-edit-wrap" class="quiz-modify-corr-edit" hidden>
                             <div id="quiz-modify-corr-phase-impatto" class="quiz-modify-corr-phase">
@@ -14607,7 +14682,7 @@ function dismissAppSplash() {
                                 <input type="text" id="quiz-modify-corr-stato-l1" class="quiz-modify-field-edit quiz-modify-corr-inline-input" maxlength="160" aria-label="Titolo stato aggiornato riga 1">
                                 <label class="quiz-modify-edit-label" for="quiz-modify-corr-stato-l2">Sottotitolo — riga 2 (tra trattini)</label>
                                 <input type="text" id="quiz-modify-corr-stato-l2" class="quiz-modify-field-edit quiz-modify-corr-inline-input" maxlength="160" placeholder="-Descrizione breve impatto-" aria-label="Sottotitolo stato aggiornato">
-                                <div id="quiz-modify-corr-stato-preview" class="quiz-modify-corr-stato-preview-box" aria-hidden="true"></div>
+                                <p class="quiz-modify-edit-hint">Titolo e testo del riquadro giallo si aggiornano nell’<strong>anteprima</strong> sopra (tocca il riquadro per aprirlo).</p>
                                 <label class="quiz-modify-edit-label" for="quiz-modify-corr-body">Testo nel riquadro giallo (compare aprendo «Stato aggiornato»; testo semplice o HTML, poi Salva)</label>
                                 <textarea id="quiz-modify-corr-body" class="quiz-modify-field-edit" rows="8" spellcheck="true" aria-label="Contenuto correlazione HTML"></textarea>
                             </div>
@@ -14694,6 +14769,10 @@ function dismissAppSplash() {
 <script>
 let log = [];
 let isManualScrolling = false;
+/** Scheda scelta da click: resta attiva finché lo scroll non si stabilizza (evita flash sulla precedente). */
+let quizNavPinnedSection = null;
+let quizNavPinReleaseTimer = null;
+let quizScrollNavRaf = 0;
 let returnPoint = null;
 let isUpdating = false; // Flag per evitare loop infiniti nella mutua esclusione
 let mbrCheckDepth = 0; // Profondita' chiamate annidate (es. mutua esclusione 8/9)
@@ -14712,7 +14791,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605441';
+const APP_BUILD = '202605443';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23090,9 +23169,100 @@ function quizModifyCorrDeleteRequest() {
     quizModifyCorrDeleteLayerOpen();
 }
 
+/** Valori live per anteprima (campi editor se presenti, altrimenti copia di lavoro). */
+function quizModifyCorrCollectPreviewFields(w) {
+    var data = w || {};
+    var suffixInp = document.getElementById('quiz-modify-corr-impatto-suffix');
+    var l1El = document.getElementById('quiz-modify-corr-stato-l1');
+    var l2El = document.getElementById('quiz-modify-corr-stato-l2');
+    var bodyEl = document.getElementById('quiz-modify-corr-body');
+    var suffix = suffixInp ? String(suffixInp.value || '').trim() : String(data.goto_impatto_suffix || '').trim();
+    var btnTxt = suffix ? quizModifyBuildGotoLabel(suffix) : String(data.gotoLabel || '').trim();
+    if (!btnTxt && data.goto) btnTxt = String(data.gotoLabel || '').trim();
+    var l1 = l1El ? String(l1El.value || '').trim() : String(data.correlation_stato_line1 || '').trim();
+    var l2 = l2El ? String(l2El.value || '').trim() : String(data.correlation_stato_line2 || '').trim();
+    var bodyRaw = bodyEl ? String(bodyEl.value || '') : String(data.correlation_update || '');
+    var hasGoto = !!(data.goto && data.goto.s != null);
+    return { suffix: suffix, btnTxt: btnTxt, l1: l1, l2: l2, bodyRaw: bodyRaw, hasGoto: hasGoto };
+}
+
+function quizModifyCorrLivePreviewRefresh() {
+    var host = document.getElementById('quiz-modify-corr-live-preview');
+    var w = quizModifyDetailWorking;
+    if (!host || !w) return;
+    var prevOpen =
+        host.querySelector('.quiz-modify-corr-anteprima-stato') &&
+        host.querySelector('.quiz-modify-corr-anteprima-stato').open;
+    var pf = quizModifyCorrCollectPreviewFields(w);
+    var showRed = !!pf.btnTxt;
+    var showYellow = !!(pf.l1 || pf.l2 || String(pf.bodyRaw || '').trim() || (pf.suffix && pf.hasGoto));
+    if (!showRed && !showYellow) {
+        host.hidden = true;
+        host.innerHTML = '';
+        return;
+    }
+    host.hidden = false;
+    var chunks = [];
+    chunks.push('<span class="quiz-modify-corr-anteprima-badge">ANTEPRIMA</span>');
+    chunks.push('<div class="quiz-modify-corr-anteprima-stage">');
+    if (showRed) {
+        chunks.push(
+            '<button type="button" class="quiz-modify-corr-anteprima-red" disabled tabindex="-1" aria-hidden="true">' +
+                quizModifyEscapeForInnerHtml(pf.btnTxt) +
+                '</button>'
+        );
+    }
+    if (showYellow) {
+        var l1txt = pf.l1 || QUIZ_MODIFY_CORR_STATO_L1_DEFAULT;
+        var l2html = pf.l2
+            ? '<span class="correlation-mbbr-status-line2">-' +
+              quizModifyEscapeForInnerHtml(pf.l2.replace(/^-+|-+$/g, '')) +
+              '-</span>'
+            : '';
+        var bodyHtml = quizModifyCorrelationBodyToHtml(pf.bodyRaw);
+        var bodyInner = bodyHtml
+            ? '<div class="correlation-mbbr-oil-block">' + bodyHtml + '</div>'
+            : '<p class="quiz-modify-corr-anteprima-body-empty">Scrivi il testo sotto: comparirà qui aprendo il riquadro giallo.</p>';
+        chunks.push(
+            '<details class="correlation-mbbr-status-accordion quiz-modify-corr-anteprima-stato cf2-stato-blink"' +
+                (prevOpen ? ' open' : '') +
+                '>' +
+                '<summary class="correlation-mbbr-status-summary"><span class="correlation-mbbr-status-title">' +
+                '<strong class="correlation-mbbr-status-line1">' +
+                quizModifyEscapeForInnerHtml(l1txt) +
+                '</strong>' +
+                l2html +
+                '</span></summary>' +
+                '<div class="correlation-mbbr-status-body">' +
+                bodyInner +
+                '</div></details>'
+        );
+        chunks.push(
+            '<p class="quiz-modify-corr-anteprima-tap-hint"' +
+                (prevOpen ? ' hidden' : '') +
+                '><span class="quiz-modify-corr-anteprima-tap-arrow" aria-hidden="true">▼</span> Tocca il riquadro giallo per aprire il contenuto</p>'
+        );
+    }
+    chunks.push('</div>');
+    host.innerHTML = chunks.join('');
+    var det = host.querySelector('.quiz-modify-corr-anteprima-stato');
+    var hint = host.querySelector('.quiz-modify-corr-anteprima-tap-hint');
+    if (det) {
+        det.addEventListener('toggle', function () {
+            if (det.open) {
+                det.classList.remove('cf2-stato-blink');
+                if (hint) hint.hidden = true;
+            } else if (hint) {
+                hint.hidden = false;
+            }
+        });
+    }
+}
+
 function quizModifyFillCorrelationBlock(el, w) {
     if (!el) return;
     var data = w || {};
+    quizModifyCorrLivePreviewRefresh();
     if (!quizModifyHasCorrelationConfigured(data)) {
         el.innerHTML = '<p class="quiz-modify-empty">Nessuna correlazione configurata per questa domanda.</p>';
         return;
@@ -23106,10 +23276,6 @@ function quizModifyFillCorrelationBlock(el, w) {
             (flags.no ? 'NO' : '') +
             '</strong></p>'
     );
-    if (String(data.goto_impatto_suffix || '').trim() || data.goto) {
-        var btnTxt = data.gotoLabel || quizModifyBuildGotoLabel(data.goto_impatto_suffix);
-        chunks.push('<span class="quiz-modify-corr-view-btn-preview">' + quizModifyEscapeForInnerHtml(btnTxt) + '</span>');
-    }
     if (data.goto && data.goto.s != null) {
         var tflags = quizModifyGetCorrelationGotoTriggerFlags(data);
         chunks.push(
@@ -23127,49 +23293,18 @@ function quizModifyFillCorrelationBlock(el, w) {
                 '</strong></p>'
         );
     }
-    if (data.correlation_stato_line1 || data.correlation_stato_line2) {
-        var l2v = data.correlation_stato_line2
-            ? '<span class="quiz-modify-corr-stato-preview-l2">-' +
-              quizModifyEscapeForInnerHtml(String(data.correlation_stato_line2).replace(/^-+|-+$/g, '')) +
-              '-</span>'
-            : '';
-        chunks.push(
-            '<div class="quiz-modify-corr-stato-preview-box"><span>' +
-                quizModifyEscapeForInnerHtml(data.correlation_stato_line1 || QUIZ_MODIFY_CORR_STATO_L1_DEFAULT) +
-                '</span>' +
-                l2v +
-                '</div>'
-        );
-    }
     if (data.correlation_update && String(data.correlation_update).trim()) {
         chunks.push(
-            '<div class="quiz-modify-correlation-block">' + quizModifyCorrelationBodyToHtml(data.correlation_update) + '</div>'
+            '<div class="quiz-modify-correlation-block"><p class="quiz-modify-edit-hint">Contenuto nel riquadro giallo (anteprima sopra):</p>' +
+                quizModifyCorrelationBodyToHtml(data.correlation_update) +
+                '</div>'
         );
     }
     el.innerHTML = chunks.join('');
 }
 
 function quizModifyCorrStatoPreviewRefresh() {
-    var w = quizModifyDetailWorking;
-    var box = document.getElementById('quiz-modify-corr-stato-preview');
-    var l1 = document.getElementById('quiz-modify-corr-stato-l1');
-    var l2 = document.getElementById('quiz-modify-corr-stato-l2');
-    if (!box || !w) return;
-    var t1 = l1 ? String(l1.value || '').trim() : String(w.correlation_stato_line1 || '');
-    var t2 = l2 ? String(l2.value || '').trim() : String(w.correlation_stato_line2 || '');
-    if (!t1 && !t2) {
-        box.setAttribute('aria-hidden', 'true');
-        box.innerHTML = '';
-        return;
-    }
-    box.removeAttribute('aria-hidden');
-    var l2html = t2
-        ? '<span class="quiz-modify-corr-stato-preview-l2">-' +
-          quizModifyEscapeForInnerHtml(t2.replace(/^-+|-+$/g, '')) +
-          '-</span>'
-        : '';
-    box.innerHTML =
-        '<span>' + quizModifyEscapeForInnerHtml(t1 || QUIZ_MODIFY_CORR_STATO_L1_DEFAULT) + '</span>' + l2html;
+    quizModifyCorrLivePreviewRefresh();
 }
 
 function quizModifyCorrEditUiRefresh() {
@@ -24217,6 +24352,7 @@ function quizModifyCorrBodyPersistDebounced() {
         if (!quizModifyDetailWorking) return;
         quizModifyDetailMarkFieldDirty('correlation');
         quizModifyCollectCorrelationFromEditDom();
+        quizModifyCorrLivePreviewRefresh();
         quizModifyPersistWorkingToStorage();
         try {
             syncAllCorrelationStatoSlots();
@@ -36790,14 +36926,66 @@ function goToProgramHome() {
     } catch (e5) { /* ignore */ }
 }
 
+function quizDetectActiveSectionFromScroll() {
+    var keys = typeof quizGetOrderedSectionKeys === 'function' ? quizGetOrderedSectionKeys() : ['cf', 'mbr'];
+    var reference = typeof getScrollOffset === 'function' ? getScrollOffset() : 160;
+    var slack = 40;
+    var chosen = keys[0] || 'cf';
+    for (var i = 0; i < keys.length; i++) {
+        var el = document.getElementById(keys[i] + '-content');
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= reference + slack) chosen = keys[i];
+    }
+    return chosen;
+}
+
+function quizNavPinSection(s, holdMs) {
+    quizNavPinnedSection = s;
+    if (quizNavPinReleaseTimer) {
+        clearTimeout(quizNavPinReleaseTimer);
+        quizNavPinReleaseTimer = null;
+    }
+    if (holdMs > 0) {
+        quizNavPinReleaseTimer = setTimeout(function () {
+            quizNavPinReleaseTimer = null;
+            quizNavPinnedSection = null;
+            quizSyncNavWithScrollNow();
+        }, holdMs);
+    }
+}
+
+function quizNavAlignSectionContent(target, offset) {
+    if (!target) return;
+    var dist = target.getBoundingClientRect().top - offset;
+    if (Math.abs(dist) > 6) {
+        var y = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+        window.scrollTo(0, y);
+    }
+}
+
+function quizSyncNavWithScrollNow() {
+    if (isManualScrolling) return;
+    var s = quizNavPinnedSection || quizDetectActiveSectionFromScroll();
+    updateNav(s);
+}
+
 function scrollToSec(s) {
+    quizNavPinSection(s, 0);
     isManualScrolling = true;
     updateNav(s);
-    const target = document.getElementById(`${s}-content`);
-    if (!target) return;
-    const offset = typeof getScrollOffset === 'function' ? getScrollOffset() : 160;
-    const targetY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
-    smoothScrollToY(targetY, 900);
+    var target = document.getElementById(s + '-content');
+    if (!target) {
+        isManualScrolling = false;
+        return;
+    }
+    var offset = typeof getScrollOffset === 'function' ? getScrollOffset() : 160;
+    var targetY = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+    smoothScrollToY(targetY, 900, function () {
+        quizNavAlignSectionContent(target, offset);
+        updateNav(s);
+        quizNavPinSection(s, 480);
+        isManualScrolling = false;
+    });
 }
 
 function smoothScrollToY(targetY, duration = 1100, onDone = null) {
@@ -36866,6 +37054,7 @@ function scrollToPoint(s, p, glow = false) {
     if(!target) return;
     isManualScrolling = true;
     updateNav(s);
+    quizNavPinSection(s, 2200);
     scrollToPointPrecise(target, 1600);
     if (glow) {
         target.classList.add("highlight-glow");
@@ -37772,24 +37961,18 @@ function updateNav(s) {
 
 let quizScrollNavListenerBound = false;
 function setupScrollObserver() {
-    const syncNavWithScroll = () => {
-        if (isManualScrolling) return;
-
-        const keys = quizGetOrderedSectionKeys();
-        const triggerY = 220;
-        let chosen = keys[0];
-        for (let i = 0; i < keys.length; i++) {
-            const el = document.getElementById(`${keys[i]}-content`);
-            if (!el) continue;
-            const top = el.getBoundingClientRect().top;
-            if (top <= triggerY) chosen = keys[i];
-        }
-        updateNav(chosen);
+    const syncNavWithScroll = function () {
+        if (quizScrollNavRaf) return;
+        quizScrollNavRaf = requestAnimationFrame(function () {
+            quizScrollNavRaf = 0;
+            quizSyncNavWithScrollNow();
+        });
     };
 
     if (!quizScrollNavListenerBound) {
         quizScrollNavListenerBound = true;
         window.addEventListener('scroll', syncNavWithScroll, { passive: true });
+        window.addEventListener('resize', syncNavWithScroll, { passive: true });
     }
     syncNavWithScroll();
 }
