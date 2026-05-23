@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605451';
+const APP_BUILD = '202605452';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19717,6 +19717,7 @@ function quizWrapBonusContinuation(inner) {
 
 function quizVfAnswer(choiceTrue) {
     if (!quizVfActive || quizVfChoiceBusy || quizVfOxygenDepleted) return;
+    quizTryPlayUiClickTastiSfx();
     const item = quizVfCurrentItem();
     if (!item) return;
     quizVfChoiceBusy = true;
@@ -20201,6 +20202,17 @@ function playUiClickTastiSfx() {
     quizPlayUiSfxFast(UI_SFX_CLICK_DOMANDE, 0.82);
 }
 
+/** Suono clic-1 con sblocco audio e debounce (condiviso da listener globale e azioni esplicite). */
+function quizTryPlayUiClickTastiSfx() {
+    try {
+        quizUnlockUiSfxOnce();
+        const now = Date.now();
+        if ((now - quizUiSfxLastPlayAt) < 90) return;
+        quizUiSfxLastPlayAt = now;
+        playUiClickTastiSfx();
+    } catch (eC) { /* ignore */ }
+}
+
 function playUiClickDomandeSfx() {
     playUiClickTastiSfx();
 }
@@ -20242,7 +20254,20 @@ function quizFindUiClickActivator(raw) {
             '.quiz-choice-btn, .quiz-vf-btn, .quiz-settings-row, .quiz-gestione-test-tab, ' +
             '.quiz-modify-actions-si-no-toggle, .quiz-modify-dev-back-btn, .quiz-gestione-settings-icon-btn, ' +
             '.btn-gestione-genera, .btn-gestione-torna, .gestione-q-card-actions button, .quiz-gestione-flow-chip, ' +
+            '.quiz-modify-tab, [data-quiz-modify-section], .quiz-modify-checklist-pick-item, ' +
+            '.gestione-answer-slot, .gestione-answer-letter, .quiz-test-assigned-card, ' +
             '[data-quiz-mod-act], .section-content button.si, .section-content button.no'
+    );
+}
+
+/** Aree UI dove ogni tap su controllo deve emettere clic-1 (anche con stopPropagation sui box modale). */
+function quizUiClickSoundRegion(el) {
+    if (!el || typeof el.closest !== 'function') return null;
+    return el.closest(
+        '#quiz-panel, #quiz-settings-overlay, #quiz-modify-dev-overlay, #quiz-gestione-test-overlay, ' +
+            '#quiz-speech-settings-overlay, #quiz-developer-menu-overlay, #quiz-gestione-config-overlay, ' +
+            '#quiz-gestione-invia-a-overlay, #quiz-gestione-sperimentale-overlay, .quiz-lock-overlay, ' +
+            '.section-content, header, #supporto-modal-overlay, #checklist-modal-overlay'
     );
 }
 
@@ -20277,34 +20302,48 @@ function initIstruzioniUiClickSounds() {
             if (typeof raw.closest !== 'function') return;
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
+            if (tag === 'textarea' || tag === 'select') return;
             if (tag === 'input') {
                 const inpType = String(raw.type || '').toLowerCase();
                 if (inpType === 'checkbox' || inpType === 'radio') {
                     const inpLab = raw.closest('label');
-                    if (inpLab) raw = inpLab;
-                    else return;
+                    if (inpLab) {
+                        raw = inpLab;
+                    } else if (raw.closest('.gestione-answer-slot')) {
+                        if (!quizUiClickSoundRegion(raw)) return;
+                        quizTryPlayUiClickTastiSfx();
+                        return;
+                    } else {
+                        return;
+                    }
                 } else {
                     return;
                 }
-            } else if (tag === 'textarea' || tag === 'select') {
-                return;
             }
-            const now = Date.now();
-            if ((now - quizUiSfxLastPlayAt) < 110) return;
 
             const colBox = raw.closest('.col-box');
             if (colBox && colBox.closest('.section-content')) {
-                quizUiSfxLastPlayAt = now;
-                playUiClickTastiSfx();
+                quizTryPlayUiClickTastiSfx();
                 return;
             }
 
             const activator = quizFindUiClickActivator(raw);
-            if (!activator) return;
-            if (quizUiClickSoundExcluded(activator)) return;
+            if (activator) {
+                if (quizUiClickSoundExcluded(activator)) return;
+                quizTryPlayUiClickTastiSfx();
+                return;
+            }
 
-            quizUiSfxLastPlayAt = now;
-            playUiClickTastiSfx();
+            if (!quizUiClickSoundRegion(raw)) return;
+            if (
+                raw.closest(
+                    'button, summary, label, [role="button"], [onclick], a[href], ' +
+                        '.quiz-choice-btn, .quiz-modify-tab, [data-quiz-modify-section], ' +
+                        '.gestione-answer-slot, .gestione-answer-letter, .quiz-settings-row'
+                )
+            ) {
+                quizTryPlayUiClickTastiSfx();
+            }
     };
 
     quizPrimeUiSfxPool();
@@ -20343,7 +20382,7 @@ function initIstruzioniUiClickSounds() {
     document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
     document.addEventListener('click', function (ev) {
         handleClickLike(ev);
-    }, false);
+    }, true);
     document.addEventListener('keydown', function () {
         quizUnlockUiSfxOnce();
     }, { capture: true, passive: true });
@@ -29338,6 +29377,7 @@ function gestioneDomandeBuildCard(i, slot) {
                 gestioneDomandeSyncAnswerRows(card);
                 return;
             }
+            quizTryPlayUiClickTastiSfx();
             gestioneDomandeSyncAnswerRows(card);
             gestioneDomandeInvioSyncState();
             if (quizGestioneDomandeEditorCompleto === false) {
@@ -34712,6 +34752,7 @@ function quizAdvanceAfterWrongContinue() {
 
 function quizAnswer(idx) {
     if (quizAnswerLocked) return;
+    quizTryPlayUiClickTastiSfx();
     const q = quizState.queue[quizState.index];
     if (!q) return;
 
@@ -36493,6 +36534,7 @@ function clearAnswerToggle(s, p) {
 function check(s, p, val, btn) {
     mbrCheckDepth += 1;
     try {
+    if (!isUpdating) quizTryPlayUiClickTastiSfx();
     const item =
         s === 'cf' && p === 2
             ? checklistGetCf2CanonicalItem() || checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p)
