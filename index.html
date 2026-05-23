@@ -14441,7 +14441,7 @@ function dismissAppSplash() {
                             <details class="quiz-modify-title-info quiz-panel-info-details">
                                 <summary aria-label="Informazioni sulle correlazioni" title="Informazioni">i</summary>
                                 <div class="quiz-modify-title-info__box">
-                                    Scegli <strong>SÌ</strong> o <strong>NO</strong> per capire su quale risposta in istruzioni operative comparirà il pulsante rosso di correlazione. In modifica: titolo impatto, scheda/domanda collegata, testo giallo «Stato aggiornato».
+                                    Su <strong>questa domanda</strong>: i toggle SÌ/NO in alto attivano il pulsante rosso «CORRELAZIONE — Possibile impatto…». Dopo il titolo impatto scegli la <strong>destinazione</strong>; i toggle sotto la destinazione definiscono se, rispondendo SÌ o NO lì, compare qui il riquadro giallo «Stato aggiornato».
                                 </div>
                             </details>
                         </div>
@@ -14493,8 +14493,28 @@ function dismissAppSplash() {
                                 </div>
                             </div>
                             <div id="quiz-modify-corr-phase-target" class="quiz-modify-corr-phase" hidden>
-                                <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-corr-add-target">＋ <span class="quiz-modify-corr-add-target-sub">(crea correlazione)</span></button>
+                                <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-corr-add-target">＋ Scegli domanda da abbinare</button>
+                                <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-corr-change-target" hidden>Modifica destinazione</button>
                                 <p id="quiz-modify-corr-target-label" class="quiz-modify-edit-hint"></p>
+                            </div>
+                            <div id="quiz-modify-corr-phase-goto-trigger" class="quiz-modify-corr-phase" hidden>
+                                <p class="quiz-modify-edit-hint">Stato giallo «aggiornato» su <strong>questa domanda</strong> quando sulla destinazione rispondi:</p>
+                                <div class="quiz-modify-actions-si-no-row" role="group" aria-label="Attiva stato giallo quando sulla destinazione rispondi Sì o No">
+                                    <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-si">
+                                        <span class="quiz-modify-actions-si-no-label">SÌ</span>
+                                        <span class="quiz-dev-ios-switch">
+                                            <input type="checkbox" id="quiz-modify-correlation-goto-trigger-si" class="quiz-dev-ios-switch-input" role="switch" aria-label="Stato giallo se sulla destinazione rispondi Sì">
+                                            <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                                        </span>
+                                    </label>
+                                    <label class="quiz-modify-actions-si-no-toggle" for="quiz-modify-correlation-goto-trigger-no">
+                                        <span class="quiz-modify-actions-si-no-label">NO</span>
+                                        <span class="quiz-dev-ios-switch">
+                                            <input type="checkbox" id="quiz-modify-correlation-goto-trigger-no" class="quiz-dev-ios-switch-input" role="switch" aria-label="Stato giallo se sulla destinazione rispondi No">
+                                            <span class="quiz-dev-ios-switch-track" aria-hidden="true"><span class="quiz-dev-ios-switch-thumb"></span></span>
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                             <div id="quiz-modify-corr-phase-content" class="quiz-modify-corr-phase" hidden>
                                 <label class="quiz-modify-edit-label" for="quiz-modify-corr-stato-l1">Titolo riquadro giallo — riga 1</label>
@@ -14534,7 +14554,7 @@ function dismissAppSplash() {
                 <h4 id="quiz-modify-corr-pick-title" class="quiz-modify-checklist-pick-title">Crea correlazione</h4>
                 <button type="button" class="btn-side btn-reset" onclick="quizModifyCorrPickClose()">Annulla</button>
             </div>
-            <p class="quiz-modify-edit-hint">Scegli la <strong>scheda</strong>, poi la <strong>domanda</strong> di destinazione. Su quella domanda comparirà «Continua relazione» in istruzioni operative.</p>
+            <p class="quiz-modify-edit-hint">Scegli la <strong>scheda</strong>, poi la <strong>domanda</strong> di destinazione. Il pulsante rosso e lo stato giallo restano sulla domanda che stai modificando; sulla destinazione compare «Continua relazione».</p>
             <div id="quiz-modify-corr-pick-list" class="quiz-modify-checklist-pick-list" role="listbox" aria-label="Schede e domande per correlazione"></div>
         </div>
     </div>
@@ -14606,7 +14626,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605431';
+const APP_BUILD = '202605432';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22097,6 +22117,40 @@ function quizModifyNormalizeCorrelationSiNoExclusive(w) {
     if (w.correlation_on_si && w.correlation_on_no) w.correlation_on_no = false;
 }
 
+function quizModifyGetCorrelationGotoTriggerFlags(item) {
+    var it = item || {};
+    var si = it.correlation_goto_trigger_si;
+    var no = it.correlation_goto_trigger_no;
+    if (si == null && no == null) {
+        if (it.goto) return { si: true, no: false };
+        return { si: false, no: false };
+    }
+    var out = { si: si === true, no: no === true };
+    if (out.si && out.no) out.no = false;
+    return out;
+}
+
+function quizModifyNormalizeCorrelationGotoTriggerExclusive(w) {
+    if (!w) return;
+    if (w.correlation_goto_trigger_si && w.correlation_goto_trigger_no) w.correlation_goto_trigger_no = false;
+}
+
+function checklistCorrelationAnswerMatches(val, wantSi, wantNo) {
+    if (val === true) return !!wantSi;
+    if (val === false) return !!wantNo;
+    return false;
+}
+
+/** Stato giallo sulla domanda sorgente quando la destinazione ha la risposta configurata. */
+function checklistIsCorrelationStatoActive(item) {
+    if (!item || !item.goto || item.goto.s == null) return false;
+    var dstKey = String(item.goto.s) + '-' + String(item.goto.p);
+    if (!(dstKey in correlationYes)) return false;
+    var dstVal = correlationYes[dstKey];
+    var trig = quizModifyGetCorrelationGotoTriggerFlags(item);
+    return checklistCorrelationAnswerMatches(dstVal, trig.si, trig.no);
+}
+
 function checklistShouldShowCorrelation(item, answerIsSi) {
     if (!item || !item.goto) return false;
     var flags = quizModifyGetCorrelationSiNoFlags(item);
@@ -22122,7 +22176,9 @@ function quizModifyCorrelationFieldsFromItem(it) {
         correlation_stato_line1: l1,
         correlation_stato_line2: l2,
         correlation_on_si: flags.si,
-        correlation_on_no: flags.no
+        correlation_on_no: flags.no,
+        correlation_goto_trigger_si: quizModifyGetCorrelationGotoTriggerFlags(item).si,
+        correlation_goto_trigger_no: quizModifyGetCorrelationGotoTriggerFlags(item).no
     };
 }
 
@@ -22157,11 +22213,14 @@ function checklistFindCorrelationSourcesForTarget(toS, toP) {
 }
 
 function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
-    if (correlationYes[String(toS) + '-' + String(toP)] !== true) return '';
+    var dstKey = String(toS) + '-' + String(toP);
+    if (!(dstKey in correlationYes)) return '';
+    var dstVal = correlationYes[dstKey];
     var sources = checklistFindCorrelationSourcesForTarget(toS, toP);
     var html = '';
     sources.forEach(function (src) {
-        if (correlationYes[src.s + '-' + src.p] !== true) return;
+        var trig = quizModifyGetCorrelationGotoTriggerFlags(src.item);
+        if (!checklistCorrelationAnswerMatches(dstVal, trig.si, trig.no)) return;
         var sec = quizModifySectionDisplayLabel(src.s);
         html +=
             '<div class="correlation-action-row"><button type="button" class="btn-jump" style="background:#dc2626;border-color:#dc2626;" onclick="scrollToPoint(\'' +
@@ -22185,9 +22244,7 @@ function syncCorrelationStatoForSource(s, p) {
         var resDiv = document.getElementById('r-' + s + '-' + p);
         if (!resDiv) return;
         var slot = document.getElementById('corr-stato-slot-' + s + '-' + p);
-        var active =
-            correlationYes[s + '-' + p] === true &&
-            correlationYes[item.goto.s + '-' + item.goto.p] === true;
+        var active = checklistIsCorrelationStatoActive(item);
         resDiv.querySelectorAll('.corr-stato-dynamic-' + s + '-' + p).forEach(function (el) {
             el.remove();
         });
@@ -22475,6 +22532,8 @@ function quizModifyDeepCloneFields(f) {
             correlation_stato_line2: '',
             correlation_on_si: false,
             correlation_on_no: true,
+            correlation_goto_trigger_si: false,
+            correlation_goto_trigger_no: false,
             actions_on_si: false,
             actions_on_no: true,
             answer_alert_si: false,
@@ -22484,6 +22543,7 @@ function quizModifyDeepCloneFields(f) {
     }
     var flags = quizModifyGetActionsSiNoFlags(f);
     var cflags = quizModifyGetCorrelationSiNoFlags(f);
+    var gtflags = quizModifyGetCorrelationGotoTriggerFlags(f);
     var aflags = quizModifyGetAnswerAlertFlags(f);
     var corrExtra = quizModifyCorrelationFieldsFromItem(f);
     return {
@@ -22502,6 +22562,8 @@ function quizModifyDeepCloneFields(f) {
             f.correlation_stato_line2 != null ? String(f.correlation_stato_line2) : corrExtra.correlation_stato_line2,
         correlation_on_si: cflags.si,
         correlation_on_no: cflags.no,
+        correlation_goto_trigger_si: gtflags.si,
+        correlation_goto_trigger_no: gtflags.no,
         actions_on_si: flags.si,
         actions_on_no: flags.no,
         answer_alert_si: aflags.si,
@@ -22529,6 +22591,8 @@ function quizModifyCloneFieldsFromItem(item) {
         correlation_stato_line2: corr.correlation_stato_line2,
         correlation_on_si: corr.correlation_on_si,
         correlation_on_no: corr.correlation_on_no,
+        correlation_goto_trigger_si: corr.correlation_goto_trigger_si,
+        correlation_goto_trigger_no: corr.correlation_goto_trigger_no,
         actions_on_si: flags.si,
         actions_on_no: flags.no,
         answer_alert_si: aflags.si,
@@ -22551,7 +22615,10 @@ function quizModifyMergeFields(base, patch) {
     if (patch.correlation_stato_line2 != null) out.correlation_stato_line2 = String(patch.correlation_stato_line2);
     if (patch.correlation_on_si != null) out.correlation_on_si = !!patch.correlation_on_si;
     if (patch.correlation_on_no != null) out.correlation_on_no = !!patch.correlation_on_no;
+    if (patch.correlation_goto_trigger_si != null) out.correlation_goto_trigger_si = !!patch.correlation_goto_trigger_si;
+    if (patch.correlation_goto_trigger_no != null) out.correlation_goto_trigger_no = !!patch.correlation_goto_trigger_no;
     quizModifyNormalizeCorrelationSiNoExclusive(out);
+    quizModifyNormalizeCorrelationGotoTriggerExclusive(out);
     if (Array.isArray(patch.risk_list)) {
         out.risk_list = patch.risk_list.map(function (x) { return String(x); });
     }
@@ -22769,6 +22836,31 @@ function quizModifyOnCorrelationSiNoToggle(which, on) {
     quizModifyPersistWorkingToStorage();
 }
 
+function quizModifySyncCorrelationGotoTriggerToggles() {
+    var w = quizModifyDetailWorking;
+    var siEl = document.getElementById('quiz-modify-correlation-goto-trigger-si');
+    var noEl = document.getElementById('quiz-modify-correlation-goto-trigger-no');
+    if (!w || !siEl || !noEl) return;
+    var flags = quizModifyGetCorrelationGotoTriggerFlags(w);
+    siEl.checked = !!flags.si;
+    noEl.checked = !!flags.no;
+}
+
+function quizModifyOnCorrelationGotoTriggerToggle(which, on) {
+    if (!quizModifyDetailWorking) return;
+    if (which === 'si') {
+        quizModifyDetailWorking.correlation_goto_trigger_si = on;
+        if (on) quizModifyDetailWorking.correlation_goto_trigger_no = false;
+    } else {
+        quizModifyDetailWorking.correlation_goto_trigger_no = on;
+        if (on) quizModifyDetailWorking.correlation_goto_trigger_si = false;
+    }
+    quizModifyNormalizeCorrelationGotoTriggerExclusive(quizModifyDetailWorking);
+    quizModifySyncCorrelationGotoTriggerToggles();
+    quizModifyPersistWorkingToStorage();
+    checklistTouchDomAfterModifyPersist();
+}
+
 function quizModifyHasCorrelationConfigured(w) {
     var data = w || {};
     return !!(
@@ -22789,6 +22881,10 @@ function quizModifyClearCorrelationData(w) {
     w.correlation_stato_line1 = '';
     w.correlation_stato_line2 = '';
     w.correlation_update = '';
+    w.correlation_on_si = false;
+    w.correlation_on_no = true;
+    w.correlation_goto_trigger_si = false;
+    w.correlation_goto_trigger_no = false;
 }
 
 function quizModifyCorrDeleteBtnSync() {
@@ -22842,6 +22938,8 @@ function quizModifyCorrDeleteConfirmClick() {
     quizModifyPushUndoSnapshotBeforeSave();
     quizModifyClearCorrelationData(quizModifyDetailWorking);
     quizModifyCorrDeleteLayerClose();
+    quizModifySyncCorrelationSiNoToggles();
+    quizModifySyncCorrelationGotoTriggerToggles();
     if (quizModifyDetailEditing.correlation) {
         quizModifyRenderCorrelationEditFields();
     }
@@ -22876,11 +22974,19 @@ function quizModifyFillCorrelationBlock(el, w) {
         chunks.push('<span class="quiz-modify-corr-view-btn-preview">' + quizModifyEscapeForInnerHtml(btnTxt) + '</span>');
     }
     if (data.goto && data.goto.s != null) {
+        var tflags = quizModifyGetCorrelationGotoTriggerFlags(data);
         chunks.push(
             '<p class="quiz-modify-corr-view-target">Destinazione: <strong>' +
                 quizModifyEscapeForInnerHtml(quizModifySectionDisplayLabel(data.goto.s)) +
                 '</strong> · domanda <strong>' +
                 data.goto.p +
+                '</strong></p>'
+        );
+        chunks.push(
+            '<p class="quiz-modify-edit-hint">Stato giallo su questa domanda se sulla destinazione rispondi: <strong>' +
+                (tflags.si ? 'SÌ' : '') +
+                (tflags.si && tflags.no ? ' / ' : '') +
+                (tflags.no ? 'NO' : '') +
                 '</strong></p>'
         );
     }
@@ -22935,21 +23041,26 @@ function quizModifyCorrEditUiRefresh() {
     var suffixInp = document.getElementById('quiz-modify-corr-impatto-suffix');
     var phaseTgt = document.getElementById('quiz-modify-corr-phase-target');
     var addTgt = document.getElementById('quiz-modify-corr-add-target');
+    var changeTgt = document.getElementById('quiz-modify-corr-change-target');
     var tgtLbl = document.getElementById('quiz-modify-corr-target-label');
+    var phaseTrig = document.getElementById('quiz-modify-corr-phase-goto-trigger');
     var phaseCnt = document.getElementById('quiz-modify-corr-phase-content');
     if (!w || !phaseImp) return;
     var hasSuffix = !!String(w.goto_impatto_suffix || '').trim();
+    var hasGoto = !!(w.goto && w.goto.s != null);
     if (addImp) addImp.hidden = hasSuffix;
     if (edImp) edImp.hidden = !hasSuffix;
     if (suffixInp && hasSuffix && document.activeElement !== suffixInp) {
         suffixInp.value = w.goto_impatto_suffix;
     }
     if (phaseTgt) phaseTgt.hidden = !hasSuffix;
-    if (phaseCnt) phaseCnt.hidden = !(hasSuffix && w.goto && w.goto.s != null);
-    if (addTgt) addTgt.hidden = !!(w.goto && w.goto.s != null);
-    if (tgtLbl && w.goto && w.goto.s != null) {
+    if (phaseTrig) phaseTrig.hidden = !(hasSuffix && hasGoto);
+    if (phaseCnt) phaseCnt.hidden = !(hasSuffix && hasGoto);
+    if (addTgt) addTgt.hidden = hasGoto;
+    if (changeTgt) changeTgt.hidden = !hasGoto;
+    if (tgtLbl && hasGoto) {
         tgtLbl.textContent =
-            'Collegata a «' +
+            'Destinazione: «' +
             quizModifySectionDisplayLabel(w.goto.s) +
             '» · domanda ' +
             w.goto.p +
@@ -22957,6 +23068,7 @@ function quizModifyCorrEditUiRefresh() {
     } else if (tgtLbl) {
         tgtLbl.textContent = '';
     }
+    quizModifySyncCorrelationGotoTriggerToggles();
     quizModifyCorrStatoPreviewRefresh();
     quizModifyCorrDeleteBtnSync();
 }
@@ -23069,6 +23181,12 @@ function quizModifyCorrPickChooseSection(sk) {
 function quizModifyCorrPickChooseQuestion(sk, p) {
     if (!quizModifyDetailWorking) return;
     quizModifyDetailWorking.goto = { s: sk, p: parseInt(p, 10) || p };
+    var gtPick = quizModifyGetCorrelationGotoTriggerFlags(quizModifyDetailWorking);
+    if (!gtPick.si && !gtPick.no) {
+        quizModifyDetailWorking.correlation_goto_trigger_si = true;
+        quizModifyDetailWorking.correlation_goto_trigger_no = false;
+    }
+    quizModifyNormalizeCorrelationGotoTriggerExclusive(quizModifyDetailWorking);
     if (!quizModifyDetailWorking.correlation_stato_line1) {
         var suf = String(quizModifyDetailWorking.goto_impatto_suffix || '').trim();
         quizModifyDetailWorking.correlation_stato_line1 = suf
@@ -23107,6 +23225,7 @@ function quizModifyFillViewsFromWorking() {
     quizModifySyncAnswerToneFromActions(w, false);
     quizModifySyncActionsSiNoToggles();
     quizModifySyncCorrelationSiNoToggles();
+    quizModifySyncCorrelationGotoTriggerToggles();
     quizModifySyncAnswerToneUi();
     quizModifySetHtmlContent(
         document.getElementById('quiz-modify-detail-q'),
@@ -23764,13 +23883,60 @@ function quizModifyDetailBindOnce() {
             });
             return;
         }
-        if (t2 && t2.id === 'quiz-modify-corr-add-target') {
+        if (
+            t2 &&
+            (t2.id === 'quiz-modify-corr-add-target' || t2.id === 'quiz-modify-corr-change-target')
+        ) {
             ev2.preventDefault();
             quizModifyRequireWriteAuth(function () {
                 quizModifyCorrPickOpen();
             });
+            return;
+        }
+        if (t2 && t2.id === 'quiz-modify-corr-delete-btn') {
+            ev2.preventDefault();
+            quizModifyRequireWriteAuth(function () {
+                quizModifyCorrDeleteRequest();
+            });
+            return;
+        }
+        if (t2 && t2.id === 'quiz-modify-corr-delete-cancel') {
+            ev2.preventDefault();
+            quizModifyCorrDeleteCancel();
+            return;
+        }
+        if (t2 && t2.id === 'quiz-modify-corr-delete-ok') {
+            ev2.preventDefault();
+            quizModifyRequireWriteAuth(function () {
+                quizModifyCorrDeleteConfirmClick();
+            });
+            return;
         }
     });
+    var corrPickList = document.getElementById('quiz-modify-corr-pick-list');
+    if (corrPickList) {
+        corrPickList.addEventListener('click', function (evPick) {
+            quizModifyRequireWriteAuth(function () {
+                quizModifyCorrPickListClick(evPick);
+            });
+        });
+    }
+    var corrGotoSi = document.getElementById('quiz-modify-correlation-goto-trigger-si');
+    var corrGotoNo = document.getElementById('quiz-modify-correlation-goto-trigger-no');
+    if (corrGotoSi) {
+        corrGotoSi.addEventListener('change', function () {
+            quizModifyRequireWriteAuth(function () {
+                quizModifyOnCorrelationGotoTriggerToggle('si', corrGotoSi.checked);
+            });
+        });
+    }
+    if (corrGotoNo) {
+        corrGotoNo.addEventListener('change', function () {
+            quizModifyRequireWriteAuth(function () {
+                quizModifyOnCorrelationGotoTriggerToggle('no', corrGotoNo.checked);
+            });
+        });
+    }
     ['quiz-modify-corr-stato-l1', 'quiz-modify-corr-stato-l2', 'quiz-modify-corr-impatto-suffix'].forEach(function (id) {
         var el = document.getElementById(id);
         if (!el) return;
@@ -24168,6 +24334,8 @@ function quizModifyNewEmptyQuestionRow(pointNum) {
         correlation_stato_line2: '',
         correlation_on_si: false,
         correlation_on_no: true,
+        correlation_goto_trigger_si: false,
+        correlation_goto_trigger_no: false,
         actions_on_si: false,
         actions_on_no: true,
         answer_alert_si: false,
