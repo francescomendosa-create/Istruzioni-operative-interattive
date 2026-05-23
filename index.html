@@ -10699,6 +10699,9 @@
         .quiz-lock-overlay--modify-auth.quiz-lock-overlay--above-checklist {
             z-index: 10055;
         }
+        .quiz-lock-overlay--modify-tone-exception {
+            z-index: 10045;
+        }
         .quiz-lock-box {
             width: min(92vw, 360px);
             border-radius: 14px;
@@ -13773,7 +13776,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605427</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605429</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13863,6 +13866,16 @@ function dismissAppSplash() {
             </div>
         </div>
     </div>
+    <div id="quiz-modify-tone-exception-overlay" class="quiz-lock-overlay quiz-lock-overlay--modify-tone-exception" aria-hidden="true" onclick="quizModifyToneExceptionBackdrop(event)">
+        <div class="quiz-lock-box" role="alertdialog" aria-modal="true" aria-labelledby="quiz-modify-tone-exception-title" onclick="event.stopPropagation()">
+            <h4 id="quiz-modify-tone-exception-title" class="quiz-lock-title">Eccezione anomalia</h4>
+            <p id="quiz-modify-tone-exception-text" class="quiz-lock-hint" style="margin:0 0 14px;line-height:1.45;"></p>
+            <div class="quiz-lock-actions">
+                <button type="button" class="btn-side btn-reset" id="quiz-modify-tone-exception-cancel" onclick="quizModifyToneExceptionCancel()">Annulla</button>
+                <button type="button" class="btn-side btn-report" id="quiz-modify-tone-exception-ok" onclick="quizModifyToneExceptionConfirm()">OK</button>
+            </div>
+        </div>
+    </div>
     <div id="quiz-modify-auth-overlay" class="quiz-lock-overlay quiz-lock-overlay--modify-auth" aria-hidden="true" onclick="quizModifyAuthOverlayBackdrop(event)">
         <div class="quiz-lock-box" role="dialog" aria-modal="true" aria-labelledby="quiz-modify-auth-title" onclick="event.stopPropagation()">
             <h4 id="quiz-modify-auth-title" class="quiz-lock-title">Autorizzazione Modifica</h4>
@@ -13930,7 +13943,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605427</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605429</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14532,7 +14545,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605427';
+const APP_BUILD = '202605429';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21950,6 +21963,8 @@ let quizModifyDetailWorking = null;
 let quizModifyDetailBaseline = null;
 let quizModifyDetailEditing = { q: false, si: false, no: false, actions: false, correlation: false, risk: false };
 let quizModifyDetailPanelBound = false;
+/** Scelta verde/rosso in attesa di conferma eccezione (contrasto con controlli e azioni). */
+let quizModifyToneExceptionPending = null;
 
 function quizModifyCloneActionsArray(arr) {
     if (!Array.isArray(arr)) return [];
@@ -22227,9 +22242,38 @@ function checklistShouldShowActionsTable(item, answerIsSi) {
     return false;
 }
 
-/** Verde / rosso in istruzioni: quadratini in Modifica domande («Se sì» / «Se no»). */
+function quizModifyHasActionsContent(item) {
+    return !!(item && Array.isArray(item.actions) && item.actions.length > 0);
+}
+
+/** Allinea rosso/verde alla risposta con tabella controlli e azioni (se non modificato a mano). */
+function quizModifySyncAnswerToneFromActions(w, force) {
+    if (!w || !quizModifyHasActionsContent(w)) return;
+    var actFlags = quizModifyGetActionsSiNoFlags(w);
+    if (!actFlags.si && !actFlags.no) return;
+    if (!force && w.answer_alert_manual === true) return;
+    if (actFlags.si) {
+        w.answer_alert_si = true;
+        w.answer_alert_no = false;
+    } else {
+        w.answer_alert_no = true;
+        w.answer_alert_si = false;
+    }
+}
+
+/** Verde / rosso in istruzioni: priorità controlli/azioni, poi scelta manuale, poi legacy control. */
 function quizModifyGetAnswerAlertFlags(item) {
     var it = item || {};
+    if (quizModifyHasActionsContent(it)) {
+        var actFlags = quizModifyGetActionsSiNoFlags(it);
+        if (actFlags.si || actFlags.no) {
+            if (it.answer_alert_manual === true) {
+                return { si: it.answer_alert_si === true, no: it.answer_alert_no === true };
+            }
+            if (actFlags.si) return { si: true, no: false };
+            return { si: false, no: true };
+        }
+    }
     if (it.answer_alert_si != null || it.answer_alert_no != null) {
         return { si: it.answer_alert_si === true, no: it.answer_alert_no === true };
     }
@@ -22259,8 +22303,81 @@ function quizModifySyncAnswerToneUi() {
     if (noAlert) noAlert.checked = !!flags.no;
 }
 
-function quizModifyOnAnswerTonePick(branch, value) {
+function quizModifyActionsAnomalyResponseLabel(w) {
+    var act = quizModifyGetActionsSiNoFlags(w || {});
+    if (act.si) return 'SÌ';
+    if (act.no) return 'NO';
+    return 'SÌ';
+}
+
+function quizModifyTonePickConflictsWithActions(w, branch, value) {
+    if (!w || !quizModifyHasActionsContent(w)) return false;
+    var act = quizModifyGetActionsSiNoFlags(w);
+    if (!act.si && !act.no) return false;
+    var wantAlert = value === 'alert';
+    if (branch === 'si') {
+        if (act.si) return !wantAlert;
+        if (act.no) return wantAlert;
+    } else if (branch === 'no') {
+        if (act.no) return !wantAlert;
+        if (act.si) return wantAlert;
+    }
+    return false;
+}
+
+function quizModifyToneExceptionModalOpen(branch) {
+    var overlay = document.getElementById('quiz-modify-tone-exception-overlay');
+    var txt = document.getElementById('quiz-modify-tone-exception-text');
+    if (!overlay || !txt || !quizModifyDetailWorking) return;
+    var resp = quizModifyActionsAnomalyResponseLabel(quizModifyDetailWorking);
+    txt.innerHTML =
+        'Su <strong>azioni e controlli</strong> hai creato anomalia in caso di risposta <strong>«' +
+        quizModifyEscapeForInnerHtml(resp) +
+        '»</strong>.<br><br>Vuoi creare eccezione?';
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('quiz-info-open');
+}
+
+function quizModifyToneExceptionModalClose() {
+    var overlay = document.getElementById('quiz-modify-tone-exception-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    quizModifyToneExceptionPending = null;
+    var modifyOv = document.getElementById('quiz-modify-dev-overlay');
+    if (!modifyOv || !modifyOv.classList.contains('visible')) {
+        document.body.classList.remove('quiz-info-open');
+    }
+}
+
+function quizModifyToneExceptionBackdrop(ev) {
+    if (ev && ev.target && ev.target.id === 'quiz-modify-tone-exception-overlay') {
+        quizModifyToneExceptionCancel();
+    }
+}
+
+function quizModifyToneExceptionCancel() {
+    quizModifyToneExceptionModalClose();
+    quizModifySyncAnswerToneUi();
+}
+
+function quizModifyToneExceptionConfirm() {
+    var pending = quizModifyToneExceptionPending;
+    quizModifyToneExceptionModalClose();
+    if (!pending || !quizModifyDetailWorking) return;
+    quizModifyOnAnswerTonePick(pending.branch, pending.value, true);
+}
+
+function quizModifyOnAnswerTonePick(branch, value, forceApply) {
     if (!quizModifyDetailWorking) return;
+    if (!forceApply && quizModifyTonePickConflictsWithActions(quizModifyDetailWorking, branch, value)) {
+        quizModifyToneExceptionPending = { branch: branch, value: value };
+        quizModifyToneExceptionModalOpen(branch);
+        quizModifySyncAnswerToneUi();
+        return;
+    }
+    quizModifyDetailWorking.answer_alert_manual = true;
     var alertBranch = value === 'alert';
     if (branch === 'si') {
         quizModifyDetailWorking.answer_alert_si = alertBranch;
@@ -22299,7 +22416,8 @@ function quizModifyDeepCloneFields(f) {
             actions_on_si: false,
             actions_on_no: true,
             answer_alert_si: false,
-            answer_alert_no: true
+            answer_alert_no: true,
+            answer_alert_manual: false
         };
     }
     var flags = quizModifyGetActionsSiNoFlags(f);
@@ -22325,7 +22443,8 @@ function quizModifyDeepCloneFields(f) {
         actions_on_si: flags.si,
         actions_on_no: flags.no,
         answer_alert_si: aflags.si,
-        answer_alert_no: aflags.no
+        answer_alert_no: aflags.no,
+        answer_alert_manual: f.answer_alert_manual === true
     };
 }
 
@@ -22351,7 +22470,8 @@ function quizModifyCloneFieldsFromItem(item) {
         actions_on_si: flags.si,
         actions_on_no: flags.no,
         answer_alert_si: aflags.si,
-        answer_alert_no: aflags.no
+        answer_alert_no: aflags.no,
+        answer_alert_manual: it.answer_alert_manual === true
     };
 }
 
@@ -22380,6 +22500,7 @@ function quizModifyMergeFields(base, patch) {
     if (patch.actions_on_no != null) out.actions_on_no = !!patch.actions_on_no;
     if (patch.answer_alert_si != null) out.answer_alert_si = !!patch.answer_alert_si;
     if (patch.answer_alert_no != null) out.answer_alert_no = !!patch.answer_alert_no;
+    if (patch.answer_alert_manual != null) out.answer_alert_manual = !!patch.answer_alert_manual;
     quizModifyNormalizeActionsSiNoExclusive(out);
     return out;
 }
@@ -22534,7 +22655,10 @@ function quizModifyOnActionsSiNoToggle(which, checked) {
         if (on) quizModifyDetailWorking.actions_on_si = false;
     }
     quizModifyNormalizeActionsSiNoExclusive(quizModifyDetailWorking);
+    quizModifyDetailWorking.answer_alert_manual = false;
+    quizModifySyncAnswerToneFromActions(quizModifyDetailWorking, true);
     quizModifySyncActionsSiNoToggles();
+    quizModifySyncAnswerToneUi();
     quizModifyPersistWorkingToStorage();
     checklistTouchDomAfterModifyPersist();
 }
@@ -22786,6 +22910,7 @@ function quizModifyCorrPickBackdrop(ev) {
 function quizModifyFillViewsFromWorking() {
     var w = quizModifyDetailWorking;
     if (!w) return;
+    quizModifySyncAnswerToneFromActions(w, false);
     quizModifySyncActionsSiNoToggles();
     quizModifySyncCorrelationSiNoToggles();
     quizModifySyncAnswerToneUi();
@@ -23272,6 +23397,10 @@ function quizModifyDetailActionSave(field) {
         if (!quizModifyDetailEditing.actions) return;
         quizModifyPushUndoSnapshotBeforeSave();
         quizModifyDetailWorking.actions = quizModifyCollectActionsFromEditHost();
+        if (quizModifyHasActionsContent(quizModifyDetailWorking)) {
+            quizModifyDetailWorking.answer_alert_manual = false;
+            quizModifySyncAnswerToneFromActions(quizModifyDetailWorking, true);
+        }
         quizModifyDetailEditing.actions = false;
         var actView = document.getElementById('quiz-modify-detail-actions');
         var actWrap = document.getElementById('quiz-modify-actions-edit-wrap');
@@ -23849,6 +23978,7 @@ function quizModifyNewEmptyQuestionRow(pointNum) {
         actions_on_no: true,
         answer_alert_si: false,
         answer_alert_no: true,
+        answer_alert_manual: false,
         tag: 'Scheda'
     };
 }
