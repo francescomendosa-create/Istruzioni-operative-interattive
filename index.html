@@ -8033,6 +8033,45 @@
             align-items: center;
             gap: 10px 14px;
         }
+        .quiz-modify-corr-target-preview {
+            margin: 10px 0 0;
+            padding: 10px 12px;
+            border: 1px dashed #90a4ae;
+            border-radius: 10px;
+            background: rgba(248, 250, 252, 0.95);
+        }
+        .quiz-modify-corr-target-preview-meta {
+            margin: 0 0 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #607d8b;
+        }
+        .quiz-modify-corr-target-preview-q {
+            margin: 0 0 8px;
+            padding: 10px 12px;
+            border-left: 4px solid #1565c0;
+            background: #fff;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #263238;
+            max-height: 14rem;
+            overflow-y: auto;
+        }
+        .quiz-modify-corr-target-preview-q p {
+            margin: 0 0 0.5em;
+        }
+        .quiz-modify-corr-target-preview-q p:last-child {
+            margin-bottom: 0;
+        }
+        .quiz-modify-corr-target-preview-hint {
+            margin: 0;
+            font-size: 0.76rem;
+            color: #78909c;
+            font-style: italic;
+        }
         .quiz-modify-corr-pick-target-btn {
             padding: 9px 16px;
             font-size: 0.84rem;
@@ -14656,7 +14695,7 @@ function dismissAppSplash() {
                                         <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-pick-target-btn" id="quiz-modify-corr-change-target" hidden>Modifica destinazione</button>
                                     </div>
                                 </div>
-                                <p id="quiz-modify-corr-target-label" class="quiz-modify-edit-hint"></p>
+                                <div id="quiz-modify-corr-target-label" class="quiz-modify-corr-target-label-host" hidden aria-live="polite"></div>
                             </div>
                             <div id="quiz-modify-corr-phase-goto-trigger" class="quiz-modify-corr-phase" hidden>
                                 <p class="quiz-modify-edit-hint">Stato giallo «aggiornato» su <strong>questa domanda</strong> quando sulla destinazione rispondi:</p>
@@ -14791,7 +14830,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605443';
+const APP_BUILD = '202605445';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -14894,10 +14933,9 @@ const QUIZ_SFX_TOP3_NAME = 'assets/quiz-sfx/vittoria-dopo-nome-classifica.mp3';
 /** Bonus game: premio, penalita fango. */
 const QUIZ_SFX_BONUS_WIN = 'assets/quiz-sfx/bonus-win.mp3';
 const QUIZ_SFX_BONUS_FANGO = 'assets/quiz-sfx/bonus-fango.mp3';
-/** UI pagina istruzioni: domande Sì/No e contenuti CF/MBBR — tutto il resto usa clic-2. */
+/** Suono «tasti» UI istruzioni (Sì/No, header, impostazioni, modali, testi cliccabili, ecc.). */
 const UI_SFX_CLICK_DOMANDE = 'assets/ui-sfx/clic-1.mp3';
 const UI_SFX_CLICK_UI = 'assets/ui-sfx/clic-2.mp3';
-/** Impostazioni e modali collegate (clic 1 dedicato; file in repo). */
 const UI_SFX_CLICK_SETTINGS = 'assets/sounds/ui-click.mp3';
 const QUIZ_BONUS_TRIGGER_START = 3;
 const QUIZ_BONUS_TRIGGER_STEP = 5;
@@ -20133,40 +20171,72 @@ function quizPlayUiSfxFast(relPath, gain) {
     } catch (eP) { /* ignore */ }
 }
 
-function playUiClickDomandeSfx() {
+function playUiClickTastiSfx() {
     quizPlayUiSfxFast(UI_SFX_CLICK_DOMANDE, 0.82);
 }
 
+function playUiClickDomandeSfx() {
+    playUiClickTastiSfx();
+}
+
 function playUiClickGenericoSfx() {
-    quizPlayUiSfxFast(UI_SFX_CLICK_UI, 0.78);
+    playUiClickTastiSfx();
 }
 
 function playUiClickSettingsSfx() {
-    quizPlayUiSfxFast(UI_SFX_CLICK_SETTINGS, 0.82);
+    playUiClickTastiSfx();
 }
 
-/** True se il clic è dentro Impostazioni o una modale aperta dal flusso Impostazioni (Password, Quiz voce, Info, App, Advanced…). */
-function quizActivatorInSettingsFlow(el) {
-    if (!el || typeof el.closest !== 'function') return false;
-    return !!(
-        el.closest('#quiz-settings-overlay') ||
-        el.closest('#quiz-presence-whoami-overlay') ||
-        el.closest('#quiz-presence-connected-overlay') ||
-        el.closest('#quiz-lock-overlay') ||
-        el.closest('#quiz-modify-auth-overlay') ||
-        el.closest('#quiz-speech-settings-overlay') ||
-        el.closest('#quiz-info-overlay') ||
-        el.closest('#quiz-app-overlay') ||
-        el.closest('#quiz-developer-menu-overlay') ||
-        el.closest('#quiz-modify-dev-overlay') ||
-        el.closest('#quiz-producer-overlay')
+/** Elemento cliccabile per feedback sonoro (pulsanti, link, toggle, riquadri con onclick, ecc.). */
+function quizFindUiClickActivator(raw) {
+    if (!raw || typeof raw.closest !== 'function') return null;
+    var btn = raw.closest('button');
+    if (btn) {
+        if (btn.disabled || btn.getAttribute('aria-disabled') === 'true') return null;
+        return btn;
+    }
+    var summ = raw.closest('summary');
+    if (summ) return summ;
+    var roleBtn = raw.closest('[role="button"]');
+    if (roleBtn) return roleBtn;
+    var onclickEl = raw.closest('[onclick]');
+    if (onclickEl) return onclickEl;
+    var link = raw.closest('a[href]');
+    if (link) {
+        var href = String(link.getAttribute('href') || '').trim();
+        if (href && href !== '#') return link;
+    }
+    var lab = raw.closest('label');
+    if (lab && lab.querySelector('input[type="checkbox"], input[type="radio"]')) return lab;
+    return raw.closest(
+        '.nav-sec-btn, .btn-side, .btn-jump, .btn-quiz, .btn-header-icon, .btn-supporto, ' +
+            '.btn-categoria-checklist, .btn-diagnostica, .btn-test-gestione, .btn-correlation, ' +
+            '.quiz-modify-mini-btn, .quiz-fs-audio, .checklist-editor__action-btn, .checklist-add-plus, ' +
+            '.quiz-modify-actions-cl-pick-plus, .quiz-modify-actions-row-remove, .app-splash-worm-tab, ' +
+            '.gestione-q-card-actions button, .quiz-gestione-flow-chip, [data-quiz-mod-act]'
     );
 }
 
+/** True se il clic non deve emettere il suono tasti (quiz in corso, suoni dedicati, ecc.). */
+function quizUiClickSoundExcluded(activator) {
+    if (!activator || typeof activator.closest !== 'function') return true;
+    if (activator.closest('#quiz-panel')) return true;
+    if (activator.closest('#app-splash')) {
+        if (
+            activator.id === 'app-splash-enter-btn' ||
+            activator.classList.contains('app-splash-enter')
+        ) {
+            return true;
+        }
+    }
+    if (activator.matches('.quiz-choice-btn')) return true;
+    if (activator.id === 'quiz-microbe-unlock-ok') return true;
+    if (activator.closest('.quiz-modify-corr-anteprima-red')) return true;
+    return false;
+}
+
 /**
- * Clic 1: pulsanti nelle sezioni #cf-content / #mbr-content (domande e contenuti generati).
- * Clic Impostazioni: assets/sounds/ui-click.mp3 per il flusso Impostazioni e modali collegate.
- * Altre UI: clic-2 (header, splash dove applicabile, report, ecc.).
+ * Suono tasti (clic-1) su tap/click per istruzioni, impostazioni, modali, header e contenuti domande.
  */
 function initIstruzioniUiClickSounds() {
     if (initIstruzioniUiClickSounds._done) return;
@@ -20187,47 +20257,16 @@ function initIstruzioniUiClickSounds() {
             const colBox = raw.closest('.col-box');
             if (colBox && colBox.closest('.section-content')) {
                 quizUiSfxLastPlayAt = now;
-                playUiClickDomandeSfx();
+                playUiClickTastiSfx();
                 return;
             }
 
-            let btn = raw.closest('button');
-            const summ = !btn ? raw.closest('summary') : null;
-            const roleBtn = !btn && !summ ? raw.closest('[role="button"]') : null;
-            let activator = btn || summ || roleBtn;
-            if (!activator) {
-                const anyOnclick = raw.closest('[onclick]');
-                if (anyOnclick) activator = anyOnclick;
-            }
-            if (!activator) {
-                const lab = raw.closest('label');
-                if (lab && lab.querySelector('input[type="checkbox"]')) activator = lab;
-            }
+            const activator = quizFindUiClickActivator(raw);
             if (!activator) return;
-            if (activator.closest('#quiz-panel')) return;
+            if (quizUiClickSoundExcluded(activator)) return;
 
-            if (activator.closest('#app-splash')) {
-                if (
-                    activator.id === 'app-splash-enter-btn' ||
-                    activator.classList.contains('app-splash-enter')
-                ) {
-                    return;
-                }
-            }
-            if (activator.matches('.quiz-choice-btn')) return;
-            if (activator.id === 'quiz-microbe-unlock-ok') return;
-
-            if (activator.closest('.section-content')) {
-                quizUiSfxLastPlayAt = now;
-                playUiClickDomandeSfx();
-                return;
-            }
             quizUiSfxLastPlayAt = now;
-            if (quizActivatorInSettingsFlow(activator)) {
-                playUiClickSettingsSfx();
-            } else {
-                playUiClickGenericoSfx();
-            }
+            playUiClickTastiSfx();
     };
 
     quizPrimeUiSfxPool();
@@ -23278,13 +23317,7 @@ function quizModifyFillCorrelationBlock(el, w) {
     );
     if (data.goto && data.goto.s != null) {
         var tflags = quizModifyGetCorrelationGotoTriggerFlags(data);
-        chunks.push(
-            '<p class="quiz-modify-corr-view-target">Destinazione: <strong>' +
-                quizModifyEscapeForInnerHtml(quizModifySectionDisplayLabel(data.goto.s)) +
-                '</strong> · domanda <strong>' +
-                data.goto.p +
-                '</strong></p>'
-        );
+        chunks.push(quizModifyCorrBuildTargetPreviewHtml(data.goto));
         chunks.push(
             '<p class="quiz-modify-edit-hint">Stato giallo su questa domanda se sulla destinazione rispondi: <strong>' +
                 (tflags.si ? 'SÌ' : '') +
@@ -23332,15 +23365,14 @@ function quizModifyCorrEditUiRefresh() {
     if (phaseCnt) phaseCnt.hidden = !(hasSuffix && hasGoto);
     if (addTgt) addTgt.hidden = hasGoto;
     if (changeTgt) changeTgt.hidden = !hasGoto;
-    if (tgtLbl && hasGoto) {
-        tgtLbl.textContent =
-            'Destinazione: «' +
-            quizModifySectionDisplayLabel(w.goto.s) +
-            '» · domanda ' +
-            w.goto.p +
-            ' (in istruzioni: Continua relazione ↑).';
-    } else if (tgtLbl) {
-        tgtLbl.textContent = '';
+    if (tgtLbl) {
+        if (hasGoto) {
+            tgtLbl.innerHTML = quizModifyCorrBuildTargetPreviewHtml(w.goto);
+            tgtLbl.hidden = false;
+        } else {
+            tgtLbl.innerHTML = '';
+            tgtLbl.hidden = true;
+        }
     }
     quizModifySyncCorrelationGotoTriggerToggles();
     quizModifyCorrStatoPreviewRefresh();
@@ -24528,6 +24560,39 @@ function quizModifyQuestionPlainText(q) {
     } catch (e) {
         return '';
     }
+}
+
+/** Anteprima destinazione correlazione: scheda, punto e testo reale della domanda. */
+function quizModifyCorrBuildTargetPreviewHtml(goto) {
+    if (!goto || goto.s == null || goto.p == null) return '';
+    var sk = goto.s;
+    var p = goto.p;
+    var secLabel = quizModifySectionDisplayLabel(sk);
+    var item = typeof checklistGetMergedItem === 'function' ? checklistGetMergedItem(sk, p) : null;
+    var qInner = '';
+    if (item && String(item.q || '').trim()) {
+        var qRaw = String(item.q).trim();
+        if (/<[a-z][\s\S]*>/i.test(qRaw)) {
+            qInner = qRaw;
+        } else {
+            qInner = quizModifyEscapeForInnerHtml(quizModifyQuestionPlainText(qRaw)).replace(/\r?\n/g, '<br>');
+        }
+    } else {
+        qInner = '<p class="quiz-modify-empty">Testo domanda non disponibile.</p>';
+    }
+    return (
+        '<div class="quiz-modify-corr-target-preview">' +
+        '<p class="quiz-modify-corr-target-preview-meta">Anteprima destinazione · ' +
+        quizModifyEscapeForInnerHtml(secLabel) +
+        ' · punto <strong>' +
+        quizModifyEscapeForInnerHtml(String(p)) +
+        '</strong></p>' +
+        '<div class="quiz-modify-corr-target-preview-q">' +
+        qInner +
+        '</div>' +
+        '<p class="quiz-modify-corr-target-preview-hint">Sulla destinazione, in istruzioni operative, compare il pulsante «Continua relazione ↑».</p>' +
+        '</div>'
+    );
 }
 
 function quizModifyNormalizeHex(hex) {
