@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605450';
+const APP_BUILD = '202605451';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22518,28 +22518,26 @@ function checklistGetCf1Mbr3FoamCorrelationBodyHtml() {
     );
 }
 
-/** MBBR p.3 (schiuma) → CF p.1: correlazione sempre dai dati originali in `db` (non da override Modifica). */
-function checklistGetMbr3FoamCorrCanonicalItem() {
+/** Chimico-fisico punto 1 (torbidità) → MBBR p.3 (schiuma): correlazione sempre dai dati originali in `db`. */
+function checklistGetCf1FoamCorrCanonicalItem() {
     var base = null;
     try {
-        base = db.mbr.find(function (x) {
-            return x && x.p === 3;
+        base = db.cf.find(function (x) {
+            return x && x.p === 1;
         });
     } catch (eB) {
         base = null;
     }
     if (!base) return null;
-    var merged = checklistGetMergedItem('mbr', 3);
+    var merged = checklistGetMergedItem('cf', 1);
     var out = Object.assign({}, merged || {}, base);
-    out.goto = base.goto ? Object.assign({}, base.goto) : { s: 'cf', p: 1 };
+    out.goto = base.goto ? Object.assign({}, base.goto) : { s: 'mbr', p: 3 };
     out.gotoLabel =
-        base.gotoLabel != null
-            ? String(base.gotoLabel)
-            : 'valutare dosaggi di antischiuma e intensificare controlli su chimico fisico';
+        base.gotoLabel != null ? String(base.gotoLabel) : 'CORRELAZIONE — Possibile impatto su MBBR';
     out.correlation_on_si = false;
     out.correlation_on_no = true;
-    out.correlation_goto_trigger_si = false;
-    out.correlation_goto_trigger_no = true;
+    out.correlation_goto_trigger_si = true;
+    out.correlation_goto_trigger_no = false;
     out.correlation_update =
         base.correlation_update != null
             ? String(base.correlation_update)
@@ -22555,9 +22553,9 @@ function checklistGetMbr3FoamCorrCanonicalItem() {
     return out;
 }
 
-/** Correlazione integrata MBBR p.3 (schiuma) → CF p.1: pulsante rosso su NO; ritorno giallo su CF solo se NO. */
+/** Coppia integrata CF p.1 → MBBR p.3 (schiuma): pulsanti dedicati, niente link generici duplicati. */
 function checklistIsCf1Mbr3BuiltinPair(srcS, srcP, toS, toP) {
-    return srcS === 'mbr' && srcP === 3 && toS === 'cf' && toP === 1;
+    return srcS === 'cf' && srcP === 1 && toS === 'mbr' && toP === 3;
 }
 
 function checklistScrollToMbr3FromCf1Relation() {
@@ -22565,12 +22563,22 @@ function checklistScrollToMbr3FromCf1Relation() {
     scrollToPoint('mbr', 3, true);
 }
 
-/** Su CF p.1 dopo correlazione schiuma MBBR p.3: SÌ = niente ritorno; NO = Continua relazione giallo verso MBBR. */
-function checklistBuildCf1Mbr3FollowupButtonsHtml(cf1AnswerIsSi) {
-    if (!('mbr-3' in correlationYes) || !('cf-1' in correlationYes)) return '';
-    if (cf1AnswerIsSi === false) {
+function checklistScrollToCf1IntensifyFromMbr3() {
+    checklistDismissReturnRelationUi();
+    scrollToPoint('cf', 1, true);
+}
+
+/** Su MBBR p.3 dopo correlazione da CF p.1: SÌ = intensifica su CF; NO = ritorno giallo verso CF. */
+function checklistBuildMbr3Cf1FollowupButtonsHtml(mbr3AnswerIsSi) {
+    if (correlationYes['cf-1'] !== false || !('mbr-3' in correlationYes)) return '';
+    if (mbr3AnswerIsSi === true) {
         return (
-            '<div class="correlation-action-row"><button type="button" class="btn-jump btn-jump--corr-return-yellow" onclick="checklistScrollToMbr3FromCf1Relation()">Continua relazione · BIOLOGICO MBBR punto 3</button></div>'
+            '<div class="correlation-action-row"><button type="button" class="btn-jump" style="background:#dc2626;border-color:#dc2626;" onclick="checklistScrollToCf1IntensifyFromMbr3()">← INTENSIFICARE CONTROLLI SU CHIMICO FISICO</button></div>'
+        );
+    }
+    if (mbr3AnswerIsSi === false) {
+        return (
+            '<div class="correlation-action-row"><button type="button" class="btn-jump btn-jump--corr-return-yellow" onclick="checklistScrollToCf1IntensifyFromMbr3()">Continua relazione · CHIMICO-FISICO punto 1</button></div>'
         );
     }
     return '';
@@ -22642,9 +22650,9 @@ function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
 
 /** Voce checklist con override Modifica (correlazione inclusa). */
 function checklistGetItemWithModifyOverrides(s, p) {
-    if (s === 'mbr' && p === 3) {
-        var mbr3Canon = checklistGetMbr3FoamCorrCanonicalItem();
-        if (mbr3Canon) return mbr3Canon;
+    if (s === 'cf' && p === 1) {
+        var cf1Canon = checklistGetCf1FoamCorrCanonicalItem();
+        if (cf1Canon) return cf1Canon;
     }
     var item = checklistGetMergedItem(s, p);
     if (!item) return null;
@@ -22675,7 +22683,7 @@ function checklistGetItemWithModifyOverrides(s, p) {
 }
 
 function syncCorrelationStatoForSource(s, p) {
-    if (s === 'cf' && p === 2) return;
+    if (s === 'cf' && (p === 1 || p === 2)) return;
     try {
         var item = checklistGetItemWithModifyOverrides(s, p);
         if (!item || !item.goto) return;
@@ -31476,7 +31484,16 @@ const db = {
             "Saturazione della richiesta di ossigeno: chiarificato sporco aumenta il carico ossidabile (COD) sul biologico; se aerazione e ossigeno non compensano, rischio deriva verso fango scuro/anossia.",
             "Perdita di efficienza a valle: materiale non separato nel chimico-fisico passa al MBBR e riduce la depurazione complessiva."
           ],
-          no: "Acqua in uscita torbida.", tag: "Torbidità" },
+          no: "Acqua in uscita torbida.",
+          goto: { s: "mbr", p: 3 },
+          gotoLabel: "CORRELAZIONE — Possibile impatto su MBBR",
+          correlation_on_si: false,
+          correlation_on_no: true,
+          correlation_goto_trigger_si: true,
+          correlation_goto_trigger_no: false,
+          correlation_stato_line1: "Stato aggiornato. Impatto confermato",
+          correlation_stato_line2: "Valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
+          tag: "Torbidità" },
         { p: 2, q: "Sono presenti tracce di olio nel chiarificato?", control: true,
           si: "Parametro a norma.<br>L'assenza di tracce oleose conferma che la tensione superficiale tra aria e fiocco è ottimale e che il processo di flottazione sta rimuovendo efficacemente tutte le sostanze idrofobe. Un chiarificato privo di oli è l'indicatore principale di una corretta pre-trattamento chimica.<br><br>Se arriva olio in eccesso dal chiarificatore, questo si \"attacca\" istantaneamente alla superficie porosa dei carrier creando una pellicola grassa.<br><br>Questa pellicola agisce come un vero e proprio \"impermeabile\" o una \"guaina plastica\": l'acqua scivola via e non entra più in contatto con i batteri. Di conseguenza, i microrganismi rimangono vivi sotto lo strato oleoso, ma subiscono un processo di asfissia: non riescono più a \"mangiare\" il COD e a ricevere ossigeno, poiché l'olio ne impedisce fisicamente il passaggio.<br><br>Certificare l'assenza di olio in questa fase significa garantire che il sistema biologico possa lavorare al 100% delle sue potenzialità, mantenendo la superficie dei carrier pulita, permeabile e biologicamente attiva.",
           correlation_update: "Trascinamento di fase oleosa dal comparto Chimico-Fisico verso il Biologico.<br><br><strong>INTENSIFICARE I CONTROLLI:</strong><br><br><strong>- Ispezione Meccanica:</strong> Verifica immediata del sistema di raschiatura del flottatore. Se l'olio passa nel chiarificato, potrebbe significare che il sistema di rimozione superficiale è bloccato, rotto o saturato.<br><br><strong>- Portata in ingresso:</strong> Ridurre temporaneamente la portata in ingresso al chimico-fisico per aumentare i tempi di separazione e ridurre le turbolenze che potrebbero trascinare l'olio nel chiarificato.<br><br><strong>- Ottimizzazione della Coagulazione e Flocculazione</strong><br><br><strong>Dosaggio Coagulante (PAC):</strong> controllare la miscelazione. Aumentare il dosaggio del coagulante per migliorare la destabilizzazione delle particelle d'olio e facilitarne la separazione.<br><br><strong>Verifica Parametro pH (Target 6,5–7,5):</strong> Controllare immediatamente che il pH sia nel range operativo critico. Se il pH è fuori norma, il coagulante non reagisce e l'olio non viene separato, finendo nel biologico.",
@@ -31676,14 +31693,6 @@ const db = {
             { c: "Azione COD", a: "Mettere in serie i sediflottatori" },
             { c: "Ossigeno (O2)", a: "Se in eccesso provoca schiuma, usare un solo compressore" }
           ],
-          goto: { s: "cf", p: 1 },
-          gotoLabel: "valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
-          correlation_on_si: false,
-          correlation_on_no: true,
-          correlation_goto_trigger_si: false,
-          correlation_goto_trigger_no: true,
-          correlation_stato_line1: "Stato aggiornato. Impatto confermato",
-          correlation_stato_line2: "Valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
           tag: "Schiuma" 
         },
         { p: 4, q: "Presenza di schiuma nera?",
@@ -36299,8 +36308,10 @@ function syncCf1CorrelationUpdate() {
 
     cf1ResDiv.querySelectorAll('.correlation-cf1-mbbr-foam').forEach((el) => el.remove());
 
-    const foamCorr = correlationYes['mbr-3'] === false;
+    const foamCorr = correlationYes['cf-1'] === false && correlationYes['mbr-3'] === true;
+    const statoSlotEarly = document.getElementById('cf1-mbbr-stato-slot');
     if (!foamCorr) {
+        if (statoSlotEarly) statoSlotEarly.innerHTML = '';
         if (correlationYes['cf-1'] !== true && correlationYes['cf-1'] !== false && !cf1ResDiv.textContent.trim()) {
             cf1ResDiv.style.display = 'none';
             cf1ResDiv.className = 'res';
@@ -36312,7 +36323,7 @@ function syncCf1CorrelationUpdate() {
         cf1ResDiv.className = 'res';
     }
 
-    const canon = checklistGetMbr3FoamCorrCanonicalItem();
+    const canon = checklistGetCf1FoamCorrCanonicalItem();
     const ackFoam = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf1-ack-schiuma-meta-vasca') === '1');
     const blinkFoam = !ackFoam;
     const foamBody =
@@ -36342,7 +36353,12 @@ function syncCf1CorrelationUpdate() {
             <div class="correlation-mbbr-status-body">${foamBody}</div>
         </details>`;
 
-    cf1ResDiv.innerHTML += inject;
+    const statoSlot = document.getElementById('cf1-mbbr-stato-slot');
+    if (statoSlot) {
+        statoSlot.innerHTML = inject;
+    } else {
+        cf1ResDiv.insertAdjacentHTML('beforeend', inject);
+    }
     const det = document.getElementById('cf1-corr-mbbr-foam');
     if (det) {
         det.addEventListener('toggle', function cf1CorrToggle() {
@@ -36353,25 +36369,6 @@ function syncCf1CorrelationUpdate() {
             } catch (e) {}
         });
     }
-}
-
-function forceCf1NoForMbrFoamCorrelation() {
-    if (correlationYes['mbr-3'] !== false || correlationYes['cf-1'] !== true) return false;
-    const btnNo = document.getElementById('btn-cf-1-no');
-    if (!btnNo) {
-        correlationYes['cf-1'] = false;
-        return false;
-    }
-    const prevUpdating = isUpdating;
-    isUpdating = true;
-    try {
-        btnNo.click();
-    } catch (e) {
-        correlationYes['cf-1'] = false;
-    } finally {
-        isUpdating = prevUpdating;
-    }
-    return true;
 }
 
 function syncCf2CorrelationUpdate() {
@@ -36499,8 +36496,8 @@ function check(s, p, val, btn) {
     const item =
         s === 'cf' && p === 2
             ? checklistGetCf2CanonicalItem() || checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p)
-            : s === 'mbr' && p === 3
-              ? checklistGetMbr3FoamCorrCanonicalItem() ||
+            : s === 'cf' && p === 1
+              ? checklistGetCf1FoamCorrCanonicalItem() ||
                 checklistGetMergedItem(s, p) ||
                 checklistRowsSource(s).find((x) => x && x.p === p)
               : checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p);
@@ -36522,14 +36519,7 @@ function check(s, p, val, btn) {
     // salva stato
     correlationYes[`${s}-${p}`] = val;
 
-    // Se la schiuma MBBR e confermata, il chiarificato CF punto 1 non puo restare su "Si".
-    if (s === 'cf' && p === 1 && val === true && correlationYes['mbr-3'] === false) {
-        if (forceCf1NoForMbrFoamCorrelation()) return;
-    }
-    if (s === 'mbr' && p === 3) {
-        if (val === true) {
-            forceCf1NoForMbrFoamCorrelation();
-        }
+    if ((s === 'cf' && p === 1) || (s === 'mbr' && p === 3)) {
         syncCf1CorrelationUpdate();
     }
 
@@ -36695,7 +36685,9 @@ function check(s, p, val, btn) {
         var showCorrelation =
             s === 'cf' && p === 2
                 ? !!(item && item.goto && val === true)
-                : checklistShouldShowCorrelation(item, val);
+                : s === 'cf' && p === 1
+                  ? !!(item && item.goto && val === false)
+                  : checklistShouldShowCorrelation(item, val);
         if (item.goto && showCorrelation) {
             let buttonText =
                 item.gotoLabel ||
@@ -36703,7 +36695,7 @@ function check(s, p, val, btn) {
                 `ANALIZZA CORRELAZIONE (${item.goto.s.toUpperCase()} P.${item.goto.p})`;
             let buttonStyle = 'background: #dc2626; border-color: #dc2626;';
             let buttonAnimation = '';
-            if (s === 'cf' && p === 2) {
+            if (s === 'cf' && (p === 1 || p === 2)) {
                 buttonText = 'CORRELAZIONE — Possibile impatto su MBBR';
             }
             const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
@@ -36718,11 +36710,16 @@ function check(s, p, val, btn) {
                     </div>
                     <div class="cf2-mbbr-link-cluster__stato" id="cf2-mbbr-stato-slot"></div>
                 </div>`;
-            } else if (s === 'mbr' && p === 3) {
-                html += `<div class="correlation-action-row correlation-cf2-goto-wrap">
-                    <div class="cf2-corr-hand-cell" aria-hidden="true"><span class="cf2-corr-hand-hint" id="mbr3-corr-hand-hint">👉</span></div>
-                    <div class="cf2-corr-btn-cell">${jumpBtn}</div>
-                    <div class="cf2-corr-balance-spacer" aria-hidden="true"></div>
+            } else if (s === 'cf' && p === 1) {
+                html += `<div class="cf2-mbbr-link-cluster" id="cf1-mbbr-link-cluster">
+                    <div class="cf2-mbbr-link-cluster__correlation">
+                        <div class="correlation-action-row correlation-cf2-goto-wrap">
+                            <div class="cf2-corr-hand-cell" aria-hidden="true"><span class="cf2-corr-hand-hint" id="cf1-corr-hand-hint">👉</span></div>
+                            <div class="cf2-corr-btn-cell">${jumpBtn}</div>
+                            <div class="cf2-corr-balance-spacer" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="cf2-mbbr-link-cluster__stato" id="cf1-mbbr-stato-slot"></div>
                 </div>`;
             } else {
                 html += `<div class="cf2-mbbr-link-cluster" id="corr-cluster-${s}-${p}">
@@ -36739,8 +36736,8 @@ function check(s, p, val, btn) {
         }
 
         html += checklistBuildCorrelationReturnLinksHtml(s, p);
-        if (s === 'cf' && p === 1) {
-            html += checklistBuildCf1Mbr3FollowupButtonsHtml(val);
+        if (s === 'mbr' && p === 3) {
+            html += checklistBuildMbr3Cf1FollowupButtonsHtml(val);
         }
         if (s === 'mbr' && p === 4) {
             html += checklistBuildCf2Mbr4FollowupButtonsHtml(val);
@@ -36770,8 +36767,8 @@ function check(s, p, val, btn) {
             okHtml += `<div class="correlation-action-row"><button type="button" class="btn-jump" style="background: #dc2626; border-color: #dc2626;" onclick="scrollToPoint('cf', 2)">← VAI A CHIMICO-FISICO PUNTO 2 (OLI)</button></div>`;
         }
         okHtml += checklistBuildCorrelationReturnLinksHtml(s, p);
-        if (s === 'cf' && p === 1) {
-            okHtml += checklistBuildCf1Mbr3FollowupButtonsHtml(val);
+        if (s === 'mbr' && p === 3) {
+            okHtml += checklistBuildMbr3Cf1FollowupButtonsHtml(val);
         }
         if (!item.ph_consequences && !item.temp_consequences && !item.o2_consequences && checklistShouldShowActionsTable(item, val)) {
             okHtml += checklistBuildActionsTableHtml(item.actions);
@@ -37121,8 +37118,12 @@ function jumpWithReturn(fromS, fromP, toS, toP) {
     if (mbr3Hand) {
         mbr3Hand.style.display = "none";
     }
-    if (fromS === 'mbr' && fromP === 3 && toS === 'cf' && toP === 1) {
+    if (fromS === 'cf' && fromP === 1 && toS === 'mbr' && toP === 3) {
         syncCf1CorrelationUpdate();
+    }
+    const cf1Hand = document.getElementById('cf1-corr-hand-hint');
+    if (cf1Hand) {
+        cf1Hand.style.display = 'none';
     }
 
     scrollToPoint(toS, toP, true);
