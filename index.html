@@ -7666,6 +7666,89 @@
             min-width: 1.6rem;
             letter-spacing: 0.04em;
         }
+        .quiz-modify-answer-tone-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+            margin: 0 0 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .quiz-modify-answer-tone-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: #546e7a;
+            flex: 1 1 100%;
+        }
+        @media (min-width: 420px) {
+            .quiz-modify-answer-tone-label {
+                flex: 1 1 auto;
+                margin-right: 4px;
+            }
+        }
+        .quiz-modify-answer-tone-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 2px solid #cfd8dc;
+            background: #fff;
+            cursor: pointer;
+            user-select: none;
+            transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .quiz-modify-answer-tone-box--ok {
+            border-color: #81c784;
+            background: #f1f8e9;
+        }
+        .quiz-modify-answer-tone-box--alert {
+            border-color: #e57373;
+            background: #ffebee;
+        }
+        .quiz-modify-answer-tone-input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            margin: 0;
+            pointer-events: none;
+        }
+        .quiz-modify-answer-tone-visual {
+            font-size: 1.15rem;
+            font-weight: 800;
+            line-height: 1;
+            opacity: 0.22;
+            color: inherit;
+        }
+        .quiz-modify-answer-tone-box--ok .quiz-modify-answer-tone-visual {
+            color: #2e7d32;
+        }
+        .quiz-modify-answer-tone-box--alert .quiz-modify-answer-tone-visual {
+            color: #c62828;
+        }
+        .quiz-modify-answer-tone-box:has(.quiz-modify-answer-tone-input:checked) {
+            box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.25);
+        }
+        .quiz-modify-answer-tone-box--ok:has(.quiz-modify-answer-tone-input:checked) {
+            border-color: #2e7d32;
+            background: #c8e6c9;
+        }
+        .quiz-modify-answer-tone-box--ok:has(.quiz-modify-answer-tone-input:checked) .quiz-modify-answer-tone-visual {
+            opacity: 1;
+        }
+        .quiz-modify-answer-tone-box--alert:has(.quiz-modify-answer-tone-input:checked) {
+            border-color: #c62828;
+            background: #ffcdd2;
+        }
+        .quiz-modify-answer-tone-box--alert:has(.quiz-modify-answer-tone-input:checked) .quiz-modify-answer-tone-visual {
+            opacity: 1;
+        }
         .quiz-modify-html-block {
             font-size: 0.88rem;
             line-height: 1.5;
@@ -13687,7 +13770,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605424</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605425</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13844,7 +13927,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605424</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605425</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14206,6 +14289,17 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="si" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
                         </div>
+                        <div class="quiz-modify-answer-tone-row" role="group" aria-label="Colore risposta Sì in istruzioni operative">
+                            <span class="quiz-modify-answer-tone-label">In istruzioni, se l’operatore risponde <strong>SÌ</strong>:</span>
+                            <label class="quiz-modify-answer-tone-box quiz-modify-answer-tone-box--ok" title="Parametro a norma (verde)">
+                                <input type="checkbox" class="quiz-modify-answer-tone-input" id="quiz-modify-tone-si-ok" data-tone-branch="si" data-tone-value="ok" aria-label="Sì = verde, parametro a norma">
+                                <span class="quiz-modify-answer-tone-visual" aria-hidden="true">✓</span>
+                            </label>
+                            <label class="quiz-modify-answer-tone-box quiz-modify-answer-tone-box--alert" title="Allarme (rosso)">
+                                <input type="checkbox" class="quiz-modify-answer-tone-input" id="quiz-modify-tone-si-alert" data-tone-branch="si" data-tone-value="alert" aria-label="Sì = rosso, allarme">
+                                <span class="quiz-modify-answer-tone-visual" aria-hidden="true">✓</span>
+                            </label>
+                        </div>
                         <div id="quiz-modify-detail-si" class="quiz-modify-html-block quiz-modify-field-view"></div>
                         <textarea id="quiz-modify-edit-si" class="quiz-modify-field-edit" hidden rows="10" spellcheck="true" aria-label="Modifica testo se sì"></textarea>
                     </section>
@@ -14218,6 +14312,17 @@ function dismissAppSplash() {
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="no">Salva</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="no" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
                             </div>
+                        </div>
+                        <div class="quiz-modify-answer-tone-row" role="group" aria-label="Colore risposta No in istruzioni operative">
+                            <span class="quiz-modify-answer-tone-label">In istruzioni, se l’operatore risponde <strong>NO</strong>:</span>
+                            <label class="quiz-modify-answer-tone-box quiz-modify-answer-tone-box--ok" title="Parametro a norma (verde)">
+                                <input type="checkbox" class="quiz-modify-answer-tone-input" id="quiz-modify-tone-no-ok" data-tone-branch="no" data-tone-value="ok" aria-label="No = verde, parametro a norma">
+                                <span class="quiz-modify-answer-tone-visual" aria-hidden="true">✓</span>
+                            </label>
+                            <label class="quiz-modify-answer-tone-box quiz-modify-answer-tone-box--alert" title="Allarme (rosso)">
+                                <input type="checkbox" class="quiz-modify-answer-tone-input" id="quiz-modify-tone-no-alert" data-tone-branch="no" data-tone-value="alert" aria-label="No = rosso, allarme">
+                                <span class="quiz-modify-answer-tone-visual" aria-hidden="true">✓</span>
+                            </label>
                         </div>
                         <div id="quiz-modify-detail-no" class="quiz-modify-html-block quiz-modify-field-view"></div>
                         <textarea id="quiz-modify-edit-no" class="quiz-modify-field-edit" hidden rows="8" spellcheck="true" aria-label="Modifica testo se no"></textarea>
@@ -14424,7 +14529,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605424';
+const APP_BUILD = '202605425';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22119,17 +22224,51 @@ function checklistShouldShowActionsTable(item, answerIsSi) {
     return false;
 }
 
-/** Rosso / allarme in istruzioni: stessa risposta su cui compaiono controlli e azioni (SÌ o NO scelto in Modifica). */
+/** Verde / rosso in istruzioni: quadratini in Modifica domande («Se sì» / «Se no»). */
+function quizModifyGetAnswerAlertFlags(item) {
+    var it = item || {};
+    if (it.answer_alert_si != null || it.answer_alert_no != null) {
+        return { si: it.answer_alert_si === true, no: it.answer_alert_no === true };
+    }
+    if (it.control === true) return { si: true, no: false };
+    return { si: false, no: true };
+}
+
 function checklistIsAnswerAlert(item, answerIsSi) {
     if (!item) return answerIsSi === false;
-    var hasActions = Array.isArray(item.actions) && item.actions.length > 0;
-    if (hasActions) {
-        var flags = quizModifyGetActionsSiNoFlags(item);
-        if (flags.si || flags.no) {
-            return checklistShouldShowActionsTable(item, answerIsSi);
-        }
+    var flags = quizModifyGetAnswerAlertFlags(item);
+    if (answerIsSi === true) return !!flags.si;
+    if (answerIsSi === false) return !!flags.no;
+    return false;
+}
+
+function quizModifySyncAnswerToneUi() {
+    var w = quizModifyDetailWorking;
+    if (!w) return;
+    var flags = quizModifyGetAnswerAlertFlags(w);
+    var siOk = document.getElementById('quiz-modify-tone-si-ok');
+    var siAlert = document.getElementById('quiz-modify-tone-si-alert');
+    var noOk = document.getElementById('quiz-modify-tone-no-ok');
+    var noAlert = document.getElementById('quiz-modify-tone-no-alert');
+    if (siOk) siOk.checked = !flags.si;
+    if (siAlert) siAlert.checked = !!flags.si;
+    if (noOk) noOk.checked = !flags.no;
+    if (noAlert) noAlert.checked = !!flags.no;
+}
+
+function quizModifyOnAnswerTonePick(branch, value) {
+    if (!quizModifyDetailWorking) return;
+    var alertBranch = value === 'alert';
+    if (branch === 'si') {
+        quizModifyDetailWorking.answer_alert_si = alertBranch;
+        quizModifyDetailWorking.answer_alert_no = !alertBranch;
+    } else if (branch === 'no') {
+        quizModifyDetailWorking.answer_alert_no = alertBranch;
+        quizModifyDetailWorking.answer_alert_si = !alertBranch;
     }
-    return item.control ? answerIsSi === true : answerIsSi === false;
+    quizModifySyncAnswerToneUi();
+    quizModifyPersistWorkingToStorage();
+    checklistTouchDomAfterModifyPersist();
 }
 
 /** SÌ e NO mutuamente esclusivi nella copia di lavoro Modifica. */
@@ -22155,11 +22294,14 @@ function quizModifyDeepCloneFields(f) {
             correlation_on_si: false,
             correlation_on_no: true,
             actions_on_si: false,
-            actions_on_no: true
+            actions_on_no: true,
+            answer_alert_si: false,
+            answer_alert_no: true
         };
     }
     var flags = quizModifyGetActionsSiNoFlags(f);
     var cflags = quizModifyGetCorrelationSiNoFlags(f);
+    var aflags = quizModifyGetAnswerAlertFlags(f);
     var corrExtra = quizModifyCorrelationFieldsFromItem(f);
     return {
         q: f.q != null ? String(f.q) : '',
@@ -22178,7 +22320,9 @@ function quizModifyDeepCloneFields(f) {
         correlation_on_si: cflags.si,
         correlation_on_no: cflags.no,
         actions_on_si: flags.si,
-        actions_on_no: flags.no
+        actions_on_no: flags.no,
+        answer_alert_si: aflags.si,
+        answer_alert_no: aflags.no
     };
 }
 
@@ -22186,6 +22330,7 @@ function quizModifyCloneFieldsFromItem(item) {
     var it = item || {};
     var flags = quizModifyGetActionsSiNoFlags(it);
     var corr = quizModifyCorrelationFieldsFromItem(it);
+    var aflags = quizModifyGetAnswerAlertFlags(it);
     return {
         q: it.q != null ? String(it.q) : '',
         si: it.si != null ? String(it.si) : '',
@@ -22201,7 +22346,9 @@ function quizModifyCloneFieldsFromItem(item) {
         correlation_on_si: corr.correlation_on_si,
         correlation_on_no: corr.correlation_on_no,
         actions_on_si: flags.si,
-        actions_on_no: flags.no
+        actions_on_no: flags.no,
+        answer_alert_si: aflags.si,
+        answer_alert_no: aflags.no
     };
 }
 
@@ -22228,6 +22375,8 @@ function quizModifyMergeFields(base, patch) {
     }
     if (patch.actions_on_si != null) out.actions_on_si = !!patch.actions_on_si;
     if (patch.actions_on_no != null) out.actions_on_no = !!patch.actions_on_no;
+    if (patch.answer_alert_si != null) out.answer_alert_si = !!patch.answer_alert_si;
+    if (patch.answer_alert_no != null) out.answer_alert_no = !!patch.answer_alert_no;
     quizModifyNormalizeActionsSiNoExclusive(out);
     return out;
 }
@@ -22636,6 +22785,7 @@ function quizModifyFillViewsFromWorking() {
     if (!w) return;
     quizModifySyncActionsSiNoToggles();
     quizModifySyncCorrelationSiNoToggles();
+    quizModifySyncAnswerToneUi();
     quizModifySetHtmlContent(
         document.getElementById('quiz-modify-detail-q'),
         w.q,
@@ -23249,6 +23399,17 @@ function quizModifyDetailBindOnce() {
             });
         });
     }
+    det.addEventListener('change', function (evTone) {
+        var toneInp = evTone.target && evTone.target.classList && evTone.target.classList.contains('quiz-modify-answer-tone-input') ? evTone.target : null;
+        if (!toneInp || !det.contains(toneInp) || !toneInp.checked) return;
+        var branch = toneInp.getAttribute('data-tone-branch');
+        var value = toneInp.getAttribute('data-tone-value');
+        if (!branch || !value) return;
+        evTone.preventDefault();
+        quizModifyRequireWriteAuth(function () {
+            quizModifyOnAnswerTonePick(branch, value);
+        });
+    });
     det.addEventListener('click', function (ev2) {
         var t2 = ev2.target;
         if (t2 && t2.id === 'quiz-modify-corr-add-impatto') {
@@ -23683,6 +23844,8 @@ function quizModifyNewEmptyQuestionRow(pointNum) {
         correlation_on_no: true,
         actions_on_si: false,
         actions_on_no: true,
+        answer_alert_si: false,
+        answer_alert_no: true,
         tag: 'Scheda'
     };
 }
