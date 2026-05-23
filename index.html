@@ -440,6 +440,13 @@
             #btn-supporto-row {
                 display: none;
             }
+            /* Compensa ⛑️ a sinistra del titolo: centra il testo sullo schermo (iPhone / smartphone). */
+            .header-title-cluster {
+                transform: translateX(calc(-0.5 * (34px + 8px)));
+            }
+        }
+        html.ios-iphone .header-title-cluster {
+            transform: translateX(calc(-0.5 * (34px + 8px) - 3px));
         }
         /* PC (mouse): supporto in barra titolo accanto al titolo, titolo resta centrato (colonne 1fr | auto | 1fr). */
         @media (min-width: 901px) and (hover: hover) {
@@ -14856,7 +14863,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605454';
+const APP_BUILD = '202605455';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
