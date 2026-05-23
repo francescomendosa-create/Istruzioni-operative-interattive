@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605448';
+const APP_BUILD = '202605450';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20237,16 +20237,18 @@ function quizFindUiClickActivator(raw) {
     return raw.closest(
         '.nav-sec-btn, .btn-side, .btn-jump, .btn-quiz, .btn-header-icon, .btn-supporto, ' +
             '.btn-categoria-checklist, .btn-diagnostica, .btn-test-gestione, .btn-correlation, ' +
-            '.quiz-modify-mini-btn, .quiz-fs-audio, .checklist-editor__action-btn, .checklist-add-plus, ' +
+            '.quiz-modify-mini-btn, .quiz-fs-audio, .quiz-fs-back, .checklist-editor__action-btn, .checklist-add-plus, ' +
             '.quiz-modify-actions-cl-pick-plus, .quiz-modify-actions-row-remove, .app-splash-worm-tab, ' +
-            '.gestione-q-card-actions button, .quiz-gestione-flow-chip, [data-quiz-mod-act]'
+            '.quiz-choice-btn, .quiz-vf-btn, .quiz-settings-row, .quiz-gestione-test-tab, ' +
+            '.quiz-modify-actions-si-no-toggle, .quiz-modify-dev-back-btn, .quiz-gestione-settings-icon-btn, ' +
+            '.btn-gestione-genera, .btn-gestione-torna, .gestione-q-card-actions button, .quiz-gestione-flow-chip, ' +
+            '[data-quiz-mod-act], .section-content button.si, .section-content button.no'
     );
 }
 
 /** True se il clic non deve emettere il suono tasti (quiz in corso, suoni dedicati, ecc.). */
 function quizUiClickSoundExcluded(activator) {
     if (!activator || typeof activator.closest !== 'function') return true;
-    if (activator.closest('#quiz-panel')) return true;
     if (activator.closest('#app-splash')) {
         if (
             activator.id === 'app-splash-enter-btn' ||
@@ -20255,7 +20257,6 @@ function quizUiClickSoundExcluded(activator) {
             return true;
         }
     }
-    if (activator.matches('.quiz-choice-btn')) return true;
     if (activator.id === 'quiz-microbe-unlock-ok') return true;
     if (activator.closest('.quiz-modify-corr-anteprima-red')) return true;
     return false;
@@ -20276,7 +20277,18 @@ function initIstruzioniUiClickSounds() {
             if (typeof raw.closest !== 'function') return;
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
-            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            if (tag === 'input') {
+                const inpType = String(raw.type || '').toLowerCase();
+                if (inpType === 'checkbox' || inpType === 'radio') {
+                    const inpLab = raw.closest('label');
+                    if (inpLab) raw = inpLab;
+                    else return;
+                } else {
+                    return;
+                }
+            } else if (tag === 'textarea' || tag === 'select') {
+                return;
+            }
             const now = Date.now();
             if ((now - quizUiSfxLastPlayAt) < 110) return;
 
@@ -22475,6 +22487,74 @@ function checklistIsCf2Mbr4BuiltinPair(srcS, srcP, toS, toP) {
     return srcS === 'cf' && srcP === 2 && toS === 'mbr' && toP === 4;
 }
 
+/** Testo giallo «Stato aggiornato» CF p.1 dopo schiuma MBBR p.3 (correlazione integrata). */
+var CHECKLIST_CF1_MBBR3_FOAM_STATO_L1 = 'Stato aggiornato. Impatto confermato';
+var CHECKLIST_CF1_MBBR3_FOAM_STATO_L2 =
+    'Valutare dosaggi di antischiuma e intensificare controlli su chimico fisico';
+
+function checklistGetCf1Mbr3FoamCorrelationBodyHtml() {
+    return (
+        '<div class="correlation-update-box correlation-update-box-biomass">' +
+        '<strong>DESCRIZIONE:</strong><br>' +
+        'Se nell\'MBBR hai più di metà vasca invasa dalla schiuma, il problema si risolve nell\'immediato con l\'antischiuma, ma per fermare l\'origine del fenomeno devi "correre a monte" e ispezionare il Chimico-Fisico.<br><br>' +
+        'Ecco i controlli fondamentali da fare sul Chiarificato del Chimico-Fisico per capire perché l\'MBBR sta "montando":<br><br>' +
+        '<strong>1. Controllo Visivo della Torbidità - Il "Lattiginoso"</strong><br>' +
+        'Il chiarificato deve essere limpido. Se lo vedi opalescente o simile a "latte annacquato":<br><br>' +
+        '<strong>Cosa significa:</strong> i tensioattivi o i solidi colloidali non sono stati separati.<br><br>' +
+        '<strong>Effetto nell\'MBBR:</strong> questi residui agiscono come sapone. L\'aria delle soffianti li trasforma istantaneamente in schiuma densa.<br><br>' +
+        '<strong>2. Verifica del Dosaggio dei Reagenti</strong><br>' +
+        'Un errore nel chimico-fisico è la causa numero uno della schiuma a valle:<br><br>' +
+        '<strong>Coagulante (es. Cloruro Ferrico o Policloruro di Alluminio):</strong> se ne stai dosando troppo poco, non riesci a "rompere" le cariche dei tensioattivi. Se ne dosi troppo, potresti acidificare troppo l\'acqua, stressando i batteri dell\'MBBR.<br><br>' +
+        '<strong>Flocculante (Polielettrolita):</strong> se il "fiocco" di fango non si forma bene nel chimico-fisico, i solidi non precipitano e finiscono nell\'MBBR. Controlla che la pompa del polielettrolita non sia bloccata o che il prodotto non sia finito.<br><br>' +
+        '<strong>3. Presenza di Sostanze Oleose o Grassi</strong><br>' +
+        'Controlla la superficie del chiarificatore chimico-fisico:<br><br>' +
+        '<strong>Cosa cercare:</strong> macchie oleose o "velature" iridescenti.<br><br>' +
+        '<strong>Perché:</strong> se il chimico-fisico non rimuove i grassi, questi arrivano nell\'MBBR e creano una schiuma viscosa e scura, molto difficile da abbattere anche con l\'antischiuma.<br><br>' +
+        '<strong>4. Il Valore del pH</strong><br>' +
+        'Controlla il pHmetro all\'uscita del chimico-fisico:<br><br>' +
+        'Il range ideale per l\'MBBR è tra 6.5 e 8.0.<br><br>' +
+        'Sbalzi di pH repentini dovuti a un cattivo funzionamento del chimico-fisico possono "uccidere" parte del biofilm sui carrier. I batteri morti rilasciano proteine che generano schiuma biologica.' +
+        '</div>'
+    );
+}
+
+/** MBBR p.3 (schiuma) → CF p.1: correlazione sempre dai dati originali in `db` (non da override Modifica). */
+function checklistGetMbr3FoamCorrCanonicalItem() {
+    var base = null;
+    try {
+        base = db.mbr.find(function (x) {
+            return x && x.p === 3;
+        });
+    } catch (eB) {
+        base = null;
+    }
+    if (!base) return null;
+    var merged = checklistGetMergedItem('mbr', 3);
+    var out = Object.assign({}, merged || {}, base);
+    out.goto = base.goto ? Object.assign({}, base.goto) : { s: 'cf', p: 1 };
+    out.gotoLabel =
+        base.gotoLabel != null
+            ? String(base.gotoLabel)
+            : 'valutare dosaggi di antischiuma e intensificare controlli su chimico fisico';
+    out.correlation_on_si = false;
+    out.correlation_on_no = true;
+    out.correlation_goto_trigger_si = false;
+    out.correlation_goto_trigger_no = true;
+    out.correlation_update =
+        base.correlation_update != null
+            ? String(base.correlation_update)
+            : checklistGetCf1Mbr3FoamCorrelationBodyHtml();
+    out.correlation_stato_line1 =
+        base.correlation_stato_line1 != null
+            ? String(base.correlation_stato_line1)
+            : CHECKLIST_CF1_MBBR3_FOAM_STATO_L1;
+    out.correlation_stato_line2 =
+        base.correlation_stato_line2 != null
+            ? String(base.correlation_stato_line2)
+            : CHECKLIST_CF1_MBBR3_FOAM_STATO_L2;
+    return out;
+}
+
 /** Correlazione integrata MBBR p.3 (schiuma) → CF p.1: pulsante rosso su NO; ritorno giallo su CF solo se NO. */
 function checklistIsCf1Mbr3BuiltinPair(srcS, srcP, toS, toP) {
     return srcS === 'mbr' && srcP === 3 && toS === 'cf' && toP === 1;
@@ -22562,6 +22642,10 @@ function checklistBuildCorrelationReturnLinksHtml(toS, toP) {
 
 /** Voce checklist con override Modifica (correlazione inclusa). */
 function checklistGetItemWithModifyOverrides(s, p) {
+    if (s === 'mbr' && p === 3) {
+        var mbr3Canon = checklistGetMbr3FoamCorrCanonicalItem();
+        if (mbr3Canon) return mbr3Canon;
+    }
     var item = checklistGetMergedItem(s, p);
     if (!item) return null;
     try {
@@ -31598,6 +31682,8 @@ const db = {
           correlation_on_no: true,
           correlation_goto_trigger_si: false,
           correlation_goto_trigger_no: true,
+          correlation_stato_line1: "Stato aggiornato. Impatto confermato",
+          correlation_stato_line2: "Valutare dosaggi di antischiuma e intensificare controlli su chimico fisico",
           tag: "Schiuma" 
         },
         { p: 4, q: "Presenza di schiuma nera?",
@@ -36226,38 +36312,31 @@ function syncCf1CorrelationUpdate() {
         cf1ResDiv.className = 'res';
     }
 
+    const canon = checklistGetMbr3FoamCorrCanonicalItem();
     const ackFoam = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checklist-cf1-ack-schiuma-meta-vasca') === '1');
     const blinkFoam = !ackFoam;
-    const foamBody = `
-        <div class="correlation-update-box correlation-update-box-biomass">
-            <strong>DESCRIZIONE:</strong><br>
-            Se nell'MBBR hai più di metà vasca invasa dalla schiuma, il problema si risolve nell'immediato con l'antischiuma, ma per fermare l'origine del fenomeno devi "correre a monte" e ispezionare il Chimico-Fisico.<br><br>
-            Ecco i controlli fondamentali da fare sul Chiarificato del Chimico-Fisico per capire perché l'MBBR sta "montando":<br><br>
-            <strong>1. Controllo Visivo della Torbidità - Il "Lattiginoso"</strong><br>
-            Il chiarificato deve essere limpido. Se lo vedi opalescente o simile a "latte annacquato":<br><br>
-            <strong>Cosa significa:</strong> i tensioattivi o i solidi colloidali non sono stati separati.<br><br>
-            <strong>Effetto nell'MBBR:</strong> questi residui agiscono come sapone. L'aria delle soffianti li trasforma istantaneamente in schiuma densa.<br><br>
-            <strong>2. Verifica del Dosaggio dei Reagenti</strong><br>
-            Un errore nel chimico-fisico è la causa numero uno della schiuma a valle:<br><br>
-            <strong>Coagulante (es. Cloruro Ferrico o Policloruro di Alluminio):</strong> se ne stai dosando troppo poco, non riesci a "rompere" le cariche dei tensioattivi. Se ne dosi troppo, potresti acidificare troppo l'acqua, stressando i batteri dell'MBBR.<br><br>
-            <strong>Flocculante (Polielettrolita):</strong> se il "fiocco" di fango non si forma bene nel chimico-fisico, i solidi non precipitano e finiscono nell'MBBR. Controlla che la pompa del polielettrolita non sia bloccata o che il prodotto non sia finito.<br><br>
-            <strong>3. Presenza di Sostanze Oleose o Grassi</strong><br>
-            Controlla la superficie del chiarificatore chimico-fisico:<br><br>
-            <strong>Cosa cercare:</strong> macchie oleose o "velature" iridescenti.<br><br>
-            <strong>Perché:</strong> se il chimico-fisico non rimuove i grassi, questi arrivano nell'MBBR e creano una schiuma viscosa e scura, molto difficile da abbattere anche con l'antischiuma.<br><br>
-            <strong>4. Il Valore del pH</strong><br>
-            Controlla il pHmetro all'uscita del chimico-fisico:<br><br>
-            Il range ideale per l'MBBR è tra 6.5 e 8.0.<br><br>
-            Sbalzi di pH repentini dovuti a un cattivo funzionamento del chimico-fisico possono "uccidere" parte del biofilm sui carrier. I batteri morti rilasciano proteine che generano schiuma biologica.
-        </div>
-    `;
+    const foamBody =
+        canon && canon.correlation_update != null
+            ? String(canon.correlation_update)
+            : checklistGetCf1Mbr3FoamCorrelationBodyHtml();
+    const statoL1 =
+        canon && canon.correlation_stato_line1 != null
+            ? String(canon.correlation_stato_line1)
+            : CHECKLIST_CF1_MBBR3_FOAM_STATO_L1;
+    const statoL2 =
+        canon && canon.correlation_stato_line2 != null
+            ? String(canon.correlation_stato_line2)
+            : CHECKLIST_CF1_MBBR3_FOAM_STATO_L2;
+    const statoL2Html = statoL2
+        ? '<span class="correlation-mbbr-status-line2">-' + statoL2.replace(/^-+|-+$/g, '') + '-</span>'
+        : '';
 
     const inject = `
         <details id="cf1-corr-mbbr-foam" class="correlation-mbbr-status-accordion correlation-cf1-mbbr-foam${blinkFoam ? ' cf2-stato-blink' : ''}">
             <summary class="correlation-mbbr-status-summary">
                 <span class="correlation-mbbr-status-title">
-                    <strong class="correlation-mbbr-status-line1">Stato aggiornato. Impatto MBBR confermato</strong>
-                    <span class="correlation-mbbr-status-line2">-Presenza di schiuma su metà vasca MBBR-</span>
+                    <strong class="correlation-mbbr-status-line1">${statoL1.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</strong>
+                    ${statoL2Html}
                 </span>
             </summary>
             <div class="correlation-mbbr-status-body">${foamBody}</div>
@@ -36420,7 +36499,11 @@ function check(s, p, val, btn) {
     const item =
         s === 'cf' && p === 2
             ? checklistGetCf2CanonicalItem() || checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p)
-            : checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p);
+            : s === 'mbr' && p === 3
+              ? checklistGetMbr3FoamCorrCanonicalItem() ||
+                checklistGetMergedItem(s, p) ||
+                checklistRowsSource(s).find((x) => x && x.p === p)
+              : checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p);
 
     // Secondo click sulla stessa risposta (Sì/No gia attiva): annulla e torna ai pulsanti neutri
     if (!isUpdating && correlationYes[`${s}-${p}`] === val) {
