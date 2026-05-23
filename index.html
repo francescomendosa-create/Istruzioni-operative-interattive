@@ -14856,7 +14856,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605452';
+const APP_BUILD = '202605453';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -19717,7 +19717,6 @@ function quizWrapBonusContinuation(inner) {
 
 function quizVfAnswer(choiceTrue) {
     if (!quizVfActive || quizVfChoiceBusy || quizVfOxygenDepleted) return;
-    quizTryPlayUiClickTastiSfx();
     const item = quizVfCurrentItem();
     if (!item) return;
     quizVfChoiceBusy = true;
@@ -20251,22 +20250,24 @@ function quizFindUiClickActivator(raw) {
             '.btn-categoria-checklist, .btn-diagnostica, .btn-test-gestione, .btn-correlation, ' +
             '.quiz-modify-mini-btn, .quiz-fs-audio, .quiz-fs-back, .checklist-editor__action-btn, .checklist-add-plus, ' +
             '.quiz-modify-actions-cl-pick-plus, .quiz-modify-actions-row-remove, .app-splash-worm-tab, ' +
-            '.quiz-choice-btn, .quiz-vf-btn, .quiz-settings-row, .quiz-gestione-test-tab, ' +
+            '.quiz-settings-row, .quiz-gestione-test-tab, ' +
             '.quiz-modify-actions-si-no-toggle, .quiz-modify-dev-back-btn, .quiz-gestione-settings-icon-btn, ' +
             '.btn-gestione-genera, .btn-gestione-torna, .gestione-q-card-actions button, .quiz-gestione-flow-chip, ' +
-            '.quiz-modify-tab, [data-quiz-modify-section], .quiz-modify-checklist-pick-item, ' +
+            '.quiz-modify-tab, .quiz-modify-row, [data-quiz-modify-section], .quiz-modify-checklist-pick-item, ' +
             '.gestione-answer-slot, .gestione-answer-letter, .quiz-test-assigned-card, ' +
             '[data-quiz-mod-act], .section-content button.si, .section-content button.no'
     );
 }
 
-/** Aree UI dove ogni tap su controllo deve emettere clic-1 (anche con stopPropagation sui box modale). */
+/** Modifica / gestione test / impostazioni (non il pannello quiz gioco). */
 function quizUiClickSoundRegion(el) {
     if (!el || typeof el.closest !== 'function') return null;
+    if (el.closest('#quiz-panel')) return null;
     return el.closest(
-        '#quiz-panel, #quiz-settings-overlay, #quiz-modify-dev-overlay, #quiz-gestione-test-overlay, ' +
+        '#quiz-settings-overlay, #quiz-modify-dev-overlay, #quiz-modify-corr-pick-overlay, ' +
+            '#quiz-modify-checklist-pick-overlay, #quiz-modify-auth-overlay, #quiz-gestione-test-overlay, ' +
             '#quiz-speech-settings-overlay, #quiz-developer-menu-overlay, #quiz-gestione-config-overlay, ' +
-            '#quiz-gestione-invia-a-overlay, #quiz-gestione-sperimentale-overlay, .quiz-lock-overlay, ' +
+            '#quiz-gestione-invia-a-overlay, #quiz-gestione-sperimentale-overlay, ' +
             '.section-content, header, #supporto-modal-overlay, #checklist-modal-overlay'
     );
 }
@@ -20300,6 +20301,7 @@ function initIstruzioniUiClickSounds() {
             if (raw && raw.nodeType === 3) raw = raw.parentElement;
             if (!raw || raw.nodeType !== 1) return;
             if (typeof raw.closest !== 'function') return;
+            if (raw.closest('#quiz-panel')) return;
             if (raw.closest('[data-ui-click-off]')) return;
             const tag = (raw.tagName || '').toLowerCase();
             if (tag === 'textarea' || tag === 'select') return;
@@ -20338,12 +20340,49 @@ function initIstruzioniUiClickSounds() {
             if (
                 raw.closest(
                     'button, summary, label, [role="button"], [onclick], a[href], ' +
-                        '.quiz-choice-btn, .quiz-modify-tab, [data-quiz-modify-section], ' +
+                        '.quiz-modify-tab, .quiz-modify-row, [data-quiz-modify-section], ' +
                         '.gestione-answer-slot, .gestione-answer-letter, .quiz-settings-row'
                 )
             ) {
                 quizTryPlayUiClickTastiSfx();
             }
+    };
+
+    /** Modifica + gestione test: listener dedicato (box modale con stopPropagation). */
+    const handleModificaGestioneClick = function (ev) {
+        if (!ev || ev.isTrusted === false) return;
+        let raw = ev.target;
+        if (raw && raw.nodeType === 3) raw = raw.parentElement;
+        if (!raw || raw.nodeType !== 1 || typeof raw.closest !== 'function') return;
+        if (raw.closest('#quiz-panel')) return;
+        var region = raw.closest(
+            '#quiz-modify-dev-overlay, #quiz-modify-corr-pick-overlay, #quiz-modify-checklist-pick-overlay, ' +
+                '#quiz-modify-auth-overlay, #quiz-modify-tone-exception-overlay, #quiz-gestione-test-overlay, ' +
+                '#quiz-gestione-config-overlay, #quiz-gestione-invia-a-overlay, #quiz-gestione-sperimentale-overlay'
+        );
+        if (!region) return;
+        if (raw.closest('[data-ui-click-off], textarea, select')) return;
+        if (raw.closest('.quiz-modify-corr-anteprima-red')) return;
+        var tag = (raw.tagName || '').toLowerCase();
+        if (tag === 'input') {
+            var it = String(raw.type || '').toLowerCase();
+            if (it === 'checkbox' || it === 'radio') {
+                if (raw.closest('.gestione-answer-slot') || raw.closest('label')) {
+                    quizTryPlayUiClickTastiSfx();
+                }
+            }
+            return;
+        }
+        if (
+            raw.closest(
+                'button, summary, label, [role="button"], [onclick], ' +
+                    '.quiz-modify-row, .quiz-modify-tab, [data-quiz-modify-section], ' +
+                    '.quiz-modify-checklist-pick-item, .quiz-modify-mini-btn, [data-quiz-mod-act], ' +
+                    '.gestione-answer-slot, .gestione-answer-letter, .quiz-gestione-test-tab, .gestione-q-card-actions button'
+            )
+        ) {
+            quizTryPlayUiClickTastiSfx();
+        }
     };
 
     quizPrimeUiSfxPool();
@@ -20382,6 +20421,9 @@ function initIstruzioniUiClickSounds() {
     document.addEventListener('mousedown', onPressStart, { capture: true, passive: true });
     document.addEventListener('click', function (ev) {
         handleClickLike(ev);
+    }, true);
+    document.addEventListener('click', function (ev) {
+        handleModificaGestioneClick(ev);
     }, true);
     document.addEventListener('keydown', function () {
         quizUnlockUiSfxOnce();
@@ -23684,6 +23726,7 @@ function quizModifyCorrPickRenderQuestions(sectionKey) {
 function quizModifyCorrPickListClick(ev) {
     var btn = ev.target && ev.target.closest ? ev.target.closest('[data-corr-pick-action]') : null;
     if (!btn) return;
+    quizTryPlayUiClickTastiSfx();
     ev.preventDefault();
     ev.stopPropagation();
     var act = btn.getAttribute('data-corr-pick-action');
@@ -25650,6 +25693,7 @@ function quizModifyRenderQuestionList() {
             wrap.appendChild(num);
             wrap.appendChild(body);
             function openEv() {
+                quizTryPlayUiClickTastiSfx();
                 quizModifyOpenQuestionDetail(quizModifyShellSection, idx);
             }
             wrap.addEventListener('click', openEv);
@@ -25719,6 +25763,7 @@ function quizModifyUpdateActionButtons() {
 
 function quizModifySetSection(key) {
     if (!quizModifyIsValidSectionKey(key)) return;
+    quizTryPlayUiClickTastiSfx();
     quizModifyCloseQuestionDetail();
     quizModifyShellSection = key;
     quizModifyUpdateTabs();
@@ -34752,7 +34797,6 @@ function quizAdvanceAfterWrongContinue() {
 
 function quizAnswer(idx) {
     if (quizAnswerLocked) return;
-    quizTryPlayUiClickTastiSfx();
     const q = quizState.queue[quizState.index];
     if (!q) return;
 
@@ -36534,7 +36578,6 @@ function clearAnswerToggle(s, p) {
 function check(s, p, val, btn) {
     mbrCheckDepth += 1;
     try {
-    if (!isUpdating) quizTryPlayUiClickTastiSfx();
     const item =
         s === 'cf' && p === 2
             ? checklistGetCf2CanonicalItem() || checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p)
