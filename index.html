@@ -7910,8 +7910,14 @@
             letter-spacing: 0.04em;
             margin: 10px 0 6px;
         }
-        .quiz-modify-block--correlation {
+        .quiz-modify-corr-head-actions {
             position: relative;
+        }
+        .quiz-modify-corr-impatto-error {
+            margin: 0;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #c62828;
         }
         .quiz-modify-corr-delete-btn {
             border-color: #e57373;
@@ -14461,21 +14467,23 @@ function dismissAppSplash() {
                                 </span>
                             </label>
                         </div>
-                        <div class="quiz-modify-block-head">
-                            <div class="quiz-modify-block-actions">
-                                <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-delete-btn" id="quiz-modify-corr-delete-btn" hidden>Elimina correlazione</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="correlation">Modifica</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="correlation" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
-                                <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="correlation">Salva</button>
-                                <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="correlation" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
+                        <div class="quiz-modify-corr-head-actions">
+                            <div class="quiz-modify-block-head">
+                                <div class="quiz-modify-block-actions">
+                                    <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-delete-btn" id="quiz-modify-corr-delete-btn" hidden>Elimina correlazione</button>
+                                    <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="correlation">Modifica</button>
+                                    <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="correlation" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
+                                    <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="correlation">Salva</button>
+                                    <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="correlation" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
+                                </div>
                             </div>
-                        </div>
-                        <div id="quiz-modify-corr-delete-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
-                            <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-modal="true" aria-labelledby="quiz-modify-corr-delete-text">
-                                <p id="quiz-modify-corr-delete-text" class="quiz-modify-delete-confirm-layer__text"></p>
-                                <div class="quiz-modify-delete-confirm-layer__actions">
-                                    <button type="button" class="btn-side btn-reset" id="quiz-modify-corr-delete-cancel">Annulla</button>
-                                    <button type="button" class="btn-side btn-report" id="quiz-modify-corr-delete-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Continua</button>
+                            <div id="quiz-modify-corr-delete-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
+                                <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-modal="true" aria-labelledby="quiz-modify-corr-delete-text">
+                                    <p id="quiz-modify-corr-delete-text" class="quiz-modify-delete-confirm-layer__text"></p>
+                                    <div class="quiz-modify-delete-confirm-layer__actions">
+                                        <button type="button" class="btn-side btn-reset" id="quiz-modify-corr-delete-cancel">Annulla</button>
+                                        <button type="button" class="btn-side btn-report" id="quiz-modify-corr-delete-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Continua</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -14490,6 +14498,7 @@ function dismissAppSplash() {
                                         <input type="text" id="quiz-modify-corr-impatto-suffix" class="quiz-modify-corr-impatto-input" maxlength="120" placeholder="es. MBBR, Osmosi…" aria-label="Completamento titolo impatto">
                                     </div>
                                     <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" id="quiz-modify-corr-impatto-confirm">Conferma titolo</button>
+                                    <p id="quiz-modify-corr-impatto-error" class="quiz-modify-corr-impatto-error" hidden role="alert"></p>
                                 </div>
                             </div>
                             <div id="quiz-modify-corr-phase-target" class="quiz-modify-corr-phase" hidden>
@@ -14626,7 +14635,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605432';
+const APP_BUILD = '202605433';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -23598,6 +23607,53 @@ function quizModifyDetailLeaveAllEdits() {
     quizModifyDetailUpdateSaveButtons();
 }
 
+function quizModifyIsCorrelationEditOpen() {
+    var wrap = document.getElementById('quiz-modify-correlation-edit-wrap');
+    return !!(wrap && !wrap.hidden);
+}
+
+/** Attiva modifica correlazioni (editor visibile + Salva abilitato). */
+function quizModifyEnsureCorrelationEditMode() {
+    if (!quizModifyDetailWorking) return false;
+    if (quizModifyDetailEditing.correlation && quizModifyIsCorrelationEditOpen()) return true;
+    quizModifyDetailEditing.correlation = true;
+    var cView = document.getElementById('quiz-modify-detail-correlation');
+    var cWrap = document.getElementById('quiz-modify-correlation-edit-wrap');
+    if (cView) cView.style.display = 'none';
+    if (cWrap) cWrap.hidden = false;
+    quizModifyDetailUpdateSaveButtons();
+    return true;
+}
+
+function quizModifyCorrImpattoShowError(msg) {
+    var el = document.getElementById('quiz-modify-corr-impatto-error');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.hidden = !msg;
+}
+
+function quizModifyCorrImpattoConfirmClick() {
+    if (!quizModifyDetailWorking) return;
+    quizModifyEnsureCorrelationEditMode();
+    var inp = document.getElementById('quiz-modify-corr-impatto-suffix');
+    var suffix = inp ? String(inp.value || '').trim() : '';
+    if (!suffix) {
+        quizModifyCorrImpattoShowError('Scrivi il testo dopo «Possibile impatto su» (es. MBBR), poi conferma.');
+        if (inp) inp.focus();
+        return;
+    }
+    quizModifyCorrImpattoShowError('');
+    quizModifyDetailWorking.goto_impatto_suffix = suffix;
+    quizModifyDetailWorking.gotoLabel = quizModifyBuildGotoLabel(suffix);
+    if (!quizModifyDetailWorking.correlation_stato_line1) {
+        quizModifyDetailWorking.correlation_stato_line1 =
+            'Stato aggiornato. Impatto ' + suffix + ' confermato';
+    }
+    quizModifyRenderCorrelationEditFields();
+    quizModifyPersistWorkingToStorage();
+    quizModifyDetailUpdateSaveButtons();
+}
+
 function quizModifyDetailUpdateSaveButtons() {
     var det = document.getElementById('quiz-modify-view-detail');
     if (!det) return;
@@ -23609,7 +23665,7 @@ function quizModifyDetailUpdateSaveButtons() {
                 : f === 'actions'
                   ? quizModifyDetailEditing.actions
                   : f === 'correlation'
-                    ? quizModifyDetailEditing.correlation
+                    ? quizModifyDetailEditing.correlation || quizModifyIsCorrelationEditOpen()
                     : !!quizModifyDetailEditing[f];
         btn.disabled = !on;
     });
@@ -23722,6 +23778,9 @@ function quizModifyDetailActionSave(field) {
         if (actHost) actHost.innerHTML = '';
         if (actView) actView.style.display = '';
     } else if (field === 'correlation') {
+        if (!quizModifyDetailEditing.correlation && !quizModifyIsCorrelationEditOpen()) {
+            quizModifyDetailEnterEdit('correlation');
+        }
         if (!quizModifyDetailEditing.correlation) return;
         quizModifyPushUndoSnapshotBeforeSave();
         quizModifyCollectCorrelationFromEditDom();
@@ -23855,64 +23914,67 @@ function quizModifyDetailBindOnce() {
             quizModifyOnAnswerTonePick(branch, value);
         });
     });
-    det.addEventListener('click', function (ev2) {
+    function quizModifyDetailCorrUiClick(ev2) {
         var t2 = ev2.target;
-        if (t2 && t2.id === 'quiz-modify-corr-add-impatto') {
+        var addImpBtn = t2 && t2.closest ? t2.closest('#quiz-modify-corr-add-impatto') : null;
+        if (addImpBtn) {
             ev2.preventDefault();
             quizModifyRequireWriteAuth(function () {
+                quizModifyEnsureCorrelationEditMode();
                 var ed = document.getElementById('quiz-modify-corr-impatto-editor');
                 if (ed) ed.hidden = false;
-                if (t2) t2.hidden = true;
+                addImpBtn.hidden = true;
                 var inp = document.getElementById('quiz-modify-corr-impatto-suffix');
                 if (inp) inp.focus();
             });
             return;
         }
-        if (t2 && t2.id === 'quiz-modify-corr-impatto-confirm') {
+        var confirmBtn = t2 && t2.closest ? t2.closest('#quiz-modify-corr-impatto-confirm') : null;
+        if (confirmBtn) {
             ev2.preventDefault();
-            quizModifyRequireWriteAuth(function () {
-                var inp = document.getElementById('quiz-modify-corr-impatto-suffix');
-                if (!quizModifyDetailWorking) return;
-                quizModifyDetailWorking.goto_impatto_suffix = inp ? String(inp.value || '').trim() : '';
-                quizModifyDetailWorking.gotoLabel = quizModifyBuildGotoLabel(quizModifyDetailWorking.goto_impatto_suffix);
-                if (!quizModifyDetailWorking.correlation_stato_line1 && quizModifyDetailWorking.goto_impatto_suffix) {
-                    quizModifyDetailWorking.correlation_stato_line1 =
-                        'Stato aggiornato. Impatto ' + quizModifyDetailWorking.goto_impatto_suffix + ' confermato';
-                }
-                quizModifyRenderCorrelationEditFields();
-            });
+            quizModifyRequireWriteAuth(quizModifyCorrImpattoConfirmClick);
             return;
         }
-        if (
-            t2 &&
-            (t2.id === 'quiz-modify-corr-add-target' || t2.id === 'quiz-modify-corr-change-target')
-        ) {
+        var tgtBtn =
+            t2 && t2.closest
+                ? t2.closest('#quiz-modify-corr-add-target, #quiz-modify-corr-change-target')
+                : null;
+        if (tgtBtn) {
             ev2.preventDefault();
             quizModifyRequireWriteAuth(function () {
+                quizModifyEnsureCorrelationEditMode();
                 quizModifyCorrPickOpen();
             });
             return;
         }
-        if (t2 && t2.id === 'quiz-modify-corr-delete-btn') {
+        var delBtn = t2 && t2.closest ? t2.closest('#quiz-modify-corr-delete-btn') : null;
+        if (delBtn) {
             ev2.preventDefault();
             quizModifyRequireWriteAuth(function () {
                 quizModifyCorrDeleteRequest();
             });
             return;
         }
-        if (t2 && t2.id === 'quiz-modify-corr-delete-cancel') {
+        var delCancel = t2 && t2.closest ? t2.closest('#quiz-modify-corr-delete-cancel') : null;
+        if (delCancel) {
             ev2.preventDefault();
             quizModifyCorrDeleteCancel();
             return;
         }
-        if (t2 && t2.id === 'quiz-modify-corr-delete-ok') {
+        var delOk = t2 && t2.closest ? t2.closest('#quiz-modify-corr-delete-ok') : null;
+        if (delOk) {
             ev2.preventDefault();
             quizModifyRequireWriteAuth(function () {
                 quizModifyCorrDeleteConfirmClick();
             });
             return;
         }
-    });
+    }
+    det.addEventListener('click', quizModifyDetailCorrUiClick);
+    var corrEditWrap = document.getElementById('quiz-modify-correlation-edit-wrap');
+    if (corrEditWrap) {
+        corrEditWrap.addEventListener('click', quizModifyDetailCorrUiClick);
+    }
     var corrPickList = document.getElementById('quiz-modify-corr-pick-list');
     if (corrPickList) {
         corrPickList.addEventListener('click', function (evPick) {
@@ -23944,9 +24006,18 @@ function quizModifyDetailBindOnce() {
             if (id === 'quiz-modify-corr-impatto-suffix' && quizModifyDetailWorking) {
                 quizModifyDetailWorking.goto_impatto_suffix = String(el.value || '').trim();
                 quizModifyDetailWorking.gotoLabel = quizModifyBuildGotoLabel(quizModifyDetailWorking.goto_impatto_suffix);
+                if (quizModifyDetailWorking.goto_impatto_suffix) quizModifyCorrImpattoShowError('');
             }
             quizModifyCorrStatoPreviewRefresh();
         });
+        if (id === 'quiz-modify-corr-impatto-suffix') {
+            el.addEventListener('keydown', function (evKey) {
+                if (evKey.key === 'Enter') {
+                    evKey.preventDefault();
+                    quizModifyRequireWriteAuth(quizModifyCorrImpattoConfirmClick);
+                }
+            });
+        }
     });
 }
 
