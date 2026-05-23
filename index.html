@@ -7035,6 +7035,8 @@
                 width: min(84vw, 340px);
             }
         }
+        /* Pulsanti «Torna» — rosso uniforme */
+        .btn-torna-nav,
         .quiz-modify-dev-back-btn {
             display: inline-flex;
             align-items: center;
@@ -7042,32 +7044,36 @@
             flex-shrink: 0;
             padding: 7px 12px 7px 9px;
             border-radius: 999px;
-            border: 1px solid #b0bec5;
-            background: linear-gradient(180deg, #ffffff 0%, #eceff1 100%);
+            border: 1px solid #b71c1c !important;
+            background: linear-gradient(180deg, #ef5350 0%, #c62828 100%) !important;
             cursor: pointer;
             font-weight: 700;
             font-size: 0.78rem;
-            color: #1a237e;
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(183, 28, 28, 0.35);
             box-sizing: border-box;
             line-height: 1.2;
         }
+        .btn-torna-nav:hover,
         .quiz-modify-dev-back-btn:hover {
-            filter: brightness(1.04);
+            filter: brightness(1.06);
         }
+        .btn-torna-nav:active,
         .quiz-modify-dev-back-btn:active {
             transform: translateY(1px);
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 1px 4px rgba(183, 28, 28, 0.4);
         }
-        .quiz-modify-dev-back-btn__icon {
+        .quiz-modify-dev-back-btn__icon,
+        .btn-torna-nav .btn-gestione-torna__icon {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: rgba(26, 35, 126, 0.08);
-            color: #1a237e;
+            background: rgba(255, 255, 255, 0.22) !important;
+            color: #fff !important;
+            box-shadow: none;
         }
         .quiz-modify-dev-back-btn__icon svg {
             width: 18px;
@@ -7398,22 +7404,30 @@
             background: #bbdefb;
         }
         .quiz-modify-tabs {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
             margin-bottom: 10px;
+            width: 100%;
         }
         .quiz-modify-tab {
-            flex: 1;
-            min-width: min(140px, 100%);
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
             padding: 10px 12px;
             border-radius: 10px;
             border: 1px solid #cfd8dc;
             background: #f5f7fa;
             font-weight: 600;
             font-size: 0.9rem;
+            line-height: 1.25;
             cursor: pointer;
             color: #37474f;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .quiz-modify-tab[aria-selected="true"] {
             background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
@@ -7740,7 +7754,8 @@
             border-radius: 8px;
             background: #fafcff;
         }
-        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c {
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c,
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-a {
             display: block;
             width: 100%;
             box-sizing: border-box;
@@ -7755,11 +7770,18 @@
             font-family: inherit;
             white-space: pre-wrap;
             word-break: break-word;
+            resize: none;
         }
-        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c:empty::before {
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-c:empty::before,
+        .quiz-modify-actions-control-box .quiz-modify-actions-ta-a:empty::before {
             content: attr(data-placeholder);
             color: #90a4ae;
             pointer-events: none;
+        }
+        .quiz-modify-actions-pair--control,
+        .quiz-modify-actions-pair--action {
+            flex: 1 1 0;
+            min-width: 0;
         }
         .quiz-modify-actions-cl-pick-plus {
             position: absolute;
@@ -9204,7 +9226,7 @@
             }
         }
         /* Torna compatto in linea con titolo + tab (unica riga) */
-        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-gestione-torna {
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-gestione-torna.btn-torna-nav {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -9215,20 +9237,17 @@
             min-height: 40px;
             line-height: 1.2;
             border-radius: 999px !important;
-            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(183, 28, 28, 0.35);
             flex: 0 0 auto;
             align-self: center;
         }
-        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon {
+        #quiz-gestione-test-overlay .quiz-gestione-test-head-torna.btn-torna-nav .btn-gestione-torna__icon {
             width: 28px;
             height: 28px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background: linear-gradient(180deg, #ede7f6 0%, #d1c4e9 100%);
-            color: #4527a0;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
             flex: 0 0 auto;
         }
         #quiz-gestione-test-overlay .quiz-gestione-test-head-torna .btn-gestione-torna__icon svg {
@@ -9592,14 +9611,20 @@
         }
         .btn-gestione-torna {
             background: #fff !important;
-            color: #4527a0 !important;
-            border: 1px solid rgba(94, 53, 177, 0.4) !important;
+            color: #37474f !important;
+            border: 1px solid #b0bec5 !important;
             font-weight: 700;
             font-size: 0.82rem;
             padding: 9px 16px;
             border-radius: 12px;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(49, 27, 96, 0.08);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        .btn-gestione-torna.btn-torna-nav {
+            color: #fff !important;
+            border: 1px solid #b71c1c !important;
+            background: linear-gradient(180deg, #ef5350 0%, #c62828 100%) !important;
+            box-shadow: 0 2px 8px rgba(183, 28, 28, 0.35);
         }
         .btn-gestione-torna:active {
             transform: translateY(1px);
@@ -13561,7 +13586,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605419</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605422</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13706,7 +13731,7 @@ function dismissAppSplash() {
                 <p id="quiz-ai-voice-status" style="margin:8px 0 0;font-size:0.75rem;color:#546e7a;">Modalità telecronaca online attiva.</p>
             </div>
             <div class="quiz-lock-actions">
-                <button type="button" class="btn-side btn-reset" id="quiz-speech-settings-footer-btn" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
+                <button type="button" class="btn-side btn-reset btn-torna-nav" id="quiz-speech-settings-footer-btn" onclick="quizSpeechSettingsBackToSettings()">Torna</button>
             </div>
         </div>
     </div>
@@ -13718,7 +13743,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605419</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605422</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -13760,7 +13785,7 @@ function dismissAppSplash() {
                         <button type="button" role="tab" id="quiz-gestione-tab-crea" class="quiz-gestione-test-tab quiz-gestione-test-tab--active" aria-selected="true" aria-controls="quiz-gestione-panel-crea" onclick="quizGestioneSetSezione('crea')">Crea test</button>
                         <button type="button" role="tab" id="quiz-gestione-tab-verifica" class="quiz-gestione-test-tab" aria-selected="false" aria-controls="quiz-gestione-panel-verifica" onclick="quizGestioneSetSezione('verifica')">Verifiche</button>
                     </div>
-                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni"><span class="btn-gestione-torna__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/></svg></span><span class="btn-gestione-torna__label">Torna</span></button>
+                    <button type="button" id="quiz-gestione-btn-torna" class="btn-side btn-gestione-torna btn-torna-nav quiz-gestione-test-head-torna" onclick="hideQuizGestioneTestVerificheModal()" title="Torna alle Impostazioni" aria-label="Torna alle Impostazioni"><span class="btn-gestione-torna__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/></svg></span><span class="btn-gestione-torna__label">Torna</span></button>
                 </div>
             </div>
             <div id="quiz-gestione-panel-crea" class="quiz-gestione-test-panel quiz-gestione-test-panel--crea" role="tabpanel" aria-labelledby="quiz-gestione-tab-crea">
@@ -13981,7 +14006,7 @@ function dismissAppSplash() {
                         </div>
                     </details>
                 </div>
-                <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn" onclick="quizModifyDevBackClick()" aria-label="Torna indietro" title="Torna">
+                <button type="button" id="quiz-modify-dev-back" class="quiz-modify-dev-back-btn btn-torna-nav" onclick="quizModifyDevBackClick()" aria-label="Torna indietro" title="Torna">
                     <span class="quiz-modify-dev-back-btn__icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10" />
@@ -14227,7 +14252,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605419';
+const APP_BUILD = '202605422';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -20483,6 +20508,7 @@ function quizSpeechSettingsSyncFooterButton() {
         btn.textContent = 'Chiudi';
         btn.setAttribute('aria-label', 'Chiudi impostazioni Quiz');
         btn.setAttribute('title', 'Chiudi');
+        btn.classList.remove('btn-torna-nav');
         btn.onclick = function () {
             quizSpeechSettingsCloseFromQuizPanel();
         };
@@ -20490,6 +20516,7 @@ function quizSpeechSettingsSyncFooterButton() {
         btn.textContent = 'Torna';
         btn.setAttribute('aria-label', 'Torna alle impostazioni');
         btn.setAttribute('title', 'Torna');
+        btn.classList.add('btn-torna-nav');
         btn.onclick = function () {
             quizSpeechSettingsBackToSettings();
         };
@@ -23295,6 +23322,7 @@ function quizModifyRebuildTablist() {
         var safeId = String(key).replace(/[^a-zA-Z0-9_-]/g, '_');
         b.id = 'quiz-modify-tab-' + safeId;
         b.textContent = label;
+        b.title = label;
         host.appendChild(b);
     }
     addTab('cf', 'Chimico-fisico');
@@ -28926,10 +28954,12 @@ function showQuizGestioneTestVerificheModal(fromImpostazioni, mode) {
             tornaBtn.innerHTML = '<span class="btn-gestione-torna__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path><path d="M9 12h12"></path></svg></span><span class="btn-gestione-torna__label">Torna</span>';
             tornaBtn.setAttribute('title', 'Torna alle Impostazioni');
             tornaBtn.setAttribute('aria-label', 'Torna alle Impostazioni');
+            tornaBtn.classList.add('btn-torna-nav');
         } else {
             tornaBtn.textContent = 'Chiudi';
             tornaBtn.setAttribute('title', 'Chiudi');
             tornaBtn.setAttribute('aria-label', 'Chiudi');
+            tornaBtn.classList.remove('btn-torna-nav');
             gestioneTestButtonStateUpdate();
         }
     }
