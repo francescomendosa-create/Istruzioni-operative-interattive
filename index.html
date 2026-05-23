@@ -92,17 +92,40 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        /* Riga 1: Home piccola | titolo centrato | Impostazioni */
+        /* Riga 1: Home | titolo (+ supporto) centrato | Impostazioni */
         .header-title-bar {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             gap: 8px 10px;
             max-width: var(--app-desktop-max);
             margin: 0 auto;
             padding: 0 2px;
         }
-
+        .header-title-bar > .btn-header-icon--sm:first-of-type {
+            justify-self: start;
+        }
+        .header-title-cluster {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 0;
+            justify-self: center;
+            max-width: 100%;
+        }
+        .header-title-cluster .header-main-title {
+            margin: 0;
+            text-align: center;
+            min-width: 0;
+            font-size: clamp(0.82rem, 2.5vw, 1.22rem);
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            line-height: 1.22;
+            text-transform: none;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+            color: #fff;
+        }
         .header-title-bar .header-main-title {
             margin: 0;
             text-align: center;
@@ -130,6 +153,7 @@
             align-items: center;
             justify-content: flex-end;
             gap: 6px;
+            justify-self: end;
         }
         .btn-supporto--title {
             display: none;
@@ -137,7 +161,10 @@
             height: 34px;
             min-width: 34px;
             font-size: 1rem;
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1;
             border-radius: 10px;
+            flex-shrink: 0;
         }
 
         /* Presenza utenti + Chiudi: stessa riga del titolo, in coda a destra */
@@ -404,13 +431,24 @@
             top: 50%;
             transform: translateY(-50%);
         }
-        /* Schermi stretti: supporto in barra titolo (evita pulsante fuori viewport). */
+        /* Schermi stretti: supporto accanto al titolo, non nella riga Quiz. */
         @media (max-width: 900px) {
             .btn-supporto.btn-supporto--title {
                 display: inline-flex;
             }
-            .header-quiz-actions .btn-supporto {
+            .header-quiz-actions .btn-supporto,
+            #btn-supporto-row {
                 display: none;
+            }
+        }
+        /* PC (mouse): supporto in barra titolo accanto al titolo, titolo resta centrato (colonne 1fr | auto | 1fr). */
+        @media (min-width: 901px) and (hover: hover) {
+            .btn-supporto.btn-supporto--title {
+                display: inline-flex;
+            }
+            .header-quiz-actions .btn-supporto,
+            #btn-supporto-row {
+                display: none !important;
             }
         }
 
@@ -545,9 +583,6 @@
         .btn-supporto:active {
             transform: translateY(3px) scale(0.98);
             box-shadow: 0 1px 0 rgba(120, 72, 0, 0.42), 0 3px 8px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.42);
-        }
-        .btn-supporto.btn-supporto--title {
-            display: none;
         }
 
         /* Tra Quiz e Diagnostica — gestione domande test e verifiche (stesse dimensioni base) */
@@ -7875,6 +7910,20 @@
             letter-spacing: 0.04em;
             margin: 10px 0 6px;
         }
+        .quiz-modify-block--correlation {
+            position: relative;
+        }
+        .quiz-modify-corr-delete-btn {
+            border-color: #e57373;
+            background: #ffebee;
+            color: #b71c1c;
+        }
+        .quiz-modify-corr-delete-btn:hover {
+            background: #ffcdd2;
+        }
+        #quiz-modify-corr-delete-layer.quiz-modify-delete-confirm-layer {
+            z-index: 28;
+        }
         .quiz-modify-risk-list {
             margin: 0;
             padding-left: 1.15rem;
@@ -13161,9 +13210,11 @@ function dismissAppSplash() {
         <button type="button" class="btn-header-icon btn-header-icon--sm" onclick="goToProgramHome()" title="Schermata iniziale (microbi)" aria-label="Home">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
-        <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
-        <div class="header-title-actions">
+        <div class="header-title-cluster">
             <button type="button" id="btn-supporto-title" class="btn-supporto btn-supporto--title" data-action="supporto" title="Cerca supporto operativo" aria-label="Cerca supporto operativo">⛑️</button>
+            <h1 id="main-title" class="header-main-title">Istruzioni operative interattive</h1>
+        </div>
+        <div class="header-title-actions">
             <button type="button" id="header-settings-btn" class="btn-header-icon btn-header-icon--sm" onclick="showQuizSettingsModal()" title="Impostazioni" aria-label="Impostazioni">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
@@ -13776,7 +13827,7 @@ function dismissAppSplash() {
             </button>
             <button type="button" class="quiz-settings-row quiz-settings-info-row" id="quiz-settings-refresh-btn" onclick="quizSettingsForceRefresh(this)" aria-label="Build aggiornato · verifica dalla rete">
                 <div class="quiz-settings-row-title" id="quiz-settings-refresh-line">
-                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605429</span>
+                    Aggiornato · Build <span id="quiz-settings-build-label" class="quiz-settings-build-label">202605430</span>
                 </div>
                 <span class="quiz-settings-info-chev quiz-settings-refresh-icon" aria-hidden="true">↻</span>
             </button>
@@ -13943,7 +13994,7 @@ function dismissAppSplash() {
                 <p style="margin:0 0 10px;"><strong>© 2026 Francesco Mellea.</strong> Tutti i diritti riservati.</p>
                 <p style="margin:0 0 10px;">L’applicazione «Istruzioni operative interattive», inclusi software, testi, grafiche e codice sorgente, è protetta dalle leggi applicabili in materia di diritto d’autore e di proprietà intellettuale.</p>
                 <p style="margin:0;">Il suo impiego ha <strong>finalità didattica e informativa per l’esercizio operativo dell’impianto</strong>.</p>
-                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605429</strong></p>
+                <p class="quiz-info-version-line">Versione attuale: <strong id="quiz-info-version-label">2.1</strong> · build <strong id="quiz-info-build-label">202605430</strong></p>
                 <div class="quiz-info-release-notes">
                     <p><strong>In questa versione:</strong> è implementata l’interazione tra le domande su possibili <strong>impatti a valle</strong>, i <strong>rischi associati</strong> e la <strong>diagnosi finale</strong>.</p>
                     <p>È stata aggiunta la <strong>modalità Quiz</strong>: classifica, record, animazioni e altro. Come le altre funzioni, la modalità Quiz è in <strong>continuo aggiornamento</strong>, con animazioni migliorate e in <strong>evoluzione</strong>.</p>
@@ -14384,7 +14435,7 @@ function dismissAppSplash() {
                             <button type="button" class="quiz-modify-mini-btn" id="quiz-modify-actions-add-row">＋ Aggiungi riga</button>
                         </div>
                     </section>
-                    <section class="quiz-modify-block" aria-labelledby="quiz-modify-lbl-correlation">
+                    <section class="quiz-modify-block quiz-modify-block--correlation" aria-labelledby="quiz-modify-lbl-correlation">
                         <div class="quiz-modify-actions-si-no-head">
                             <h5 id="quiz-modify-lbl-correlation" class="quiz-modify-block-title">Correlazioni</h5>
                             <details class="quiz-modify-title-info quiz-panel-info-details">
@@ -14412,10 +14463,20 @@ function dismissAppSplash() {
                         </div>
                         <div class="quiz-modify-block-head">
                             <div class="quiz-modify-block-actions">
+                                <button type="button" class="quiz-modify-mini-btn quiz-modify-corr-delete-btn" id="quiz-modify-corr-delete-btn" hidden>Elimina correlazione</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="edit" data-quiz-mod-field="correlation">Modifica</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="view" data-quiz-mod-field="correlation" title="Chiudi l’editor e mostra il contenuto già nella copia di lavoro (modifiche non salvate nel riquadro vanno perse).">Visualizza</button>
                                 <button type="button" class="quiz-modify-mini-btn quiz-modify-mini-btn--primary" data-quiz-mod-act="save" data-quiz-mod-field="correlation">Salva</button>
                                 <button type="button" class="quiz-modify-mini-btn" data-quiz-mod-act="restore" data-quiz-mod-field="correlation" title="Ripristina tutta la domanda allo stato salvato prima dell’ultimo «Salva»; se non ci sono salvataggi precedenti, allo stato all’apertura del pannello.">Ripristina</button>
+                            </div>
+                        </div>
+                        <div id="quiz-modify-corr-delete-layer" class="quiz-modify-delete-confirm-layer" hidden aria-hidden="true">
+                            <div class="quiz-modify-delete-confirm-layer__box" role="alertdialog" aria-modal="true" aria-labelledby="quiz-modify-corr-delete-text">
+                                <p id="quiz-modify-corr-delete-text" class="quiz-modify-delete-confirm-layer__text"></p>
+                                <div class="quiz-modify-delete-confirm-layer__actions">
+                                    <button type="button" class="btn-side btn-reset" id="quiz-modify-corr-delete-cancel">Annulla</button>
+                                    <button type="button" class="btn-side btn-report" id="quiz-modify-corr-delete-ok" style="background:linear-gradient(180deg,#ef6a5d 0%,#c62828 100%);border-color:rgba(255,255,255,0.35);">Continua</button>
+                                </div>
                             </div>
                         </div>
                         <div id="quiz-modify-detail-correlation" class="quiz-modify-html-block quiz-modify-field-view"></div>
@@ -14545,7 +14606,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605429';
+const APP_BUILD = '202605430';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -21993,6 +22054,7 @@ var QUIZ_MODIFY_CORR_IMPATTO_PREFIX = 'CORRELAZIONE — Possibile impatto su ';
 var QUIZ_MODIFY_CORR_STATO_L1_DEFAULT = 'Stato aggiornato. Impatto confermato';
 var quizModifyCorrPickStep = 'section';
 var quizModifyCorrPickSectionKey = null;
+var quizModifyCorrDeleteStep = 0;
 
 function quizModifyCloneGoto(g) {
     if (!g || g.s == null || g.p == null) return null;
@@ -22686,10 +22748,96 @@ function quizModifyOnCorrelationSiNoToggle(which, on) {
     quizModifyPersistWorkingToStorage();
 }
 
+function quizModifyHasCorrelationConfigured(w) {
+    var data = w || {};
+    return !!(
+        (data.goto && data.goto.s != null) ||
+        String(data.goto_impatto_suffix || '').trim() ||
+        String(data.gotoLabel || '').trim() ||
+        String(data.correlation_update || '').trim() ||
+        String(data.correlation_stato_line1 || '').trim() ||
+        String(data.correlation_stato_line2 || '').trim()
+    );
+}
+
+function quizModifyClearCorrelationData(w) {
+    if (!w) return;
+    w.goto = null;
+    w.goto_impatto_suffix = '';
+    w.gotoLabel = '';
+    w.correlation_stato_line1 = '';
+    w.correlation_stato_line2 = '';
+    w.correlation_update = '';
+}
+
+function quizModifyCorrDeleteBtnSync() {
+    var btn = document.getElementById('quiz-modify-corr-delete-btn');
+    if (!btn) return;
+    var show = quizModifyHasCorrelationConfigured(quizModifyDetailWorking);
+    btn.hidden = !show;
+    btn.style.display = show ? '' : 'none';
+}
+
+function quizModifyCorrDeleteLayerClose() {
+    quizModifyCorrDeleteStep = 0;
+    var layer = document.getElementById('quiz-modify-corr-delete-layer');
+    var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
+    if (layer) {
+        layer.hidden = true;
+        layer.setAttribute('aria-hidden', 'true');
+    }
+    if (okBtn) okBtn.textContent = 'Continua';
+}
+
+function quizModifyCorrDeleteLayerOpen() {
+    quizModifyCorrDeleteStep = 1;
+    var layer = document.getElementById('quiz-modify-corr-delete-layer');
+    var txt = document.getElementById('quiz-modify-corr-delete-text');
+    var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
+    if (!layer || !txt) return;
+    txt.textContent = 'Eliminare la correlazione configurata per questa domanda?';
+    if (okBtn) okBtn.textContent = 'Continua';
+    layer.hidden = false;
+    layer.removeAttribute('aria-hidden');
+}
+
+function quizModifyCorrDeleteCancel() {
+    quizModifyCorrDeleteLayerClose();
+}
+
+function quizModifyCorrDeleteConfirmClick() {
+    if (quizModifyCorrDeleteStep === 1) {
+        quizModifyCorrDeleteStep = 2;
+        var txt = document.getElementById('quiz-modify-corr-delete-text');
+        var okBtn = document.getElementById('quiz-modify-corr-delete-ok');
+        if (txt) {
+            txt.textContent =
+                'Conferma definitiva: la correlazione (titolo, destinazione e testo giallo) verrà rimossa da questa domanda.';
+        }
+        if (okBtn) okBtn.textContent = 'Elimina correlazione';
+        return;
+    }
+    if (quizModifyCorrDeleteStep !== 2 || !quizModifyDetailWorking) return;
+    quizModifyPushUndoSnapshotBeforeSave();
+    quizModifyClearCorrelationData(quizModifyDetailWorking);
+    quizModifyCorrDeleteLayerClose();
+    if (quizModifyDetailEditing.correlation) {
+        quizModifyRenderCorrelationEditFields();
+    }
+    quizModifyFillViewsFromWorking();
+    quizModifyPersistWorkingToStorage();
+    checklistTouchDomAfterModifyPersist();
+}
+
+function quizModifyCorrDeleteRequest() {
+    if (!quizModifyHasCorrelationConfigured(quizModifyDetailWorking)) return;
+    quizModifyCorrDeleteLayerOpen();
+}
+
 function quizModifyFillCorrelationBlock(el, w) {
     if (!el) return;
     var data = w || {};
-    if (!data.goto && !String(data.goto_impatto_suffix || '').trim() && !String(data.correlation_update || '').trim()) {
+    if (!quizModifyHasCorrelationConfigured(data)) {
         el.innerHTML = '<p class="quiz-modify-empty">Nessuna correlazione configurata per questa domanda.</p>';
         return;
     }
@@ -22789,6 +22937,7 @@ function quizModifyCorrEditUiRefresh() {
         tgtLbl.textContent = '';
     }
     quizModifyCorrStatoPreviewRefresh();
+    quizModifyCorrDeleteBtnSync();
 }
 
 function quizModifyCollectCorrelationFromEditDom() {
@@ -22827,10 +22976,11 @@ function quizModifyCorrPickRenderSections() {
     var keys = quizModifyListAllSectionKeys();
     var html = '<p class="quiz-modify-corr-pick-section-title">Schede disponibili</p>';
     keys.forEach(function (sk) {
+        var skAttr = quizModifyEscapeForInnerHtml(sk);
         html +=
-            '<button type="button" class="quiz-modify-checklist-pick-item" onclick="quizModifyCorrPickChooseSection(\'' +
-            sk +
-            '\')">' +
+            '<button type="button" class="quiz-modify-checklist-pick-item" data-corr-pick-action="section" data-corr-pick-sk="' +
+            skAttr +
+            '">' +
             quizModifyEscapeForInnerHtml(quizModifySectionDisplayLabel(sk)) +
             '</button>';
     });
@@ -22843,8 +22993,9 @@ function quizModifyCorrPickRenderQuestions(sectionKey) {
     quizModifyCorrPickStep = 'question';
     quizModifyCorrPickSectionKey = sectionKey;
     var rows = quizModifyGetSectionRows(sectionKey);
+    var skAttr = quizModifyEscapeForInnerHtml(sectionKey);
     var html =
-        '<button type="button" class="quiz-modify-mini-btn quiz-modify-corr-pick-back" onclick="quizModifyCorrPickRenderSections()">← Schede</button>';
+        '<button type="button" class="quiz-modify-mini-btn quiz-modify-corr-pick-back" data-corr-pick-action="back">← Schede</button>';
     html += '<p class="quiz-modify-corr-pick-section-title">' + quizModifyEscapeForInnerHtml(quizModifySectionDisplayLabel(sectionKey)) + '</p>';
     if (!rows.length) {
         html += '<p class="quiz-modify-checklist-pick-empty">Nessuna domanda in questa scheda.</p>';
@@ -22854,11 +23005,11 @@ function quizModifyCorrPickRenderQuestions(sectionKey) {
             var q = m && m.q ? quizModifyQuestionPlainText(m.q) : 'Domanda ' + (idx + 1);
             if (q.length > 120) q = q.slice(0, 117) + '…';
             html +=
-                '<button type="button" class="quiz-modify-checklist-pick-item" onclick="quizModifyCorrPickChooseQuestion(\'' +
-                sectionKey +
-                "'," +
-                row.p +
-                ')"><span style="font-weight:700;color:#1565c0;">Punto ' +
+                '<button type="button" class="quiz-modify-checklist-pick-item" data-corr-pick-action="question" data-corr-pick-sk="' +
+                skAttr +
+                '" data-corr-pick-p="' +
+                String(row.p) +
+                '"><span style="font-weight:700;color:#1565c0;">Punto ' +
                 row.p +
                 '</span> — ' +
                 quizModifyEscapeForInnerHtml(q) +
@@ -22866,6 +23017,28 @@ function quizModifyCorrPickRenderQuestions(sectionKey) {
         });
     }
     host.innerHTML = html;
+}
+
+function quizModifyCorrPickListClick(ev) {
+    var btn = ev.target && ev.target.closest ? ev.target.closest('[data-corr-pick-action]') : null;
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    var act = btn.getAttribute('data-corr-pick-action');
+    if (act === 'back') {
+        quizModifyCorrPickRenderSections();
+        return;
+    }
+    if (act === 'section') {
+        var sk = btn.getAttribute('data-corr-pick-sk');
+        if (sk) quizModifyCorrPickChooseSection(sk);
+        return;
+    }
+    if (act === 'question') {
+        var sk2 = btn.getAttribute('data-corr-pick-sk');
+        var p = btn.getAttribute('data-corr-pick-p');
+        if (sk2 && p != null) quizModifyCorrPickChooseQuestion(sk2, p);
+    }
 }
 
 function quizModifyCorrPickChooseSection(sk) {
