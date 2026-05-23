@@ -14606,7 +14606,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605430';
+const APP_BUILD = '202605431';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -22634,6 +22634,27 @@ function checklistRowIndexByPoint(s, p) {
     return -1;
 }
 
+/** Chimico-fisico punto 2: correlazione MBBR sempre dai dati originali in `db` (non da override Modifica). */
+function checklistGetCf2CanonicalItem() {
+    var base = null;
+    try {
+        base = db.cf.find(function (x) {
+            return x && x.p === 2;
+        });
+    } catch (eB) {
+        base = null;
+    }
+    if (!base) return null;
+    var merged = checklistGetMergedItem('cf', 2);
+    var out = Object.assign({}, merged || {}, base);
+    out.goto = base.goto ? Object.assign({}, base.goto) : null;
+    out.gotoLabel = base.gotoLabel != null ? String(base.gotoLabel) : 'CORRELAZIONE — Possibile impatto su MBBR';
+    out.correlation_update = base.correlation_update != null ? String(base.correlation_update) : '';
+    out.correlation_on_si = true;
+    out.correlation_on_no = false;
+    return out;
+}
+
 /** Voce checklist runtime: `db` + campi sovrascritti da `MODIFY_LS_OVERRIDES` (stesso schema del pannello Modifica). */
 function checklistGetMergedItem(s, p) {
     try {
@@ -30647,7 +30668,11 @@ const db = {
             { c: "Controllo COD in ingresso impianto", a: "Se troppo alto, valutare sediflottatori in serie (superato il set point, in gestione processo il passaggio in serie avverrà automaticamente)" },
             { c: "Controllo processo a monte", a: "Se necessario, spiazzare vasche API" }
           ],
-          goto: { s: "mbr", p: 4 }, tag: "Olio"
+          goto: { s: "mbr", p: 4 },
+          gotoLabel: "CORRELAZIONE — Possibile impatto su MBBR",
+          correlation_on_si: true,
+          correlation_on_no: false,
+          tag: "Olio"
         },
         { p: 3, q: "Il coagulante (PAC) arriva correttamente in vasca?", si: "Dosaggio regolare.<br>Il PAC (Polialluminio Cloruro) è il coagulante che permette di aggregare le particelle fini presenti nell'acqua.<br><br>È fondamentale per avviare la formazione dei fiocchi (floc) e rendere efficace la separazione dei solidi nel trattamento chimico-fisico.<br><br>Agisce neutralizzando le cariche dei colloidi, permettendo al polielettrolita di formare floc più grandi e facilmente separabili.<br><br>In alternativa al PAC possono essere utilizzati anche sali di ferro, che svolgono la stessa funzione di coagulazione e risultano particolarmente efficaci su reflui con elevato carico organico o presenza di fosforo.",
           no: "Anomalia dosaggio coagulante (PAC).",
@@ -35538,7 +35563,7 @@ function syncCf2CorrelationUpdate() {
 
     if (!oilCorr && !biomassAlarm) return;
 
-    const cf2 = checklistGetMergedItem('cf', 2) || db['cf'].find((x) => x.p === 2);
+    const cf2 = checklistGetCf2CanonicalItem();
     let oilBody = '';
     if (oilCorr && cf2 && cf2.correlation_update) {
         oilBody = `<div class="correlation-mbbr-oil-block">${cf2.correlation_update}</div>`;
@@ -35571,7 +35596,7 @@ function syncCf2CorrelationUpdate() {
         <details id="cf2-corr-mbbr-schiuma" class="correlation-mbbr-status-accordion${blinkOil ? ' cf2-stato-blink' : ''}">
             <summary class="correlation-mbbr-status-summary">
                 <span class="correlation-mbbr-status-title">
-                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato. Impatto MBBR confermato</strong>
                     <span class="correlation-mbbr-status-line2">-Presenza schiuma nera su MBBR-</span>
                 </span>
             </summary>
@@ -35583,7 +35608,7 @@ function syncCf2CorrelationUpdate() {
         <details id="cf2-corr-mbbr-biomass" class="correlation-mbbr-status-accordion${blinkBio ? ' cf2-stato-blink' : ''}">
             <summary class="correlation-mbbr-status-summary">
                 <span class="correlation-mbbr-status-title">
-                    <strong class="correlation-mbbr-status-line1">Stato aggiornato.Impatto MBBR confermato</strong>
+                    <strong class="correlation-mbbr-status-line1">Stato aggiornato. Impatto MBBR confermato</strong>
                     <span class="correlation-mbbr-status-line2">-Presenza di fango nero nel biologico-</span>
                 </span>
             </summary>
@@ -35649,7 +35674,10 @@ function clearAnswerToggle(s, p) {
 function check(s, p, val, btn) {
     mbrCheckDepth += 1;
     try {
-    const item = checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p);
+    const item =
+        s === 'cf' && p === 2
+            ? checklistGetCf2CanonicalItem() || checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p)
+            : checklistGetMergedItem(s, p) || checklistRowsSource(s).find((x) => x && x.p === p);
 
     // Secondo click sulla stessa risposta (Sì/No gia attiva): annulla e torna ai pulsanti neutri
     if (!isUpdating && correlationYes[`${s}-${p}`] === val) {
@@ -35836,14 +35864,18 @@ function check(s, p, val, btn) {
             }
         }
 
-        if (item.goto && checklistShouldShowCorrelation(item, val)) {
+        var showCorrelation =
+            s === 'cf' && p === 2
+                ? !!(item && item.goto && val === true)
+                : checklistShouldShowCorrelation(item, val);
+        if (item.goto && showCorrelation) {
             let buttonText =
                 item.gotoLabel ||
                 quizModifyBuildGotoLabel(quizModifyParseGotoImpatoSuffix(item)) ||
                 `ANALIZZA CORRELAZIONE (${item.goto.s.toUpperCase()} P.${item.goto.p})`;
             let buttonStyle = 'background: #dc2626; border-color: #dc2626;';
             let buttonAnimation = '';
-            if (s === 'cf' && p === 2 && !item.goto_impatto_suffix && !/impatto\s+su/i.test(String(item.gotoLabel || ''))) {
+            if (s === 'cf' && p === 2) {
                 buttonText = 'CORRELAZIONE — Possibile impatto su MBBR';
             }
             const jumpBtn = `<button type="button" class="btn-jump" id="btn-correlation-${s}-${p}" style="${buttonStyle} ${buttonAnimation}" onclick="jumpWithReturn('${s}',${p},'${item.goto.s}',${item.goto.p})">${buttonText}</button>`;
