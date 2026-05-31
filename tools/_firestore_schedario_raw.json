@@ -1,0 +1,829 @@
+{
+  "name": "projects/istruzioni-operative/databases/(default)/documents/quiz_custom_schedario/global",
+  "fields": {
+    "schedario": {
+      "mapValue": {
+        "fields": {
+          "items": {
+            "mapValue": {
+              "fields": {
+                "cs-1779470644912": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "1"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "2"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "q": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "3"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "4"
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "p": {
+                              "integerValue": "5"
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "6"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "7"
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "cs-1779471829157": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "1"
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "2"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "p": {
+                              "integerValue": "3"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "cs-1779494624625": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "1"
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "p": {
+                              "integerValue": "2"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "3"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "p": {
+                              "integerValue": "4"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "p": {
+                              "integerValue": "5"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "6"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "cs-1779493188287": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "p": {
+                              "integerValue": "1"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "2"
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "p": {
+                              "integerValue": "3"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "4"
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "q": {
+                              "stringValue": ""
+                            },
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "p": {
+                              "integerValue": "5"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "si": {
+                              "stringValue": ""
+                            },
+                            "actions_on_no": {
+                              "booleanValue": true
+                            },
+                            "p": {
+                              "integerValue": "6"
+                            },
+                            "correlation_update": {
+                              "stringValue": ""
+                            },
+                            "actions_on_si": {
+                              "booleanValue": false
+                            },
+                            "tag": {
+                              "stringValue": "Scheda"
+                            },
+                            "actions": {
+                              "arrayValue": {}
+                            },
+                            "risk_list": {
+                              "arrayValue": {}
+                            },
+                            "no": {
+                              "stringValue": ""
+                            },
+                            "q": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "order": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "cs-1779470644912"
+                },
+                {
+                  "stringValue": "cs-1779471829157"
+                },
+                {
+                  "stringValue": "cs-1779493188287"
+                },
+                {
+                  "stringValue": "cs-1779494624625"
+                }
+              ]
+            }
+          },
+          "labels": {
+            "mapValue": {
+              "fields": {
+                "cs-1779471829157": {
+                  "stringValue": "FILTRI A CARBONE"
+                },
+                "cs-1779494624625": {
+                  "stringValue": "OSMOSI"
+                },
+                "cs-1779470644912": {
+                  "stringValue": "Membrane MBR"
+                },
+                "cs-1779493188287": {
+                  "stringValue": "ULTRAFILTRAZIONE"
+                }
+              }
+            }
+          },
+          "colors": {
+            "mapValue": {}
+          }
+        }
+      }
+    },
+    "updatedAt": {
+      "timestampValue": "2026-05-23T17:49:56.899Z"
+    }
+  },
+  "createTime": "2026-05-22T18:18:15.126258Z",
+  "updateTime": "2026-05-23T17:49:56.943664Z"
+}

@@ -1,0 +1,1444 @@
+{
+  "name": "projects/istruzioni-operative/databases/(default)/documents/quiz_modify_overrides/global",
+  "fields": {
+    "updatedAt": {
+      "timestampValue": "2026-05-23T16:41:53.100Z"
+    },
+    "overrides": {
+      "mapValue": {
+        "fields": {
+          "cs-1779494624625": {
+            "mapValue": {
+              "fields": {
+                "0": {
+                  "mapValue": {
+                    "fields": {
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "PRESSIONE ASPIRAZIONE P-11022 \u003c1 bar"
+                                  },
+                                  "a": {
+                                    "stringValue": "SOSTITUIRE"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "PRESSIONE ASPIRAZIONE P-11022 \u003c1 bar?\n"
+                      }
+                    }
+                  }
+                },
+                "2": {
+                  "mapValue": {
+                    "fields": {
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "EFFETTUARE MAPPATURA SUL PERMEATO DI OGNI SINGOLO VESSEL"
+                                  },
+                                  "a": {
+                                    "stringValue": "SOSTITUZIONE DELLE PARTI DANNEGGIATE DEL VESSEL INCRIMINATO (MEMBRANE STRAPPATE, ORING MANCANTI, PERMEATE PORT ROTTI)"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "ΔP OSMOSI (CONCENTRATO-PERMEATO) \u003e6 bar?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "3": {
+                  "mapValue": {
+                    "fields": {
+                      "q": {
+                        "stringValue": "PORTATA CONCENTRATO (P-11022 A 50Hz) \u003c10 mc/h?"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "ALLINEAMENTO PORTATA"
+                                  },
+                                  "a": {
+                                    "stringValue": "IN MANUALE P-11022 A 50Hz E REGOLAZIONE PORTATA CONCENTRATO A 15 mc/h"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "5": {
+                  "mapValue": {
+                    "fields": {
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su valle e monte"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": false
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": "Stato aggiornato. Impatto confermato"
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": "valle e monte"
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": true
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_goto_trigger_no": {
+                        "booleanValue": false
+                      },
+                      "correlation_update": {
+                        "stringValue": "su ha una ripercussione totale "
+                      },
+                      "correlation_goto_trigger_si": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "SE \u003e20 mS/cm"
+                                  },
+                                  "a": {
+                                    "stringValue": "EFFETTUARE LAVAGGIO CIP"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "EFFETTUARE MAPPATURA SUL PERMEATO DI OGNI SINGOLO VESSEL"
+                                  },
+                                  "a": {
+                                    "stringValue": "SOSTITUZIONE DELLE PARTI DANNEGGIATE DEL VESSEL INCRIMINATO (MEMBRANE STRAPPATE, ORING MANCANTI, PERMEATE PORT ROTTI)"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": true
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": false
+                      },
+                      "q": {
+                        "stringValue": "CONDUCIBILITA IN USCITA OSMOSI 2° PASSO ?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      }
+                    }
+                  }
+                },
+                "1": {
+                  "mapValue": {
+                    "fields": {
+                      "q": {
+                        "stringValue": "PRESSIONE INGRESSO MEMBRANE 1° PASSO \u003e16 bar?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "CONTROLLO SULLA CONDUCIBILITA' IN USCITA"
+                                  },
+                                  "a": {
+                                    "stringValue": "SE \u003e200 EFFETTUARE LAVAGGIO CIP"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "4": {
+                  "mapValue": {
+                    "fields": {
+                      "answer_alert_manual": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "ALLINEAMENTO PORTATA"
+                                  },
+                                  "a": {
+                                    "stringValue": "IN MANUALE P-11026 A 50Hz E REGOLAZIONE PORTATA CONCENTRATO A 5 mc/h"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "q": {
+                        "stringValue": "PORTATA CONCENTRATO (P-11022 A 50Hz) \u003c3,5 mc/h?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "correlation_goto_trigger_no": {
+                        "booleanValue": false
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "correlation_goto_trigger_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": ""
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "cs-1779493188287": {
+            "mapValue": {
+              "fields": {
+                "4": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": true
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "q": {
+                        "stringValue": "CI SONO PERDITE NEI MODULI ULTRAFILTRAZIONE?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "1": {
+                  "mapValue": {
+                    "fields": {
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "q": {
+                        "stringValue": "IL ΔP DEI MODULI E' \u003e 2\n"
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "a": {
+                                    "stringValue": "EVENTUALE AZIONE INDICATA IN CHECK-LIST MBR"
+                                  },
+                                  "c": {
+                                    "stringValue": "CONTROLLO PARAMETRI OPERATIVI MBR"
+                                  },
+                                  "checklist_id_a": {
+                                    "stringValue": "cl-1779481489427-h5ojuk"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": false
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "5": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "IL TK-11021 E' TORBIDO?\n"
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": true
+                      }
+                    }
+                  }
+                },
+                "3": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "q": {
+                        "stringValue": "I BULK DI SODA/IPOCLORITO/ACIDO E BISOLFITO NECESSITANO REINTEGRO?\n"
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": true
+                      }
+                    }
+                  }
+                },
+                "2": {
+                  "mapValue": {
+                    "fields": {
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "IDENTIFICARE MODULO UF CON PARAMETRI FUORI RANGE"
+                                  },
+                                  "a": {
+                                    "stringValue": "FORZARE UN LAVAGGIO CEB (PER IL TIPO DI LAVAGGIO CONSULTARE CT/CR/TECNOLOGO)"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "q": {
+                        "stringValue": "LA PRESSIONE DI BACKWAHS E' \u003e 2,5 ?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "0": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "LA PRESSIONE MASSIMA IN INGRESSO E' \u003e 6,25?\n"
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "a": {
+                                    "stringValue": "EVENTUALE AZIONE INDICATA IN CHECK-LIST MBR"
+                                  },
+                                  "c": {
+                                    "stringValue": "QUANDO LA PRESSIONE SFORA I RANGE INDICATI"
+                                  },
+                                  "checklist_id_a": {
+                                    "stringValue": "cl-1779481489427-h5ojuk"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "mbr": {
+            "mapValue": {}
+          },
+          "cf": {
+            "mapValue": {
+              "fields": {
+                "0": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "correlation_goto_trigger_no": {
+                        "booleanValue": false
+                      },
+                      "correlation_goto_trigger_si": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": true
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "Coagulante (PAC)"
+                                  },
+                                  "a": {
+                                    "stringValue": "Verificare dosaggio e arrivo effettivo in vasca"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "Polielettrolita"
+                                  },
+                                  "a": {
+                                    "stringValue": "Verificare corretta preparazione e dosaggio"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "Flottazione (parametri critici)"
+                                  },
+                                  "a": {
+                                    "stringValue": "Pressione saturatore nel range 4,5–6 bar; verificare effetto acqua bianca / microbolle in vasca (aria disciolta efficace). Ricircolo verso saturatore sul flussimetro nel range 10–30% della portata di linea. Controllare la linea di saturazione: valvole, regolazioni corrette. Confermare torbidità obiettivo chiarificato \u003c 20 NTU dopo ottimizzazione."
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "Fanghi"
+                                  },
+                                  "a": {
+                                    "stringValue": "Verificare livello fango e regolarità degli spurghi"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_manual": {
+                        "booleanValue": false
+                      },
+                      "no": {
+                        "stringValue": "Acqua in uscita torbida."
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": "Target \u003c 20 NTU rispettato.\u003cbr\u003el'acqua chiarificata presenta una torbidità inferiore a 20 NTU. Questo garantisce che il carico di solidi sospesi inviato al BIOLOGICO MBBR sia minimo, evitando l'intasamento dei carrier e permettendo ai batteri di lavorare esclusivamente sul carico organico disciolto (COD)."
+                      },
+                      "q": {
+                        "stringValue": "Acqua in uscita chiarificata e pulita?"
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "stringValue": "Inibizione del biofilm sui carrier: solidi sospesi e residui oleosi formano una barriera fisica; più la torbidità è alta, più respirazione e nutrizione della biomassa diventano difficili."
+                            },
+                            {
+                              "stringValue": "Saturazione della richiesta di ossigeno: chiarificato sporco aumenta il carico ossidabile (COD) sul biologico; se aerazione e ossigeno non compensano, rischio deriva verso fango scuro/anossia."
+                            },
+                            {
+                              "stringValue": "Perdita di efficienza a valle: materiale non separato nel chimico-fisico passa al MBBR e riduce la depurazione complessiva."
+                            }
+                          ]
+                        }
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "cs-1779470644912": {
+            "mapValue": {
+              "fields": {
+                "6": {
+                  "mapValue": {
+                    "fields": {
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "LE P-11014 SONO IN REGOLARE MARCIA\n"
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": true
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      }
+                    }
+                  }
+                },
+                "2": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "PRENDERE UN CAMPIONE PER COD E TSS\n"
+                                  },
+                                  "a": {
+                                    "stringValue": "SE COD\u003e100 E TSS\u003e10 EFFETTUARE UN LAVAGGIO (PER TIPO DI LAVAGGIO CONSULTARE CT/CR/TECNOLOGO)\n"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "q": {
+                        "stringValue": "IL PERMEATO DELLE SINGOLE P-11012 A-H E' TORBIDO?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": "\n"
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "0": {
+                  "mapValue": {
+                    "fields": {
+                      "q": {
+                        "stringValue": "L'ARIA ARRIVA NELLE VASCHE?  (MANOMENTRO IN MANDATA COMPRESSORI O GORGOGLIAMENTO VASCHE)\n\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      }
+                    }
+                  }
+                },
+                "3": {
+                  "mapValue": {
+                    "fields": {
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "checklist_id": {
+                                    "stringValue": "cl-1779481489427-h5ojuk"
+                                  },
+                                  "a": {
+                                    "stringValue": "RIPRISTINO PARAMETRI CON OPPORTUNO LAVAGGIO"
+                                  },
+                                  "c": {
+                                    "stringValue": "CONTROLLO PARAMETRI OPERATIVI MBR"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "SE I PARAMETRI DELLE MEMBRANE SONO A SPECIFICA"
+                                  },
+                                  "a": {
+                                    "stringValue": "PROLIFERAZIONE BATTERICA SUL SERBATOIO, AUMENTO BIOCIDA\n"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "q": {
+                        "stringValue": "IL TK-11007 E' TORBIDO\n"
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "no": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "5": {
+                  "mapValue": {
+                    "fields": {
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "LA POMPA DEL BIOCIDA E' IN REGOLARE MARCIA\n"
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      }
+                    }
+                  }
+                },
+                "4": {
+                  "mapValue": {
+                    "fields": {
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "SONO NECESSARI REINTEGRI (ACIDO CITRICO, IPOCLORITO)\n"
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      }
+                    }
+                  }
+                },
+                "1": {
+                  "mapValue": {
+                    "fields": {
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "checklist_id": {
+                                    "stringValue": "cl-1779477098724-3f162c"
+                                  },
+                                  "a": {
+                                    "stringValue": ""
+                                  },
+                                  "c": {
+                                    "stringValue": "VERIFICARE CONTROLLI/AZIONI CHECK LIST CHIMICO FISICO E MBBR"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "q": {
+                        "stringValue": "C'E' SCHIUMA NELLE VASCHE?\n"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "cs-1779471829157": {
+            "mapValue": {
+              "fields": {
+                "1": {
+                  "mapValue": {
+                    "fields": {
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {}
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "q": {
+                        "stringValue": "SI RILEVANO PERDITE SUI FIL/POMPE?\n"
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "2": {
+                  "mapValue": {
+                    "fields": {
+                      "correlation_on_si": {
+                        "booleanValue": false
+                      },
+                      "goto": {
+                        "nullValue": null
+                      },
+                      "correlation_stato_line2": {
+                        "stringValue": ""
+                      },
+                      "goto_impatto_suffix": {
+                        "stringValue": ""
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_on_no": {
+                        "booleanValue": true
+                      },
+                      "gotoLabel": {
+                        "stringValue": "CORRELAZIONE — Possibile impatto su…"
+                      },
+                      "correlation_stato_line1": {
+                        "stringValue": ""
+                      },
+                      "q": {
+                        "stringValue": "IL ΔP DEI FIL E' MINORE DI 1 bar?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": false
+                      },
+                      "actions_on_si": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "answer_alert_no": {
+                        "booleanValue": false
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "CONTROLLO RIPRISTINO ΔP CON LAVAGGIO"
+                                  },
+                                  "a": {
+                                    "stringValue": "SE IL VALORE NON RIENTRA I CARBONI SONO ESAUSTI (SEGNALARE)\n"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "answer_alert_si": {
+                        "booleanValue": true
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      }
+                    }
+                  }
+                },
+                "0": {
+                  "mapValue": {
+                    "fields": {
+                      "q": {
+                        "stringValue": "L'ACQUA DEI LAVAGGI E' PULITA?\n"
+                      },
+                      "no": {
+                        "stringValue": ""
+                      },
+                      "actions_on_no": {
+                        "booleanValue": true
+                      },
+                      "si": {
+                        "stringValue": ""
+                      },
+                      "actions_on_si": {
+                        "booleanValue": false
+                      },
+                      "risk_list": {
+                        "arrayValue": {}
+                      },
+                      "correlation_update": {
+                        "stringValue": ""
+                      },
+                      "actions": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "c": {
+                                    "stringValue": "VERIFICA BACKWASH/LAVAGGIO FINALE"
+                                  },
+                                  "a": {
+                                    "stringValue": "AUMENTARE TEMPO LAVAGGIO FINALE FINO AD ACQUA PULITA"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "createTime": "2026-05-22T18:18:15.444803Z",
+  "updateTime": "2026-05-23T16:41:53.133786Z"
+}

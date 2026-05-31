@@ -1,0 +1,273 @@
+{
+  "items": {
+    "cs-1779470644912": [
+      {
+        "q": "",
+        "risk_list": [],
+        "no": "",
+        "correlation_update": "",
+        "p": 1,
+        "actions": [],
+        "tag": "Scheda",
+        "si": ""
+      },
+      {
+        "si": "",
+        "actions": [],
+        "tag": "Scheda",
+        "no": "",
+        "p": 2,
+        "correlation_update": "",
+        "risk_list": [],
+        "q": ""
+      },
+      {
+        "q": "",
+        "risk_list": [],
+        "correlation_update": "",
+        "no": "",
+        "p": 3,
+        "actions": [],
+        "tag": "Scheda",
+        "si": ""
+      },
+      {
+        "q": "",
+        "correlation_update": "",
+        "p": 4,
+        "risk_list": [],
+        "no": "",
+        "actions": [],
+        "tag": "Scheda",
+        "si": ""
+      },
+      {
+        "si": "",
+        "actions": [],
+        "tag": "Scheda",
+        "risk_list": [],
+        "p": 5,
+        "no": "",
+        "correlation_update": "",
+        "q": ""
+      },
+      {
+        "actions": [],
+        "tag": "Scheda",
+        "si": "",
+        "q": "",
+        "correlation_update": "",
+        "risk_list": [],
+        "no": "",
+        "p": 6
+      },
+      {
+        "q": "",
+        "no": "",
+        "p": 7,
+        "risk_list": [],
+        "correlation_update": "",
+        "tag": "Scheda",
+        "actions": [],
+        "si": ""
+      }
+    ],
+    "cs-1779471829157": [
+      {
+        "q": "",
+        "p": 1,
+        "no": "",
+        "correlation_update": "",
+        "risk_list": [],
+        "tag": "Scheda",
+        "actions": [],
+        "si": ""
+      },
+      {
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda",
+        "risk_list": [],
+        "no": "",
+        "q": "",
+        "si": "",
+        "actions_on_no": true,
+        "correlation_update": "",
+        "p": 2
+      },
+      {
+        "q": "",
+        "no": "",
+        "risk_list": [],
+        "tag": "Scheda",
+        "actions": [],
+        "actions_on_si": false,
+        "p": 3,
+        "correlation_update": "",
+        "actions_on_no": true,
+        "si": ""
+      }
+    ],
+    "cs-1779494624625": [
+      {
+        "correlation_update": "",
+        "p": 1,
+        "actions_on_no": true,
+        "si": "",
+        "q": "",
+        "no": "",
+        "risk_list": [],
+        "actions": [],
+        "tag": "Scheda",
+        "actions_on_si": false
+      },
+      {
+        "no": "",
+        "risk_list": [],
+        "q": "",
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda",
+        "p": 2,
+        "correlation_update": "",
+        "si": "",
+        "actions_on_no": true
+      },
+      {
+        "actions_on_no": true,
+        "si": "",
+        "p": 3,
+        "correlation_update": "",
+        "actions": [],
+        "tag": "Scheda",
+        "actions_on_si": false,
+        "q": "",
+        "no": "",
+        "risk_list": []
+      },
+      {
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda",
+        "risk_list": [],
+        "no": "",
+        "q": "",
+        "si": "",
+        "actions_on_no": true,
+        "p": 4,
+        "correlation_update": ""
+      },
+      {
+        "p": 5,
+        "correlation_update": "",
+        "si": "",
+        "actions_on_no": true,
+        "no": "",
+        "risk_list": [],
+        "q": "",
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda"
+      },
+      {
+        "tag": "Scheda",
+        "actions": [],
+        "actions_on_si": false,
+        "q": "",
+        "no": "",
+        "risk_list": [],
+        "actions_on_no": true,
+        "si": "",
+        "correlation_update": "",
+        "p": 6
+      }
+    ],
+    "cs-1779493188287": [
+      {
+        "p": 1,
+        "correlation_update": "",
+        "si": "",
+        "actions_on_no": true,
+        "risk_list": [],
+        "no": "",
+        "q": "",
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda"
+      },
+      {
+        "risk_list": [],
+        "no": "",
+        "q": "",
+        "actions_on_si": false,
+        "tag": "Scheda",
+        "actions": [],
+        "correlation_update": "",
+        "p": 2,
+        "si": "",
+        "actions_on_no": true
+      },
+      {
+        "p": 3,
+        "correlation_update": "",
+        "actions_on_no": true,
+        "si": "",
+        "q": "",
+        "risk_list": [],
+        "no": "",
+        "tag": "Scheda",
+        "actions": [],
+        "actions_on_si": false
+      },
+      {
+        "correlation_update": "",
+        "p": 4,
+        "actions_on_no": true,
+        "si": "",
+        "q": "",
+        "no": "",
+        "risk_list": [],
+        "actions": [],
+        "tag": "Scheda",
+        "actions_on_si": false
+      },
+      {
+        "actions_on_si": false,
+        "actions": [],
+        "tag": "Scheda",
+        "no": "",
+        "risk_list": [],
+        "q": "",
+        "si": "",
+        "actions_on_no": true,
+        "correlation_update": "",
+        "p": 5
+      },
+      {
+        "si": "",
+        "actions_on_no": true,
+        "p": 6,
+        "correlation_update": "",
+        "actions_on_si": false,
+        "tag": "Scheda",
+        "actions": [],
+        "risk_list": [],
+        "no": "",
+        "q": ""
+      }
+    ]
+  },
+  "order": [
+    "cs-1779470644912",
+    "cs-1779471829157",
+    "cs-1779493188287",
+    "cs-1779494624625"
+  ],
+  "labels": {
+    "cs-1779471829157": "FILTRI A CARBONE",
+    "cs-1779494624625": "OSMOSI",
+    "cs-1779470644912": "Membrane MBR",
+    "cs-1779493188287": "ULTRAFILTRAZIONE"
+  },
+  "colors": {}
+}

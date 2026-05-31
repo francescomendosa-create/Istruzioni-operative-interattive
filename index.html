@@ -12678,6 +12678,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="gestione-car-mcq-bank.js"></script>
     <script src="gestione-generic-mcq-bank.js"></script>
+    <script src="assets/quiz-builtin-bundled.js"></script>
     <script>
     window.__FIREBASE_QUIZ_CONFIG__ = null;
     </script>
@@ -14867,7 +14868,7 @@ const QUIZ_LS_ADVANCED_MODE = 'io-quiz-advanced-mode-enabled';
 const QUIZ_LS_DEVELOPER_MODIFY_FEATURES = 'io-quiz-developer-modify-features-enabled';
 const APP_VERSION = '2.1';
 /** Ultimo passo prima del commit/deploy: allinea a sw.js (riga `* build: …`). Solo cifre, incrementare a ogni pubblicazione (es. 202605081, 202605082, …). Allinea anche il testo in #quiz-info-build-label (Informazioni). */
-const APP_BUILD = '202605459';
+const APP_BUILD = '202605460';
 let quizRefreshInProgress = false;
 let quizPasswordResumeSettings = false;
 let quizAdvancedModeEnabled = false;
@@ -17035,13 +17036,18 @@ function quizSubscribeCustomSchedarioFallback() {
  *   }
  */
 function quizModifyLoadOverridesObject() {
+    var parsed = {};
     try {
         var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
-        var parsed = raw ? JSON.parse(raw) : {};
-        return parsed && typeof parsed === 'object' ? parsed : {};
+        parsed = raw ? JSON.parse(raw) : {};
+        if (!parsed || typeof parsed !== 'object') parsed = {};
     } catch (eL) {
-        return {};
+        parsed = {};
     }
+    if (typeof QUIZ_BUILTIN_MODIFY_OVERRIDES !== 'undefined' && QUIZ_BUILTIN_MODIFY_OVERRIDES && typeof QUIZ_BUILTIN_MODIFY_OVERRIDES === 'object') {
+        parsed = Object.assign({}, QUIZ_BUILTIN_MODIFY_OVERRIDES, parsed);
+    }
+    return parsed;
 }
 
 function quizModifyPersistOverridesLocal(all) {
@@ -23180,9 +23186,7 @@ function quizModifyMergeFields(base, patch) {
 
 function quizModifyLoadStoredPatch(sectionKey, index) {
     try {
-        var raw = localStorage.getItem(MODIFY_LS_OVERRIDES);
-        if (!raw) return null;
-        var all = JSON.parse(raw);
+        var all = quizModifyLoadOverridesObject();
         var sec = all && all[sectionKey];
         if (!sec) return null;
         var key = String(index);
@@ -25079,9 +25083,21 @@ function quizModifyLoadCustomSchedario() {
     if (!quizCustomSchedarioCache) {
         try {
             var raw = localStorage.getItem(MODIFY_CUSTOM_SCHEDE_LS);
-            quizCustomSchedarioCache = quizNormalizeSchedarioObject(raw ? JSON.parse(raw) : {});
+            var fromLs = raw ? JSON.parse(raw) : null;
+            if (fromLs && fromLs.order && fromLs.order.length) {
+                quizCustomSchedarioCache = quizNormalizeSchedarioObject(fromLs);
+            } else if (typeof QUIZ_BUILTIN_CUSTOM_SCHEDARIO !== 'undefined' && QUIZ_BUILTIN_CUSTOM_SCHEDARIO) {
+                quizCustomSchedarioCache = quizNormalizeSchedarioObject(JSON.parse(JSON.stringify(QUIZ_BUILTIN_CUSTOM_SCHEDARIO)));
+                quizModifyPersistSchedarioLocal(quizCustomSchedarioCache);
+            } else {
+                quizCustomSchedarioCache = { order: [], labels: {}, items: {} };
+            }
         } catch (eL) {
-            quizCustomSchedarioCache = { order: [], labels: {}, items: {} };
+            if (typeof QUIZ_BUILTIN_CUSTOM_SCHEDARIO !== 'undefined' && QUIZ_BUILTIN_CUSTOM_SCHEDARIO) {
+                quizCustomSchedarioCache = quizNormalizeSchedarioObject(JSON.parse(JSON.stringify(QUIZ_BUILTIN_CUSTOM_SCHEDARIO)));
+            } else {
+                quizCustomSchedarioCache = { order: [], labels: {}, items: {} };
+            }
         }
     }
     return quizNormalizeSchedarioObject(quizCustomSchedarioCache);
